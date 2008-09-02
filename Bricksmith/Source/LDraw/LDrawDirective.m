@@ -9,8 +9,17 @@
 //==============================================================================
 #import "LDrawDirective.h"
 
+//GAA! Incest! Importing the subclasses inside the base class has got to violate 
+// sixteen kerjillion holy principles of object-oriented programming. But in my 
+// limited knowledge, nothing else is coming to mind.
+#import "LDrawMetaCommand.h"
+#import "LDrawPart.h"
+#import "LDrawLine.h"
+#import "LDrawTriangle.h"
+#import "LDrawQuadrilateral.h"
+#import "LDrawConditionalLine.h"
 #import "LDrawContainer.h"
-#import "LDrawFile.h"
+
 #import "MacLDraw.h"
 	
 @implementation LDrawDirective
@@ -20,7 +29,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- directiveWithString: ------------------------------------[static]--
+//========== directiveWithString: ==============================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -35,19 +44,16 @@
 //				//The linecode (0, 1, 2, 3, 4, 5) identifies the type of command, 
 //				// and is always the first character in the line.
 //				NSString *lineCode = [lineFromFile substringToIndex:1];
-//				Class LineTypeClass = [LDrawUtilities classForLineType:[lineCode intValue]];
+//				Class LineTypeClass = [LDrawDirective classForLineType:[lineCode intValue]];
 //				//Now initialize whatever subclass we came up with for this line.
 //				newDirective = [LineTypeClass directiveWithString:lineFromFile];
 //
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
-{
+//==============================================================================
++ (id) directiveWithString:(NSString *)lineFromFile{
 	id newDirective = [LDrawDirective new];
 	
 	return [newDirective autorelease];
-	
-}//end directiveWithString:
-
+}
 
 //========== init ==============================================================
 //
@@ -55,15 +61,11 @@
 //				initialization code.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init {
 	self = [super init];
-	
 	enclosingDirective = nil;
-	
 	return self;
-	
-}//end init
+}
 
 
 //========== initWithCoder: ====================================================
@@ -73,7 +75,7 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (id) initWithCoder:(NSCoder *)decoder
+- (id)initWithCoder:(NSCoder *)decoder
 {
 	//The superclass doesn't support NSCoding. So we just call the default init.
 	self = [super init];
@@ -81,8 +83,7 @@
 	[self setEnclosingDirective:[decoder decodeObjectForKey:@"enclosingDirective"]];
 	
 	return self;
-	
-}//end initWithCoder:
+}
 
 
 //========== encodeWithCoder: ==================================================
@@ -92,7 +93,7 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (void) encodeWithCoder:(NSCoder *)encoder
+- (void)encodeWithCoder:(NSCoder *)encoder
 {
 	//self = [super encodeWithCoder:encoder]; //super doesn't implement this method.
 	
@@ -100,7 +101,7 @@
 	// someone else encodes the parent unconditionally.
 	[encoder encodeConditionalObject:enclosingDirective forKey:@"enclosingDirective"];
 	
-}//end encodeWithCoder:
+}
 
 
 //========== copyWithZone: =====================================================
@@ -109,8 +110,7 @@
 //				This thing has issules. Note caveats in LDrawContainer.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone
-{
+- (id) copyWithZone:(NSZone *)zone {
 	//Allocate a new instance because we don't inherit -copy: from anybody.
 	// Note the code to ensure that the correct subclass is allocated!
 	// Since LDrawDirective is the root LDraw class, all [subclass copy] 
@@ -121,15 +121,14 @@
 	[copied setSelected:self->isSelected];
 	
 	return copied;
-	
-}//end copyWithZone:
+}
 
 
 #pragma mark -
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw ==============================================================
 //
 // Purpose:		Issues the OpenGL code necessary to draw this element.
 //
@@ -137,12 +136,9 @@
 //				LDrawDirective's implementation does nothing.
 //
 //==============================================================================
-- (void) draw:(unsigned int)optionsMask parentColor:(GLfloat *)parentColor
-{
+- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor {
 	//subclasses should override this with OpenGL code to draw the line.
-	
-}//end draw:parentColor:
-
+}
 
 //========== write =============================================================
 //
@@ -153,12 +149,10 @@
 //				LDrawDirective's implementation does nothing.
 //
 //==============================================================================
-- (NSString *) write
-{
+- (NSString *) write{
 	//Returns a representation of the line which can be written out to a file.
 	return [NSString string]; //empty string; subclasses should override this method.
-	
-}//end write
+}
 
 
 #pragma mark -
@@ -171,11 +165,10 @@
 //				which can be presented to the user.
 //
 //==============================================================================
-- (NSString *) browsingDescription
+- (NSString *)browsingDescription
 {
 	return [NSString stringWithFormat:@"%@", [self class]];
-	
-}//end browsingDescription
+}
 
 
 //========== iconName ==========================================================
@@ -184,11 +177,9 @@
 //				object.
 //
 //==============================================================================
-- (NSString *) iconName
-{
+- (NSString *) iconName{
 	return @""; //Nothing.
-	
-}//end iconName
+}
 
 
 //========== inspectorClassName ================================================
@@ -196,12 +187,9 @@
 // Purpose:		Returns the name of the class used to inspect this one.
 //
 //==============================================================================
-- (NSString *) inspectorClassName
-{
+- (NSString *) inspectorClassName{
 	return @"";
-	
-}//end inspectorClassName
-
+}
 
 #pragma mark -
 #pragma mark ACCESSORS
@@ -215,8 +203,7 @@
 //				the first index.
 //
 //==============================================================================
-- (NSArray *) ancestors
-{
+- (NSArray *)ancestors {
 	NSMutableArray *ancestors		= [NSMutableArray arrayWithCapacity:3];
 	LDrawDirective *currentAncestor = self;
 	
@@ -226,8 +213,7 @@
 	}
 	
 	return ancestors;
-	
-}//end ancestors
+}
 
 
 //========== enclosingDirective ================================================
@@ -253,56 +239,10 @@
 // Notes:		LDrawFiles return nil.
 //
 //==============================================================================
-- (LDrawContainer *) enclosingDirective
-{
+- (LDrawContainer *) enclosingDirective {
 	return enclosingDirective;
-	
-}//end enclosingDirective
+}
 
-
-//========== enclosingFile =====================================================
-//
-// Purpose:		Returns the highest LDrawFile which contains this directive, or 
-//				nil if the directive is not in the hierarchy of an LDrawFile.
-//
-//==============================================================================
-- (LDrawFile *) enclosingFile
-{
-	NSArray	*ancestors			= [self ancestors];
-	id		 currentAncestor	= nil;
-	BOOL	 foundIt			= NO;
-	int		 counter			= 0;
-	
-	//loop through the ancestors looking for an LDrawFile.
-	for(counter = 0; counter < [ancestors count] && foundIt == NO; counter++)
-	{
-		currentAncestor = [ancestors objectAtIndex:0];
-		
-		if([currentAncestor isKindOfClass:[LDrawFile class]])
-			foundIt = YES;
-	}
-	
-	if(foundIt == YES)
-		return currentAncestor;
-	else
-		return nil;
-	
-}//end enclosingFile
-
-
-//========== isSelected ========================================================
-//
-// Purpose:		Returns whether this directive thinks it's selected.
-//
-//==============================================================================
-- (BOOL) isSelected
-{
-	return self->isSelected;
-
-}//end isSelected
-
-
-#pragma mark -
 
 //========== setEnclosingDirective: ============================================
 //
@@ -310,11 +250,9 @@
 //				this is where this method landed.
 //
 //==============================================================================
-- (void) setEnclosingDirective:(LDrawContainer *)newParent
-{
+- (void) setEnclosingDirective:(LDrawContainer *)newParent{
 	enclosingDirective = newParent;
-	
-}//end setEnclosingDirective:
+}
 
 
 //========== setSelected: ======================================================
@@ -322,15 +260,62 @@
 // Purpose:		Somebody make this a protocol method.
 //
 //==============================================================================
-- (void) setSelected:(BOOL)flag
-{
+- (void) setSelected:(BOOL)flag {
 	self->isSelected = flag;
-	
-}//end setSelected:
+}
 
 #pragma mark -
-#pragma mark <INSPECTABLE>
+#pragma mark UTILITIES
 #pragma mark -
+//This is stuff that didn't really go anywhere else.
+
+//========== description =======================================================
+//
+// Purpose:		Overrides NSObject method to get a more meaningful description 
+//				suitable for printing to the console.
+//
+//==============================================================================
+- (NSString *)description{
+	return [NSString stringWithFormat:@"%@\n%@", [self class], [self write]];
+}
+
+
+//========== isAncestorInList ==================================================
+//
+// Purpose:		Given a list of LDrawContainers, returns YES if any of the 
+//				containers is a direct ancestor of the receiver. An ancestor is 
+//				specified by enclosingDirective; each enclosingDirective can 
+//				also have an ancestor. This method searchs the whole chain.
+//
+// Note:		I think this method is potentially buggy. Shouldn't we be doing 
+//				pointer equality tests?
+//
+//==============================================================================
+- (BOOL)isAncestorInList:(NSArray *)containers
+{
+	LDrawDirective	*ancestor		= self;
+	BOOL			 foundInList	= NO;
+	
+	do {
+		ancestor = [ancestor enclosingDirective];
+		foundInList = [containers containsObject:ancestor];
+	}while(ancestor != nil && foundInList == NO);
+	
+	return foundInList;
+}
+
+//========== registerUndoActions ===============================================
+//
+// Purpose:		Registers the undo actions that are unique to this subclass, 
+//				not to any superclass.
+//
+//==============================================================================
+- (void) registerUndoActions:(NSUndoManager *)undoManager {
+	
+	//LDrawDirectives are fairly abstract, so all undoable attributes come 
+	// from subclasses.
+}
+
 
 //========== snapshot ==========================================================
 //
@@ -366,92 +351,113 @@
 	[[undoManager prepareWithInvocationTarget:self] snapshot];
 	//First thing to call is snapshot, so that redo commands are filled 
 	// with the values of the current state.
-	
-}//end snapshot
+}
 
 
-//========== lockForEditing ====================================================
+//========== classForLineType ==================================================
 //
-// Purpose:		Provide thread-safety for this object during inspection.
-//
-//==============================================================================
-- (void) lockForEditing
-{
-	[[self enclosingFile] lockForEditing];
-	
-}//end lockForEditing
-
-
-//========== unlockEditor ======================================================
-//
-// Purpose:		Provide thread-safety for this object during inspection.
+// Purpose:		Allows initializing the right kind of class based on the code 
+//				found at the beginning of an LDraw line.
 //
 //==============================================================================
-- (void) unlockEditor
++ (Class) classForLineType:(int)lineType
 {
-	[[self enclosingFile] unlockEditor];
+	Class classForType = nil;
 	
-}//end unlockEditor
+	switch(lineType){
+		case 0:
+			classForType = [LDrawMetaCommand class];
+			break;
+		case 1:
+			classForType = [LDrawPart class];
+			break;
+		case 2:
+			classForType = [LDrawLine class];
+			break;
+		case 3:
+			classForType = [LDrawTriangle class];
+			break;
+		case 4:
+			classForType = [LDrawQuadrilateral class];
+			break;
+		case 5:
+			classForType = [LDrawConditionalLine class];
+			break;
+		default:
+			NSLog(@"unrecognized LDraw line type: %d", lineType);
+	}
+	
+	return classForType;
+}
 
-
-#pragma mark -
-#pragma mark UTILITIES
-#pragma mark -
-//This is stuff that didn't really go anywhere else.
-
-//========== description =======================================================
+//========== readNextField: ====================================================
 //
-// Purpose:		Overrides NSObject method to get a more meaningful description 
-//				suitable for printing to the console.
+// Purpose:		Given the portion of the LDraw line, read the first available 
+//				field. Fields are separated by whitespace of any length.
+//
+//				If remainder is not NULL, return by indirection the remainder of 
+//				partialDirective after the first field has been removed. If 
+//				there is no remainder, an empty string will be returned.
+//
+//				So, given the line
+//				1 8 -150 -8 20 0 0 -1 0 1 0 1 0 0 3710.DAT
+//
+//				remainder will be set to:
+//				 8 -150 -8 20 0 0 -1 0 1 0 1 0 0 3710.DAT
+//
+// Notes:		This method is incapable of reading field strings with spaces 
+//				in them!
+//
+//				A case could be made to replace this method with an NSScanner!
+//				They don't seem to be as adept at scanning in unknown string 
+//				tags though, which would make them difficult to use to 
+//				distinguish between "0 WRITE blah" and "0 COMMENT blah".
 //
 //==============================================================================
-- (NSString *) description
++ (NSString *) readNextField:(NSString *) partialDirective
+				   remainder:(NSString **) remainder
 {
-	return [NSString stringWithFormat:@"%@\n%@", [self class], [self write]];
+	NSCharacterSet	*whitespaceCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+	NSRange			 rangeOfNextWhiteSpace;
+	NSString		*fieldContents			= nil;
 	
-}//end description
+	//First, remove any heading whitespace.
+	partialDirective = [partialDirective stringByTrimmingCharactersInSet:whitespaceCharacterSet];
+	//Find the beginning of the next field separation
+	rangeOfNextWhiteSpace = [partialDirective rangeOfCharacterFromSet:whitespaceCharacterSet];
+	
+	//The text between the beginning and the next field separator is the first 
+	// field (what we are after).
+	if(rangeOfNextWhiteSpace.location != NSNotFound){
+		fieldContents = [partialDirective substringToIndex:rangeOfNextWhiteSpace.location];
+		//See if they want the rest of the line, sans the field we just parsed.
+		if(remainder != NULL)
+			*remainder = [partialDirective substringFromIndex:rangeOfNextWhiteSpace.location];
+	}
+	else{
+		//There was no subsequent field separator; we must be at the end of the line.
+		fieldContents = partialDirective;
+		if(remainder != NULL)
+			*remainder = [NSString string];
+	}
+	
+	return fieldContents;
+}//end readNextField
 
 
-//========== isAncestorInList: =================================================
+//========== LDrawEqualPoints() ================================================
 //
-// Purpose:		Given a list of LDrawContainers, returns YES if any of the 
-//				containers is a direct ancestor of the receiver. An ancestor is 
-//				specified by enclosingDirective; each enclosingDirective can 
-//				also have an ancestor. This method searchs the whole chain.
-//
-// Note:		I think this method is potentially buggy. Shouldn't we be doing 
-//				pointer equality tests?
+// Purpose:		Returns YES if point1 and point2 have the same coordinates..
 //
 //==============================================================================
-- (BOOL)isAncestorInList:(NSArray *)containers
-{
-	LDrawDirective	*ancestor		= self;
-	BOOL			 foundInList	= NO;
-	
-	do
-	{
-		ancestor = [ancestor enclosingDirective];
-		foundInList = [containers containsObject:ancestor];
-		
-	}while(ancestor != nil && foundInList == NO);
-	
-	return foundInList;
-	
-}//end isAncestorInList:
-
-
-//========== registerUndoActions: ==============================================
-//
-// Purpose:		Registers the undo actions that are unique to this subclass, 
-//				not to any superclass.
-//
-//==============================================================================
-- (void) registerUndoActions:(NSUndoManager *)undoManager
-{
-	//LDrawDirectives are fairly abstract, so all undoable attributes come 
-	// from subclasses.
-	
-}//end registerUndoActions:
+BOOL LDrawEqualPoints(Point3 point1, Point3 point2){
+	if(point1.x == point2.x &&
+	   point1.y == point2.y &&
+	   point1.z == point2.z )
+		return YES;
+	else
+		return NO;
+}
 
 
 @end

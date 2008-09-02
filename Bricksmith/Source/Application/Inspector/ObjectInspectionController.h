@@ -10,11 +10,6 @@
 #import <Cocoa/Cocoa.h>
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//		ObjectInspectionController
-//
-////////////////////////////////////////////////////////////////////////////////
 @interface ObjectInspectionController : NSObject {
 	
 	IBOutlet	NSWindow	*window; //we will vacuum out the content view from this.
@@ -31,24 +26,7 @@
 - (NSWindow *) window;
 
 //Actions
-- (void) commitChanges:(id)sender;
 - (IBAction) finishedEditing:(id)sender;
 - (IBAction) revert:(id)sender;
-
-@end
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//		Inspectable protocol
-//			defines methods which should be implemented by inspectable objects 
-//			in order to provide undo support.
-//
-////////////////////////////////////////////////////////////////////////////////
-@protocol Inspectable
-
-- (void) snapshot;
-- (void) lockForEditing;
-- (void) unlockEditor;
 
 @end

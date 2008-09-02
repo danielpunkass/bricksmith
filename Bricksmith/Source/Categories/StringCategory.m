@@ -11,8 +11,6 @@
 //==============================================================================
 #import "StringCategory.h"
 
-#include <stdlib.h>
-
 @implementation NSString (StringCategory)
 
 
@@ -20,38 +18,28 @@
 //
 // Purpose:		Handy for quick searches.
 //
-// Note:		Every string is reported as containing the empty string (@"").
-//
 //==============================================================================
-- (BOOL) containsString:(NSString *)substring options:(unsigned)mask
-{
+- (BOOL) containsString:(NSString *)substring options:(unsigned)mask{
 	NSRange foundRange = [self rangeOfString:substring options:mask];
-	
-	if(		foundRange.location == NSNotFound
-		&& [substring isEqualToString:@""] == NO)
-	{
+	if(foundRange.location == NSNotFound)
 		return NO;
-	}
 	else
 		return YES;
-		
-}//end containsString:options:
+}
 
 
-//---------- CRLF ----------------------------------------------------[static]--
+//========== CRLF ==============================================================
 //
 // Purpose:		Returns a DOS line-end marker, which is a hideous two characters 
 //				in length.
 //
-//------------------------------------------------------------------------------
-+ (NSString *) CRLF
-{
+//==============================================================================
++ (NSString *) CRLF{
 	unichar CRLFchars[] = {0x000D, 0x000A}; //DOS linefeed.
 	NSString *CRLF = [NSString stringWithCharacters:CRLFchars length:2];
 	
 	return CRLF;
-	
-}//end CRLF
+}
 
 
 //========== numericCompare: ===================================================
@@ -64,7 +52,6 @@
 {
 	return [self compare:string options:NSNumericSearch];
 }
-
 
 //========== separateByLine ====================================================
 //
@@ -100,45 +87,6 @@
 	return lines;
 	
 }//end separateStringByLine
-
-
-//========== stringByRemovingWhitespace ========================================
-//
-// Purpose:		Returns a new string equal to the receiver, except that it 
-//				contains no whitespace charaters. 
-//
-//==============================================================================
-- (NSString *) stringByRemovingWhitespace
-{
-	int				originalLength		= [self length];
-	unichar			*resultBuffer		= malloc( sizeof(unichar) * originalLength );
-	NSCharacterSet	*whitespaceSet		= [NSCharacterSet whitespaceCharacterSet];
-	unichar			 currentCharacter	= '\0';
-	int				 resultLength		= 0;
-	int				 counter			= 0;
-	NSString		*strippedString		= nil;
-	
-	// Copy only non-whitespace characters into the new string.
-	//	* We'll assume the Unicode Consortium will never be sick enough to put 
-	//	  whitespace outside the BMP, or that our users will never employ such a 
-	//	  beast if they did. 
-	for(counter = 0; counter < originalLength; counter++)
-	{
-		currentCharacter = [self characterAtIndex:counter];
-		if([whitespaceSet characterIsMember:currentCharacter] == NO)
-		{
-			resultBuffer[resultLength] = currentCharacter;
-			resultLength++;
-		}
-	}
-	strippedString = [NSString stringWithCharacters:resultBuffer length:resultLength];
-	
-	// free memory
-	free(resultBuffer);
-	
-	return strippedString;
-	
-}//end stringByRemovingWhitespace
 
 @end
 

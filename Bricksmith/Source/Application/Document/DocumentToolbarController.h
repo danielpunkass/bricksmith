@@ -28,7 +28,6 @@
 #define TOOLBAR_ZOOM_OUT				@"Zoom Out"
 #define TOOLBAR_ZOOM_SPECIFY			@"Specify Zoom"
 
-
 @interface DocumentToolbarController : NSObject {
 
 	IBOutlet LDrawDocument			*document; //link to the documnt to which this is attached.
@@ -42,7 +41,7 @@
 }
 
 //Button factories
-- (NSToolbarItem *) makeGridSpacingItem;
+- (NSToolbarItem *) makeGridSpacingControl;
 - (NSToolbarItem *) makeRotationPlusXItem;
 - (NSToolbarItem *) makeRotationMinusXItem;
 - (NSToolbarItem *) makeRotationPlusYItem;
@@ -53,15 +52,22 @@
 - (NSToolbarItem *) makeZoomInItem;
 - (NSToolbarItem *) makeZoomOutItem;
 - (NSToolbarItem *) makeZoomTextFieldItem;
-- (NSSegmentedControl *) makeGridSegmentControl;
+- (NSSegmentedControl *) initGridSegmentControl;
 
 //Accessors
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;
+- (void) setZoom:(float)percentage;
 
 //Actions
 - (IBAction) nudgeXClicked:(id)sender;
 - (IBAction) nudgeYClicked:(id)sender;
 - (IBAction) nudgeZClicked:(id)sender;
+- (void) rotatePositiveXClicked:(id)sender;
+- (void) rotateNegativeXClicked:(id)sender;
+- (void) rotatePositiveYClicked:(id)sender;
+- (void) rotateNegativeYClicked:(id)sender;
+- (void) rotatePositiveZClicked:(id)sender;
+- (void) rotateNegativeZClicked:(id)sender;
 - (IBAction) zoomScaleChanged:(id)sender;
 
 @end

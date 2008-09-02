@@ -101,50 +101,15 @@
 #pragma mark ACTIONS
 #pragma mark -
 
-//========== commitChanges: ====================================================
-//
-// Purpose:		Implemented by subclasses to apply the attributes in the 
-//				inspector panel to their represented object.
-//
-//				NEVER CALL THIS METHOD DIRECTLY. It is automatically called by 
-//				-finishedEditing:.
-//
-// Parameters:	sender:	the object passed to -finishedEditing:.
-//
-//==============================================================================
-- (void) commitChanges:(id)sender
-{
-	//Subclasses should implement this method to update their editing objects.
-}
-
-
 //========== finishedEditing: ==================================================
 //
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (IBAction)finishedEditing:(id)sender
-{
-	id representedObject = [self object];
+- (IBAction)finishedEditing:(id)sender{
 	
-	//prepare: do undo stuff and thread safety.
-	if([representedObject conformsToProtocol:@protocol(Inspectable)])
-	{
-		[representedObject snapshot];
-		[representedObject lockForEditing];
-	}
-	
-	
-	//let the subclass have a go at it.
-	[self commitChanges:sender];
-	
-	
-	//done editing; clean up
-	if([representedObject conformsToProtocol:@protocol(Inspectable)])
-	{
-		[representedObject unlockEditor];
-	}
-	
+	//Subclasses should implement this method to update their editing objects.
+
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawDirectiveDidChangeNotification
 						  object:[self object]];

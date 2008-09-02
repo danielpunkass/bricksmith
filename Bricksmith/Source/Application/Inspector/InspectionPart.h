@@ -12,26 +12,13 @@
 #import "ObjectInspectionController.h"
 #import "LDrawColorWell.h"
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Data Types
-//
-////////////////////////////////////////////////////////////////////////////////
-typedef enum
-{
+typedef enum {
 	rotationAbsolute = 0,
 	rotationRelative = 1
-	
-} RotationT;
+} rotationT;
 
+@interface InspectionPart : ObjectInspectionController {
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// class InspectionPart
-//
-////////////////////////////////////////////////////////////////////////////////
-@interface InspectionPart : ObjectInspectionController
-{
 	IBOutlet	NSTextField			*partDescriptionField;
 	IBOutlet	NSTextField			*partNameField;
 	IBOutlet	LDrawColorWell		*colorWell;

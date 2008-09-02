@@ -15,22 +15,18 @@
 //				* a - i are orientation & scaling parameters
 //				* part.dat is the filename of the included file 
 //
-//
 //  Created by Allen Smith on 2/19/05.
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
 #import "LDrawPart.h"
 
 #import <math.h>
-#import <string.h>
 
 #import "LDrawApplication.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
 #import "LDrawStep.h"
-#import "LDrawUtilities.h"
 #import "MacLDraw.h"
-#import "PartLibrary.h"
 #import "PartReport.h"
 
 @implementation LDrawPart
@@ -39,7 +35,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- partWithDirectiveText: ----------------------------------[static]--
+//========== partWithDirectiveText: ============================================
 //
 // Purpose:		Given a line from an LDraw file, parse a part object.
 //
@@ -47,15 +43,13 @@
 //
 //				1 color x y z a b c d e f g h i part.dat 
 //
-//------------------------------------------------------------------------------
-+ (LDrawPart *) partWithDirectiveText:(NSString *)directive
-{
+//==============================================================================
++ (LDrawPart *) partWithDirectiveText:(NSString *)directive{
 	return [LDrawPart directiveWithString:directive];
-	
-}//end partWithDirectiveText:
+}
 
 
-//---------- directiveWithString: ------------------------------------[static]--
+//========== directiveWithString: ==============================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -71,21 +65,21 @@
 //				| x y z 1 |
 //				+-       -+
 //
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
-{
-	LDrawPart		*parsedPart				= nil;
-	NSString		*workingLine			= lineFromFile;
-	NSString		*parsedField			= nil;
+//==============================================================================
++ (id) directiveWithString:(NSString *)lineFromFile{
+	LDrawPart		*parsedPart = nil;
+	NSString		*workingLine = lineFromFile;
+	NSString		*parsedField;
 	
-	Matrix4			 transformation			= IdentityMatrix4;
+	Matrix4			 transformation = {0};
+	Point3		 workingPosition;
+	Vector3		 transformationVector;
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
-	@try
-	{
+	NS_DURING
 		//Read in the line code and advance past it.
-		parsedField = [LDrawUtilities readNextField:  workingLine
+		parsedField = [LDrawDirective readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
 		if([parsedField intValue] == 1){
@@ -93,55 +87,55 @@
 	
 			//Read in the color code.
 			// (color)
-			parsedField = [LDrawUtilities readNextField:  workingLine
+			parsedField = [LDrawDirective readNextField:  workingLine
 											  remainder: &workingLine ];
 			[parsedPart setLDrawColor:[parsedField intValue]];
 			
 			//Read position.
 			// (x)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[3][0] = [parsedField floatValue];
 			// (y)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[3][1] = [parsedField floatValue];
 			// (z)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[3][2] = [parsedField floatValue];
 			
 			
 			//Read Transformation X.
 			// (a)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[0][0] = [parsedField floatValue];
 			// (b)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[1][0] = [parsedField floatValue];
 			// (c)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[2][0] = [parsedField floatValue];
 			
 			
 			//Read Transformation Y.
 			// (d)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[0][1] = [parsedField floatValue];
 			// (e)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[1][1] = [parsedField floatValue];
 			// (f)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[2][1] = [parsedField floatValue];
 			
 			
 			//Read Transformation Z.
 			// (g)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[0][2] = [parsedField floatValue];
 			// (h)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[1][2] = [parsedField floatValue];
 			// (i)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			transformation.element[2][2] = [parsedField floatValue];
 			
 			//finish off the corner of the matrix.
@@ -155,15 +149,13 @@
 			[parsedPart setDisplayName:
 				[workingLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
 		}
-	}
-	@catch(NSException *exception)
-	{
+		
+	NS_HANDLER
 		NSLog(@"the part %@ was fatally invalid", lineFromFile);
-		NSLog(@" raised exception %@", [exception name]);
-	}
+		NSLog(@" raised exception %@", [localException name]);
+	NS_ENDHANDLER
 	
-	return [parsedPart autorelease];
-	
+	return parsedPart;
 }//end directiveWithString
 
 
@@ -172,16 +164,20 @@
 // Purpose:		Creates an empty part.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init {
 	self = [super init];
 	
 	[self setDisplayName:@""];
-	[self setTransformComponents:IdentityComponents];
+	//Come up with a blank transformation; all it does is show the part at 
+	// the origin, rotation <0,0,0>.
+	TransformationComponents identity = {0}; //zero out all components.
+	identity.scale_X = 1;
+	identity.scale_Y = 1;
+	identity.scale_Z = 1;
+	[self setTransformationComponents:identity];
 	
 	return self;
-	
-}//end init
+}
 
 
 //========== initWithCoder: ====================================================
@@ -204,8 +200,7 @@
 	memcpy(glTransformation, temporary, sizeof(GLfloat)*16 );
 	
 	return self;
-	
-}//end initWithCoder:
+}
 
 
 //========== encodeWithCoder: ==================================================
@@ -224,7 +219,7 @@
 				  length:sizeof(GLfloat)*16
 				  forKey:@"glTransformation"];
 	
-}//end encodeWithCoder:
+}
 
 
 //========== copyWithZone: =====================================================
@@ -232,8 +227,8 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone
-{
+- (id) copyWithZone:(NSZone *)zone {
+	
 	LDrawPart	*copied			= (LDrawPart *)[super copyWithZone:zone];
 	Matrix4		 transformation	= [self transformationMatrix];
 	
@@ -241,13 +236,13 @@
 	[copied setTransformationMatrix:&transformation];
 	
 	return copied;
-	
-}//end copyWithZone:
+}
 
 
 #pragma mark -
 #pragma mark DIRECTIVES
 #pragma mark -
+
 
 //========== drawElement =======================================================
 //
@@ -255,33 +250,22 @@
 //				subroutine of -draw: in LDrawDrawableElement.
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
-{
+- (void) drawElement:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor {
+	
 	LDrawModel *modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
 	
+	if(self->matrixIsReversed)
+		optionsMask ^= DRAW_REVERSE_NORMALS;
+	
+	//glMatrixMode(GL_MODELVIEW); //unnecessary, we set the matrix mode at the beginning of drawing.
 	glPushMatrix();
 		glMultMatrixf(glTransformation);
 		if((optionsMask & DRAW_BOUNDS_ONLY) == 0)
-		{
-			if( hasDisplayList == YES )
-			{
-				glCallList(self->displayListTag);
-			}
-			else
-			{	
-				//let subreferences use display lists.
-				[modelToDraw draw:(optionsMask) 
-					  parentColor:drawingColor];
-			}
-		}
+			[modelToDraw draw:optionsMask parentColor:parentColor];
 		else
-		{
-			glColor4fv(drawingColor);
 			[self drawBounds];
-		}
 	glPopMatrix();
-
-}//end drawElement:parentColor:
+}
 
 
 //========== drawBounds ========================================================
@@ -289,84 +273,79 @@
 // Purpose:		Draws the part's bounds as a solid box. Nonrecursive.
 //
 //==============================================================================
-- (void) drawBounds
-{
+- (void) drawBounds {
+
 	//Pull the bounds directly from the model; we can't use the part's because 
 	// it mangles them based on rotation. In this case, we want to do a raw 
 	// draw and let the model matrix transform our drawing appropriately.
 	LDrawModel	*modelToDraw	= [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	Box3		bounds			= [modelToDraw boundingBox3];
 	
-	//If the model can't be found, we can't draw good bounds for it!
-	if(modelToDraw != nil)
-	{
-		Box3		bounds			= [modelToDraw boundingBox3];
+	GLfloat		vertices[8][3]	= {	
+									{bounds.min.x, bounds.min.y, bounds.min.z},
+									{bounds.min.x, bounds.min.y, bounds.max.z},
+									{bounds.min.x, bounds.max.y, bounds.max.z},
+									{bounds.min.x, bounds.max.y, bounds.min.z},
+									
+									{bounds.max.x, bounds.min.y, bounds.min.z},
+									{bounds.max.x, bounds.min.y, bounds.max.z},
+									{bounds.max.x, bounds.max.y, bounds.max.z},
+									{bounds.max.x, bounds.max.y, bounds.min.z},
+								  };
+								  
+	GLfloat		normals[6][3]	= {
+									{ 1,  0,  0}, //0: +x
+									{ 0,  1,  0}, //1: +y
+									{ 0,  0,  1}, //2: +z
+									{-1,  0,  0}, //3: -x
+									{ 1, -1,  0}, //4: -y
+									{ 0,  0, -1}, //5: -z
+								  };
+								  
+	//Well, this hardly looks like the most efficient block of code in the world.
+	// I tried using vertex arrays, but it was a stunning failue.
+	glBegin(GL_QUADS);
 		
-		GLfloat		vertices[8][3]	= {	
-										{bounds.min.x, bounds.min.y, bounds.min.z},
-										{bounds.min.x, bounds.min.y, bounds.max.z},
-										{bounds.min.x, bounds.max.y, bounds.max.z},
-										{bounds.min.x, bounds.max.y, bounds.min.z},
-										
-										{bounds.max.x, bounds.min.y, bounds.min.z},
-										{bounds.max.x, bounds.min.y, bounds.max.z},
-										{bounds.max.x, bounds.max.y, bounds.max.z},
-										{bounds.max.x, bounds.max.y, bounds.min.z},
-									  };
-									  
-		GLfloat		normals[6][3]	= {
-										{ 1,  0,  0}, //0: +x
-										{ 0,  1,  0}, //1: +y
-										{ 0,  0,  1}, //2: +z
-										{-1,  0,  0}, //3: -x
-										{ 1, -1,  0}, //4: -y
-										{ 0,  0, -1}, //5: -z
-									  };
-									  
-		//Well, this hardly looks like the most efficient block of code in the world.
-		// I tried using vertex arrays, but it was a stunning failue.
-		glBegin(GL_QUADS);
-			
-			//The normal vectors all are backwards from what I expected them to be. 
-			//  Why?
-			glNormal3fv(normals[0]);//expected 3
-			glVertex3fv(vertices[0]);
-			glVertex3fv(vertices[3]);
-			glVertex3fv(vertices[2]);
-			glVertex3fv(vertices[1]);
-			
-			glNormal3fv(normals[2]);//expected 5, etc.
-			glVertex3fv(vertices[0]);
-			glVertex3fv(vertices[4]);
-			glVertex3fv(vertices[7]);
-			glVertex3fv(vertices[3]);
-			
-			glNormal3fv(normals[4]);
-			glVertex3fv(vertices[3]);
-			glVertex3fv(vertices[7]);
-			glVertex3fv(vertices[6]);
-			glVertex3fv(vertices[2]);
-			
-			glNormal3fv(normals[5]);
-			glVertex3fv(vertices[2]);
-			glVertex3fv(vertices[6]);
-			glVertex3fv(vertices[5]);
-			glVertex3fv(vertices[1]);
-			
-			glNormal3fv(normals[1]);
-			glVertex3fv(vertices[1]);
-			glVertex3fv(vertices[5]);
-			glVertex3fv(vertices[4]);
-			glVertex3fv(vertices[0]);
-			
-			glNormal3fv(normals[3]);
-			glVertex3fv(vertices[4]);
-			glVertex3fv(vertices[5]);
-			glVertex3fv(vertices[6]);
-			glVertex3fv(vertices[7]);
-			
-		glEnd();
+		//The normal vectors all are backwards from what I expected them to be. 
+		//  Why?
+		glNormal3fv(normals[0]);//expected 3
+		glVertex3fv(vertices[0]);
+		glVertex3fv(vertices[3]);
+		glVertex3fv(vertices[2]);
+		glVertex3fv(vertices[1]);
 		
-	}
+		glNormal3fv(normals[2]);//expected 5, etc.
+		glVertex3fv(vertices[0]);
+		glVertex3fv(vertices[4]);
+		glVertex3fv(vertices[7]);
+		glVertex3fv(vertices[3]);
+		
+		glNormal3fv(normals[4]);
+		glVertex3fv(vertices[3]);
+		glVertex3fv(vertices[7]);
+		glVertex3fv(vertices[6]);
+		glVertex3fv(vertices[2]);
+		
+		glNormal3fv(normals[5]);
+		glVertex3fv(vertices[2]);
+		glVertex3fv(vertices[6]);
+		glVertex3fv(vertices[5]);
+		glVertex3fv(vertices[1]);
+		
+		glNormal3fv(normals[1]);
+		glVertex3fv(vertices[1]);
+		glVertex3fv(vertices[5]);
+		glVertex3fv(vertices[4]);
+		glVertex3fv(vertices[0]);
+		
+		glNormal3fv(normals[3]);
+		glVertex3fv(vertices[4]);
+		glVertex3fv(vertices[5]);
+		glVertex3fv(vertices[6]);
+		glVertex3fv(vertices[7]);
+		
+	glEnd();
+	
 }//end drawBounds
 
 
@@ -386,8 +365,8 @@
 //				+-       -+
 //
 //==============================================================================
-- (NSString *) write
-{
+- (NSString *) write{
+
 	Matrix4 transformation = [self transformationMatrix];
 
 	return [NSString stringWithFormat:
@@ -426,11 +405,10 @@
 //				Here we want the part name displayed.
 //
 //==============================================================================
-- (NSString *) browsingDescription
+- (NSString *)browsingDescription
 {
 	return [[LDrawApplication sharedPartLibrary] descriptionForPart:self];
-	
-}//end browsingDescription
+}
 
 
 //========== iconName ==========================================================
@@ -439,11 +417,9 @@
 //				object, or nil if there is no icon.
 //
 //==============================================================================
-- (NSString *) iconName
-{
+- (NSString *) iconName{
 	return @"Brick";
-	
-}//end iconName
+}
 
 
 //========== inspectorClassName ================================================
@@ -451,11 +427,9 @@
 // Purpose:		Returns the name of the class used to inspect this one.
 //
 //==============================================================================
-- (NSString *) inspectorClassName
-{
+- (NSString *) inspectorClassName{
 	return @"InspectionPart";
-	
-}//end inspectorClassName
+}
 
 
 #pragma mark -
@@ -465,63 +439,28 @@
 //========== boundingBox3 ======================================================
 //
 // Purpose:		Returns the minimum and maximum points of the box which 
-//				perfectly contains this object. Returns InvalidBox if the part 
-//				cannot be found.
+//				perfectly contains this object.
 //
 //==============================================================================
-- (Box3) boundingBox3
-{
-	LDrawModel	*modelToDraw	= [[LDrawApplication sharedPartLibrary] modelForPart:self];
-	Box3		 bounds			= InvalidBox;
-	Matrix4		 transformation	= [self transformationMatrix];
+- (Box3) boundingBox3 {
+	LDrawModel *modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+
+	Box3	bounds			= [modelToDraw boundingBox3];
+	Box3	partBounds		= {0};
+	Matrix4	transformation	= [self transformationMatrix];
 	
-	Point4		 originalMin	= {0};
-	Point4		 originalMax	= {0};
-	Point4		 rotatedMin		= {0};
-	Point4		 rotatedMax		= {0};
+	Point4	originalMin		= V4FromV3( &(bounds.min) );
+	Point4	originalMax		= V4FromV3( &(bounds.max) );
+	Point4	rotatedMin		= {0};
+	Point4	rotatedMax		= {0};
 	
-	//We need to have an actual model here. Blithely calling boundingBox3 will 
-	// result in most of our Box3 structure being garbage data!
-	if(modelToDraw != nil)
-	{
-		bounds		= [modelToDraw boundingBox3];
-		originalMin	= V4FromV3( bounds.min );
-		originalMax	= V4FromV3( bounds.max );
-		
-		rotatedMin	= V4MulPointByMatrix(originalMin, transformation);
-		rotatedMax	= V4MulPointByMatrix(originalMax, transformation);
-		
-		bounds		= V3BoundsFromPoints( V3FromV4(rotatedMin), V3FromV4(rotatedMax) );
-	}
+	V4MulPointByMatrix(&originalMin, &transformation, &rotatedMin);
+	V4MulPointByMatrix(&originalMax, &transformation, &rotatedMax);
+	
+	V3BoundsFromPoints(&rotatedMin, &rotatedMax, &bounds);
 	
 	return bounds;
-	
-}//end boundingBox3
-
-
-//========== displayName =======================================================
-//
-// Purpose:		Returns the name of the part as the user typed it. This 
-//				maintains the user's upper- and lower-case usage.
-//
-//==============================================================================
-- (NSString *) displayName
-{
-	return displayName;
-	
-}//end displayName
-
-
-//========== enclosingFile =====================================================
-//
-// Purpose:		Returns the file of which this part is a member.
-//
-//==============================================================================
-- (LDrawFile *) enclosingFile
-{
-	return [[[self enclosingStep] enclosingModel] enclosingFile];
-	
-}//end setModel:
+}
 
 
 //========== enclosingStep =====================================================
@@ -532,29 +471,18 @@
 - (LDrawStep *) enclosingStep
 {
 	return (LDrawStep *)[self enclosingDirective];
-	
 }//end setModel:
 
 
-//========== position ==========================================================
+//========== displayName =======================================================
 //
-// Purpose:		Returns the coordinates at which the part is drawn.
-//
-// Notes:		This is purely a convenience method. The actual position is 
-//				encoded in the transformation matrix. If you wish to set the 
-//				position, you should set either the matrix or the Transformation 
-//				Components.
+// Purpose:		Returns the name of the part as the user typed it. This 
+//				maintains the user's upper- and lower-case usage.
 //
 //==============================================================================
-- (Point3) position
-{
-	TransformComponents	components	= [self transformComponents];
-	Point3				position	= components.translate;
-	
-	return position;
-	
-}//end position
-
+- (NSString *) displayName {
+	return displayName;
+}
 
 //========== referenceName =====================================================
 //
@@ -563,11 +491,9 @@
 //				I have adopted lower-case as the standard for names.
 //
 //==============================================================================
-- (NSString *) referenceName
-{
+- (NSString *) referenceName{
 	return referenceName;
-	
-}//end referenceName
+}
 
 
 //========== referencedMPDSubmodel =============================================
@@ -581,10 +507,10 @@
 //				should call -modelForPart: in the PartLibrary!
 //
 //==============================================================================
-- (LDrawModel *) referencedMPDSubmodel
-{
+- (LDrawModel *) referencedMPDSubmodel {
+	
 	LDrawModel	*model			= nil;
-	LDrawFile	*enclosingFile	= [self enclosingFile];
+	LDrawFile	*enclosingFile	= [[[self enclosingStep] enclosingModel] enclosingFile];
 	
 	if(enclosingFile != nil)
 		model = (LDrawModel *)[enclosingFile modelWithName:self->referenceName];
@@ -598,24 +524,23 @@
 }//end referencedMPDSubmodel
 
 
-//========== transformComponents ===============================================
+//========== setTransformationComponents: ======================================
 //
-// Purpose:		Returns the individual components of the transformation matrix 
-//			    applied to this part. 
+// Purpose:		Converts the given componets (rotation, scaling, etc.) into an 
+//				internal transformation matrix represenation.
 //
 //==============================================================================
-- (TransformComponents) transformComponents
+- (TransformationComponents) transformationComponents
 {
-	Matrix4				transformation	= [self transformationMatrix];
-	TransformComponents	components		= IdentityComponents;
+	Matrix4						transformation = [self transformationMatrix];
+	TransformationComponents	components = {0};
 	
 	//This is a pretty darn neat little function. I wish I could say I wrote it.
 	// It will extract all the user-friendly components out of this nasty matrix.
-	Matrix4DecomposeTransformation( transformation, &components );
+	unmatrix( &transformation, &components );
 
 	return components;
-	
-}//end transformComponents
+}
 
 
 //========== transformationMatrix ==============================================
@@ -633,26 +558,9 @@
 //				(flat column-major of transpose)              Format
 //
 //==============================================================================
-- (Matrix4) transformationMatrix
-{
-	return Matrix4CreateFromGLMatrix4(glTransformation);
-	
-}//end transformationMatrix
-
-
-#pragma mark -
-
-//========== setLDrawColor: ====================================================
-//
-// Purpose:		Sets the color of this element.
-//
-//==============================================================================
--(void) setLDrawColor:(LDrawColorT)newColor
-{
-	[super setLDrawColor:newColor];
-	[self optimize];
-	
-}//end setLDrawColor:
+- (Matrix4) transformationMatrix {
+	return matrix4FromGLMatrix4(glTransformation);
+}
 
 
 //========== setDisplayName: ===================================================
@@ -666,8 +574,7 @@
 //				handle the s\ prefix.
 //
 //==============================================================================
--(void) setDisplayName:(NSString *)newPartName
-{
+-(void) setDisplayName:(NSString *)newPartName{
 	NSString *newReferenceName = [newPartName lowercaseString];
 
 	[newPartName retain];
@@ -678,29 +585,24 @@
 	[newReferenceName retain];
 	[referenceName release];
 	referenceName = newReferenceName;
-	
-	[self optimize];
-	
-}//end setDisplayName:
+}//end setPartName
 
 
-//========== setTransformComponents: ===========================================
+//========== setTransformationComponents: ======================================
 //
 // Purpose:		Converts the given componets (rotation, scaling, etc.) into an 
 //				internal transformation matrix represenation.
 //
 //==============================================================================
-- (void) setTransformComponents:(TransformComponents)newComponents
+- (void) setTransformationComponents:(TransformationComponents)newComponents
 {
-	Matrix4 transformation = Matrix4CreateTransformation(&newComponents);
-	
+	Matrix4 transformation = createTransformationMatrix(&newComponents);
 	[self setTransformationMatrix:&transformation];
 
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawDirectiveDidChangeNotification
 						  object:self];
-						  
-}//end setTransformComponents:
+}
 
 
 //========== setTransformationMatrix: ==========================================
@@ -723,31 +625,65 @@
 - (void) setTransformationMatrix:(Matrix4 *)newMatrix
 {
 	int row, column;
+	float determinant = det3x3( newMatrix->element[0][0],
+								newMatrix->element[1][0],
+								newMatrix->element[2][0],
+								
+								newMatrix->element[0][1],
+								newMatrix->element[1][1],
+								newMatrix->element[2][1],
+								
+								newMatrix->element[0][2],
+								newMatrix->element[1][2],
+								newMatrix->element[2][2]
+							);
+	if(determinant < 0)
+		self->matrixIsReversed = YES;
+	else
+		self->matrixIsReversed = NO;
 	
 	for(row = 0; row < 4; row++)
 		for(column = 0; column < 4; column++)
 			glTransformation[row * 4 + column] = newMatrix->element[row][column];
-	
-}//end setTransformationMatrix
+}
 
 
 #pragma mark -
-#pragma mark MOVEMENT
+#pragma mark ACTIONS
 #pragma mark -
 
-//========== displacementForNudge: =============================================
+//========== collectPartReport: ================================================
 //
-// Purpose:		Returns the amount by which the element wants to move, given a 
-//				"nudge" in the specified direction. A "nudge" is generated by 
-//				pressing the arrow keys. We scale this value so as to make 
-//				nudging go by plate-heights vertically and brick widths 
-//				horizontally.
+// Purpose:		Collects a report on this part. If this is really an MPD 
+//				reference, we want to get a report on the submodel and not this 
+//				actual part.
 //
 //==============================================================================
-- (Vector3) displacementForNudge:(Vector3)nudgeVector
-{
-	Matrix4 transformationMatrix	= IdentityMatrix4;
-	Matrix4 inverseMatrix			= IdentityMatrix4;
+- (void) collectPartReport:(PartReport *)report {
+	LDrawModel *referencedSubmodel = [self referencedMPDSubmodel];
+	//There's a bug here: -referencedMPDSubmodel doesn't necessarily tell you if 
+	// this actually *is* a submodel reference. It may actually resolve to 
+	// something in the part library. In this case, we would draw the library 
+	// part, but report the submodel! I'm going to let this ride, because the 
+	// specification explicitly says the behavior in such a case is undefined.
+	
+	if(referencedSubmodel == nil)
+		[report registerPart:self];
+	else {
+		[referencedSubmodel collectPartReport:report];
+	}
+}//end collectPartReport:
+
+
+//========== nudge: ============================================================
+//
+// Purpose:		Moves the receiver in the specified direction.
+//
+//==============================================================================
+- (void) nudge:(Vector3)nudgeVector{
+	
+	Matrix4 transformationMatrix	= {0};
+	Matrix4 inverseMatrix			= {0};
 	Vector4 worldNudge				= {0, 0, 0, 1};
 	Vector4 brickNudge				= {0};
 	
@@ -757,8 +693,8 @@
 	worldNudge.z = nudgeVector.z;
 	
 	//Figure out which direction we're asking to move the part itself.
-	transformationMatrix	= [self transformationMatrix];
-	inverseMatrix			= Matrix4Invert( transformationMatrix );
+	transformationMatrix = [self transformationMatrix];
+	inverse( &transformationMatrix, &inverseMatrix );
 	inverseMatrix.element[3][0] = 0; //zero out the translation part, leaving only rotation etc.
 	inverseMatrix.element[3][1] = 0;
 	inverseMatrix.element[3][2] = 0;
@@ -766,7 +702,7 @@
 	//See if this is a nudge along the brick's "up" direction. 
 	// If so, the nudge needs to be a different magnitude, to compensate 
 	// for the fact that Lego bricks are not square!
-	brickNudge = V4MulPointByMatrix(worldNudge, inverseMatrix);
+	V4MulPointByMatrix(&worldNudge, &inverseMatrix, &brickNudge);
 	if(fabs(brickNudge.y) > fabs(brickNudge.x) && 
 	   fabs(brickNudge.y) > fabs(brickNudge.z) )
 	{
@@ -795,91 +731,71 @@
 	}
 
 	
-	//we now have a nudge based on the correct size: plates or bricks.
-	return nudgeVector;
+	//Needs to be more complicated! I could just modify the matrix itself, 
+	// you know!
+
+	TransformationComponents transformation = [self transformationComponents];
 	
-}//end displacementForNudge:
-
-
-//========== componentsSnappedToGrid:minimumAngle: =============================
-//
-// Purpose:		Returns a copy of the part's current components, but snapped to 
-//			    the grid. Kinda a weird legacy API. 
-//
-//==============================================================================
-- (TransformComponents) componentsSnappedToGrid:(float) gridSpacing
-								   minimumAngle:(float)degrees
-{
-	TransformComponents	components		= [self transformComponents];
+	transformation.translate_X += nudgeVector.x;
+	transformation.translate_Y += nudgeVector.y;
+	transformation.translate_Z += nudgeVector.z;
 	
-	return [self components:components snappedToGrid:gridSpacing minimumAngle:degrees];
-	
-}//end componentsSnappedToGrid:minimumAngle:
+	//round-off errors here? Potential for trouble.
+	[self setTransformationComponents:transformation];
+}
 
 
-//========== components:snappedToGrid:minimumAngle: ============================
+//========== snapToGrid: =======================================================
 //
-// Purpose:		Aligns the given components to an imaginary grid along lines 
-//			    separated by a distance of gridSpacing. This is done 
-//			    intelligently based on the current orientation of the receiver: 
-//			    if gridSpacing == 20, that is assumed to mean "1 stud," so the 
-//			    y-axis (up) of the part will be aligned along a grid spacing of 
-//			    24 (1 stud vertically). 
+// Purpose:		Aligns the receiver to an imaginary grid along lines separated 
+//				by a distance of gridSpacing. This is done intelligently:
+//				if gridSpacing == 20, that is assumed to mean "1 stud," so the 
+//				y-axis (up) of the part will be aligned along a grid spacing of 
+//				24 (1 stud vertically).
 //
 //				The part's rotation angles will be adjusted to multiples of the 
 //				minimum angle specified.
 //
-// Parameters:	components	- transform to adjust.
-//				gridSpacing	- the grid line interval along stud widths.
-//				degrees		- angle granularity. Pass 0 to leave angle 
-//							  unchanged. 
-//
 //==============================================================================
-- (TransformComponents) components:(TransformComponents)components
-					 snappedToGrid:(float) gridSpacing
-					  minimumAngle:(float)degrees
+- (TransformationComponents) componentsSnappedToGrid:(float) gridSpacing
+										minimumAngle:(float)degrees
 {
-	float	rotationRadians			= radians(degrees);
 	
-	Matrix4 transformationMatrix	= IdentityMatrix4;
+	TransformationComponents components = [self transformationComponents];
+	float rotationRadians = radians(degrees);
+	
+	Matrix4 transformationMatrix	= {0};
+	Matrix4 inverseMatrix			= {0};
+	Vector4 brickNudge				= {0};
+	
 	Vector4 yAxisOfPart				= {0, 1, 0, 1};
 	Vector4 worldY					= {0, 0, 0, 1}; //yAxisOfPart converted to world coordinates
 	Vector3 worldY3					= {0, 0, 0};
-	float	gridSpacingYAxis		= 0.0;
-	float	gridX					= 0.0;
-	float	gridY					= 0.0;
-	float	gridZ					= 0.0;
 	
-	//---------- Adjust position to grid ---------------------------------------
-
 	//Figure out which direction the y-axis is facing in world coordinates:
 	transformationMatrix = [self transformationMatrix];
-	transformationMatrix.element[3][0] = 0; //zero out the translation part, leaving only rotation etc.
-	transformationMatrix.element[3][1] = 0;
-	transformationMatrix.element[3][2] = 0;
-	worldY	= V4MulPointByMatrix(yAxisOfPart, transformationMatrix);
+	V4MulPointByMatrix(&yAxisOfPart, &transformationMatrix, &brickNudge);
 	
-	worldY3	= V3FromV4(worldY);
-	worldY3 = V3IsolateGreatestComponent(worldY3);
-	worldY3	= V3Normalize(worldY3);
+	worldY3 = V3FromV4(&worldY);
+	V3IsolateGreatestComponent(&worldY3);
+	V3Normalize(&worldY3);
 	
 	//Get the adjusted grid spacing along the y direction. Remember that Lego 
 	// bricks are not cubical, so the grid along the brick's y-axis should be 
 	// spaced differently from the grid along its other sides.
-	gridSpacingYAxis = gridSpacing;
+	float gridSpacingYAxis = gridSpacing;
 	
 	if(fmod(gridSpacing, 20) == 0)
 		gridSpacingYAxis *= 24.0 / 20.0;
-	
 	else if(fmod(gridSpacing, 10) == 0)
 		gridSpacingYAxis *= 8.0 / 10.0;
 		
 	//The actual grid spacing, in world coordinates. We will adjust the approrpiate 
 	// x, y, or z based on which one the part's y-axis is aligned.
-	gridX = gridSpacing;
-	gridY = gridSpacing;
-	gridZ = gridSpacing;
-
+	float gridX = gridSpacing;
+	float gridY = gridSpacing;
+	float gridZ = gridSpacing;
+	
 	//Find the direction of the part's Y-axis, and change its grid.
 	if(worldY3.x != 0)
 		gridX = gridSpacingYAxis;
@@ -892,101 +808,65 @@
 	
 	// Snap to the Grid!
 	// Figure the closest grid line and bump the part to it.
-	// Logically, this is a rounding operation with a granularity of the grid 
-	// size. So all we need to do is normalize, round, then expand back to the 
-	// original size. 
 	
-	components.translate.x = roundf(components.translate.x/gridX) * gridX;
-	components.translate.y = roundf(components.translate.y/gridY) * gridY;
-	components.translate.z = roundf(components.translate.z/gridZ) * gridZ;
+	float devianceX = fmod(components.translate_X, gridSpacing);
+	float devianceY = fmod(components.translate_Y, gridSpacing);
+	float devianceZ = fmod(components.translate_Z, gridSpacing);
 	
-
-	//---------- Snap angles ---------------------------------------------------
+	// correct x-axis
+	if(devianceX > gridX/2)
+		components.translate_X += (gridX - devianceX);
+	else	
+		components.translate_X -= devianceX;
+		
+	// correct y-axis
+	if(devianceY > gridY/2)
+		components.translate_Y += (gridY - devianceY);
+	else	
+		components.translate_Y -= devianceY;
 	
-	if(rotationRadians != 0)
-	{
-		components.rotate.x = roundf(components.rotate.x/rotationRadians) * rotationRadians;
-		components.rotate.y = roundf(components.rotate.y/rotationRadians) * rotationRadians;
-		components.rotate.z = roundf(components.rotate.z/rotationRadians) * rotationRadians;
-	}
+	// correct z-axis
+	if(devianceZ > gridZ/2)
+		components.translate_Z += (gridZ - devianceZ);
+	else	
+		components.translate_Z -= devianceZ;
+	
+	//
+	// Snap angles.
+	//
+	devianceX = fmod(components.rotate_X, rotationRadians);
+	devianceY = fmod(components.rotate_Y, rotationRadians);
+	devianceZ = fmod(components.rotate_Z, rotationRadians);
+	
+	// correct x-rotation
+	if(devianceX > rotationRadians/2)
+		components.rotate_X += (rotationRadians - devianceX);
+	else	
+		components.rotate_X -= devianceX;
+		
+	// correct x-rotation
+	if(devianceY > rotationRadians/2)
+		components.rotate_Y += (rotationRadians - devianceY);
+	else	
+		components.rotate_Y -= devianceY;
+	
+	// correct x-rotation
+	if(devianceZ > rotationRadians/2)
+		components.rotate_Z += (rotationRadians - devianceZ);
+	else	
+		components.rotate_Z -= devianceZ;
+	
+	
 	
 	//round-off errors here? Potential for trouble.
 	return components;
-	
-}//end components:snappedToGrid:minimumAngle:
-
-
-//========== moveBy: ===========================================================
-//
-// Purpose:		Moves the receiver in the specified direction.
-//
-//==============================================================================
-- (void) moveBy:(Vector3)moveVector
-{	
-	Matrix4 transformationMatrix	= [self transformationMatrix];
-
-	//I NEED to modify the matrix itself here. Some parts have funky, fragile 
-	// rotation values, and getting the components really badly botches them up.
-	transformationMatrix = Matrix4Translate(transformationMatrix, moveVector);
-	
-	[self setTransformationMatrix:&transformationMatrix];
-	
-}//end moveBy:
-
-
-//========== position:snappedToGrid: ===========================================
-//
-// Purpose:		Orients position at discrete points separated by the given grid 
-//				spacing. 
-//
-// Notes:		This method may be overridden by subclasses to provide more 
-//				intelligent grid alignment. 
-//
-//				This method is provided mainly as a service to drag-and-drop. 
-//				In the case of LDrawParts, you should generally avoid this 
-//				method in favor of 
-//				-[LDrawPart components:snappedToGrid:minimumAngle:].
-//
-//==============================================================================
-- (Point3) position:(Point3)position
-	  snappedToGrid:(float)gridSpacing
-{
-	TransformComponents	components	= IdentityComponents;
-	
-	// copy the position into a transform
-	components.translate = position;
-	
-	// Snap to grid using intelligent LDrawPart logic
-	components = [self components:components snappedToGrid:gridSpacing minimumAngle:0];
-	
-	// copy the new position back out of the components
-	position = components.translate;
-	
-	return position;
-	
-}//end position:snappedToGrid:
+}
 
 
 //========== rotateByDegrees: ==================================================
 //
-// Purpose:		Rotates the part by the specified angles around its centerpoint.
-//
-//==============================================================================
-- (void) rotateByDegrees:(Tuple3)degreesToRotate
-{
-	Point3	partCenter	= [self position];
-	
-	//Rotate!
-	[self rotateByDegrees:degreesToRotate centerPoint:partCenter];
-	
-}//end rotateByDegrees
-
-
-//========== rotateByDegrees:centerPoint: ======================================
-//
 // Purpose:		Performs an additive rotation on the part, rotating by the 
-//				specified number of degress around each axis. The part will be 
-//				rotated around the specified centerpoint.
+//				specified number of degress around each axis.
 //
 // Notes:		This gets a little tricky because there is more than one way 
 //				to represent a single rotation when using three rotation angles. 
@@ -1000,90 +880,53 @@
 //				direction the user intended, no matter what goofy representation
 //				the components came up with.
 //
-//				Caveat: We have to do some translations to take into account the  
-//				centerpoint.
+//				Caveat: We have to zero out the translation components of the 
+//				part's transformation before we append our new rotation. Thus 
+//				the part will be rotated in place.
 //
 //==============================================================================
 - (void) rotateByDegrees:(Tuple3)degreesToRotate
-			 centerPoint:(Point3)rotationCenter
 {
-	Matrix4						transform			= [self transformationMatrix];
-	Vector3						displacement		= rotationCenter;
-	Vector3						negativeDisplacement= V3Negate(rotationCenter);
+	TransformationComponents	originalComponents	= [self transformationComponents];
+	TransformationComponents	currentComponents	= originalComponents;
+	TransformationComponents	rotateComponents	= {0};
+	Matrix4						initialRotation		= {0}; //we'll remove the translation.
+	Matrix4						addedRotation		= {0};
+	Matrix4						newMatrix			= {0};
+	TransformationComponents	newComponents		= {0};
 	
-	//Do the rotation around the specified centerpoint.
-	transform = Matrix4Translate(transform, negativeDisplacement); //translate to rotationCenter
-	transform = Matrix4Rotate(transform, degreesToRotate); //rotate at rotationCenter
-	transform = Matrix4Translate(transform, displacement); //translate back to original position
+	//Zero out the translation on the current matrix. This leaves us with 
+	// only transformations at the origin, so we can rotate as we please.
+	currentComponents.translate_X = 0;
+	currentComponents.translate_Y = 0;
+	currentComponents.translate_Z = 0;
+	initialRotation = createTransformationMatrix(&currentComponents);
 	
-	[self setTransformationMatrix:&transform];
+	//Create a new matrix that causes the rotation we want.
+	rotateComponents.scale_X = 1; //
+	rotateComponents.scale_Y = 1; // (start with identity matrix)
+	rotateComponents.scale_Z = 1; //
+	rotateComponents.rotate_X = radians(degreesToRotate.x);
+	rotateComponents.rotate_Y = radians(degreesToRotate.y);
+	rotateComponents.rotate_Z = radians(degreesToRotate.z);
+	addedRotation = createTransformationMatrix(&rotateComponents);
 	
-}//end rotateByDegrees:centerPoint:
+	//Concatenate this new rotation onto the old one. (Our part is now rotated!)
+	// Then restore the original translation. Our part thereby has been rotated 
+	// in place.
+	V3MatMul(&initialRotation, &addedRotation, &newMatrix);
+	newMatrix.element[3][0] = originalComponents.translate_X; //applied directly to 
+	newMatrix.element[3][1] = originalComponents.translate_Y; //the matrix because 
+	newMatrix.element[3][2] = originalComponents.translate_Z; //that's easier here.
+	
+	
+	[self setTransformationMatrix:&newMatrix];
+}
 
 
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
-
-//========== collectPartReport: ================================================
-//
-// Purpose:		Collects a report on this part. If this is really an MPD 
-//				reference, we want to get a report on the submodel and not this 
-//				actual part.
-//
-//==============================================================================
-- (void) collectPartReport:(PartReport *)report
-{
-	LDrawModel *referencedSubmodel = [self referencedMPDSubmodel];
-	//There's a bug here: -referencedMPDSubmodel doesn't necessarily tell you if 
-	// this actually *is* a submodel reference. It may actually resolve to 
-	// something in the part library. In this case, we would draw the library 
-	// part, but report the submodel! I'm going to let this ride, because the 
-	// specification explicitly says the behavior in such a case is undefined.
-	
-	if(referencedSubmodel == nil)
-		[report registerPart:self];
-	else {
-		[referencedSubmodel collectPartReport:report];
-	}
-}//end collectPartReport:
-
-
-//========== optimize ==========================================================
-//
-// Purpose:		Makes this part run faster by compiling its contents into a 
-//				display list if possible.
-//
-//==============================================================================
-- (void) optimize
-{
-	//Only optimize explicitly colored parts.
-	// Obviously it would be better to optimize uncolored parts inside the 
-	// library, but alas, uncolored parts need to know about the current color 
-	// as they are drawn, which is anathema to optimization. Rats.
-	if(self->referenceName != nil && self->color != LDrawCurrentColor)
-	{
-		LDrawModel *referencedSubmodel	= [self referencedMPDSubmodel];
-		
-		if(referencedSubmodel == nil)
-		{
-			self->displayListTag = [[LDrawApplication sharedPartLibrary]
-													retainDisplayListForPart:self
-																	   color:self->glColor];
-			if(displayListTag != 0)
-				self->hasDisplayList = YES;
-		}
-		else
-		{
-			// Don't optimize MPD references. The user can change their 
-			// referenced contents, and I don't want to have to keep track 
-			// of invalidating display lists when he does. 
-		}
-	}
-	else
-		self->hasDisplayList = NO;
-
-}//end optimize
 
 
 //========== registerUndoActions ===============================================
@@ -1092,44 +935,15 @@
 //				not to any superclass.
 //
 //==============================================================================
-- (void) registerUndoActions:(NSUndoManager *)undoManager
-{
+- (void) registerUndoActions:(NSUndoManager *)undoManager {
+	
 	[super registerUndoActions:undoManager];
 	
-	[[undoManager prepareWithInvocationTarget:self] setTransformComponents:[self transformComponents]];
+	[[undoManager prepareWithInvocationTarget:self] setTransformationComponents:[self transformationComponents]];
 	[[undoManager prepareWithInvocationTarget:self] setDisplayName:[self displayName]];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAttributesPart", nil)];
+}
 
-}//end registerUndoActions:
-
-
-#pragma mark -
-#pragma mark DESTRUCTOR
-#pragma mark -
-
-//========== dealloc ===========================================================
-//
-// Purpose:		It's time to go home to that great Lego room in the sky--where 
-//				all teeth marks on secondhand bricks are healed, where the gold 
-//				print never rubs off the classic spacemen, and where the white 
-//				bricks never discolor.
-//
-//==============================================================================
-- (void) dealloc
-{
-	//release instance variables.
-	[displayName	release];
-	[referenceName	release];
-	
-	//give our display list back
-	if(self->hasDisplayList)
-	{
-		// I suppose we could release it here.
-	}
-	
-	[super dealloc];
-	
-}//end dealloc
 
 @end

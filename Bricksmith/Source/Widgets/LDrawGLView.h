@@ -8,177 +8,72 @@
 //  Copyright 2005. All rights reserved.
 //==============================================================================
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/OpenGL.h>
+#import <OpenGL/GL.h>
 
-#import "ColorLibrary.h"
-#import "MatrixMath.h"
-#import "ToolPalette.h"
+#import "LDrawColor.h"
 
-//Forward declarations
 @class LDrawDirective;
 @class LDrawDocument;
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//		Types and Constants
-//
-////////////////////////////////////////////////////////////////////////////////
+#define SIMPLIFICATION_THRESHOLD 0.4 //seconds
 
-#define SIMPLIFICATION_THRESHOLD	0.3 //seconds
-#define CAMERA_DISTANCE_FACTOR		6.5	//controls perspective; cameraLocation = modelSize * CAMERA_DISTANCE_FACTOR
-
-
-// Projection Mode
-typedef enum
-{
-	ProjectionModePerspective	= 0,
-	ProjectionModeOrthographic	= 1
-	
-} ProjectionModeT;
-
-
-// Draw Mode
-typedef enum
-{
-	LDrawGLDrawNormal			= 0,	//full draw
-	LDrawGLDrawExtremelyFast	= 1		//bounds only
-	
+typedef enum {
+	LDrawGLDrawNormal,			//full draw
+	LDrawGLDrawExtremelyFast	//bounds only
 } RotationDrawModeT;
 
-
-// Viewing Angle
-typedef enum
-{
-	ViewingAngle3D				= 0,
-	ViewingAngleFront			= 1,
-	ViewingAngleBack			= 2,
-	ViewingAngleLeft			= 3,
-	ViewingAngleRight			= 4,
-	ViewingAngleTop				= 5,
-	ViewingAngleBottom			= 6
-	
-} ViewingAngleT;
-
-
-////////////////////////////////////////////////////////////////////////////////
 //
-//		LDrawGLView
+// Class
 //
-////////////////////////////////////////////////////////////////////////////////
 @interface LDrawGLView : NSOpenGLView <LDrawColorable>
 {
-	id					 delegate;
-	IBOutlet LDrawDocument	*document;			// optional weak link. Enables editing capabilities.
+	LDrawDirective		*fileBeingDrawn; //Should only be an LDrawFile or LDrawModel.
+										//if you want to do anything else, you must 
+										//tweak the selection code in LDrawDrawableElement
+										//and here in -mouseUp: to handle such cases.
 	
-	BOOL				 acceptsFirstResponder;	// YES if we can become key
-	NSString			*autosaveName;
-	LDrawDirective		*fileBeingDrawn;		// Should only be an LDrawFile or LDrawModel.
-												// if you want to do anything else, you must 
-												// tweak the selection code in LDrawDrawableElement
-												// and here in -mouseUp: to handle such cases.
+	LDrawColorT			color; //default color to draw parts if none is specified
+	GLfloat				glColor[4]; //OpenGL equivalent of the LDrawColor.
+	BOOL				hasInfiniteDepth;
 	
-	// Drawing Environment
-	unsigned			 numberDrawRequests;	// how many threaded draws are piling up in the queue.
-	GLfloat				 cameraDistance;
-	LDrawColorT			 color;					// default color to draw parts if none is specified
-	GLfloat				 glBackgroundColor[4];
-	GLfloat				 glColor[4];			// OpenGL equivalent of the LDrawColor.
-	ProjectionModeT		 projectionMode;
-	RotationDrawModeT	 rotationDrawMode;		// drawing detail while rotating.
-	ViewingAngleT		 viewingAngle;			// our orientation
-	
-	// Event Tracking
-	BOOL				 isTrackingDrag;		// true if the last mousedown was followed by a drag, and we're tracking it (drag-and-drop doesn't count)
-	NSTimer				*mouseDownTimer;		// countdown to beginning drag-and-drop
-	BOOL				 canBeginDragAndDrop;	// the next mouse-dragged will initiate a drag-and-drop.
-	BOOL				 didPartSelection;		// tried part selection during this click
-	BOOL				 dragEndedInOurDocument;// YES if the drag we initiated ended in the document we display
-	Vector3				 draggingOffset;		// displacement between part 0's position and the initial click point of the drag
-	Point3				 initialDragLocation;	// point in model where part was positioned at draggingEntered
+	IBOutlet LDrawDocument	*document;
+	BOOL				isRotating; //true if the last mousedown was followed by a drag.
+	RotationDrawModeT	rotationDrawMode; //drawing detail while rotating.
 }
 
-// Drawing
-- (void) drawThreaded:(id)sender;
-- (void) drawFocusRing;
-- (void) strokeInsideRect:(NSRect)rect thickness:(float)borderWidth;
-
-// Accessors
+//Accessors
 - (LDrawColorT) LDrawColor;
 - (NSPoint) centerPoint;
-- (LDrawDocument *) document;
-- (Matrix4) getInverseMatrix;
-- (Matrix4) getMatrix;
-- (ViewingAngleT) viewingAngle;
+- (BOOL) hasInfiniteDepth;
 - (float) zoomPercentage;
-- (void) setAcceptsFirstResponder:(BOOL)flag;
-- (void) setAutosaveName:(NSString *)newName;
-- (void) setDelegate:(id)object;
+- (void) setHasInfiniteDepth:(BOOL)flag;
 - (void) setLDrawColor:(LDrawColorT)newColor;
 - (void) setLDrawDirective:(LDrawDirective *) newFile;
-- (void) setProjectionMode:(ProjectionModeT) newProjectionMode;
-- (void) setViewingAngle:(ViewingAngleT) newAngle;
 - (void) setZoomPercentage:(float) newPercentage;
 
-// Actions
-- (IBAction) viewingAngleSelected:(id)sender;
+//Actions
 - (IBAction) zoomIn:(id)sender;
 - (IBAction) zoomOut:(id)sender;
 
-// Events
-- (void) resetCursor;
+//Events
+- (LDrawDirective *) getPartFromHits:(GLuint *)nameBuffer hitCount:(GLuint)numberHits;
 
-- (void) nudgeKeyDown:(NSEvent *)theEvent;
-
-- (void) dragAndDropDragged:(NSEvent *)theEvent;
-- (void) panDragged:(NSEvent *)theEvent;
-- (void) rotationDragged:(NSEvent *)theEvent;
-- (void) zoomDragged:(NSEvent *)theEvent;
-- (void) mouseCenterClick:(NSEvent*)theEvent ;
-- (void) mousePartSelection:(NSEvent *)theEvent;
-- (void) mouseZoomClick:(NSEvent*)theEvent;
-
-- (void) cancelClickAndHoldTimer;
-
-// Drag and Drop
-- (BOOL) updateDirectives:(NSArray *)directives withDragPosition:(NSPoint)dragPointInWindow depthReferencePoint:(Point3)modelReferencePoint constrainAxis:(BOOL)constrainAxis;
-
-// Notifications
+//Notifications
 - (void) displayNeedsUpdating:(NSNotification *)notification;
 
-// Utilities
-- (NSArray *) getDirectivesUnderMouse:(NSEvent *)theEvent
-					  amongDirectives:(NSArray *)directives
-							 fastDraw:(BOOL)fastDraw;
-- (NSArray *) getPartsFromHits:(GLuint *)nameBuffer hitCount:(GLuint)numberHits;
-- (LDrawDirective *) getDirectiveFromHitCode:(GLuint)name;
+//Utilities
 - (void) resetFrameSize;
-- (void) restoreConfiguration;
 - (void) makeProjection;
-- (void) saveConfiguration;
 - (void) scrollCenterToPoint:(NSPoint)newCenter;
-- (void) takeBackgroundColorFromUserDefaults;
-
-// - Geometry
-- (void) getModelAxesForViewX:(Vector3 *)outModelX Y:(Vector3 *)outModelY Z:(Vector3 *)outModelZ;
-- (Point3) modelPointForPoint:(NSPoint)viewPoint depthReferencePoint:(Point3)depthPoint;
-
 
 @end
 
-////////////////////////////////////////////////////////////////////////////////
 //
-//		Delegate Methods
+// Delegate
 //
-////////////////////////////////////////////////////////////////////////////////
 @interface NSObject (LDrawGLViewDelegate)
 
 - (void) LDrawGLViewBecameFirstResponder:(LDrawGLView *)glView;
-
-- (BOOL) LDrawGLView:(LDrawGLView *)glView writeDirectivesToPasteboard:(NSPasteboard *)pasteboard asCopy:(BOOL)copyFlag;
-- (void) LDrawGLView:(LDrawGLView *)glView acceptDrop:(id < NSDraggingInfo >)info directives:(NSArray *)directives;
-- (void) LDrawGLViewPartsWereDraggedIntoOblivion:(LDrawGLView *)glView;
-
-- (TransformComponents) LDrawGLViewPreferredPartTransform:(LDrawGLView *)glView;
 
 //Delegate method is called when the user has changed the selection of parts 
 // by clicking in the view. This does not actually do any selecting; that is 
@@ -187,5 +82,4 @@ typedef enum
 - (void)	LDrawGLView:(LDrawGLView *)glView
  wantsToSelectDirective:(LDrawDirective *)directiveToSelect
    byExtendingSelection:(BOOL) shouldExtend;
-
 @end

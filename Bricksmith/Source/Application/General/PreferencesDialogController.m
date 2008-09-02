@@ -12,16 +12,11 @@
 
 #import "MacLDraw.h"
 #import "LDrawApplication.h"
-#import "LDrawGLView.h"			//for ViewingAngleT
-#import "PartLibrary.h"
 #import "UserDefaultsCategory.h"
 #import "WindowCategory.h"
 #import <AMSProgressBar/AMSProgressBar.h>
 
 @implementation PreferencesDialogController
-
-#define PREFERENCES_WINDOW_AUTOSAVE_NAME	@"PreferencesWindow"
-
 
 //The shared preferences window. We need to store this reference here so that 
 // we can simply bring the window to the front when it is already onscreen, 
@@ -34,8 +29,8 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		Show the preferences window.
 //
 //==============================================================================
-- (void) awakeFromNib
-{
+- (void) awakeFromNib{
+
 	//Grab the current window content from the Nib (it should be blank). 
 	// We will display this while changing panes.
 	blankContent = [[preferencesWindow contentView] retain];
@@ -51,57 +46,44 @@ PreferencesDialogController *preferencesDialog = nil;
 		lastIdentifier = PREFS_LDRAW_TAB_IDENTFIER;
 	[self selectPanelWithIdentifier:lastIdentifier];
 	
-	// After the window has been resized for the tab, *then* restore the size.
-	[self->preferencesWindow setFrameUsingName:PREFERENCES_WINDOW_AUTOSAVE_NAME];
-	
-}//end awakeFromNib
-
+}
 
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- doPreferences -------------------------------------------[static]--
+//========== doPreferences =====================================================
 //
 // Purpose:		Show the preferences window.
 //
-//------------------------------------------------------------------------------
-+ (void) doPreferences
-{
+//==============================================================================
++ (void) doPreferences{
+
 	if(preferencesDialog == nil)
 		preferencesDialog = [[PreferencesDialogController alloc] init];
 	
 	[preferencesDialog showPreferencesWindow];
-
-}//end doPreferences
-
+}
 
 //========== init ==============================================================
 //
 // Purpose:		Make us an object. Load us our window.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init{
 	self = [super init];
-	
 	[NSBundle loadNibNamed:@"Preferences" owner:self];
-	
 	return self;
-	
-}//end init
-
+}
 
 //========== showPreferencesWindow =============================================
 //
 // Purpose:		Brings the window on screen.
 //
 //==============================================================================
-- (void) showPreferencesWindow
-{
+- (void) showPreferencesWindow{
 	[self setDialogValues];
 	[preferencesWindow makeKeyAndOrderFront:nil];
-	
 }//end showPreferencesWindow
 
 
@@ -112,28 +94,59 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		Brings the window on screen.
 //
 //==============================================================================
-- (void) setDialogValues
-{
+- (void) setDialogValues{
+	
 	//Make sure there are actually preferences to read before attempting to 
 	// retrieve them.
 	[PreferencesDialogController ensureDefaults];
 
-	[self setGeneralTabValues];
 	[self setStylesTabValues];
 	[self setLDrawTabValues];
-	
-}//end setDialogValues
+}
 
 
-//========== setGeneralTabValues ===============================================
+//========== setStylesTabValues ================================================
 //
-// Purpose:		Updates the data in the General tab to match what is on the 
-//			    disk.  
+// Purpose:		Updates the data in the Styles tab to match what is on the disk.
 //
 //==============================================================================
-- (void) setGeneralTabValues
-{
-	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
+- (void) setStylesTabValues{
+	
+	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
+	
+	NSColor			*modelsColor		= [userDefaults colorForKey:SYNTAX_COLOR_MODELS_KEY];
+	NSColor			*stepsColor			= [userDefaults colorForKey:SYNTAX_COLOR_STEPS_KEY];
+	NSColor			*partsColor			= [userDefaults colorForKey:SYNTAX_COLOR_PARTS_KEY];
+	NSColor			*primitivesColor	= [userDefaults colorForKey:SYNTAX_COLOR_PRIMITIVES_KEY];
+	NSColor			*commentsColor		= [userDefaults colorForKey:SYNTAX_COLOR_COMMENTS_KEY];
+	NSColor			*unknownColor		= [userDefaults colorForKey:SYNTAX_COLOR_UNKNOWN_KEY];
+	
+	[modelsColorWell		setColor:modelsColor];
+	[stepsColorWell			setColor:stepsColor];
+	[partsColorWell			setColor:partsColor];
+	[primitivesColorWell	setColor:primitivesColor];
+	[commentsColorWell		setColor:commentsColor];
+	[unknownColorWell		setColor:unknownColor];
+}
+
+
+//========== setLDrawTabValues =================================================
+//
+// Purpose:		Updates the data in the LDraw tab to match what is on the disk.
+//
+//==============================================================================
+- (void) setLDrawTabValues{
+	PartLibrary		*partLibrary	= [LDrawApplication sharedPartLibrary];
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	NSFileManager	*fileManager	= [NSFileManager defaultManager];
+	NSString		*ldrawPath		= [userDefaults stringForKey:LDRAW_PATH_KEY];
+	
+	if(ldrawPath != nil){
+		[LDrawPathTextField setStringValue:ldrawPath];
+	}//end if we have a folder.
+	//No folder selected yet.
+	else
+		[self chooseLDrawFolder:self];
 	
 	//Grid Spacing.
 	float gridFine		= [userDefaults floatForKey:GRID_SPACING_FINE];
@@ -143,64 +156,6 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[gridSpacingForm cellAtIndex:1] setFloatValue:gridMedium];
 	[[gridSpacingForm cellAtIndex:2] setFloatValue:gridCoarse];
 	
-	// Mouse Dragging
-	MouseDragBehaviorT	mouseBehavior	= [userDefaults integerForKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
-	[self->mouseDraggingRadioButtons selectCellWithTag:mouseBehavior];
-	
-}//end setGeneralTabValues
-
-
-//========== setStylesTabValues ================================================
-//
-// Purpose:		Updates the data in the Styles tab to match what is on the disk.
-//
-//==============================================================================
-- (void) setStylesTabValues
-{
-	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
-	
-	NSColor			*backgroundColor	= [userDefaults colorForKey:LDRAW_VIEWER_BACKGROUND_COLOR_KEY];
-	NSColor			*modelsColor		= [userDefaults colorForKey:SYNTAX_COLOR_MODELS_KEY];
-	NSColor			*stepsColor			= [userDefaults colorForKey:SYNTAX_COLOR_STEPS_KEY];
-	NSColor			*partsColor			= [userDefaults colorForKey:SYNTAX_COLOR_PARTS_KEY];
-	NSColor			*primitivesColor	= [userDefaults colorForKey:SYNTAX_COLOR_PRIMITIVES_KEY];
-	NSColor			*colorsColor		= [userDefaults colorForKey:SYNTAX_COLOR_COLORS_KEY];
-	NSColor			*commentsColor		= [userDefaults colorForKey:SYNTAX_COLOR_COMMENTS_KEY];
-	NSColor			*unknownColor		= [userDefaults colorForKey:SYNTAX_COLOR_UNKNOWN_KEY];
-	
-	[backgroundColorWell	setColor:backgroundColor];
-	
-	[modelsColorWell		setColor:modelsColor];
-	[stepsColorWell			setColor:stepsColor];
-	[partsColorWell			setColor:partsColor];
-	[primitivesColorWell	setColor:primitivesColor];
-	[commentsColorWell		setColor:commentsColor];
-	[colorsColorWell		setColor:colorsColor];
-	[unknownColorWell		setColor:unknownColor];
-
-}//end setStylesTabValues
-
-
-//========== setLDrawTabValues =================================================
-//
-// Purpose:		Updates the data in the LDraw tab to match what is on the disk.
-//
-//==============================================================================
-- (void) setLDrawTabValues
-{
-	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
-	NSString			*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
-	PartBrowserStyleT	 partBrowserStyle	= [userDefaults integerForKey:PART_BROWSER_STYLE_KEY];
-	
-	[self->partBrowserStyleRadioButtons selectCellWithTag:partBrowserStyle];
-	
-	if(ldrawPath != nil){
-		[LDrawPathTextField setStringValue:ldrawPath];
-	}//end if we have a folder.
-	//No folder selected yet.
-	else
-		[self chooseLDrawFolder:self];
-	
 }//end showPreferencesWindow
 
 
@@ -208,86 +163,126 @@ PreferencesDialogController *preferencesDialog = nil;
 #pragma mark ACTIONS
 #pragma mark -
 
-//========== changeTab: ========================================================
+//========== changeTab =========================================================
 //
 // Purpose:		Sent by the toolbar "tabs" to indicate the preferences pane 
 //				should change.
 //
 //==============================================================================
-- (void) changeTab:(id)sender
-{	
+- (void)changeTab:(id)sender{
+	
 	NSString	*itemIdentifier	= [sender itemIdentifier];
 	
 	[self selectPanelWithIdentifier:itemIdentifier];
-	
-}//end changeTab:
+}
 
 
 #pragma mark -
-#pragma mark General Tab
+#pragma mark Styles Tab
 
-//========== gridSpacingChanged: ===============================================
+//========== modelsColorWellChanged: ===========================================
 //
-// Purpose:		User updated the amounts by which parts are shifted in different 
-//				grid modes.
-//
-//==============================================================================
-- (IBAction) gridSpacingChanged:(id)sender
-{
-	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
-
-	//Grid Spacing.
-	float gridFine	= [[gridSpacingForm cellAtIndex:0] floatValue];
-	float gridMedium	= [[gridSpacingForm cellAtIndex:1] floatValue];
-	float gridCoarse	= [[gridSpacingForm cellAtIndex:2] floatValue];
-	
-	[userDefaults setFloat:gridFine		forKey:GRID_SPACING_FINE];
-	[userDefaults setFloat:gridMedium	forKey:GRID_SPACING_MEDIUM];
-	[userDefaults setFloat:gridCoarse	forKey:GRID_SPACING_COARSE];
-
-}//end gridSpacingChanged:
-
-
-//========== mouseDraggingChanged: =============================================
-//
-// Purpose:		Mouse drag-and-drop behavior was changed.
+// Purpose:		This syntax-color well changed. Update the value in preferences.
 //
 //==============================================================================
-- (IBAction) mouseDraggingChanged:(id)sender
-{
-	NSUserDefaults		*userDefaults	= [NSUserDefaults standardUserDefaults];
-	MouseDragBehaviorT	mouseBehavior	= [self->mouseDraggingRadioButtons selectedTag];
+- (IBAction) modelsColorWellChanged:(id)sender{
+	NSColor			*newColor		= [sender color];
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
-	[userDefaults setInteger:mouseBehavior
-					  forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
+	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_MODELS_KEY];
 	
-}//end mouseDraggingChanged:
-
-
-#pragma mark -
-#pragma mark Parts Tab
-
-//========== partBrowserStyleChanged: ==========================================
-//
-// Purpose:		We have multiple ways of showing the part browser.
-//
-//==============================================================================
-- (IBAction) partBrowserStyleChanged:(id)sender
-{
-	NSUserDefaults		*userDefaults	= [NSUserDefaults standardUserDefaults];
-	PartBrowserStyleT	 newStyle		= [self->partBrowserStyleRadioButtons selectedTag];
-	
-	[userDefaults setInteger:newStyle forKey:PART_BROWSER_STYLE_KEY];
-	
-	//inform interested parties.
 	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawPartBrowserStyleDidChangeNotification
-						  object:[NSNumber numberWithInt:newStyle] ];
+			postNotificationName:LDrawSyntaxColorsDidChangeNotification
+						  object:NSApp ];
+}
+
+
+//========== stepsColorWellChanged: ============================================
+//
+// Purpose:		This syntax-color well changed. Update the value in preferences.
+//
+//==============================================================================
+- (IBAction) stepsColorWellChanged:(id)sender{
+	NSColor			*newColor		= [sender color];
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
-}//end partBrowserStyleChanged:
+	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_STEPS_KEY];
+	
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName:LDrawSyntaxColorsDidChangeNotification
+						  object:NSApp ];
+}
+
+//========== partsColorWellChanged: ============================================
+//
+// Purpose:		This syntax-color well changed. Update the value in preferences.
+//
+//==============================================================================
+- (IBAction) partsColorWellChanged:(id)sender{
+	NSColor			*newColor		= [sender color];
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	
+	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_PARTS_KEY];
+
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName:LDrawSyntaxColorsDidChangeNotification
+						  object:NSApp ];
+}
+
+//========== primitivesColorWellChanged: =======================================
+//
+// Purpose:		This syntax-color well changed. Update the value in preferences.
+//
+//==============================================================================
+- (IBAction) primitivesColorWellChanged:(id)sender{
+	NSColor			*newColor		= [sender color];
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	
+	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_PRIMITIVES_KEY];
+	
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName:LDrawSyntaxColorsDidChangeNotification
+						  object:NSApp ];
+}
+
+
+//========== commentsColorWellChanged: =========================================
+//
+// Purpose:		This syntax-color well changed. Update the value in preferences.
+//
+//==============================================================================
+- (IBAction) commentsColorWellChanged:(id)sender{
+	NSColor			*newColor		= [sender color];
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	
+	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_COMMENTS_KEY];
+	
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName:LDrawSyntaxColorsDidChangeNotification
+						  object:NSApp ];
+}
+
+
+//========== unknownColorWellChanged: ==========================================
+//
+// Purpose:		This syntax-color well changed. Update the value in preferences.
+//
+//==============================================================================
+- (IBAction) unknownColorWellChanged:(id)sender{
+	NSColor			*newColor		= [sender color];
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	
+	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_UNKNOWN_KEY];
+	
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName:LDrawSyntaxColorsDidChangeNotification
+						  object:NSApp ];
+}
+
 
 
 #pragma mark -
+#pragma mark LDraw Tab
 
 //========== chooseLDrawFolder =================================================
 //
@@ -315,8 +310,7 @@ PreferencesDialogController *preferencesDialog = nil;
 		[self changeLDrawFolderPath:folderPath];
 	}
 	
-}//end chooseLDrawFolder:
-
+}
 
 //========== pathTextFieldChanged: =============================================
 //
@@ -324,13 +318,11 @@ PreferencesDialogController *preferencesDialog = nil;
 //				LDraw folder path.
 //
 //==============================================================================
-- (IBAction) pathTextFieldChanged:(id)sender
-{
+- (IBAction) pathTextFieldChanged:(id)sender{
 	NSString *newPath = [LDrawPathTextField stringValue];
 	
 	[self changeLDrawFolderPath:newPath];
-	
-}//end pathTextFieldChanged:
+}
 
 
 //========== reloadParts: ======================================================
@@ -346,164 +338,28 @@ PreferencesDialogController *preferencesDialog = nil;
 	PartLibrary			*partLibrary		= [LDrawApplication sharedPartLibrary];
 	
 	[partLibrary reloadParts:sender];
-	
+			
 }//end reloadParts:
 
 
-#pragma mark -
-#pragma mark Styles Tab
-
-//========== backgroundColorWellChanged: =======================================
+//========== gridSpacingChanged: ===============================================
 //
-// Purpose:		The color for the LDraw views' background has been changed. 
-//				Update the value in the preferences.
+// Purpose:		User updated the amounts by which parts are shifted in different 
+//				grid modes.
 //
 //==============================================================================
-- (IBAction) backgroundColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:LDRAW_VIEWER_BACKGROUND_COLOR_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawViewBackgroundColorDidChangeNotification
-						  object:newColor ];
-						  
-}//end backgroundColorWellChanged:
+- (IBAction) gridSpacingChanged:(id)sender {
+	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
 
-
-//========== modelsColorWellChanged: ===========================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) modelsColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	//Grid Spacing.
+	float gridFine	= [[gridSpacingForm cellAtIndex:0] floatValue];
+	float gridMedium	= [[gridSpacingForm cellAtIndex:1] floatValue];
+	float gridCoarse	= [[gridSpacingForm cellAtIndex:2] floatValue];
 	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_MODELS_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-						  
-}//end modelsColorWellChanged:
-
-
-//========== stepsColorWellChanged: ============================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) stepsColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_STEPS_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-						  
-}//end stepsColorWellChanged:
-
-
-//========== partsColorWellChanged: ============================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) partsColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_PARTS_KEY];
-
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-						  
-}//end partsColorWellChanged:
-
-
-//========== primitivesColorWellChanged: =======================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) primitivesColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_PRIMITIVES_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-						  
-}//end primitivesColorWellChanged:
-
-
-//========== colorsColorWellChanged: ===========================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) colorsColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_COLORS_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-	
-}//end colorsColorWellChanged:
-
-
-//========== commentsColorWellChanged: =========================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) commentsColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_COMMENTS_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-						  
-}//end commentsColorWellChanged:
-
-
-//========== unknownColorWellChanged: ==========================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) unknownColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_UNKNOWN_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-						  
-}//end unknownColorWellChanged:
+	[userDefaults setFloat:gridFine		forKey:GRID_SPACING_FINE];
+	[userDefaults setFloat:gridMedium	forKey:GRID_SPACING_MEDIUM];
+	[userDefaults setFloat:gridCoarse	forKey:GRID_SPACING_COARSE];
+}
 
 
 #pragma mark -
@@ -519,11 +375,11 @@ PreferencesDialogController *preferencesDialog = nil;
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
 {
 	return [NSArray arrayWithObjects:
-						PREFS_GENERAL_TAB_IDENTIFIER,
-						PREFS_LDRAW_TAB_IDENTFIER,
 						PREFS_STYLE_TAB_IDENTFIER,
-						nil ];
-}//end toolbarAllowedItemIdentifiers:
+						PREFS_LDRAW_TAB_IDENTFIER,
+						nil
+			];
+}
 
 
 //**** NSToolbar ****
@@ -535,8 +391,7 @@ PreferencesDialogController *preferencesDialog = nil;
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
 {
 	return [self toolbarAllowedItemIdentifiers:toolbar];
-	
-}//end toolbarDefaultItemIdentifiers:
+}
 
 
 //**** NSToolbar ****
@@ -545,15 +400,14 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		The tabs selectable in the preferences window.
 //
 //==============================================================================
-- (NSArray *) toolbarSelectableItemIdentifiers:(NSToolbar *)toolbar
+- (NSArray *)toolbarSelectableItemIdentifiers:(NSToolbar *)toolbar
 {
 	return [self toolbarAllowedItemIdentifiers:toolbar];
-	
-}//end toolbarSelectableItemIdentifiers:
+}
 
 
 //**** NSToolbar ****
-//========== toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: ==========
+//========== toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:: =========
 //
 // Purpose:		Creates the "tabs" used in the preferences window.
 //
@@ -566,12 +420,8 @@ PreferencesDialogController *preferencesDialog = nil;
 	
 	[newItem setLabel:NSLocalizedString(itemIdentifier, nil)];
 	
-	if([itemIdentifier isEqualToString:PREFS_GENERAL_TAB_IDENTIFIER])
-		[newItem setImage:[NSImage imageNamed:@"GeneralPreferences"]];
-	
-	else if([itemIdentifier isEqualToString:PREFS_LDRAW_TAB_IDENTFIER])
+	if([itemIdentifier isEqualToString:PREFS_LDRAW_TAB_IDENTFIER])
 		[newItem setImage:[NSImage imageNamed:@"LDrawLogo"]];
-	
 	else if([itemIdentifier isEqualToString:PREFS_STYLE_TAB_IDENTFIER])
 		[newItem setImage:[NSImage imageNamed:@"SyntaxColoring"]];
 	
@@ -579,9 +429,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[newItem setAction:@selector(changeTab:)];
 	
 	return [newItem autorelease];
-	
-}//end toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:
-
+}
 
 #pragma mark -
 #pragma mark WINDOW DELEGATE
@@ -593,7 +441,7 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		Used to release the preferences controller.
 //
 //==============================================================================
-- (BOOL) windowShouldClose:(id)sender
+- (BOOL)windowShouldClose:(id)sender
 {
 	//Save out the last tab view.
 	NSUserDefaults	*userDefaults = [NSUserDefaults standardUserDefaults];
@@ -602,16 +450,10 @@ PreferencesDialogController *preferencesDialog = nil;
 	[userDefaults setObject:lastIdentifier
 					 forKey:PREFERENCES_LAST_TAB_DISPLAYED];
 	
-	// Cocoa autosaving doesn't necessarily get restored when we need it to, so 
-	// we have to track in manually.  
-	[self->preferencesWindow saveFrameUsingName:PREFERENCES_WINDOW_AUTOSAVE_NAME];
-	
 	//Make sure our memory is all released.
 	[preferencesDialog autorelease];
-	
 	return YES;
-	
-}//end windowShouldClose:
+}
 
 
 #pragma mark -
@@ -619,7 +461,7 @@ PreferencesDialogController *preferencesDialog = nil;
 #pragma mark -
 
 
-//---------- ensureDefaults ------------------------------------------[static]--
+//========== ensureDefaults ====================================================
 //
 // Purpose:		Verifies that all expected settings exist in preferences. If a 
 //				setting is not found, it is restored to its default value.
@@ -628,160 +470,44 @@ PreferencesDialogController *preferencesDialog = nil;
 //				rest of the program need not worry about preference 
 //				error-checking.
 //
-//------------------------------------------------------------------------------
-+ (void) ensureDefaults
-{
+//==============================================================================
++ (void) ensureDefaults{
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 	NSMutableDictionary	*initialDefaults	= [NSMutableDictionary dictionary];
 	
-	NSColor				*backgroundColor	= [NSColor whiteColor];
-	NSColor				*modelsColor		= [NSColor blackColor];
-	NSColor				*stepsColor			= [NSColor blackColor];
-	NSColor				*partsColor			= [NSColor blackColor];
-	NSColor				*primitivesColor	= [NSColor blueColor];
-	NSColor				*colorsColor		= [NSColor colorWithDeviceRed:  0./ 255
-																    green:128./ 255
-																	 blue:128./ 255
-																    alpha:1.0 ];
-	NSColor				*commentsColor		= [NSColor colorWithDeviceRed: 35./ 255
-																    green:110./ 255
-																	 blue: 37./ 255
-																    alpha:1.0 ];
-	NSColor				*unknownColor		= [NSColor lightGrayColor];
+	NSColor			*modelsColor		= [NSColor blackColor];
+	NSColor			*stepsColor			= [NSColor blackColor];
+	NSColor			*partsColor			= [NSColor blackColor];
+	NSColor			*primitivesColor	= [NSColor blueColor];
+	NSColor			*commentsColor		= [NSColor colorWithDeviceRed:(float) 35 / 255
+																green:(float)110 / 255
+																 blue:(float) 37 / 255
+																alpha:1.0 ];
+	NSColor			*unknownColor		= [NSColor lightGrayColor];
 	
-	//
-	// General
-	//
-	[initialDefaults setObject:[NSNumber numberWithInt:PartBrowserShowAsDrawer]			forKey:PART_BROWSER_STYLE_KEY];
-	[initialDefaults setObject:[NSNumber numberWithInt:MouseDraggingBeginImmediately]	forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
-
 	//
 	// Syntax Colors
 	//
-	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:backgroundColor]	forKey:LDRAW_VIEWER_BACKGROUND_COLOR_KEY];
-	
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:modelsColor]		forKey:SYNTAX_COLOR_MODELS_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:stepsColor]		forKey:SYNTAX_COLOR_STEPS_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:partsColor]		forKey:SYNTAX_COLOR_PARTS_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:primitivesColor]	forKey:SYNTAX_COLOR_PRIMITIVES_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:commentsColor]	forKey:SYNTAX_COLOR_COMMENTS_KEY];
-	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:colorsColor]		forKey:SYNTAX_COLOR_COLORS_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:unknownColor]		forKey:SYNTAX_COLOR_UNKNOWN_KEY];
 	
 	//
 	// Grid Spacing
 	//
-	[initialDefaults setObject:[NSNumber numberWithFloat: 1]	forKey:GRID_SPACING_FINE];
-	[initialDefaults setObject:[NSNumber numberWithFloat:10]	forKey:GRID_SPACING_MEDIUM];
-	[initialDefaults setObject:[NSNumber numberWithFloat:20]	forKey:GRID_SPACING_COARSE];
+	[initialDefaults setObject:[NSNumber numberWithFloat: 1] forKey:GRID_SPACING_FINE];
+	[initialDefaults setObject:[NSNumber numberWithFloat:10] forKey:GRID_SPACING_MEDIUM];
+	[initialDefaults setObject:[NSNumber numberWithFloat:20] forKey:GRID_SPACING_COARSE];
 	
 	//
 	// Initial Window State
 	//
-	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerOpenState]	forKey:PART_BROWSER_DRAWER_STATE];
-	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerOpenState]	forKey:FILE_CONTENTS_DRAWER_STATE];
+	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerOpenState] forKey:PART_BROWSER_DRAWER_STATE];
+	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerOpenState] forKey:FILE_CONTENTS_DRAWER_STATE];
 	
-	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngle3D]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicsView"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModePerspective]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicsView"]];
-	
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView1"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView1"]];
-	
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView2"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView2"]];
-
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleTop]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView3"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView3"]];
-	
-	//
-	// Part Browser
-	//
-	[initialDefaults setObject:NSLocalizedString(@"All Categories", nil)	forKey:PART_BROWSER_PREVIOUS_CATEGORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]					forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
-	
-	//
-	// Tool Palette
-	//
-	[initialDefaults setObject:[NSNumber numberWithBool:NO]				forKey:TOOL_PALETTE_HIDDEN];
-	
-	//
-	// Minifigure Generator
-	//
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_HAT];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_HEAD];
-	[initialDefaults setObject:[NSNumber numberWithBool:NO]				forKey:MINIFIGURE_HAS_NECK];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_TORSO];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_ARM_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_ARM_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_HAND_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithBool:NO]				forKey:MINIFIGURE_HAS_HAND_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_HAND_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithBool:NO]				forKey:MINIFIGURE_HAS_HAND_LEFT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_HIPS];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_LEG_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithBool:NO]				forKey:MINIFIGURE_HAS_LEG_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithBool:YES]			forKey:MINIFIGURE_HAS_LEG_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithBool:NO]				forKey:MINIFIGURE_HAS_LEG_LEFT_ACCESSORY];
-	
-	[initialDefaults setObject:@"4485.dat"								forKey:MINIFIGURE_PARTNAME_HAT];					//Minifig Cap
-	[initialDefaults setObject:@"3626bp01.dat"							forKey:MINIFIGURE_PARTNAME_HEAD];					//Minifig Head with Standard Grin pattern
-	[initialDefaults setObject:@"3838.dat"								forKey:MINIFIGURE_PARTNAME_NECK];					//Minifig Airtanks
-	[initialDefaults setObject:@"973p1b.dat"							forKey:MINIFIGURE_PARTNAME_TORSO];					//Minifig Torso with Blue Dungarees Pattern
-	[initialDefaults setObject:@"982.dat"								forKey:MINIFIGURE_PARTNAME_ARM_RIGHT];				//Minifig Arm Right
-	[initialDefaults setObject:@"981.dat"								forKey:MINIFIGURE_PARTNAME_ARM_LEFT];				//Minifig Arm Left
-	[initialDefaults setObject:@"983.dat"								forKey:MINIFIGURE_PARTNAME_HAND_RIGHT];				//Minifig Hand
-	[initialDefaults setObject:@"3837.dat"								forKey:MINIFIGURE_PARTNAME_HAND_RIGHT_ACCESSORY];	//Minifig Shovel
-	[initialDefaults setObject:@"983.dat"								forKey:MINIFIGURE_PARTNAME_HAND_LEFT];				//Minifig Hand
-	[initialDefaults setObject:@"4006.dat"								forKey:MINIFIGURE_PARTNAME_HAND_LEFT_ACCESSORY];	//Minifig Tool Spanner/Screwdriver
-	[initialDefaults setObject:@"970.dat"								forKey:MINIFIGURE_PARTNAME_HIPS];					//Minifig Hips
-	[initialDefaults setObject:@"971.dat"								forKey:MINIFIGURE_PARTNAME_LEG_RIGHT];				//Minifig Leg Right
-	[initialDefaults setObject:@"6120.dat"								forKey:MINIFIGURE_PARTNAME_LEG_RIGHT_ACCESSORY];	//Minifig Ski
-	[initialDefaults setObject:@"972.dat"								forKey:MINIFIGURE_PARTNAME_LEG_LEFT];				//Minifig Lef Left
-	[initialDefaults setObject:@"6120.dat"								forKey:MINIFIGURE_PARTNAME_LEG_LEFT_ACCESSORY];		//Minifig Ski
-
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HEAD];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_NECK];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_TORSO];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_ARM_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_ARM_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_LEFT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HIPS];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_LEFT_ACCESSORY];
-
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlue]		forKey:MINIFIGURE_COLOR_HAT];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawYellow]		forKey:MINIFIGURE_COLOR_HEAD];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlack]		forKey:MINIFIGURE_COLOR_NECK];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawWhite]		forKey:MINIFIGURE_COLOR_TORSO];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawWhite]		forKey:MINIFIGURE_COLOR_ARM_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawWhite]		forKey:MINIFIGURE_COLOR_ARM_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawYellow]		forKey:MINIFIGURE_COLOR_HAND_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlack]		forKey:MINIFIGURE_COLOR_HAND_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawYellow]		forKey:MINIFIGURE_COLOR_HAND_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlack]		forKey:MINIFIGURE_COLOR_HAND_LEFT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlue]		forKey:MINIFIGURE_COLOR_HIPS];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlue]		forKey:MINIFIGURE_COLOR_LEG_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlack]		forKey:MINIFIGURE_COLOR_LEG_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlue]		forKey:MINIFIGURE_COLOR_LEG_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlack]		forKey:MINIFIGURE_COLOR_LEG_LEFT_ACCESSORY];
-	
-	[initialDefaults setObject:[NSNumber numberWithFloat:4.0]			forKey:MINIFIGURE_HEAD_ELEVATION];
-	
-	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" MinifigureGeneratorView"]];
-	[initialDefaults setObject:(id)kCFBooleanFalse									forKey:@"UseThreads"];
-	
-	//
-	// COMMIT!
-	//
 	[userDefaults registerDefaults:initialDefaults];
 	
 }//end ensureDefaults
@@ -793,8 +519,8 @@ PreferencesDialogController *preferencesDialog = nil;
 //				check it out and reload the parts from it.
 //
 //==============================================================================
-- (void) changeLDrawFolderPath:(NSString *) folderPath
-{
+- (void) changeLDrawFolderPath:(NSString *) folderPath{
+
 	PartLibrary		*partLibrary	= [LDrawApplication sharedPartLibrary];
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
@@ -808,9 +534,7 @@ PreferencesDialogController *preferencesDialog = nil;
 		[self reloadParts:self];
 	}
 	//else we displayed an error message already.
-	
-}//end changeLDrawFolderPath:
-
+}
 
 //========== selectPanelWithIdentifier: ========================================
 //
@@ -818,18 +542,15 @@ PreferencesDialogController *preferencesDialog = nil;
 //				represented by itemIdentifier.
 //
 //==============================================================================
-- (void) selectPanelWithIdentifier:(NSString *)itemIdentifier
-{
+- (void)selectPanelWithIdentifier:(NSString *)itemIdentifier{
+	
 	NSView		*newContentView	= nil;
 	NSRect		 newFrameRect	= NSZeroRect;
 	
 	//Make sure the corresponding toolbar tab is selected too.
 	[[preferencesWindow toolbar] setSelectedItemIdentifier:itemIdentifier];
 	
-	if([itemIdentifier isEqualToString:PREFS_GENERAL_TAB_IDENTIFIER])
-		newContentView = self->generalTabContentView;
-	
-	else if([itemIdentifier isEqualToString:PREFS_LDRAW_TAB_IDENTFIER])
+	if([itemIdentifier isEqualToString:PREFS_LDRAW_TAB_IDENTFIER])
 		newContentView = ldrawContentView;
 	
 	else if([itemIdentifier isEqualToString:PREFS_STYLE_TAB_IDENTFIER])
@@ -858,19 +579,17 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		It's time to get fitted for a halo.
 //
 //==============================================================================
-- (void) dealloc
+- (void)dealloc
 {
-	[generalTabContentView	release];
-	[preferencesWindow		release];
-	[blankContent			release];
+	[preferencesWindow	release];
+	[blankContent		release];
 	
 	//clear out our global preferences controller. 
 	// It will be reinitialized when needed.
 	preferencesDialog = nil;
 	
 	[super dealloc];
-	
-}//end dealloc
+}
 
 
 @end

@@ -12,29 +12,20 @@
 #import <Cocoa/Cocoa.h>
 
 @class LDrawPart;
-@class LDrawContainer;
 
 @interface PartReport : NSObject {
-	LDrawContainer		*reportedObject;
 	NSMutableDictionary	*partsReport;			//see -registerPart: for a description of this data
-	NSMutableArray		*missingParts;
-	NSMutableArray		*movedParts;
 	unsigned			 totalNumberOfParts;	//how many parts are in the model.
 }
 
 //Initialization
-+ (PartReport *) partReportForContainer:(LDrawContainer *)container;
++ (PartReport *) partReport;
 
 //Collecting Information
-- (void) setLDrawContainer:(LDrawContainer *)newContainer;
-- (void) getPieceCountReport;
 - (void) registerPart:(LDrawPart *)part;
 
 //Accessing Information
 - (NSArray *) flattenedReport;
-- (NSArray *) missingParts;
-- (NSArray *) movedParts;
 - (unsigned) numberOfParts;
-- (NSString *) textualRepresentationWithSortDescriptors:(NSArray *)sortDescriptors;
 
 @end

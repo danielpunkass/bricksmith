@@ -38,9 +38,10 @@
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender{
+- (IBAction)finishedEditing:(id)sender{
 
 	LDrawMPDModel *representedObject = [self object];
+	[representedObject snapshot];
 	
 	NSString				*newName		= [modelNameField	stringValue];
 	NSString				*newDescription	= [descriptionField	stringValue];
@@ -57,7 +58,7 @@
 	[representedObject setLDrawRepositoryStatus:newModelStatus];
 	
 	
-	[super commitChanges:sender];
+	[super finishedEditing:sender];
 }
 
 //========== revert ============================================================

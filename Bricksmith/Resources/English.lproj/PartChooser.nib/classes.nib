@@ -10,14 +10,13 @@
         }, 
         {CLASS = NSObject; LANGUAGE = ObjC; }, 
         {
-            ACTIONS = {categoryComboBoxChanged = id; searchFieldChanged = id; }; 
+            ACTIONS = {categoryComboBoxChanged = id; }; 
             CLASS = PartBrowserDataSource; 
             LANGUAGE = ObjC; 
             OUTLETS = {
                 categoryComboBox = NSComboBox; 
                 partPreview = LDrawGLView; 
                 partsTable = NSTableView; 
-                searchField = NSSearchField; 
             }; 
             SUPERCLASS = NSObject; 
         }, 
@@ -25,12 +24,7 @@
             ACTIONS = {cancelClicked = id; insertPartClicked = id; }; 
             CLASS = PartChooserPanel; 
             LANGUAGE = ObjC; 
-            OUTLETS = {
-                oldSelf = id; 
-                partChooserPanel = PartChooserPanel; 
-                partsBrowser = PartBrowserDataSource; 
-                searchField = NSSearchField; 
-            }; 
+            OUTLETS = {partChooserPanel = PartChooserPanel; partsBrowser = PartBrowserDataSource; }; 
             SUPERCLASS = NSPanel; 
         }, 
         {CLASS = "java.lang.Object"; LANGUAGE = Java; }

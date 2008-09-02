@@ -10,7 +10,6 @@
 //==============================================================================
 #import "PartChooserPanel.h"
 
-#import <Carbon/Carbon.h>
 #import "PartBrowserDataSource.h"
 
 @implementation PartChooserPanel
@@ -34,8 +33,8 @@
 // Purpose:		Brings the LDraw part chooser panel to life.
 //
 //==============================================================================
-- (id) init
-{	
+- (id) init {
+	
 	[NSBundle loadNibNamed:@"PartChooser" owner:self];
 	
 	oldSelf = self;
@@ -47,7 +46,7 @@
 			
 	return self;
 	
-}//end init
+}
 
 
 #pragma mark -
@@ -55,15 +54,15 @@
 #pragma mark -
 
 
-//========== selectedPartName ==================================================
+//========== selectedPart ======================================================
 //
 // Purpose:		Returns the name of the selected part file.
 //				i.e., "3001.dat"
 //
 //==============================================================================
-- (NSString *) selectedPartName
-{
-	return [partsBrowser selectedPartName];
+- (NSString *) selectedPart {
+	
+	return [partsBrowser selectedPart];;
 }
 
 
@@ -78,29 +77,10 @@
 //				appropriate.
 //
 //==============================================================================
-- (int) runModal
-{
-	int		returnCode	= NSCancelButton;
-	long	OSVersion	= 0;
-	
-	Gestalt(gestaltSystemVersion, &OSVersion); //Carbon!
-	
-	//Prior to Mac OS 10.4, the timer NSSearchFieldCell used to send its action 
-	// while typing was only registered for NSDefaultRunLoopMode, which means 
-	// it cannot be used in modal dialogs. In Tiger, the field can be used in 
-	// both modal and non-modal dialogs.
-	if(OSVersion < 0x1040) //System 10.4.0; Tiger
-		[[searchField cell] setSendsWholeSearchString:YES];
-	
-	//Run the dialog.
-	returnCode = [NSApp runModalForWindow:self];
-	
-	if(returnCode == NSOKButton)
-		[self->partsBrowser addPartClicked:nil];
-	
+- (int) runModal {
+	int returnCode = [NSApp runModalForWindow:self];
 	return returnCode;
-
-}//end runModal
+}
 
 
 
@@ -109,8 +89,7 @@
 // Purpose:		The dialog has ended and the part should be inserted.
 //
 //==============================================================================
-- (IBAction) insertPartClicked:(id)sender
-{
+- (IBAction) insertPartClicked:(id)sender {
 	[NSApp stopModalWithCode:NSOKButton];	
 }
 
@@ -120,8 +99,7 @@
 // Purpose:		The dialog has ended and the part should NOT be inserted.
 //
 //==============================================================================
-- (IBAction) cancelClicked:(id)sender
-{
+- (IBAction) cancelClicked:(id)sender {
 	[NSApp stopModalWithCode:NSCancelButton];	
 }
 
@@ -135,8 +113,7 @@
 // Purpose:		We're checking out of this fleabag hotel.
 //
 //==============================================================================
-- (void) dealloc
-{
+- (void) dealloc {
 	[oldSelf		release];
 	[partsBrowser	release];
 	

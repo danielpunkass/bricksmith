@@ -9,19 +9,12 @@
 //				written out, the MPD commands are stripped if there is only 
 //				one model in the file.
 //
-// Threading:	An LDrawFile can be drawn by multiple threads simultaneously. 
-//				What we must not do is edit while drawing or draw while editing. 
-//				To prevent such unpleasantries, bracket any editing to this File 
-//				(or any descendant directives) with calls to -lockForEditing and 
-//				-unlockEditor.
-//
 //  Created by Allen Smith on 2/19/05.
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
 #import "LDrawFile.h"
 
 #import "LDrawMPDModel.h"
-#import "LDrawUtilities.h"
 #import "MacLDraw.h"
 #import "StringCategory.h"
 
@@ -43,22 +36,15 @@
 }
 
 
-//========== fileFromContentsAtPath: ===========================================
+//========== fileFromContentsOfFile: ===========================================
 //
 // Purpose:		Reads a file from the specified path. 
 //
 //==============================================================================
-+ (LDrawFile *) fileFromContentsAtPath:(NSString *)path
-{
-	NSString	*fileContents	= [LDrawUtilities stringFromFile:path];
-	LDrawFile	*parsedFile		= nil;
-	
-	if(fileContents != nil)
-		parsedFile = [LDrawFile parseFromFileContents:fileContents];
-		
-	return parsedFile;
-	
-}//end fileFromContentsAtPath:
++ (LDrawFile *) fileFromContentsOfFile:(NSString *)path {
+	NSString *fileContents = [NSString stringWithContentsOfFile:path];
+	return [LDrawFile parseFromFileContents:fileContents];
+}
 
 
 //========== parseFromFileContents: ============================================
@@ -80,7 +66,7 @@
 	if([models count] > 0)
 		[newFile setActiveModel:[models objectAtIndex:0]];
 	
-	return [newFile autorelease];
+	return newFile;
 }
 
 //========== parseModelsFromLines ==============================================
@@ -92,22 +78,19 @@
 //==============================================================================
 + (NSArray *) parseModelsFromLines:(NSArray *) linesFromFile
 {
-	NSMutableArray	*models				= [NSMutableArray array]; //array of parsed MPD models
-	NSMutableArray	*currentModelLines	= [NSMutableArray array]; //lines to parse into a model.
-	LDrawMPDModel	*newModel			= nil; //the parsed result.
+	NSMutableArray	*models = [NSMutableArray array]; //array of parsed MPD models
+	NSMutableArray	*currentModelLines = [NSMutableArray array]; //lines to parse into a model.
+	LDrawMPDModel	*newModel; //the parsed result.
 	
-	int				 numberLines		= [linesFromFile count];
-	NSString		*currentLine		= nil;
-	int				 counter			= 0;
+	int				 numberLines = [linesFromFile count];
+	NSString		*currentLine;
+	int				 counter;
 	
 	//Search through all the lines in the file, and separate them out into 
 	// submodels.
-	for(counter = 0; counter < numberLines; counter++)
-	{
+	for(counter = 0; counter < numberLines; counter++){
 		currentLine = [linesFromFile objectAtIndex:counter];
-		
-		if([currentLine hasPrefix:LDRAW_MPD_FILE_START_MARKER] == NO)
-		{
+		if([currentLine hasPrefix:LDRAW_MPD_FILE_START_MARKER] == NO){
 			//still part of the previous model.
 			[currentModelLines addObject:currentLine];
 		}
@@ -151,8 +134,6 @@
 						// case, the models in the file.
 
 	activeModel = nil;
-	drawCount	= 0;
-	editLock	= [[NSConditionLock alloc] initWithCondition:0];
 	
 	return self;
 }
@@ -223,37 +204,12 @@
 //========== draw ==============================================================
 //
 // Purpose:		Draw only the active model. The other submodels in an MPD file 
-//				are only meant to be seen when they are are referenced from the 
-//				active submodel.
-//
-// Threading:	Drawing and editing are mutually-exclusive tasks. However, 
-//				drawing and drawing are NOT exclusive. So, we maintain a lock 
-//				here which keeps track of the number of threads that are 
-//				currently drawing the File. The mutex is never locked DURING a 
-//				draw, so we can have as many simultaneous drawing threads as we 
-//				please. However, an editing task would request this lock with a 
-//				condition (draw count) of 0, and not unlock until editing is 
-//				complete. Thus, no draws can happen during that time.
+//				are only meant to be seen when they are part of the active 
+//				submodel.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
-{
-	//this is like calling the non-existent method
-	//			[editLock setCondition:([editLock condition] + 1)]
-	[editLock lock]; //lock unconditionally
-	self->drawCount += 1;
-	[editLock unlockWithCondition:(self->drawCount)]; //don't block multiple simultaneous draws!
-	
-	//
-	// Draw!
-	//	(only the active model.)
-	//
+- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor{
 	[activeModel draw:optionsMask parentColor:parentColor];
-	
-	//done drawing; decrement the lock's condition
-	[editLock lock];
-	self->drawCount -= 1;
-	[editLock unlockWithCondition:(self->drawCount)];
 }
 
 //========== write =============================================================
@@ -291,59 +247,8 @@
 
 
 #pragma mark -
-
-//========== lockForEditing ====================================================
-//
-// Purpose:		Aquires a mutex lock to allow safe editing. Calling this method 
-//				will guarantee that no other thread draws or edits the file 
-//				while you are modifying it. Calls to this method must  be 
-//				subsequently balanced by a call to -unlockEditor.
-//
-//				If you are editing some subdirective buried deep down the file's 
-//				hierarchy, it is still your responsibility to call this method. 
-//				For performance reasons, it does NOT happen automatically!
-//
-//==============================================================================
-- (void) lockForEditing
-{
-	//aquire the lock once nobody is drawing the File. The condition on this lock 
-	// tracks the number of threads currently drawing the File. We don't want to 
-	// go modifying data at the same time someone else is trying to draw it!
-	[self->editLock lockWhenCondition:0];
-	
-}//end lockForEditing
-
-
-//========== unlockEditor ======================================================
-//
-// Purpose:		Releases the mutual-exclusion lock that prevents concurrent 
-//				drawing or editing. A call to this method must be balanced by a 
-//				preceeding call to -lockForEditing.
-//
-//==============================================================================
-- (void) unlockEditor
-{
-	//the condition tracks number of outstanding draws. We aren't a draw, and 
-	// can't aquire this lock unless there are no draws. So we stay at 0.
-	[self->editLock unlockWithCondition:0];
-	
-}//end unlockEditor
-
-#pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
-
-
-//========== activeModel =======================================================
-//
-// Purpose:		Returns the name of the currently-active model in the file.
-//
-//==============================================================================
-- (LDrawMPDModel *) activeModel
-{
-	return activeModel;
-	
-}//end activeModel
 
 
 //========== addSubmodel: ======================================================
@@ -356,19 +261,6 @@
 - (void) addSubmodel:(LDrawMPDModel *)newSubmodel {
 	[self insertDirective:newSubmodel atIndex:[[self subdirectives] count]];
 }//end addSubmodel:
-
-
-//========== draggingDirectives ================================================
-//
-// Purpose:		Returns the objects that are currently being displayed as part 
-//			    of drag-and-drop. 
-//
-//==============================================================================
-- (NSArray *) draggingDirectives
-{
-	return [[self activeModel] draggingDirectives];
-	
-}//end draggingDirectives
 
 
 //========== modelNames ========================================================
@@ -419,34 +311,26 @@
 	return foundModel;
 }
 
-
-//========== path ==============================================================
-//
-// Purpose:		Returns the filesystem path at which this file was resides, or 
-//				nil if that information is undetermined. Only files that are 
-//				read by the user will have their paths set; parts from the 
-//				library disregard this information.
-//
-//==============================================================================
-- (NSString *)path
-{
-	return self->filePath;
-}//end path
-
-
 //========== submodels =========================================================
 //
 // Purpose:		Returns an array of the LDrawModels (or more likely, the 
 //				LDrawMPDModels) which constitute this file.
 //
 //==============================================================================
-- (NSArray *) submodels
-{
+- (NSArray *) submodels{
 	return [self subdirectives];
 }
 
 
-#pragma mark -
+//========== activeModel =======================================================
+//
+// Purpose:		Returns the name of the currently-active model in the file.
+//
+//==============================================================================
+- (LDrawMPDModel *) activeModel{
+	return activeModel;
+}//end activeModel
+
 
 //========== setActiveModel: ===================================================
 //
@@ -479,24 +363,6 @@
 }//end setActiveModel
 
 
-//========== setDraggingDirectives: ============================================
-//
-// Purpose:		Sets the parts which are being manipulated in the model via 
-//			    drag-and-drop. 
-//
-// Notes:		This is a convenience method for LDrawGLView, which might not 
-//			    care to wonder whether it's displaying a model or a file. In 
-//			    either event, we just want to drag-and-drop, and that's defined 
-//			    in the model. 
-//
-//==============================================================================
-- (void) setDraggingDirectives:(NSArray *)directives
-{
-	[[self activeModel] setDraggingDirectives:directives];
-	
-}//end setDraggingDirectives:
-
-
 //========== setEnclosingDirective: ============================================
 //
 // Purpose:		In other containers, this method would set the object which 
@@ -508,22 +374,6 @@
 - (void) setEnclosingDirective:(LDrawContainer *)newParent{
 	// Do Nothing.
 }
-
-
-//========== setPath: ==========================================================
-//
-// Purpose:		Sets the filesystem path at which this file was resides. Only 
-//				files that are read by the user will have their paths set; parts 
-//				from the library disregard this information.
-//
-//==============================================================================
-- (void) setPath:(NSString *)newPath
-{
-	[newPath		retain];
-	[self->filePath	release];
-	
-	self->filePath = newPath;
-}//end setPath
 
 
 //========== setEnclosingDirective: ============================================
@@ -613,11 +463,8 @@
 // Purpose:		Takin' care o' business.
 //
 //==============================================================================
-- (void) dealloc
-{
-	[activeModel	release];
-	[filePath		release];
-	[editLock		release];
+- (void) dealloc {
+	[activeModel release];
 	
 	[super dealloc];
 }

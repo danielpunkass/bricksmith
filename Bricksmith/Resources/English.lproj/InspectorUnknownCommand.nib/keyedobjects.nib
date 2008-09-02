@@ -569,7 +569,7 @@
 				<integer>42</integer>
 			</dict>
 		</dict>
-		<string>Bricksmith does not recognize this command.</string>
+		<string>Mac LDraw does not recognize this command.</string>
 		<dict>
 			<key>$class</key>
 			<dict>
@@ -774,19 +774,19 @@
 			<array>
 				<dict>
 					<key>CF$UID</key>
-					<integer>35</integer>
-				</dict>
-				<dict>
-					<key>CF$UID</key>
 					<integer>18</integer>
 				</dict>
 				<dict>
 					<key>CF$UID</key>
-					<integer>16</integer>
+					<integer>35</integer>
 				</dict>
 				<dict>
 					<key>CF$UID</key>
 					<integer>10</integer>
+				</dict>
+				<dict>
+					<key>CF$UID</key>
+					<integer>16</integer>
 				</dict>
 			</array>
 		</dict>
@@ -817,11 +817,11 @@
 				</dict>
 				<dict>
 					<key>CF$UID</key>
-					<integer>10</integer>
+					<integer>2</integer>
 				</dict>
 				<dict>
 					<key>CF$UID</key>
-					<integer>2</integer>
+					<integer>10</integer>
 				</dict>
 			</array>
 		</dict>
@@ -835,19 +835,19 @@
 			<array>
 				<dict>
 					<key>CF$UID</key>
-					<integer>35</integer>
-				</dict>
-				<dict>
-					<key>CF$UID</key>
 					<integer>18</integer>
 				</dict>
 				<dict>
 					<key>CF$UID</key>
-					<integer>2</integer>
+					<integer>35</integer>
 				</dict>
 				<dict>
 					<key>CF$UID</key>
 					<integer>10</integer>
+				</dict>
+				<dict>
+					<key>CF$UID</key>
+					<integer>2</integer>
 				</dict>
 			</array>
 		</dict>
@@ -877,17 +877,8 @@
 				</dict>
 			</array>
 		</dict>
-		<string>NSTextField1</string>
 		<string>NSTextField</string>
-		<dict>
-			<key>$class</key>
-			<dict>
-				<key>CF$UID</key>
-				<integer>14</integer>
-			</dict>
-			<key>NS.string</key>
-			<string>File's Owner</string>
-		</dict>
+		<string>NSTextField1</string>
 		<dict>
 			<key>$class</key>
 			<dict>
@@ -896,6 +887,15 @@
 			</dict>
 			<key>NS.string</key>
 			<string>Inspector Window</string>
+		</dict>
+		<dict>
+			<key>$class</key>
+			<dict>
+				<key>CF$UID</key>
+				<integer>14</integer>
+			</dict>
+			<key>NS.string</key>
+			<string>File's Owner</string>
 		</dict>
 		<dict>
 			<key>$class</key>
@@ -925,27 +925,7 @@
 			<array>
 				<dict>
 					<key>CF$UID</key>
-					<integer>53</integer>
-				</dict>
-				<dict>
-					<key>CF$UID</key>
-					<integer>9</integer>
-				</dict>
-				<dict>
-					<key>CF$UID</key>
-					<integer>2</integer>
-				</dict>
-				<dict>
-					<key>CF$UID</key>
-					<integer>18</integer>
-				</dict>
-				<dict>
-					<key>CF$UID</key>
 					<integer>55</integer>
-				</dict>
-				<dict>
-					<key>CF$UID</key>
-					<integer>57</integer>
 				</dict>
 				<dict>
 					<key>CF$UID</key>
@@ -953,11 +933,31 @@
 				</dict>
 				<dict>
 					<key>CF$UID</key>
-					<integer>35</integer>
+					<integer>9</integer>
+				</dict>
+				<dict>
+					<key>CF$UID</key>
+					<integer>53</integer>
 				</dict>
 				<dict>
 					<key>CF$UID</key>
 					<integer>16</integer>
+				</dict>
+				<dict>
+					<key>CF$UID</key>
+					<integer>2</integer>
+				</dict>
+				<dict>
+					<key>CF$UID</key>
+					<integer>35</integer>
+				</dict>
+				<dict>
+					<key>CF$UID</key>
+					<integer>18</integer>
+				</dict>
+				<dict>
+					<key>CF$UID</key>
+					<integer>57</integer>
 				</dict>
 			</array>
 		</dict>
@@ -1007,15 +1007,15 @@
 				</dict>
 			</array>
 		</dict>
-		<integer>16</integer>
-		<integer>5</integer>
-		<integer>1</integer>
-		<integer>50</integer>
 		<integer>51</integer>
-		<integer>52</integer>
 		<integer>3</integer>
-		<integer>53</integer>
+		<integer>5</integer>
+		<integer>16</integer>
 		<integer>2</integer>
+		<integer>1</integer>
+		<integer>53</integer>
+		<integer>50</integer>
+		<integer>52</integer>
 		<dict>
 			<key>$classes</key>
 			<array>

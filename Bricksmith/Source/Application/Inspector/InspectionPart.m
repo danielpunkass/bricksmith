@@ -12,11 +12,9 @@
 #import "InspectionPart.h"
 
 #import "LDrawApplication.h"
-#import "LDrawFile.h"
 #import "LDrawPart.h"
 #import "PartLibrary.h"
 #import "FormCategory.h"
-#import "MacLDraw.h"
 
 @implementation InspectionPart
 
@@ -38,40 +36,43 @@
 #pragma mark ACTIONS
 #pragma mark -
 
-//========== commitChanges: ====================================================
+//========== finishedEditing: ==================================================
 //
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender
-{
-	LDrawPart			*representedObject	= [self object];
-	TransformComponents	 oldComponents		= [representedObject transformComponents];
-	TransformComponents	 components			= IdentityComponents;
-	Point3				 position			= [self->locationForm coordinateValue];
-	Vector3				 scaling			= [self->scalingForm coordinateValue];
-	Tuple3				 shear				= [self->shearForm coordinateValue];
+- (IBAction)finishedEditing:(id)sender{
+
+	LDrawPart					*representedObject = [self object];
+	TransformationComponents	 oldComponents = [representedObject transformationComponents];
+	TransformationComponents	 components = {0};
+	
+	[representedObject snapshot];
 	
 	[representedObject setDisplayName:[partNameField stringValue]];
 	
+	Point3	position	= [locationForm coordinateValue];
+	Vector3	scaling		= [scalingForm coordinateValue];
+	Vector3	shear		= [shearForm coordinateValue]; //not the right structure logically, but it works.
+	
 	//Fill the components structure.
- 	components.scale.x		= scaling.x / 100.0; //convert from percentage
- 	components.scale.y		= scaling.y / 100.0;
- 	components.scale.z		= scaling.z / 100.0;
+ 	components.scale_X		= scaling.x / 100.0; //convert from percentage
+ 	components.scale_Y		= scaling.y / 100.0;
+ 	components.scale_Z		= scaling.z / 100.0;
  	components.shear_XY		= shear.x;
  	components.shear_XZ		= shear.y;
  	components.shear_YZ		= shear.z;
- 	components.rotate.x		= oldComponents.rotate.x; //rotation is handled elsewhere.
- 	components.rotate.y		= oldComponents.rotate.y;
- 	components.rotate.z		= oldComponents.rotate.z;
- 	components.translate	= position;
+ 	components.rotate_X		= oldComponents.rotate_X; //rotation is handled elsewhere.
+ 	components.rotate_Y		= oldComponents.rotate_Y;
+ 	components.rotate_Z		= oldComponents.rotate_Z;
+ 	components.translate_X	= position.x;
+ 	components.translate_Y	= position.y;
+ 	components.translate_Z	= position.z;	
 	
-	[representedObject setTransformComponents:components];
+	[representedObject setTransformationComponents:components];
 	
-	[super commitChanges:sender];
-	
-}//end commitChanges:
-
+	[super finishedEditing:sender];
+}
 
 //========== revert ============================================================
 //
@@ -81,27 +82,29 @@
 //				the data in their inspector palettes.
 //
 //==============================================================================
-- (IBAction) revert:(id)sender
-{
-	LDrawPart			*representedObject	= [self object];
-	TransformComponents	 components			= [representedObject transformComponents];
-	NSString			*description		= [[LDrawApplication sharedPartLibrary] descriptionForPart:representedObject];
-	Point3				 position			= ZeroPoint3;
-	Vector3				 scaling			= ZeroPoint3;
-	Tuple3				 shear				= ZeroPoint3;
+- (IBAction) revert:(id)sender{
+
+	LDrawPart					*representedObject = [self object];
+	TransformationComponents	 components = [representedObject transformationComponents];
 	
-	
+	NSString *description = [[LDrawApplication sharedPartLibrary] descriptionForPart:representedObject];
 	[partDescriptionField setStringValue:description];
 	[partDescriptionField setToolTip:description]; //in case it overflows the field.
 	[partNameField setStringValue:[representedObject displayName]];
 	
-	[colorWell setLDrawColor:[representedObject LDrawColor]];
+	[colorWell setColorCode:[representedObject LDrawColor]];
 
-	position	= components.translate;
+	Point3 position = [locationForm coordinateValue];
+	Vector3 scaling = [scalingForm coordinateValue];
+	Vector3 shear = [shearForm coordinateValue]; //not the right structure logically, but it works.
 	
-	scaling.x	= components.scale.x * 100.0; //convert to percentage.
-	scaling.y	= components.scale.y * 100.0; //convert to percentage.
-	scaling.z	= components.scale.z * 100.0; //convert to percentage.
+	position.x = components.translate_X;
+	position.y = components.translate_Y;
+	position.z = components.translate_Z;
+	
+	scaling.x = components.scale_X * 100.0; //convert to percentage.
+	scaling.y = components.scale_Y * 100.0; //convert to percentage.
+	scaling.z = components.scale_Z * 100.0; //convert to percentage.
 	
 	//stuff the shear into the structure, despite the bad name mismatches.
 	shear.x = components.shear_XY;
@@ -133,28 +136,27 @@
 //
 //
 //==============================================================================
-- (void) setRotationAngles
-{
-	LDrawPart			*representedObject	= [self object];
-	TransformComponents	 components			= [representedObject transformComponents];
-	RotationT			 rotationType		= [[rotationTypePopUp selectedItem] tag];
+- (void) setRotationAngles {
 	
-	if(rotationType == rotationRelative)
-	{
+	LDrawPart					*representedObject = [self object];
+	TransformationComponents	 components = [representedObject transformationComponents];
+	
+	rotationT					 rotationType = [[rotationTypePopUp selectedItem] tag];
+	
+	if(rotationType == rotationRelative){
 		//Rotations entered will be additive.
 		[rotationXField setFloatValue:0.0];
 		[rotationYField setFloatValue:0.0];
 		[rotationZField setFloatValue:0.0];
 	}
-	else
-	{
+	else{
 		//Absolute rotation; fill in the real rotation angles.
-		[rotationXField setFloatValue:degrees(components.rotate.x)];
-		[rotationYField setFloatValue:degrees(components.rotate.y)];
-		[rotationZField setFloatValue:degrees(components.rotate.z)];
+		[rotationXField setFloatValue:degrees(components.rotate_X)];
+		[rotationYField setFloatValue:degrees(components.rotate_Y)];
+		[rotationZField setFloatValue:degrees(components.rotate_Z)];
 		
 	}
-}//end setRotationAngles
+}
 
 #pragma mark -
 
@@ -168,17 +170,15 @@
 //				-finishedEditing: which modifies a different set of values.
 //
 //==============================================================================
-- (IBAction) applyRotationClicked:(id)sender
-{
-	LDrawPart	*representedObject	= [self object];
-	RotationT	 rotationType		= [[rotationTypePopUp selectedItem] tag];
+- (IBAction) applyRotationClicked:(id)sender {
+
+	LDrawPart					*representedObject = [self object];
+	rotationT					rotationType = [[rotationTypePopUp selectedItem] tag];
 	
 	//Save out the current state.
 	[representedObject snapshot];
-	[[representedObject enclosingFile] lockForEditing];
-	
-	if(rotationType == rotationRelative)
-	{
+
+	if(rotationType == rotationRelative){
 		Tuple3 additiveRotation;
 		
 		additiveRotation.x = [rotationXField floatValue];
@@ -189,31 +189,26 @@
 	}
 	//An absolute rotation.
 	else{
-		TransformComponents components = [[self object] transformComponents];
+		TransformationComponents components = [[self object] transformationComponents];
 		
-		components.rotate.x = radians([rotationXField floatValue]); //convert from degrees
-		components.rotate.y = radians([rotationYField floatValue]);
-		components.rotate.z = radians([rotationZField floatValue]);
+		components.rotate_X = radians([rotationXField floatValue]); //convert from degrees
+		components.rotate_Y = radians([rotationYField floatValue]);
+		components.rotate_Z = radians([rotationZField floatValue]);
 		
-		[representedObject setTransformComponents:components];
+		[representedObject setTransformationComponents:components];
 	}
 	
 	//Note that the part has changed.
-	[[representedObject enclosingFile] unlockEditor];
-	[[NSNotificationCenter defaultCenter]
-			postNotificationName:LDrawDirectiveDidChangeNotification
-						  object:[self object]];
+	[super finishedEditing:sender];
 	
 	//For a relative rotation, prepare for the next additive rotation by 
 	// resetting the rotations values to zero
-	if(rotationType == rotationRelative)
-	{
+	if(rotationType == rotationRelative){
 		[rotationXField setFloatValue:0.0];
 		[rotationYField setFloatValue:0.0];
 		[rotationZField setFloatValue:0.0];
 	}
-}//end applyRotationClicked:
-
+}
 
 //========== locationEndedEditing: =============================================
 //
@@ -222,17 +217,18 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) locationEndedEditing:(id)sender
-{
-	Point3				formContents	= [locationForm coordinateValue];
-	TransformComponents	components		= [[self object] transformComponents];
+- (IBAction) locationEndedEditing:(id)sender{
+	
+	Point3					formContents	= [locationForm coordinateValue];
+	TransformationComponents	components		= [[self object] transformationComponents];
 	
 	//If the values really did change, then update.
-	if( V3EqualPoints(formContents, components.translate) == NO )
-	{
+	if(		formContents.x != components.translate_X
+		||	formContents.y != components.translate_Y
+		||	formContents.z != components.translate_Z
+	  )
 		[self finishedEditing:sender];
-	}
-}//end locationEndedEditing:
+}
 
 
 //========== partNameEndedEditing: =============================================
@@ -273,22 +269,18 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) scalingEndedEditing:(id)sender
-{
-	Vector3				formContents	= [scalingForm coordinateValue];
-	TransformComponents	components		= [[self object] transformComponents];
+- (IBAction) scalingEndedEditing:(id)sender{
+
+	Vector3					formContents	= [scalingForm coordinateValue];
+	TransformationComponents	components		= [[self object] transformationComponents];
 
 	//If the values really did change, then update.
-	if(		formContents.x != components.scale.x * 100.0
-	   ||	formContents.y != components.scale.y * 100.0
-	   ||	formContents.z != components.scale.z * 100.0
+	if(		formContents.x != components.scale_X * 100.0
+	   ||	formContents.y != components.scale_Y * 100.0
+	   ||	formContents.z != components.scale_Z * 100.0
 	   )
-	{
 		[self finishedEditing:sender];
-	}
-		
-}//end scalingEndedEditing:
-
+}
 
 //========== shearEndedEditing: ================================================
 //
@@ -298,10 +290,10 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) shearEndedEditing:(id)sender
-{
-	Vector3				formContents	= [shearForm coordinateValue];
-	TransformComponents	components		= [[self object] transformComponents];
+- (IBAction) shearEndedEditing:(id)sender{
+	
+	Vector3					formContents	= [shearForm coordinateValue];
+	TransformationComponents	components		= [[self object] transformationComponents];
 	
 	//If the values really did change, then update.
 	// (please disregard the meaningless x, y, and z tags in the formContents.)
@@ -309,11 +301,8 @@
 		||	formContents.y != components.shear_XZ
 		||	formContents.z != components.shear_YZ
 	  )
-	{
 		[self finishedEditing:sender];
-	}
-		
-}//end shearEndedEditing:
+}
 
 #pragma mark -
 #pragma mark DESTRUCTOR

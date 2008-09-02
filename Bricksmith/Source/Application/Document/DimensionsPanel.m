@@ -19,9 +19,8 @@
 #define INCHES_ROW_INDEX		1
 #define CENTIMETERS_ROW_INDEX	2
 #define LEGONIAN_FEET_ROW_INDEX	3
-#define LDU_ROW_INDEX           4
 
-#define NUMBER_OF_UNITS			5
+#define NUMBER_OF_UNITS			4
 
 #define UNITS_COLUMN		@"UnitsIdentifier"
 #define WIDTH_COLUMN		@"WidthIdentifier"
@@ -180,23 +179,19 @@
 	[floatFormatter setPositiveFormat:@"0.0"];
 	
 	//If we got valid bounds, analyze them.
-	if(V3EqualBoxes(bounds, InvalidBox) == NO)
-	{
+	if(V3EqualsBoxes(&bounds, (Box3*)&InvalidBox) == NO) {
 		width	= bounds.max.x - bounds.min.x;
 		height	= bounds.max.y - bounds.min.y;
 		length	= bounds.max.z - bounds.min.z;
 	}
 
 	//Units Lable?
-	if([[tableColumn identifier] isEqualToString:UNITS_COLUMN])
-	{
-		switch(rowIndex)
-		{
+	if([[tableColumn identifier] isEqualToString:UNITS_COLUMN]) {
+		switch(rowIndex){
 			case STUDS_ROW_INDEX:			object = NSLocalizedString(@"Studs", nil);			break;
 			case INCHES_ROW_INDEX:			object = NSLocalizedString(@"Inches", nil);			break;
 			case CENTIMETERS_ROW_INDEX:		object = NSLocalizedString(@"Centimeters", nil);	break;
 			case LEGONIAN_FEET_ROW_INDEX:	object = NSLocalizedString(@"LegonianFeet", nil);	break;
-			case LDU_ROW_INDEX:             object = NSLocalizedString(@"LDU", nil);            break;
 		}
 	}
 	//Dimension value, then.
@@ -223,7 +218,6 @@
 			case CENTIMETERS_ROW_INDEX:		value *= studsPerLDU * inchesPerStud * cmPerInch;		break;
 			case LEGONIAN_FEET_ROW_INDEX:	value *= studsPerLDU * inchesPerStud * legoInchPerInch;	break;
 		}
-		// nothing to convert for LDU
 		
 		//Now, how are we going to display it?
 		switch(rowIndex){
@@ -244,10 +238,6 @@
 														(int) floor(value / 12),	//feet
 														(int) fmod(value, 12)		//inches
 						];
-				break;
-			case LDU_ROW_INDEX:
-				object = [NSNumber numberWithFloat:value];
-				object = [floatFormatter stringForObjectValue:object];
 				break;
 		}
 		

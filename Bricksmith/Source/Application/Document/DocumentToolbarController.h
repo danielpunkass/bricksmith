@@ -62,6 +62,12 @@
 - (IBAction) nudgeXClicked:(id)sender;
 - (IBAction) nudgeYClicked:(id)sender;
 - (IBAction) nudgeZClicked:(id)sender;
+- (void) rotatePositiveXClicked:(id)sender;
+- (void) rotateNegativeXClicked:(id)sender;
+- (void) rotatePositiveYClicked:(id)sender;
+- (void) rotateNegativeYClicked:(id)sender;
+- (void) rotatePositiveZClicked:(id)sender;
+- (void) rotateNegativeZClicked:(id)sender;
 - (IBAction) zoomScaleChanged:(id)sender;
 
 @end

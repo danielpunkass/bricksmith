@@ -11,7 +11,6 @@
 //==============================================================================
 #import "LDrawColorBar.h"
 
-#import "LDrawColor.h"
 
 @implementation LDrawColorBar
 
@@ -22,9 +21,11 @@
 //				border.
 //
 //==============================================================================
-- (void) drawRect:(NSRect)aRect
-{
+- (void)drawRect:(NSRect)aRect{
+	
 	[super drawRect:aRect]; //does nothing.
+	
+	NSColor	*colorRepresented = [LDrawColor colorForCode:colorCode];
 	
 //	NSBezierPath *rectPath = [NSBezierPath bezierPathWithRect:aRect];
 //	[rectPath stroke];
@@ -39,11 +40,11 @@
 	// their display of transparent colors is mind-bogglingly ugly.
 	// You also get a little triangle in the corner when using device colors,
 	// which I am for no apparent reason.
-//	[self->nsColor drawSwatchInRect:NSInsetRect(aRect, 2, 2)];
-	[self->nsColor set];
+//	[colorRepresented drawSwatchInRect:NSInsetRect(aRect, 2, 2)];
+	[colorRepresented set];
 	NSRectFill(NSInsetRect(aRect, 2, 2));
 	
-}//end drawRect:
+}
 
 #pragma mark -
 #pragma mark ACCESSORS
@@ -54,12 +55,9 @@
 // Purpose:		Returns the LDraw color code represented by this button.
 //
 //==============================================================================
-- (LDrawColorT) LDrawColor
-{
+- (LDrawColorT) LDrawColor{
 	return colorCode;
-	
-}//end LDrawColor
-
+}
 
 //========== setLDrawColor: ====================================================
 //
@@ -67,47 +65,18 @@
 //				redraws the receiever.
 //
 //==============================================================================
-- (void) setLDrawColor:(LDrawColorT) newColorCode
-{
-	LDrawColor	*color			= [[ColorLibrary sharedColorLibrary] colorForCode:newColorCode];
-	NSString	*description	= nil;
-	GLfloat		 components[4];
-	
-	// assign ivar
-	self->colorCode = newColorCode;
-	
-	// Set cached NSColor too
-	[color getColorRGBA:components];
-	
-	[self->nsColor release];
-	self->nsColor = [[NSColor colorWithCalibratedRed:components[0]
-											   green:components[1]
-												blue:components[2]
-											   alpha:1.0 ] retain];
+- (void) setLDrawColor:(LDrawColorT) newColorCode{
+		
+	colorCode = newColorCode;
 	
 	//Create a tool tip to identify the LDraw color code.
-	description	= [color localizedName];
-	[self setToolTip:[NSString stringWithFormat:@"LDraw %d\n%@", self->colorCode, description]];
+	NSString *colorKey = [NSString stringWithFormat:@"LDraw: %d", colorCode];
+	NSString *description = NSLocalizedString(colorKey, nil);
+	[self setToolTip:[NSString stringWithFormat:@"LDraw %d\n%@", colorCode, description]];
 	
 	[self setNeedsDisplay:YES];
-	
-}//end setLDrawColor:
-
-
-#pragma mark -
-#pragma mark DESTRUCTOR
-#pragma mark -
-
-//========== dealloc ===========================================================
-//
-// Purpose:		Entering the long dark night.
-//
-//==============================================================================
-- (void) dealloc
-{
-	[self->nsColor	release];
-	
-	[super dealloc];
 }
+
+
 
 @end

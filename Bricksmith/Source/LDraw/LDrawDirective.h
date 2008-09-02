@@ -9,22 +9,13 @@
 //  Copyright 2005. All rights reserved.
 //==============================================================================
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/OpenGL.h>
-#import <OpenGL/gl.h>
 
-#import "ObjectInspectionController.h"
+#import "LDrawColor.h"
+#import "MatrixMath.h"
 
 @class LDrawContainer;
-@class LDrawFile;
 
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// LDrawDirective
-//
-////////////////////////////////////////////////////////////////////////////////
-@interface LDrawDirective : NSObject <NSCoding, NSCopying, Inspectable>
-{
+@interface LDrawDirective : NSObject <NSCoding, NSCopying> {
 
 	LDrawContainer *enclosingDirective; //LDraw files are a hierarchy.
 	BOOL			isSelected;
@@ -39,26 +30,23 @@
 - (NSString *) write;
 
 //Display
-- (NSString *) browsingDescription;
+- (NSString *)browsingDescription;
 - (NSString *) iconName;
 - (NSString *) inspectorClassName;
 
 //Accessors
 - (NSArray *)ancestors;
 - (LDrawContainer *) enclosingDirective;
-- (LDrawFile *) enclosingFile;
-- (BOOL) isSelected;
-
 - (void) setEnclosingDirective:(LDrawContainer *)newParent;
 - (void) setSelected:(BOOL)flag;
 
-//protocol Inspectable
-- (void) snapshot;
-- (void) lockForEditing;
-- (void) unlockEditor;
-
 //Utilities
-- (BOOL) isAncestorInList:(NSArray *)containers;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;
+- (void) snapshot;
+- (BOOL)isAncestorInList:(NSArray *)containers;
++ (Box3) boundingBox3ForDirectives:(NSArray *)directives;
++ (Class) classForLineType:(int)lineType;
++ (NSString *) readNextField:(NSString *) partialDirective
+				   remainder:(NSString **) remainder;
 
 @end

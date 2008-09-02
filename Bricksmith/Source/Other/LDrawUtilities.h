@@ -13,17 +13,14 @@
 
 @class LDrawPart;
 
-@interface LDrawUtilities : NSObject
-{
+@interface LDrawUtilities : NSObject {
 
 }
 
 + (Box3) boundingBox3ForDirectives:(NSArray *)directives;
 + (Class) classForLineType:(int)lineType;
-+ (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset;
 + (NSString *) readNextField:(NSString *) partialDirective
 				   remainder:(NSString **) remainder;
-+ (NSString *) stringFromFile:(NSString *)path;
 + (void) updateNameForMovedPart:(LDrawPart *)movedPart;
 
 @end

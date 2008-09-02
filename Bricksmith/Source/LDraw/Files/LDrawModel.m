@@ -17,20 +17,17 @@
 //==============================================================================
 #import "LDrawModel.h"
 
-#import <string.h>
 #import <AddressBook/AddressBook.h>
-
-#import "ColorLibrary.h"
 #import "LDrawConditionalLine.h"
 #import "LDrawFile.h"
 #import "LDrawLine.h"
 #import "LDrawQuadrilateral.h"
 #import "LDrawStep.h"
 #import "LDrawTriangle.h"
-#import "LDrawUtilities.h"
 #import "MacLDraw.h"
 #import "StringCategory.h"
 
+#import <string.h>
 
 @implementation LDrawModel
 
@@ -39,46 +36,40 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- newModel ------------------------------------------------[static]--
+//========== newModel ==========================================================
 //
 // Purpose:		Creates a new model ready to be edited.
 //
-//------------------------------------------------------------------------------
-+ (id) newModel
-{
+//==============================================================================
++ (id) newModel {
 	LDrawModel *newModel = [[LDrawModel alloc] initNew];
 	
 	return [newModel autorelease];
-	
-}//end newModel
+}
 
 
-//---------- modelWithLines: -----------------------------------------[static]--
+//========== modelWithLines: ===================================================
 //
-// Purpose:		Creates a new model file based on the lines from a file. These 
-//				lines of strings should only describe one model, not multiple 
-//				ones. 
+// Purpose:		Creates a new model file based on the lines from a file.
+//				These lines of strings should only describe one model, not 
+//				multiple ones.
 //
-//------------------------------------------------------------------------------
+//==============================================================================
 + (id) modelWithLines:(NSArray *)lines
 {
 	LDrawModel *newModel = [[LDrawModel alloc] initWithLines:lines];
 	
 	return [newModel autorelease];
-	
-}//end modelWithLines:
-
+}
 
 //========== init ==============================================================
 //
 // Purpose:		Creates a new, completely blank model file.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init {
 	self = [super init];
 	
-	self->colorLibrary	= [[ColorLibrary alloc] init];
 	[self setModelDescription:@""];
 	[self setFileName:@""];
 	[self setAuthor:@""];
@@ -87,17 +78,14 @@
 	[self setStepDisplay:NO];
 	
 	return self;
-	
-}//end init
-
+}
 
 //========== initNew ===========================================================
 //
 // Purpose:		Creates a new model file ready for editing, with one step.
 //
 //==============================================================================
-- (id) initNew
-{
+- (id) initNew {
 	//First, get a nice blank model.
 	self = [self init];
 	
@@ -109,8 +97,7 @@
 	ABPerson *userInfo = [[ABAddressBook sharedAddressBook] me];
 	NSString *firstName = [userInfo valueForProperty:kABFirstNameProperty];
 	NSString *lastName  = [userInfo valueForProperty:kABLastNameProperty];
-	if([firstName length] > 0 && [lastName length] > 0)
-	{
+	if([firstName length] > 0 && [lastName length] > 0){
 		[self setAuthor:[NSString stringWithFormat:@"%@ %@", firstName, lastName]];
 	}
 	
@@ -118,8 +105,7 @@
 	[self addStep];
 	
 	return self;
-	
-}//end initNew
+}
 
 //========== initWithLines: ====================================================
 //
@@ -130,8 +116,7 @@
 //				The first line *must* be an MPD file delimiter.
 //
 //==============================================================================
-- (id) initWithLines:(NSArray *)lines
-{
+- (id) initWithLines:(NSArray *)lines {
 	//Start with a nice blank model.
 	self = [self init];
 	
@@ -147,15 +132,12 @@
 	int				 numberLines		= [lines count];
 	int				 counter			= 0;
 	
-	for(counter = 0; counter < numberLines; counter++)
-	{
+	for(counter = 0; counter < numberLines; counter++){
 		currentLine = [lines objectAtIndex:counter];
-		if([currentLine hasPrefix:LDRAW_STEP] == NO)
-		{
+		if([currentLine hasPrefix:LDRAW_STEP] == NO){
 			[currentStepLines addObject:currentLine];
 		}
-		else
-		{
+		else{
 			//We've hit a new step. Add the old one in to the list and start a 
 			// new one.
 			newStep = [LDrawStep stepWithLines:currentStepLines];
@@ -171,8 +153,7 @@
 	
 	
 	return self;
-	
-}//end initWithLines:
+}
 
 
 //========== initWithCoder: ====================================================
@@ -182,7 +163,7 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (id) initWithCoder:(NSCoder *)decoder
+- (id)initWithCoder:(NSCoder *)decoder
 {
 	self = [super initWithCoder:decoder];
 	
@@ -192,8 +173,7 @@
 	ldrawDotOrgStatus	= [decoder decodeIntForKey:@"ldrawDotOrgStatus"];
 	
 	return self;
-	
-}//end initWithCoder:
+}
 
 
 //========== encodeWithCoder: ==================================================
@@ -211,8 +191,7 @@
 	[encoder encodeObject:fileName			forKey:@"fileName"];
 	[encoder encodeObject:author			forKey:@"author"];
 	[encoder encodeInt:ldrawDotOrgStatus	forKey:@"ldrawDotOrgStatus"];
-	
-}//end encodeWithCoder:
+}
 
 
 //========== copyWithZone: =====================================================
@@ -220,8 +199,8 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone
-{
+- (id) copyWithZone:(NSZone *)zone {
+	
 	LDrawModel *copied = (LDrawModel *)[super copyWithZone:zone];
 	
 	[copied setModelDescription:[self modelDescription]];
@@ -229,46 +208,36 @@
 	[copied setAuthor:[self author]];
 	[copied setLDrawRepositoryStatus:[self ldrawRepositoryStatus]];
 	
-	copied->colorLibrary = [[ColorLibrary alloc] init]; // just make a new one. It will get current colors on the next draw.
 	[copied setStepDisplay:[self stepDisplay]];
 	[copied setMaximumStepDisplayed:[self maximumStepDisplayed]];
 	
 	//I don't think we care about the cached bounds.
 	
 	return copied;
-	
-}//end copyWithZone:
+}
 
 
 #pragma mark -
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw ==============================================================
 //
 // Purpose:		Simply draw all the steps; they will worry about drawing all 
 //				their constituents.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
-{
-	NSArray			*steps				= [self subdirectives];
-	int				 maxIndex			= [self maxStepIndexToOutput];
-	LDrawStep		*currentDirective	= nil;
-	int				 counter			= 0;
+- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor{
+	NSArray			*steps			= [self subdirectives];
+	int				 maxStep		= [self maxStepIndexToOutput];
+	LDrawStep		*currentStep	= nil;
+	int				 counter		= 0;
 	
-	// Draw all the steps in the model
-	for(counter = 0; counter <= maxIndex; counter++)
-	{
-		currentDirective = [steps objectAtIndex:counter];
-		[currentDirective draw:optionsMask parentColor:parentColor];
+	for(counter = 0; counter <= maxStep; counter++){
+		currentStep = [steps objectAtIndex:counter];
+		[currentStep draw:optionsMask parentColor:parentColor];
 	}
-	
-	// Draw Drag-and-Drop pieces if we've got 'em.
-	if(self->draggingDirectives != nil)
-		[self->draggingDirectives draw:optionsMask parentColor:parentColor];
-		
-}//end draw:parentColor:
+}
 
 
 //========== write =============================================================
@@ -276,8 +245,7 @@
 // Purpose:		Writes out the MPD submodel, wrapped in the MPD file commands.
 //
 //==============================================================================
-- (NSString *) write
-{
+- (NSString *) write{
 	NSString		*CRLF			= [NSString CRLF]; //we need a DOS line-end marker, because 
 														//LDraw is predominantly DOS-based.
 	NSMutableString	*written		= [NSMutableString string];
@@ -298,8 +266,7 @@
 		
 	
 	//Write out all the steps in the file.
-	for(counter = 0; counter < numberSteps; counter++)
-	{
+	for(counter = 0; counter < numberSteps; counter++){
 		currentStep = [steps objectAtIndex:counter];
 		//Skip the 0 STEP command for the first step; it is implied.
 		if(counter == 0)
@@ -312,9 +279,7 @@
 	
 	//Now remove that last CRLF.
 	return [written stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-
-}//end write
-
+}
 
 #pragma mark -
 #pragma mark DISPLAY
@@ -326,11 +291,10 @@
 //				which can be presented to the user.
 //
 //==============================================================================
-- (NSString *) browsingDescription
+- (NSString *)browsingDescription
 {
 	return [self modelDescription];
-	
-}//end browsingDescription
+}
 
 
 //========== iconName ==========================================================
@@ -339,11 +303,9 @@
 //				object, or nil if there is no icon.
 //
 //==============================================================================
-- (NSString *) iconName
-{
+- (NSString *) iconName{
 	return @"Document";
-	
-}//end iconName
+}
 
 
 #pragma mark -
@@ -359,29 +321,12 @@
 //				known to be constant--parts from the library, for instance.
 //
 //==============================================================================
-- (Box3) boundingBox3
-{
-	Box3 totalBounds	= InvalidBox;
-	Box3 draggingBounds	= InvalidBox;
-
+- (Box3) boundingBox3 {
 	if(self->cachedBounds != NULL)
-		totalBounds = *cachedBounds;
+		return *cachedBounds;
 	else
-	{
-		// Find the bounding box of all the normal members of this model
-		totalBounds = [super boundingBox3];
-		
-		// If drag-and-drop objects are present, add them into the bounds.
-		if(self->draggingDirectives != nil)
-		{
-			draggingBounds	= [LDrawUtilities boundingBox3ForDirectives:[self->draggingDirectives subdirectives]];
-			totalBounds		= V3UnionBox(draggingBounds, totalBounds);
-		}
-	}
-	
-	return totalBounds;
-		
-}//end boundingBox3
+		return [super boundingBox3];
+}
 
 
 //========== category ==========================================================
@@ -396,10 +341,10 @@
 //				description "Brick  2 x  4".
 //
 //==============================================================================
-- (NSString *) category
-{
+- (NSString *) category {
+	
 	NSString	*category	= nil;
-	NSRange		 firstSpace;	//range of the category string in the first line.
+	NSRange		 firstSpace;			//range of the category string in the first line.
 	
 	//The category name is the first word in the description.
 	firstSpace = [(self->modelDescription) rangeOfString:@" "];
@@ -417,50 +362,14 @@
 }//end category
 
 
-//========== colorLibrary ======================================================
-//
-// Purpose:		Returns the color library object which accumulates the !COLOURS 
-//				defined locally within the model. 
-//
-// Notes:		According to the LDraw color spec, local colors having scoping: 
-//				they become active at the point of definition and fall out of 
-//				scope at the end of the model. As a convenience in Bricksmith, 
-//				the color library will still contain all the local model colors 
-//				after a draw is complete--the library will not be purged just 
-//				for scoping's sake. It may be purged at the beginning of 
-//				drawing, however. 
-//
-//==============================================================================
-- (ColorLibrary *) colorLibrary
-{
-	return self->colorLibrary;
-	
-}//end colorLibrary
-
-
-//========== draggingDirectives ================================================
-//
-// Purpose:		Returns the objects that are currently being displayed as part 
-//			    of drag-and-drop. 
-//
-//==============================================================================
-- (NSArray *) draggingDirectives
-{
-	return [self->draggingDirectives subdirectives];
-	
-}//end draggingDirectives
-
-
 //========== enclosingFile =====================================================
 //
 // Purpose:		Returns the file in which this model is stored.
 //
 //==============================================================================
-- (LDrawFile *) enclosingFile
-{
+- (LDrawFile *)enclosingFile{
 	return (LDrawFile *)[self enclosingDirective];
-	
-}//end enclosingFile
+}
 
 
 //========== modelDescription ==================================================
@@ -469,10 +378,8 @@
 //				model. (i.e., Brick 2 x 4)
 //
 //==============================================================================
-- (NSString *)modelDescription
-{
+- (NSString *)modelDescription{
 	return modelDescription;
-	
 }//end modelDescription
 
 
@@ -482,10 +389,8 @@
 //				file system.
 //
 //==============================================================================
-- (NSString *)fileName
-{
+- (NSString *)fileName{
 	return fileName;
-	
 }//end fileName
 
 
@@ -494,10 +399,8 @@
 // Purpose:		Returns the person who created the document.
 //
 //==============================================================================
-- (NSString *)author
-{
+- (NSString *)author{
 	return author;
-	
 }//end author
 
 
@@ -506,10 +409,8 @@
 // Purpose:		Returns whether or not this is an official LDraw.org model.
 //
 //==============================================================================
-- (LDrawDotOrgModelStatusT) ldrawRepositoryStatus
-{
+- (LDrawDotOrgModelStatusT) ldrawRepositoryStatus{
 	return ldrawDotOrgStatus;
-	
 }//end ldrawRepositoryStatus
 
 
@@ -519,12 +420,9 @@
 //				meaning if the model is in step-display mode.
 //
 //==============================================================================
-- (int) maximumStepDisplayed
-{
+- (int) maximumStepDisplayed {
 	return self->currentStepDisplayed;
-	
-}//end maximumStepDisplayed
-
+}
 
 //========== stepDisplay =======================================================
 //
@@ -532,11 +430,9 @@
 //				the index of the currentStepDisplayed instance variable.
 //
 //==============================================================================
-- (BOOL) stepDisplay
-{
+- (BOOL) stepDisplay {
 	return self->stepDisplayActive;
-	
-}//end stepDisplay
+}
 
 
 //========== steps =============================================================
@@ -547,8 +443,7 @@
 - (NSArray *) steps
 {
 	return [self subdirectives];
-	
-}//end steps
+}
 
 
 //========== visibleStep =======================================================
@@ -557,10 +452,9 @@
 //				drawn right now.
 //
 //==============================================================================
-- (LDrawStep *) visibleStep
-{
-	NSArray		*steps		= [self steps];
-	LDrawStep	*lastStep	= nil;
+- (LDrawStep *) visibleStep {
+	NSArray *steps = [self steps];
+	LDrawStep *lastStep = nil;
 	
 	if([self stepDisplay] == YES)
 		lastStep = [steps objectAtIndex:[self maxStepIndexToOutput]];
@@ -568,64 +462,22 @@
 		lastStep = [steps lastObject];
 	
 	return lastStep;
-	
-}//end visibleStep
+}
 
 
 #pragma mark -
-
-//========== setDraggingDirectives: ============================================
-//
-// Purpose:		Sets the parts which are being manipulated in the model via 
-//			    drag-and-drop. 
-//
-//==============================================================================
-- (void) setDraggingDirectives:(NSArray *)directives
-{
-	LDrawStep		*dragStep			= nil;
-	LDrawDirective	*currentDirective	= nil;
-	int				 counter			= 0;
-	
-	// When we get sent nil directives, nil out the drag step.
-	if(directives != nil)
-	{
-		dragStep	= [LDrawStep emptyStep];
-		
-		// The law of Bricksmith is that all parts in a model must be enclosed in a 
-		// step. Resistance is futile.
-		for(counter = 0; counter < [directives count]; counter++)
-		{
-			currentDirective = [directives objectAtIndex:counter];
-			[dragStep addDirective:currentDirective];
-		}
-		
-		// Tell the element that it lives in us now. This is important for submodel 
-		// references being dragged; without it, they have no way of resolving their 
-		// part reference, and thus can't draw during their drag. 
-		[dragStep setEnclosingDirective:self];
-	}
-	
-	[dragStep retain];
-	[self->draggingDirectives release];
-	
-	self->draggingDirectives = dragStep;
-	
-}//end setDraggingDirectives:
-
 
 //========== setModelDescription: ==============================================
 //
 // Purpose:		Sets a new model description.
 //
 //==============================================================================
-- (void) setModelDescription:(NSString *)newDescription
-{
+- (void) setModelDescription:(NSString *)newDescription{
 	[newDescription retain];
 	[modelDescription release];
 	
 	modelDescription = newDescription;
-	
-}//end setModelDescription:
+}//end setModelDescription
 
 
 //========== setFileName: ======================================================
@@ -636,14 +488,12 @@
 //				actual filesystem name.
 //
 //==============================================================================
-- (void) setFileName:(NSString *)newName
-{
+- (void) setFileName:(NSString *)newName{
 	[newName retain];
 	[fileName release];
 	
 	fileName = newName;
-	
-}//end setFileName:
+}//end setFileName
 
 
 //========== setAuthor: ========================================================
@@ -651,14 +501,12 @@
 // Purpose:		Changes the name of the person who created the model.
 //
 //==============================================================================
-- (void) setAuthor:(NSString *)newAuthor
-{
+- (void) setAuthor:(NSString *)newAuthor{
 	[newAuthor retain];
 	[author release];
 	
 	author = newAuthor;
-	
-}//end setAuthor:
+}//end setAuthor
 
 
 //========== setLDrawRepositoryStatus: =========================================
@@ -666,11 +514,9 @@
 // Purpose:		Changes whether or not this is an official ldraw.org model.
 //
 //==============================================================================
-- (void) setLDrawRepositoryStatus:(LDrawDotOrgModelStatusT) newStatus
-{
+- (void) setLDrawRepositoryStatus:(LDrawDotOrgModelStatusT) newStatus{
 	ldrawDotOrgStatus = newStatus;
-	
-}//end setLDrawRepositoryStatus:
+}//end setLDrawRepositoryStatus
 
 
 //========== setMaximumStepDisplayed ===========================================
@@ -681,20 +527,17 @@
 //				be redisplayed.
 //
 //==============================================================================
-- (void) setMaximumStepDisplayed:(int)stepIndex
-{
+- (void) setMaximumStepDisplayed:(int)stepIndex {
+	
 	//Need to check and make sure this step number is not overflowing the bounds.
 	int maximumIndex = [[self steps] count]-1;
-	
 	if(stepIndex > maximumIndex || stepIndex < 0)
 		[NSException raise:NSRangeException format:@"index (%d) beyond maximum step index %d", stepIndex, maximumIndex];
-	else
-	{
+	else {
 		self->currentStepDisplayed = stepIndex;
 		[self setStepDisplay:YES];
 	}
-	
-}//end setMaximumStepDisplayed:
+}
 
 
 //========== setStepDisplay ====================================================
@@ -703,11 +546,9 @@
 //				the index of the currentStepDisplayed instance variable.
 //
 //==============================================================================
-- (void) setStepDisplay:(BOOL)flag
-{
+- (void) setStepDisplay:(BOOL)flag {
 	self->stepDisplayActive = flag;
-	
-}//end setStepDisplay:
+}
 
 
 #pragma mark -
@@ -720,14 +561,12 @@
 //				new step created.
 //
 //==============================================================================
-- (LDrawStep *) addStep
-{
+- (LDrawStep *) addStep{
 	LDrawStep *newStep = [LDrawStep emptyStep];
 	
 	[self addDirective:newStep]; //adds the step and tells it who it belongs to.
 	
 	return newStep;
-	
 }//end addStep
 
 
@@ -736,8 +575,8 @@
 // Purpose:		Adds newStep at the end of the model.
 //
 //==============================================================================
-- (void) addStep:(LDrawStep *)newStep
-{
+- (void) addStep:(LDrawStep *)newStep{
+	
 	[self addDirective:newStep];
 	
 }//end addStep:
@@ -748,8 +587,7 @@
 // Purpose:		Guarantees that the given step is visible in this model.
 //
 //==============================================================================
-- (void) makeStepVisible:(LDrawStep *)step
-{
+- (void) makeStepVisible:(LDrawStep *)step {
 	int stepIndex = [self indexOfDirective:step];
 	
 	if(		stepIndex != NSNotFound
@@ -771,8 +609,7 @@
 //				case should never happen.)
 //
 //==============================================================================
-- (int) maxStepIndexToOutput
-{
+- (int) maxStepIndexToOutput {
 	NSArray	*steps		= [self subdirectives];
 	int		 maxStep	= 0;
 	
@@ -796,8 +633,7 @@
 //				included.
 //
 //==============================================================================
-- (int) numberElements
-{
+- (int) numberElements {
 	NSArray		*steps			= [self steps];
 	LDrawStep	*currentStep	= nil;
 	int			 numberElements	= 0;
@@ -809,8 +645,7 @@
 	}
 	
 	return numberElements;
-	
-}//end numberElements
+}
 
 
 //========== optimize ==========================================================
@@ -840,7 +675,6 @@
 	LDrawStep		*quadrilaterals	= [LDrawStep emptyStepWithFlavor:LDrawStepQuadrilaterals];
 	LDrawStep		*everythingElse	= [LDrawStep emptyStepWithFlavor:LDrawStepAnyDirectives];
 	
-	int				 directiveCount	= 0;
 	int				 counter		= 0;
 	
 	//If there is more than one step in the model, then we shall assume that 
@@ -848,13 +682,11 @@
 	// In either case, we don't want to call this method!
 	if([steps count] == 1) 
 	{
-		firstStep		= [steps objectAtIndex:0];
-		directives		= [firstStep subdirectives];
-		directiveCount	= [directives count];
+		firstStep	= [steps objectAtIndex:0];
+		directives	= [firstStep subdirectives];
 		
 		//Sort out all the different types of directives into their own arrays.
-		for(counter = 0; counter < directiveCount; counter++)
-		{
+		for(counter = 0; counter < [directives count]; counter++) {
 			currentObject = [directives objectAtIndex:counter];
 			if([currentObject isMemberOfClass:[LDrawLine class]])
 				[lines addDirective:currentObject];
@@ -893,7 +725,7 @@
 		self->cachedBounds = (Box3*)malloc( sizeof(Box3) );
 		memcpy( cachedBounds, &bounds, sizeof(Box3) );
 	}
-}//end optimize
+}
 
 
 //========== parseHeaderFromLines: =============================================
@@ -915,14 +747,14 @@
 //				the header.
 //
 //==============================================================================
-- (NSArray *) parseHeaderFromLines:(NSArray *) lines
-{
+- (NSArray *) parseHeaderFromLines:(NSArray *) lines {
+	
 	NSMutableArray	*linesWithoutHeader = [NSMutableArray arrayWithArray:lines];
 	NSString		*currentLine		= nil;
 	int				 counter			= 0;
 	
-	@try
-	{
+	NS_DURING
+		
 		//First line. Should be a description of the model.
 		currentLine = [lines objectAtIndex:0];
 		if([self line:currentLine isValidForHeader:@""]){
@@ -960,14 +792,11 @@
 					[linesWithoutHeader removeObjectIdenticalTo:currentLine];
 			}
 		}
-	}	
-	@catch(NSException *exception)
-	{
+	NS_HANDLER
 		//Ran out of lines in the file. Oh well. We got what we got.
-	}
+	NS_ENDHANDLER
 		
 	return linesWithoutHeader;
-	
 }//end parseHeaderFromLines
 
 
@@ -990,7 +819,6 @@
 		isValid = NO;
 		
 	return isValid;
-	
 }//end line:isValidForHeader:
 
 
@@ -1000,8 +828,8 @@
 //				not to any superclass.
 //
 //==============================================================================
-- (void) registerUndoActions:(NSUndoManager *)undoManager
-{
+- (void) registerUndoActions:(NSUndoManager *)undoManager {
+	
 	[super registerUndoActions:undoManager];
 	
 	[[undoManager prepareWithInvocationTarget:self] setLDrawRepositoryStatus:[self ldrawRepositoryStatus]];
@@ -1010,8 +838,7 @@
 	[[undoManager prepareWithInvocationTarget:self] setModelDescription:[self modelDescription]];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAttributesModel", nil)];
-	
-}//end registerUndoActions:
+}
 
 
 #pragma mark -
@@ -1027,18 +854,15 @@
 //				Weird.
 //
 //==============================================================================
-- (void) dealloc
-{
-	[author				release];
-	[colorLibrary		release];
-	[fileName			release];
+- (void) dealloc {
 	[modelDescription	release];
+	[fileName			release];
+	[author				release];
 	
 	if(self->cachedBounds != NULL)
 		free(cachedBounds);
 	
 	[super dealloc];
-	
 }//end dealloc
 
 

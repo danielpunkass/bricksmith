@@ -34,8 +34,8 @@
 // Purpose:		Brings the LDraw part chooser panel to life.
 //
 //==============================================================================
-- (id) init
-{	
+- (id) init {
+	
 	[NSBundle loadNibNamed:@"PartChooser" owner:self];
 	
 	oldSelf = self;
@@ -47,7 +47,7 @@
 			
 	return self;
 	
-}//end init
+}
 
 
 #pragma mark -
@@ -55,15 +55,15 @@
 #pragma mark -
 
 
-//========== selectedPartName ==================================================
+//========== selectedPart ======================================================
 //
 // Purpose:		Returns the name of the selected part file.
 //				i.e., "3001.dat"
 //
 //==============================================================================
-- (NSString *) selectedPartName
-{
-	return [partsBrowser selectedPartName];
+- (NSString *) selectedPart {
+	
+	return [partsBrowser selectedPart];;
 }
 
 
@@ -78,8 +78,8 @@
 //				appropriate.
 //
 //==============================================================================
-- (int) runModal
-{
+- (int) runModal {
+	
 	int		returnCode	= NSCancelButton;
 	long	OSVersion	= 0;
 	
@@ -94,13 +94,8 @@
 	
 	//Run the dialog.
 	returnCode = [NSApp runModalForWindow:self];
-	
-	if(returnCode == NSOKButton)
-		[self->partsBrowser addPartClicked:nil];
-	
 	return returnCode;
-
-}//end runModal
+}
 
 
 
@@ -109,8 +104,7 @@
 // Purpose:		The dialog has ended and the part should be inserted.
 //
 //==============================================================================
-- (IBAction) insertPartClicked:(id)sender
-{
+- (IBAction) insertPartClicked:(id)sender {
 	[NSApp stopModalWithCode:NSOKButton];	
 }
 
@@ -120,8 +114,7 @@
 // Purpose:		The dialog has ended and the part should NOT be inserted.
 //
 //==============================================================================
-- (IBAction) cancelClicked:(id)sender
-{
+- (IBAction) cancelClicked:(id)sender {
 	[NSApp stopModalWithCode:NSCancelButton];	
 }
 
@@ -135,8 +128,7 @@
 // Purpose:		We're checking out of this fleabag hotel.
 //
 //==============================================================================
-- (void) dealloc
-{
+- (void) dealloc {
 	[oldSelf		release];
 	[partsBrowser	release];
 	

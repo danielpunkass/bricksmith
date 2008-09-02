@@ -1,45 +1,25 @@
 //==============================================================================
 //
-// File:		ColorLibrary.h
+// File:		LDrawColor.h
 //
 // Purpose:		A repository of methods, functions, and data types used to 
 //				support LDraw colors.
 //
-// Modified:	2/26/05 Allen Smith. Creation date (LDrawColor.m)
-//				3/16/08 Allen Smith. Moved to ColorLibrary as part of 
-//							ldconfig.ldr support. 
-//
+//  Created by Allen Smith on 2/26/05.
 //  Copyright 2005. All rights reserved.
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
 #import <OpenGL/GL.h>
 
-// Forward declarations
-@class LDrawColor;
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// Enumeration:	LDrawColorT
-//
-// Purpose:		Provides named symbols for many commenly-accepted/official LDraw 
-//				color codes. 
-//
-// Notes:		LDraw colors are defined by the ldconfig.ldr file distributed 
-//				with LDraw. 
-//
-//				The list below is mainly a relic from the days before Bricksmith 
-//				supported dynamic !COLOUR definitions, but it has been given a 
-//				stay of execution due to the fact that it makes debugging 
-//				prettier. Its maintenance is not guaranteed. 
-//
-//				LDrawColorBogus is not defined by LDraw.org; it is a 
-//				Bricksmithism used for uninitialized or error colors. 
-//
-////////////////////////////////////////////////////////////////////////////////
-typedef enum
-{	
+//Lists all LDraw Colors.
+// LDraw colors are defined at www.ldraw.org.
+// Each color has a name (in the Localized strings) and an RGBA value, which 
+// can be looked up in rgbaForCode().
+// Adding additional colors requires adding records in the aforementioned 
+// places, as well as in the +LDrawColors method.
+typedef enum {
+	
 	LDrawColorBogus				= -1, //used for uninitialized colors.
 
 	LDrawBlack					= 0,
@@ -112,14 +92,9 @@ typedef enum
 } LDrawColorT;
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Protocol:	LDrawColorable
-//
-// Notes:		This protocol is adopted by classes that accept colors, such as 
-//				LDrawPart and LDrawQuadrilateral. 
-//
-////////////////////////////////////////////////////////////////////////////////
+
+//Protocol for classes that accept colors.
+// This protocol is adopted by classes such as LDrawPart and LDrawQuadrilateral.
 @protocol LDrawColorable
 
 -(LDrawColorT) LDrawColor;
@@ -128,30 +103,16 @@ typedef enum
 @end
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Class:		ColorLibrary
-//
-////////////////////////////////////////////////////////////////////////////////
-@interface ColorLibrary : NSObject
-{
-	NSMutableDictionary	*colors; // keys are LDrawColorT codes; objects are LDrawColors
+//The class itself is a collection of static methods to do things with colors.
+@interface LDrawColor : NSObject {
+
 }
 
-// Initialization
-+ (ColorLibrary *) sharedColorLibrary;
-
-// Accessors
-- (NSArray *) colors;
-- (LDrawColor *) colorForCode:(LDrawColorT)colorCode;
-- (void) getComplimentRGBA:(GLfloat *)complimentRGBA forCode:(LDrawColorT)colorCode;
-
-// Registering Colors
-- (void) addColor:(LDrawColor *)newColor;
-
-// Utilities
-+ (NSString *) ldconfigPath;
-
-void complimentColor(GLfloat *originalColor, GLfloat *complimentColor);
++ (NSArray *) LDrawColors;
++ (NSArray *) LDrawColorNamePairs;
++ (NSColor *) colorForCode:(LDrawColorT)colorCode;
++ (NSString *) nameForLDrawColor:(LDrawColorT) colorCode;
+void rgbaForCode(LDrawColorT colorCode, UInt8 *colorArray);
+void rgbafForCode(LDrawColorT colorCode, GLfloat *colorArray);
 
 @end

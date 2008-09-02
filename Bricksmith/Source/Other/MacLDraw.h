@@ -1,19 +1,11 @@
-//==============================================================================
-//
-// File:		MacLDraw.h
-//
-// Purpose:		Keys, enumerations, constants, and build flags used in the 
-//				Bricksmith project. 
-//
-// Notes:		Bricksmith was originally titled "Mac LDraw"; hence the name of 
-//				this file. That name was dropped shortly before the 1.0 release 
-//				because Tim Courtney said the LDraw name should be reserved for 
-//				the Library itself, and I thought "Mac LDraw" was kinda boring. 
-//
-// Modified:	2/14/05 Allen Smith.
-//
-//==============================================================================
-
+/*
+ *  MacLDraw.h
+ *  Bricksmith
+ *
+ *  Created by Allen Smith on 2/14/05.
+ *  Copyright 2005 Allen M. Smith. All rights reserved.
+ *
+ */
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -30,96 +22,26 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#define DOCUMENT_WINDOW_SIZE						@"Document Window Size"
-#define FILE_CONTENTS_DRAWER_STATE					@"File Contents Drawer State"
-#define GRID_SPACING_COARSE							@"Grid Spacing: Coarse"
-#define GRID_SPACING_FINE							@"Grid Spacing: Fine"
-#define GRID_SPACING_MEDIUM							@"Grid Spacing: Medium"
-#define LDRAW_GL_VIEW_ANGLE							@"LDrawGLView Viewing Angle"
-#define LDRAW_GL_VIEW_PROJECTION					@"LDrawGLView Viewing Projection"
-#define LDRAW_PATH_KEY								@"LDraw Path"
-#define LDRAW_VIEWER_BACKGROUND_COLOR_KEY			@"LDraw Viewer Background Color"
-#define MOUSE_DRAGGING_BEHAVIOR_KEY					@"Mouse Dragging Behavior"
-#define PART_BROWSER_DRAWER_STATE					@"Part Browser Drawer State"
-#define PART_BROWSER_PANEL_SHOW_AT_LAUNCH			@"Part Browser Panel Show at Launch"
-#define PART_BROWSER_PREVIOUS_CATEGORY				@"Part Browser Previous Category"
-#define PART_BROWSER_PREVIOUS_SELECTED_ROW			@"Part Browser Previous Selected Row"
-#define PART_BROWSER_STYLE_KEY						@"Part Browser Style"
-#define PREFERENCES_LAST_TAB_DISPLAYED				@"Preferences Tab"
-#define SYNTAX_COLOR_COLORS_KEY						@"Syntak Color Colors"
-#define SYNTAX_COLOR_COMMENTS_KEY					@"Syntax Color Comments"
-#define SYNTAX_COLOR_MODELS_KEY						@"Syntax Color Models"
-#define SYNTAX_COLOR_PARTS_KEY						@"Syntax Color Parts"
-#define SYNTAX_COLOR_PRIMITIVES_KEY					@"Syntax Color Primitives"
-#define SYNTAX_COLOR_STEPS_KEY						@"Syntax Color Steps"
-#define SYNTAX_COLOR_UNKNOWN_KEY					@"Syntax Color Unknown"
-#define TOOL_PALETTE_HIDDEN							@"Tool Palette Hidden"
+#define DOCUMENT_WINDOW_SIZE					@"Document Window Size"
+#define FILE_CONTENTS_DRAWER_STATE				@"File Contents Drawer State"
+#define GRID_SPACING_COARSE						@"Grid Spacing: Coarse"
+#define GRID_SPACING_FINE						@"Grid Spacing: Fine"
+#define GRID_SPACING_MEDIUM						@"Grid Spacing: Medium"
+#define LDRAW_GL_VIEW_ANGLE						@"LDrawGLView Viewing Angle"
+#define LDRAW_GL_VIEW_PROJECTION				@"LDrawGLView Viewing Projection"
+#define LDRAW_PATH_KEY							@"LDraw Path"
+#define PART_BROWSER_DRAWER_STATE				@"Part Browser Drawer State"
+#define PART_BROWSER_PREVIOUS_CATEGORY			@"Part Browser Previous Category"
+#define PART_BROWSER_PREVIOUS_SELECTED_ROW		@"Part Browser Previous Selected Row"
+#define PREFERENCES_LAST_TAB_DISPLAYED			@"Preferences Tab"
+#define SYNTAX_COLOR_COMMENTS_KEY				@"Syntax Color Comments"
+#define SYNTAX_COLOR_MODELS_KEY					@"Syntax Color Models"
+#define SYNTAX_COLOR_PARTS_KEY					@"Syntax Color Parts"
+#define SYNTAX_COLOR_PRIMITIVES_KEY				@"Syntax Color Primitives"
+#define SYNTAX_COLOR_STEPS_KEY					@"Syntax Color Steps"
+#define SYNTAX_COLOR_UNKNOWN_KEY				@"Syntax Color Unknown"
+#define TOOL_PALETTE_HIDDEN						@"Tool Palette Hidden"
 
-#define MINIFIGURE_HAS_HAT							@"Minifigure Has Hat"
-#define MINIFIGURE_HAS_HEAD							@"Minifigure Has Head"
-#define MINIFIGURE_HAS_NECK							@"Minifigure Has Neck"
-#define MINIFIGURE_HAS_TORSO						@"Minifigure Has Torso"
-#define MINIFIGURE_HAS_ARM_RIGHT					@"Minifigure Has Arm Right"
-#define MINIFIGURE_HAS_ARM_LEFT						@"Minifigure Has Arm Left"
-#define MINIFIGURE_HAS_HAND_RIGHT					@"Minifigure Has Hand Right"
-#define MINIFIGURE_HAS_HAND_RIGHT_ACCESSORY			@"Minifigure Has Hand Right Accessory"
-#define MINIFIGURE_HAS_HAND_LEFT					@"Minifigure Has Hand Left"
-#define MINIFIGURE_HAS_HAND_LEFT_ACCESSORY			@"Minifigure Has Hand Left Accessory"
-#define MINIFIGURE_HAS_HIPS							@"Minifigure Has Hips"
-#define MINIFIGURE_HAS_LEG_RIGHT					@"Minifigure Has Leg Right"
-#define MINIFIGURE_HAS_LEG_RIGHT_ACCESSORY			@"Minifigure Has Leg Right Accessory"
-#define MINIFIGURE_HAS_LEG_LEFT						@"Minifigure Has Leg Left"
-#define MINIFIGURE_HAS_LEG_LEFT_ACCESSORY			@"Minifigure Has Leg Left Accessory"
-
-#define MINIFIGURE_PARTNAME_HAT						@"Minifigure Partname Hat"
-#define MINIFIGURE_PARTNAME_HEAD					@"Minifigure Partname Head"
-#define MINIFIGURE_PARTNAME_NECK					@"Minifigure Partname Neck"
-#define MINIFIGURE_PARTNAME_TORSO					@"Minifigure Partname Torso"
-#define MINIFIGURE_PARTNAME_ARM_RIGHT				@"Minifigure Partname Arm Right"
-#define MINIFIGURE_PARTNAME_ARM_LEFT				@"Minifigure Partname Arm Left"
-#define MINIFIGURE_PARTNAME_HAND_RIGHT				@"Minifigure Partname Hand Right"
-#define MINIFIGURE_PARTNAME_HAND_RIGHT_ACCESSORY	@"Minifigure Partname Hand Right Accessory"
-#define MINIFIGURE_PARTNAME_HAND_LEFT				@"Minifigure Partname Hand Left"
-#define MINIFIGURE_PARTNAME_HAND_LEFT_ACCESSORY		@"Minifigure Partname Hand Left Accessory"
-#define MINIFIGURE_PARTNAME_HIPS					@"Minifigure Partname Hips"
-#define MINIFIGURE_PARTNAME_LEG_RIGHT				@"Minifigure Partname Leg Right"
-#define MINIFIGURE_PARTNAME_LEG_RIGHT_ACCESSORY		@"Minifigure Partname Leg Right Accessory"
-#define MINIFIGURE_PARTNAME_LEG_LEFT				@"Minifigure Partname Leg Left"
-#define MINIFIGURE_PARTNAME_LEG_LEFT_ACCESSORY		@"Minifigure Partname Leg Left Accessory"
-
-#define MINIFIGURE_ANGLE_HAT						@"Minifigure Angle Hat"
-#define MINIFIGURE_ANGLE_HEAD						@"Minifigure Angle Head"
-#define MINIFIGURE_ANGLE_NECK						@"Minifigure Angle Neck"
-#define MINIFIGURE_ANGLE_TORSO						@"Minifigure Angle Torso"
-#define MINIFIGURE_ANGLE_ARM_RIGHT					@"Minifigure Angle Arm Right"
-#define MINIFIGURE_ANGLE_ARM_LEFT					@"Minifigure Angle Arm Left"
-#define MINIFIGURE_ANGLE_HAND_RIGHT					@"Minifigure Angle Hand Right"
-#define MINIFIGURE_ANGLE_HAND_RIGHT_ACCESSORY		@"Minifigure Angle Hand Right Accessory"
-#define MINIFIGURE_ANGLE_HAND_LEFT					@"Minifigure Angle Hand Left"
-#define MINIFIGURE_ANGLE_HAND_LEFT_ACCESSORY		@"Minifigure Angle Hand Left Accessory"
-#define MINIFIGURE_ANGLE_HIPS						@"Minifigure Angle Hips"
-#define MINIFIGURE_ANGLE_LEG_RIGHT					@"Minifigure Angle Leg Right"
-#define MINIFIGURE_ANGLE_LEG_RIGHT_ACCESSORY		@"Minifigure Angle Leg Right Accessory"
-#define MINIFIGURE_ANGLE_LEG_LEFT					@"Minifigure Angle Leg Left"
-#define MINIFIGURE_ANGLE_LEG_LEFT_ACCESSORY			@"Minifigure Angle Leg Left Accessory"
-
-#define MINIFIGURE_COLOR_HAT						@"Minifigure Color Hat"
-#define MINIFIGURE_COLOR_HEAD						@"Minifigure Color Head"
-#define MINIFIGURE_COLOR_NECK						@"Minifigure Color Neck"
-#define MINIFIGURE_COLOR_TORSO						@"Minifigure Color Torso"
-#define MINIFIGURE_COLOR_ARM_RIGHT					@"Minifigure Color Arm Right"
-#define MINIFIGURE_COLOR_ARM_LEFT					@"Minifigure Color Arm Left"
-#define MINIFIGURE_COLOR_HAND_RIGHT					@"Minifigure Color Hand Right"
-#define MINIFIGURE_COLOR_HAND_RIGHT_ACCESSORY		@"Minifigure Color Hand Right Accessory"
-#define MINIFIGURE_COLOR_HAND_LEFT					@"Minifigure Color Hand Left"
-#define MINIFIGURE_COLOR_HAND_LEFT_ACCESSORY		@"Minifigure Color Hand Left Accessory"
-#define MINIFIGURE_COLOR_HIPS						@"Minifigure Color Hips"
-#define MINIFIGURE_COLOR_LEG_RIGHT					@"Minifigure Color Leg Right"
-#define MINIFIGURE_COLOR_LEG_RIGHT_ACCESSORY		@"Minifigure Color Leg Right Accessory"
-#define MINIFIGURE_COLOR_LEG_LEFT					@"Minifigure Color Leg Left"
-#define MINIFIGURE_COLOR_LEG_LEFT_ACCESSORY			@"Minifigure Color Leg Left Accessory"
-
-#define MINIFIGURE_HEAD_ELEVATION					@"Minifigure Head Elevation"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -163,10 +85,10 @@
 
 #define LDRAW_DIRECTORY_NAME					@"LDraw"
 
-#define PRIMITIVES_DIRECTORY_NAME				@"P"
+#define PRIMITIVES_DIRECTORY_NAME				@"p"
 	#define PRIMITIVES_48_DIRECTORY_NAME		@"48"
 
-#define PARTS_DIRECTORY_NAME					@"PARTS" //match case of LDraw.org Unix package.
+#define PARTS_DIRECTORY_NAME					@"parts"
 	#define SUBPARTS_DIRECTORY_NAME				@"s"
 
 #define UNOFFICIAL_DIRECTORY_NAME				@"Unofficial"
@@ -189,21 +111,6 @@
 //Comment markers
 #define LDRAW_COMMENT_WRITE						@"WRITE"
 #define LDRAW_COMMENT_PRINT						@"PRINT"
-#define LDRAW_COMMENT_SLASH						@"//"
-
-// Color definition
-#define LDRAW_COLOR_DEFINITION					@"!COLOUR"
-#define LDRAW_COLOR_DEF_CODE					@"CODE"
-#define LDRAW_COLOR_DEF_VALUE					@"VALUE"
-#define LDRAW_COLOR_DEF_EDGE					@"EDGE"
-#define LDRAW_COLOR_DEF_ALPHA					@"ALPHA"
-#define LDRAW_COLOR_DEF_LUMINANCE				@"LUMINANCE"
-#define LDRAW_COLOR_DEF_MATERIAL_CHROME			@"CHROME"
-#define LDRAW_COLOR_DEF_MATERIAL_PEARLESCENT	@"PEARLESCENT"
-#define LDRAW_COLOR_DEF_MATERIAL_RUBBER			@"RUBBER"
-#define LDRAW_COLOR_DEF_MATERIAL_MATTE_METALLIC	@"MATTE_METALLIC"
-#define LDRAW_COLOR_DEF_MATERIAL_METAL			@"METAL"
-#define LDRAW_COLOR_DEF_MATERIAL_CUSTOM			@"MATERIAL"
 
 //File header
 #define LDRAW_HEADER_NAME						@"Name:"
@@ -224,9 +131,8 @@
 #define DRAW_NO_OPTIONS							0
 #define DRAW_BEGUN								1 << 0
 #define DRAW_HIT_TEST_MODE						1 << 1
-//unused										1 << 2
+#define DRAW_REVERSE_NORMALS					1 << 2
 #define DRAW_BOUNDS_ONLY						1 << 3
-#define DRAW_IN_IMMEDIATE_MODE					1 << 4 //not compiling a display list.
 
 //The tags used for mouse-click hit-testing are formed by: 
 // stepIndex * STEP_NAME_MULTIPLIER + partIndexInStep   (see LDrawDrawableElement)
@@ -246,43 +152,35 @@
 
 //A directive was modified, either explicitly by the user or by undo/redo.
 // Object is the LDrawDirective that changed. No userInfo.
-#define LDrawDirectiveDidChangeNotification				@"LDrawDirectiveDidChangeNotification"
+#define LDrawDirectiveDidChangeNotification			@"LDrawDirectiveDidChangeNotification"
 
 //The color which will be assigned to new parts has changed.
 // Object is the new LDrawColorT, as an NSNumber. No userInfo.
-#define LDrawColorDidChangeNotification					@"LDrawColorDidChangeNotification"
+#define LDrawColorDidChangeNotification				@"LDrawColorDidChangeNotification"
 
 //Active model changed.
 // Object is the LDrawFile in which the model resides. No userInfo.
-#define LDrawFileActiveModelDidChangeNotification		@"LDrawFileActiveModelDidChangeNotification"
+#define LDrawFileActiveModelDidChangeNotification	@"LDrawFileActiveModelDidChangeNotification"
 
 //File has changed in some way that it should be redisplayed. Object is the LDrawFile that changed. No userInfo.
 // Note: this should probably replace LDrawDirectiveDidChangeNotification in some places.
-#define LDrawFileDidChangeNotification					@"LDrawFileDidChangeNotification"
+#define LDrawFileDidChangeNotification				@"LDrawFileDidChangeNotification"
 
 //the keys on the keyboard which were depressed just changed.
 // Object is an NSEvent: keyUp, keyDown, or flagsChanged.
-#define LDrawKeyboardDidChangeNotification				@"LDrawKeyboardDidChangeNotification"
+#define LDrawKeyboardDidChangeNotification			@"LDrawKeyboardDidChangeNotification"
 
 //tool mode changed.
 // Object is an NSNumber containing the new ToolModeT.
-#define LDrawMouseToolDidChangeNotification				@"LDrawMouseToolDidChangeNotification"
+#define LDrawMouseToolDidChangeNotification			@"LDrawMouseToolDidChangeNotification"
 
 //The part catalog was regenerated from disk.
 // Object is the new catalog. No userInfo.
-#define LDrawPartCatalogDidChangeNotification			@"LDrawPartCatalogDidChangeNotification"
-
-//Part Browser should be shown a different way.
-// Object is NSNumber of new style. No userInfo.
-#define LDrawPartBrowserStyleDidChangeNotification		@"LDrawPartBrowserStyleDidChangeNotification"
+#define LDrawPartCatalogDidChangeNotification		@"LDrawPartCatalogDidChangeNotification"
 
 //Syntax coloring changed in preferences.
 // Object is the application. No userInfo.
-#define LDrawSyntaxColorsDidChangeNotification			@"LDrawSyntaxColorsDidChangeNotification"
-
-//Syntax coloring changed in preferences.
-// Object is the new color. No userInfo.
-#define LDrawViewBackgroundColorDidChangeNotification	@"LDrawViewBackgroundColorDidChangeNotification"
+#define LDrawSyntaxColorsDidChangeNotification		@"LDrawSyntaxColorsDidChangeNotification"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -293,8 +191,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef enum MenuTags
-{
+typedef enum MenuTags {
 	//Application Menu
 	applicationMenuTag			= 0,
 	
@@ -309,12 +206,6 @@ typedef enum MenuTags
 	deleteMenuTag				= 205,
 	selectAllMenuTag			= 206,
 	duplicateMenuTag			= 207,
-	rotatePositiveXTag			= 220,
-	rotateNegativeXTag			= 221,
-	rotatePositiveYTag			= 222,
-	rotateNegativeYTag			= 223,
-	rotatePositiveZTag			= 224,
-	rotateNegativeZTag			= 225,
 	
 	//Tools Menu
 	toolsMenuTag				= 3,
@@ -348,32 +239,6 @@ typedef enum MenuTags
 } menuTagsT;
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-#pragma mark		Shared Datatypes
-//
-// Data types which would otherwise be homeless
-//
-////////////////////////////////////////////////////////////////////////////////
-
-typedef enum MouseDragBehavior
-{
-	MouseDraggingOff									= 0,
-	MouseDraggingBeginImmediately						= 1,
-	MouseDraggingBeginAfterDelay						= 2,
-	MouseDraggingImmediatelyInOrthoNeverInPerspective	= 3
-	
-
-} MouseDragBehaviorT;
-
-
-typedef enum PartBrowserStyle
-{
-	PartBrowserShowAsDrawer	= 0,
-	PartBrowserShowAsPanel	= 1
-
-} PartBrowserStyleT;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -383,28 +248,13 @@ typedef enum PartBrowserStyle
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//Used for dragging within the File Contents outline. Contains an array of 
-// LDrawDirectives stored as NSData objects. There should be no duplication of 
-// objects.
-#define LDrawDirectivePboardType				@"LDrawDirectivePboardType"
-
-//Used for dragging parts around in or between viewports. Contains an array of 
-// LDrawDirectives stored as NSData objects. There should be no duplication of 
-// objects.
-#define LDrawDraggingPboardType					@"LDrawDraggingPboardType"
-
-// Contains a Vector3 as NSData indicating the offset between the click location 
-// which originated the drag and the position of the first dragged directive. 
-#define LDrawDraggingInitialOffsetPboardType	@"LDrawDraggingInitialOffsetPboardType"
-
-// Contains a BOOL indicating the dragging directive has never been part of a 
-// model before.  
-#define LDrawDraggingIsUninitializedPboardType	@"LDrawDraggingIsUninitializedPboardType"
+//Contains an array of LDrawDirectives stored as NSData objects. There should 
+// be no duplication of objects.
+#define LDrawDirectivePboardType			@"LDrawDirectivePboardType"
 
 //Contains an array of indexes for the original objects being drug.
 // Since the objects are converted to data when placed on the 
 // LDrawDirectivePboardType (effectively copying them), these source indexes 
 // must be used to delete the original objects after the copies have been 
 // deposited in their new destination.
-#define LDrawDragSourceRowsPboardType			@"LDrawDragSourceRowsPboardType"
-
+#define LDrawDragSourceRowsPboardType		@"LDrawDragSourceRowsPboardType"

@@ -35,6 +35,5 @@
 - (NSArray *) missingParts;
 - (NSArray *) movedParts;
 - (unsigned) numberOfParts;
-- (NSString *) textualRepresentationWithSortDescriptors:(NSArray *)sortDescriptors;
 
 @end

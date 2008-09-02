@@ -61,8 +61,7 @@
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
-	@try
-	{
+	NS_DURING
 		//Read in the line code and advance past it.
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
@@ -130,12 +129,10 @@
 			
 		}
 		
-	}	
-	@catch(NSException *exception)
-	{
+	NS_HANDLER
 		NSLog(@"the conditional line primitive %@ was fatally invalid", lineFromFile);
-		NSLog(@" raised exception %@", [exception name]);
-	}
+		NSLog(@" raised exception %@", [localException name]);
+	NS_ENDHANDLER
 	
 	return parsedConditionalLine;
 }//end directiveWithString
@@ -208,8 +205,7 @@
 //				further review (read: better programming skill).
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
-{
+- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor{
 	//do nothing.
 }
 
@@ -222,9 +218,9 @@
 // Note:		DISABLED. See -draw:parentColor:
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
-{
-	[super drawElement:optionsMask withColor:drawingColor];
+- (void) drawElement:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor {
+	
+	[super drawElement:optionsMask parentColor:parentColor];
 }
 
 

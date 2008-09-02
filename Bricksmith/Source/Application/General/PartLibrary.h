@@ -13,13 +13,10 @@
 @class LDrawModel;
 @class LDrawPart;
 
-#import "ColorLibrary.h"
-
 @interface PartLibrary : NSObject {
 
 	NSDictionary		*partCatalog;
 	NSMutableDictionary	*loadedFiles; //list of LDrawFiles which have been read off disk.
-	NSMutableDictionary	*fileDisplayLists; //access stored display lists by part name, then color.
 }
 
 //Initialization
@@ -37,7 +34,6 @@
 - (LDrawModel *) modelForPart:(LDrawPart *) part;
 - (NSString *) pathForPartName:(NSString *)partName;
 - (LDrawModel *) modelFromNeighboringFileForPart:(LDrawPart *)part;
-- (GLuint) retainDisplayListForPart:(LDrawPart *)part color:(GLfloat *)color;
 
 //Utilites
 - (void) addPartsInFolder:(NSString *)folderPath

@@ -44,22 +44,20 @@ ToolPalette *sharedToolPalette = nil;
 	
 	//Tweak the panel.
 	
-	NSRect paletteFrame = [self->palettePanel	frame];
-	NSRect buttonFrame	= [self->toolButtons	frame];
+	NSRect paletteFrame = [self->palettePanel frame];
+	NSRect buttonFrame	= [self->toolButtons frame];
 	
 	//narrow to the button width.
 	paletteFrame.size.width = NSWidth(buttonFrame) + NSMinX(buttonFrame) * 2;
 	[palettePanel setFrame:paletteFrame display:NO];
 	[palettePanel setBecomesKeyOnlyIfNeeded:YES];
-	[palettePanel setWorksWhenModal:YES];
-	
 	
 	//remove other window widgets (kosher by Human Interface Guidelines!)
 	[[palettePanel standardWindowButton:NSWindowMiniaturizeButton]	setHidden:YES];
 	[[palettePanel standardWindowButton:NSWindowZoomButton]			setHidden:YES];
 	
 	
-	[self->colorWell setLDrawColor:[[LDrawColorPanel sharedColorPanel] LDrawColor]];
+	[self->colorWell setColorCode:[[LDrawColorPanel sharedColorPanel] LDrawColor]];
 	
 	
 	[notificationCenter addObserver:self
@@ -99,8 +97,7 @@ ToolPalette *sharedToolPalette = nil;
 		sharedToolPalette = [[ToolPalette alloc] init];
 		
 	return sharedToolPalette;
-	
-}//end sharedToolPalette
+}
 
 
 //========== init ==============================================================
@@ -108,8 +105,7 @@ ToolPalette *sharedToolPalette = nil;
 // Purpose:		Bring us into the world.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init {
 	self = [super init];
 	
 	baseToolMode			= RotateSelectTool;
@@ -137,8 +133,7 @@ ToolPalette *sharedToolPalette = nil;
 + (ToolModeT) toolMode
 {
 	return [[ToolPalette sharedToolPalette] toolMode];
-	
-}//end toolMode
+}
 
 
 //========== toolMode ==========================================================
@@ -150,8 +145,7 @@ ToolPalette *sharedToolPalette = nil;
 - (ToolModeT) toolMode
 {
 	return self->effectiveToolMode;
-	
-}//end toolMode
+}
 
 
 #pragma mark -
@@ -202,13 +196,12 @@ ToolPalette *sharedToolPalette = nil;
 // Purpose:		The current color changed.
 //
 //==============================================================================
-- (void) colorDidChange:(NSNotification *)notification
-{
+- (void) colorDidChange:(NSNotification *)notification{
+	
 	LDrawColorT	 newColor = [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	
-	[self->colorWell setLDrawColor:newColor];
-	
-}//end colorDidChange:
+	[self->colorWell setColorCode:newColor];
+}
 
 
 //========== keyboardDidChange: ================================================
@@ -224,9 +217,10 @@ ToolPalette *sharedToolPalette = nil;
 - (void) keyboardDidChange:(NSNotification *)notification
 {
 	NSEvent		*theEvent	= [notification object];
+	NSString	*characters	= nil;
 	
-	switch([theEvent type])
-	{
+	switch([theEvent type]){
+		
 		case NSKeyDown:
 			[self->currentKeyCharacters release];
 			self->currentKeyCharacters = [[theEvent charactersIgnoringModifiers] retain];
@@ -286,14 +280,13 @@ ToolPalette *sharedToolPalette = nil;
 //				know that the user really is trying to close the window here.
 //
 //==============================================================================
-- (BOOL) windowShouldClose:(id)sender
+- (BOOL)windowShouldClose:(id)sender
 {
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
 	[userDefaults setBool:YES forKey:TOOL_PALETTE_HIDDEN];
 	
 	return YES;
-	
 }//end windowShouldClose:
 
 
@@ -320,45 +313,38 @@ ToolPalette *sharedToolPalette = nil;
 	baseCharacters = [ToolPalette keysForToolMode: baseToolMode
 										modifiers:&baseModifiers ];
 	
-	// the "effective keys" are the result of what we *would be pressing* to get 
+	//the "effective keys" are the result of what we *would be pressing* to get 
 	// the currently-selected tool, plus the keys we *actually are pressing*.
 	effectiveCharacters	= [baseCharacters stringByAppendingString:self->currentKeyCharacters];
 	effectiveModifiers	= (baseModifiers) | (self->currentKeyModifiers);
 
-	// Zoom out
+	//Zoom out (option-space-click)
 	if( [ToolPalette toolMode:ZoomOutTool
 			matchesCharacters:effectiveCharacters
 					modifiers:effectiveModifiers] == YES)
 	{
 		newToolMode = ZoomOutTool;
 	}
-	// Zoom in
+	//Zoom in (command-space-click)
 	else if( [ToolPalette toolMode:ZoomInTool
 				 matchesCharacters:effectiveCharacters
 						 modifiers:effectiveModifiers] == YES)
 	{
 		newToolMode = ZoomInTool;
 	}
-	// Smooth Zoom
+	//Smooth Zoom (command-drag)
 	else if( [ToolPalette toolMode:SmoothZoomTool
 				 matchesCharacters:effectiveCharacters
 						 modifiers:effectiveModifiers] == YES)
 	{
 		newToolMode = SmoothZoomTool;
 	}
-	// Panning
+	//Panning (space-drag)
 	else if( [ToolPalette toolMode:PanScrollTool
 				 matchesCharacters:effectiveCharacters
 						 modifiers:effectiveModifiers] == YES)
 	{
 		newToolMode = PanScrollTool;
-	}
-	// Spin model
-	else if( [ToolPalette toolMode:SpinTool
-				 matchesCharacters:effectiveCharacters
-						 modifiers:effectiveModifiers] == YES)
-	{
-		newToolMode = SpinTool;
 	}
 	//Multiple selection
 //	else if( (self->currentKeyModifiers & NSShiftKeyMask) != 0 )
@@ -413,20 +399,19 @@ ToolPalette *sharedToolPalette = nil;
 		case RotateSelectTool:
 			//this is the default tool; no keys required.
 			characters = @"";
-			*modifiersOut = kNilOptions;
+			*modifiersOut = 0;
 			break;
 			
 		case PanScrollTool:
 			//space
 			characters = @" ";
-			*modifiersOut = kNilOptions;
+			*modifiersOut = 0;
 			break;
 			
 		case SmoothZoomTool:
-			//command-option
+			//command
 			characters = @"";
-//			*modifiersOut = (NSCommandKeyMask | NSShiftKeyMask);
-			*modifiersOut = (NSCommandKeyMask | NSAlternateKeyMask);
+			*modifiersOut = NSCommandKeyMask;
 			break;
 			
 		case ZoomInTool:
@@ -439,12 +424,6 @@ ToolPalette *sharedToolPalette = nil;
 			//option-space
 			characters = @" ";
 			*modifiersOut = NSAlternateKeyMask;
-			break;
-			
-		case SpinTool:
-			// command
-			characters = @"";
-			*modifiersOut = (NSCommandKeyMask);
 			break;
 			
 	}
@@ -492,15 +471,14 @@ matchesCharacters:(NSString *)characters
 // Purpose:		We're off to push up daisies.
 //
 //==============================================================================
-- (void) dealloc
-{
+- (void) dealloc {
+
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	sharedToolPalette = nil;
 	
 	[palettePanel release];
 
 	[super dealloc];
-	
-}//end dealloc
+}
 
 @end

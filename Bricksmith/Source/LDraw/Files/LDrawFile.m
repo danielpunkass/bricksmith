@@ -21,7 +21,6 @@
 #import "LDrawFile.h"
 
 #import "LDrawMPDModel.h"
-#import "LDrawUtilities.h"
 #import "MacLDraw.h"
 #import "StringCategory.h"
 
@@ -50,7 +49,7 @@
 //==============================================================================
 + (LDrawFile *) fileFromContentsAtPath:(NSString *)path
 {
-	NSString	*fileContents	= [LDrawUtilities stringFromFile:path];
+	NSString	*fileContents	= [LDrawFile stringFromFile:path];
 	LDrawFile	*parsedFile		= nil;
 	
 	if(fileContents != nil)
@@ -334,18 +333,6 @@
 #pragma mark -
 
 
-//========== activeModel =======================================================
-//
-// Purpose:		Returns the name of the currently-active model in the file.
-//
-//==============================================================================
-- (LDrawMPDModel *) activeModel
-{
-	return activeModel;
-	
-}//end activeModel
-
-
 //========== addSubmodel: ======================================================
 //
 // Purpose:		Adds a new submodel to the file. This method only accepts MPD 
@@ -356,19 +343,6 @@
 - (void) addSubmodel:(LDrawMPDModel *)newSubmodel {
 	[self insertDirective:newSubmodel atIndex:[[self subdirectives] count]];
 }//end addSubmodel:
-
-
-//========== draggingDirectives ================================================
-//
-// Purpose:		Returns the objects that are currently being displayed as part 
-//			    of drag-and-drop. 
-//
-//==============================================================================
-- (NSArray *) draggingDirectives
-{
-	return [[self activeModel] draggingDirectives];
-	
-}//end draggingDirectives
 
 
 //========== modelNames ========================================================
@@ -440,13 +414,20 @@
 //				LDrawMPDModels) which constitute this file.
 //
 //==============================================================================
-- (NSArray *) submodels
-{
+- (NSArray *) submodels{
 	return [self subdirectives];
 }
 
 
-#pragma mark -
+//========== activeModel =======================================================
+//
+// Purpose:		Returns the name of the currently-active model in the file.
+//
+//==============================================================================
+- (LDrawMPDModel *) activeModel{
+	return activeModel;
+}//end activeModel
+
 
 //========== setActiveModel: ===================================================
 //
@@ -477,24 +458,6 @@
 	else
 		NSLog(@"Attempted to set the active model to one which is not in the file!");
 }//end setActiveModel
-
-
-//========== setDraggingDirectives: ============================================
-//
-// Purpose:		Sets the parts which are being manipulated in the model via 
-//			    drag-and-drop. 
-//
-// Notes:		This is a convenience method for LDrawGLView, which might not 
-//			    care to wonder whether it's displaying a model or a file. In 
-//			    either event, we just want to drag-and-drop, and that's defined 
-//			    in the model. 
-//
-//==============================================================================
-- (void) setDraggingDirectives:(NSArray *)directives
-{
-	[[self activeModel] setDraggingDirectives:directives];
-	
-}//end setDraggingDirectives:
 
 
 //========== setEnclosingDirective: ============================================
@@ -602,6 +565,30 @@
 			postNotificationName:LDrawFileDidChangeNotification
 						  object:self];
 }
+
+
+//========== stringFromFile ====================================================
+//
+// Purpose:		Reads the contents of the file at the given path into a string. 
+//				We try a few different encodings.
+//
+//==============================================================================
++ (NSString *) stringFromFile:(NSString *)path
+{
+	NSData *fileData = [NSData dataWithContentsOfFile:path];
+	NSString *fileString = nil;
+	
+	//try UTF-8 first, because it's so nice.
+	fileString = [[NSString alloc] initWithData:fileData
+									   encoding:NSUTF8StringEncoding];
+	
+	//uh-oh. Maybe Windows Latin?
+	if(fileString == nil)
+		fileString = [[NSString alloc] initWithData:fileData
+										   encoding:NSISOLatin1StringEncoding];
+	return [fileString autorelease];
+	
+}//end stringFromFile
 
 
 #pragma mark -

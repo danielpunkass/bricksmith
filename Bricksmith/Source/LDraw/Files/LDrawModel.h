@@ -10,7 +10,6 @@
 #import <Cocoa/Cocoa.h>
 
 #import "LDrawContainer.h"
-@class ColorLibrary;
 @class LDrawFile;
 @class LDrawStep;
 
@@ -19,28 +18,18 @@ typedef enum {
 	LDrawUnofficialModel = 2
 } LDrawDotOrgModelStatusT;
 
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// class LDrawModel
-//
-////////////////////////////////////////////////////////////////////////////////
-@interface LDrawModel : LDrawContainer <NSCoding>
-{	
+@interface LDrawModel : LDrawContainer <NSCoding> {
+	
 	NSString				*modelDescription;
 	NSString				*fileName;
 	NSString				*author;
 	LDrawDotOrgModelStatusT	 ldrawDotOrgStatus;
 	
-	Box3					*cachedBounds;			// used only for optimized parts
-	ColorLibrary			*colorLibrary;			// in-scope !COLOURS local to the model
-	BOOL					 stepDisplayActive;		// YES if we are only display steps 1-currentStepDisplayed
-	int						 currentStepDisplayed;	// display up to and including this step index
+	Box3					*cachedBounds; //used only for optimized parts
+	BOOL					 stepDisplayActive; //YES if we are only display steps 1-currentStepDisplayed
+	int						 currentStepDisplayed; //display up to and including this step index
 	
 	//steps are stored in the superclass.
-	
-	// Drag and Drop
-	LDrawStep				*draggingDirectives;
 }
 
 //Initialization
@@ -51,8 +40,6 @@ typedef enum {
 
 //Accessors
 - (NSString *) category;
-- (ColorLibrary *) colorLibrary;
-- (NSArray *) draggingDirectives;
 - (LDrawFile *)enclosingFile;
 - (NSString *)modelDescription;
 - (NSString *)fileName;
@@ -63,7 +50,6 @@ typedef enum {
 - (NSArray *) steps;
 - (LDrawStep *) visibleStep;
 
-- (void) setDraggingDirectives:(NSArray *)directives;
 - (void) setModelDescription:(NSString *)newDescription;
 - (void) setFileName:(NSString *)newName;
 - (void) setAuthor:(NSString *)newAuthor;

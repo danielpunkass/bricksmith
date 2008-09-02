@@ -14,7 +14,6 @@
 @interface PartBrowserDataSource : NSObject {
 	
 	IBOutlet NSComboBox		*categoryComboBox;
-	IBOutlet NSSearchField	*searchField;
 	IBOutlet NSTableView	*partsTable;
 	IBOutlet LDrawGLView	*partPreview;
 
@@ -25,24 +24,19 @@
 }
 
 //Accessors
-- (NSString *) selectedPartName;
+- (NSString *) selectedPart;
 - (void) setPartCatalog:(NSDictionary *)newCatalog;
 - (BOOL) setCategory:(NSString *)newCategory;
 - (void) setCategoryList:(NSArray *)categoryList;
 - (void) setTableDataSource:(NSMutableArray *) partsInCategory;
 
 //Actions
-- (IBAction) addPartClicked:(id)sender;
 - (IBAction) categoryComboBoxChanged:(id)sender;
-- (void) doubleClickedInPartTable:(id)sender;
-- (IBAction) searchFieldChanged:(id)sender;
 
 //Notifications
 - (void) sharedPartCatalogDidChange:(NSNotification *)notification;
 
 //Utilities
-- (NSMutableArray *) filterParts:(NSArray *)partRecords bySearchString:(NSString *)searchString;
 - (void) syncSelectionAndPartDisplayed;
-- (BOOL) writeSelectedPartToPasteboard:(NSPasteboard *)pasteboard;
 
 @end

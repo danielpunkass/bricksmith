@@ -13,23 +13,16 @@
 #import "LDrawDirective.h"
 #import "MatrixMath.h"
 
-@class PartReport;
-
 @interface LDrawContainer : LDrawDirective <NSCoding, NSCopying> {
 	NSMutableArray		*containedObjects;
 }
 
-//Accessors
-- (NSArray *) allEnclosedElements;
 - (Box3) boundingBox3;
-- (int) indexOfDirective:(LDrawDirective *)directive;
-- (NSArray *) subdirectives;
-
-//Actions
 - (void) addDirective:(LDrawDirective *)directive;
-- (void) collectPartReport:(PartReport *)report;
+- (int) indexOfDirective:(LDrawDirective *)directive;
 - (void) insertDirective:(LDrawDirective *)directive atIndex:(int)index;
 - (void) removeDirective:(LDrawDirective *)doomedDirective;
 - (void) removeDirectiveAtIndex:(int)index;
+- (NSArray *) subdirectives;
 
 @end

@@ -10,36 +10,26 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
-#import "ColorLibrary.h"
 #import "LDrawContainer.h"
 
 @class LDrawModel;
 
 //Describes the contents of this step.
-typedef enum
-{
-	LDrawStepAnyDirectives,		//step can hold any type of subdirectives.
-	LDrawStepLines,				//step can hold *only* LDrawLines.
-	LDrawStepTriangles,			// etc.
-	LDrawStepQuadrilaterals,	// etc.
-	LDrawStepConditionalLines	// etc.
-	
+typedef enum {
+	LDrawStepAnyDirectives,	//step can hold any type of subdirectives.
+	LDrawStepLines,			//step can hold *only* LDrawLines.
+	LDrawStepTriangles,		// etc.
+	LDrawStepQuadrilaterals	// etc.
 } LDrawStepFlavorT;
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// class LDrawStep
-//
-////////////////////////////////////////////////////////////////////////////////
-@interface LDrawStep : LDrawContainer
-{
+@interface LDrawStep : LDrawContainer {
+	
 	//Optimization variables
 	LDrawStepFlavorT	stepFlavor; //defaults to LDrawStepAnyDirectives
 	LDrawColorT			colorOfAllDirectives;
-	
 	BOOL				hasDisplayList;
-	GLuint				displayListTag;	//list ID for normals in non-inverted matrix
+	GLuint				displayListTag;
 
 	//Inherited from the superclasses:
 	//NSMutableArray	*containedObjects; //the commands that make up the step.

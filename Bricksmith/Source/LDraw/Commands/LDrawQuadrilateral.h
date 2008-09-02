@@ -36,7 +36,6 @@
 -(void) setVertex4:(Point3)newVertex;
 
 //Utilities
-- (void) fixBowtie;
 - (void) recomputeNormal;
 
 @end

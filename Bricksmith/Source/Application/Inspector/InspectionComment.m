@@ -38,15 +38,16 @@
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender{
+- (IBAction)finishedEditing:(id)sender{
 
 	LDrawComment *representedObject = [self object];
+	[representedObject snapshot];
 	
 	NSString *newCommand = [commandField stringValue];
 	
 	[representedObject setStringValue:newCommand];
 	
-	[super commitChanges:sender];
+	[super finishedEditing:sender];
 }
 
 //========== revert ============================================================

@@ -11,17 +11,11 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
-#import "ColorLibrary.h"
+#import "LDrawColor.h"
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Closs:		LDrawColorBar
-//
-////////////////////////////////////////////////////////////////////////////////
-@interface LDrawColorBar : NSView <LDrawColorable>
-{
+@interface LDrawColorBar : NSView <LDrawColorable> {
+	
 	LDrawColorT colorCode;
-	NSColor		*nsColor;
 }
 
 //Accessors

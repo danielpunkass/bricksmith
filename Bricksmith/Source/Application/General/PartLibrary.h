@@ -13,13 +13,10 @@
 @class LDrawModel;
 @class LDrawPart;
 
-#import "ColorLibrary.h"
-
 @interface PartLibrary : NSObject {
 
 	NSDictionary		*partCatalog;
 	NSMutableDictionary	*loadedFiles; //list of LDrawFiles which have been read off disk.
-	NSMutableDictionary	*fileDisplayLists; //access stored display lists by part name, then color.
 }
 
 //Initialization
@@ -32,13 +29,6 @@
 //Actions
 - (void)reloadParts:(id)sender;
 
-//Finding Parts
-- (LDrawModel *) modelForName:(NSString *) partName;
-- (LDrawModel *) modelForPart:(LDrawPart *) part;
-- (NSString *) pathForPartName:(NSString *)partName;
-- (LDrawModel *) modelFromNeighboringFileForPart:(LDrawPart *)part;
-- (GLuint) retainDisplayListForPart:(LDrawPart *)part color:(GLfloat *)color;
-
 //Utilites
 - (void) addPartsInFolder:(NSString *)folderPath
 				toCatalog:(NSMutableDictionary *)catalog
@@ -46,11 +36,11 @@
 			   namePrefix:(NSString *)namePrefix
 			progressPanel:(AMSProgressPanel	*)progressPanel;
 - (NSString *)categoryForDescription:(NSString *)modelDescription;
-- (NSString *)categoryForPart:(LDrawPart *)part;
 - (NSString *)descriptionForPart:(LDrawPart *)part;
-- (NSString *)descriptionForPartName:(NSString *)name;
-- (NSString *) descriptionForFilePath:(NSString *)filepath;
-- (LDrawModel *) readModelAtPath:(NSString *)partPath partName:(NSString *)partName;
+- (LDrawModel *) modelForName:(NSString *) partName;
+- (LDrawModel *) modelForPart:(LDrawPart *) part;
+- (NSString *) partDescriptionForFile:(NSString *)filepath;
+- (NSString *) pathForFileName:(NSString *)partName;
 - (BOOL) validateLDrawFolder:(NSString *) folderPath;
 - (BOOL) validateLDrawFolderWithMessage:(NSString *) folderPath;
 

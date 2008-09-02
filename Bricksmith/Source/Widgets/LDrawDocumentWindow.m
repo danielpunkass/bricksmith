@@ -22,14 +22,20 @@
 // Purpose:		Time to do something exciting in response to a keypress.
 //
 //==============================================================================
-- (void)keyDown:(NSEvent *)theEvent
-{
-	// You can trap certain key events here. But really, why?
-
-	[super keyDown:theEvent];
-		
+- (void)keyDown:(NSEvent *)theEvent {
+	
+	unsigned int keycode = [theEvent keyCode];
+	if(   keycode == 51 //delete
+	   || keycode == 117 ) //forward delete
+	{
+		//Delete was pressed. How do we know? Why, the keycode is 51 of course.
+		// It's obvious! Plain as day! It's so blindingly clear that it would 
+		// be a total waste to document where these keycodes come from. Yup.
+		[NSApp sendAction:@selector(delete:)
+					   to:nil //just send it somewhere!
+					 from:self]; //it's from us (we'll be the sender)
+	}
 }//end keyDown:
-
 
 #pragma mark -
 #pragma mark GRAPHICS
@@ -45,9 +51,6 @@
 //
 // Note:		This solution was provided in Apple sample code. I don't quite 
 //				understand it.
-//
-//				These should be obsoleted in Tiger by 
-//				-[NSWindow disableScreenUpdatesUntilFlush]
 //
 //==============================================================================
 - (void)disableUpdatesUntilFlush

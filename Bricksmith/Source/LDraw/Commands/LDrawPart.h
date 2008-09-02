@@ -10,10 +10,11 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
+#import <pthread.h>
 
-#import "ColorLibrary.h"
 #import "LDrawDirective.h"
 #import "LDrawDrawableElement.h"
+#import "LDrawColor.h"
 #import "MatrixMath.h"
 
 @class LDrawFile;
@@ -21,20 +22,17 @@
 @class LDrawStep;
 @class PartReport;
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Class:		LDrawPart
-//
-////////////////////////////////////////////////////////////////////////////////
-@interface LDrawPart : LDrawDrawableElement <NSCoding>
-{
+@interface LDrawPart : LDrawDrawableElement <NSCoding> {
+	
 	NSString		*displayName;
 	NSString		*referenceName; //lower-case version of display name
 	
 	GLfloat			glTransformation[16];
+	BOOL			matrixIsReversed;
 
 	BOOL			hasDisplayList;
 	GLuint			displayListTag;	//list ID for normals in non-inverted matrix
+	pthread_mutex_t	displayListMutex;
 }
 
 //Initialization
@@ -51,16 +49,16 @@
 - (Point3) position;
 - (NSString *) referenceName;
 - (LDrawModel *) referencedMPDSubmodel;
-- (TransformComponents) transformComponents;
+- (TransformationComponents) transformationComponents;
 - (Matrix4) transformationMatrix;
 - (void) setDisplayName:(NSString *)newPartName;
-- (void) setTransformComponents:(TransformComponents)newComponents;
+- (void) setTransformationComponents:(TransformationComponents)newComponents;
 - (void) setTransformationMatrix:(Matrix4 *)newMatrix;
 
 //Actions
 - (void) collectPartReport:(PartReport *)report;
-- (TransformComponents) componentsSnappedToGrid:(float) gridSpacing minimumAngle:(float)degrees;
-- (TransformComponents) components:(TransformComponents)components snappedToGrid:(float)gridSpacing minimumAngle:(float)degrees;
+- (TransformationComponents) componentsSnappedToGrid:(float) gridSpacing
+										minimumAngle:(float)degrees;
 - (void) rotateByDegrees:(Tuple3)degreesToRotate;
 - (void) rotateByDegrees:(Tuple3)degreesToRotate centerPoint:(Point3)center;
 

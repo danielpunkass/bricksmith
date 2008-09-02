@@ -9,29 +9,23 @@
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
 #import <Cocoa/Cocoa.h>
+#import <pthread.h>
 
-#import "ColorLibrary.h"
+#import "LDrawColor.h"
 #import "LDrawContainer.h"
 
 @class LDrawModel;
 
 //Describes the contents of this step.
-typedef enum
-{
+typedef enum {
 	LDrawStepAnyDirectives,		//step can hold any type of subdirectives.
 	LDrawStepLines,				//step can hold *only* LDrawLines.
 	LDrawStepTriangles,			// etc.
 	LDrawStepQuadrilaterals,	// etc.
 	LDrawStepConditionalLines	// etc.
-	
 } LDrawStepFlavorT;
 
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// class LDrawStep
-//
-////////////////////////////////////////////////////////////////////////////////
 @interface LDrawStep : LDrawContainer
 {
 	//Optimization variables
@@ -40,6 +34,8 @@ typedef enum
 	
 	BOOL				hasDisplayList;
 	GLuint				displayListTag;	//list ID for normals in non-inverted matrix
+	GLuint				displayListInvertedNormalsTag; //list ID for normals in an inverted matrix
+	pthread_mutex_t		displayListMutex;
 
 	//Inherited from the superclasses:
 	//NSMutableArray	*containedObjects; //the commands that make up the step.

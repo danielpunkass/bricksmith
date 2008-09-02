@@ -11,7 +11,7 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
-#import "ColorLibrary.h"
+#import "LDrawColor.h"
 #import "MatrixMath.h"
 #import "RotationPanel.h"
 
@@ -72,7 +72,6 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 //Accessors
 - (LDrawFile *) documentContents;
 - (NSWindow *)foremostWindow;
-- (float) gridSpacing;
 - (gridSpacingModeT) gridSpacingMode;
 - (NSDrawer *) partBrowserDrawer;
 - (void) setDocumentContents:(LDrawFile *)newContents;
@@ -107,7 +106,6 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (IBAction) delete:(id)sender;
 - (IBAction) duplicate:(id)sender;
 - (IBAction) orderFrontRotationPanel:(id)sender;
-- (IBAction) quickRotateClicked:(id)sender;
 
 // - Tools menu
 - (IBAction) showInspector:(id)sender;
@@ -150,7 +148,7 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (void) rotatePart:(LDrawPart *)part byDegrees:(Tuple3)rotationDegrees aroundPoint:(Point3)rotationCenter;
 - (void) setElement:(LDrawDrawableElement *)element toHidden:(BOOL)hideFlag;
 - (void) setObject:(id <LDrawColorable> )object toColor:(LDrawColorT)newColor;
-- (void) setTransformation:(TransformComponents)newComponents forPart:(LDrawPart *)part;
+- (void) setTransformation:(TransformationComponents) newComponents forPart:(LDrawPart *)part;
 
 //Notifications
 - (void)partChanged:(NSNotification *)notification;

@@ -43,7 +43,7 @@
 #pragma mark ACCESSORS
 #pragma mark -
 
-//---------- sharedInspector -----------------------------------------[static]--
+//========== sharedInspector ===================================================
 //
 // Purpose:		Returns the inspector object, which is created when the 
 //				application launches.
@@ -51,25 +51,21 @@
 // Note:		This method is static, so we don't have to keep passing pointers 
 //				to this class around.
 //
-//------------------------------------------------------------------------------
-+ (Inspector *) sharedInspector
-{
-	return [[NSApp delegate] inspector];
-	
-}//end sharedInspector
+//==============================================================================
++ (Inspector *) sharedInspector{
+	return [[NSApp delegate] inspector];	
+}
 
 
-//---------- sharedOpenGLContext -------------------------------------[static]--
+//========== sharedOpenGLContext ===============================================
 //
 // Purpose:		Returns the OpenGLContext which unifies our display-list tags.
 //				Every LDrawGLView should share this context.
 //
-//------------------------------------------------------------------------------
-+ (NSOpenGLContext *) sharedOpenGLContext
-{
+//==============================================================================
++ (NSOpenGLContext *) sharedOpenGLContext {
 	return [[NSApp delegate] openGLContext];
-	
-}//end sharedOpenGLContext
+}
 
 
 //========== sharedPartLibrary =================================================
@@ -90,7 +86,6 @@
 	// it an instance variable of the Application Controller class, of which 
 	// there is only one instance. This class is the application delegate too.
 	return [[NSApp delegate] partLibrary];
-	
 }//end sharedPartLibrary
 
 
@@ -100,11 +95,9 @@
 //				the only copy of it in the program.
 //
 //==============================================================================
-- (Inspector *) inspector
-{
-	return inspector;
-	
-}//end inspector
+- (Inspector *) inspector{
+	return inspector;	
+}
 
 
 //========== partLibrary =======================================================
@@ -116,7 +109,6 @@
 - (PartLibrary *) partLibrary
 {
 	return partLibrary;
-	
 }//end partLibrary
 
 
@@ -129,8 +121,7 @@
 - (NSOpenGLContext *) openGLContext
 {
 	return self->sharedGLContext;
-	
-}//end openGLContext
+}
 
 
 #pragma mark -
@@ -145,11 +136,10 @@
 // Purpose:		Show the preferences window.
 //
 //==============================================================================
-- (IBAction) doPreferences:(id)sender
+- (IBAction)doPreferences:(id)sender
 {
 	[PreferencesDialogController doPreferences];
-	
-}//end doPreferences:
+}
 
 
 #pragma mark -
@@ -164,8 +154,7 @@
 - (IBAction) showInspector:(id)sender
 {
 	[inspector show:sender];
-	
-}//end showInspector:
+}
 
 
 //========== doPartBrowser: ====================================================
@@ -211,8 +200,7 @@
 - (IBAction) showMouseTools:(id)sender
 {
 	[[ToolPalette sharedToolPalette] showToolPalette:sender];
-	
-}//end showMouseTools:
+}
 
 
 #pragma mark -
@@ -228,14 +216,6 @@
 	LDrawColorPanel *colorPanel = [LDrawColorPanel sharedColorPanel];
 	
 	[colorPanel makeKeyAndOrderFront:sender];
-	
-	// It seems some DOS old-timers want to enter colors WITHOUT EVER CLICKING 
-	// THE MOUSE. So, we assume that if the color panel was summoned by its key 
-	// equivalent, we are probably dealing with one of these rabid anti-mouse 
-	// people. We automatically make the color search field key, so they can 
-	// enter color codes to their heart's content. 
-	if([[NSApp currentEvent] type] == NSKeyDown)
-		[colorPanel focusSearchField:sender];
 	
 }//end showColors:
 
@@ -255,68 +235,16 @@
 //				working automatically (touching, copying, I don't know). But 
 //				it never just happened when the application was first installed.
 //
-// Addendum:	I think the files need to be run through some help 
-//				utility/indexer in the Developer Tools. But Help Viewer in 
-//				Leopard is so abominable that I'm just going to launch a 
-//				browser. On my  PowerBook G4, the Leopard Help Viewer takes 
-//				2 minutes 42 seconds to launch and become responsive to events. 
-//				That is shockingly unacceptible. 
-//
 //==============================================================================
 - (IBAction) doHelp:(id)sender
 {
-	NSBundle	*applicationBundle	= [NSBundle mainBundle];
-	NSString	*helpPath			= [applicationBundle pathForResource:@"index"
-																  ofType:@"html"
-															 inDirectory:@"Help"];
-	NSURL		*helpURL			= [NSURL fileURLWithPath:helpPath];
+	NSBundle *applicationBundle = [NSBundle mainBundle];
+	NSString *helpRoot = [applicationBundle pathForResource:@"index"
+													 ofType:@"html"
+												inDirectory:@"Help"];
+	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
 
-//	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
-	[[NSWorkspace sharedWorkspace] openURL:helpURL];
-	
 }//end doHelp:
-
-
-//========== doKeyboardShortcutHelp: ===========================================
-//
-// Purpose:		Display a help page about keyboard shortcuts.
-//
-// Notes:		Don't use Help Viewer. See addendum  in -doHelp:.
-//
-//==============================================================================
-- (IBAction) doKeyboardShortcutHelp:(id)sender
-{
-	NSBundle	*applicationBundle	= [NSBundle mainBundle];
-	NSString	*helpPath			= [applicationBundle pathForResource:@"KeyboardShortcuts"
-																  ofType:@"html"
-															 inDirectory:@"Help"];
-	NSURL		*helpURL			= [NSURL fileURLWithPath:helpPath];
-
-//	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
-	[[NSWorkspace sharedWorkspace] openURL:helpURL];
-	
-}//end doKeyboardShortcutHelp:
-
-
-//========== doGettingNewPartsHelp: ============================================
-//
-// Purpose:		Display a help page about installing unofficial LDraw parts.
-//
-// Notes:		Don't use Help Viewer. See addendum  in -doHelp:.
-//
-//==============================================================================
-- (IBAction) doGettingNewPartsHelp:(id)sender
-{
-	NSBundle	*applicationBundle	= [NSBundle mainBundle];
-	NSString	*helpPath			= [applicationBundle pathForResource:@"AboutLDraw"
-																  ofType:@"html"
-															 inDirectory:@"Help"];
-	NSURL		*helpURL			= [NSURL fileURLWithPath:helpPath];
-
-//	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
-	[[NSWorkspace sharedWorkspace] openURL:helpURL];
-	
-}//end doKeyboardShortcutHelp:
 
 
 #pragma mark -
@@ -333,10 +261,8 @@
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
 	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= { NSOpenGLPFADoubleBuffer,
-															NSOpenGLPFADepthSize,		32,
-															NSOpenGLPFASampleBuffers,	1,
-															NSOpenGLPFASamples,			2,
-															0 };
+															NSOpenGLPFADepthSize, 32,
+															nil};
 	NSOpenGLPixelFormat				*pixelFormat		= nil;
 	
 	
@@ -369,13 +295,12 @@
 	
 	// Register for Notifications
 	[[NSNotificationCenter defaultCenter] addObserver:self
-											 selector:@selector(partBrowserStyleDidChange:)
+											 selector:@selector(partBrawserStyleDidChange:)
 												 name:LDrawPartBrowserStyleDidChangeNotification
 											   object:nil ];
 	
 	[pixelFormat release];
-	
-}//end applicationWillFinishLaunching:
+}
 
 
 //**** NSApplication ****
@@ -418,13 +343,13 @@
 #pragma mark NOTIFICATIONS
 #pragma mark -
 
-//========== partBrowserStyleDidChange: ========================================
+//========== partBrawserStyleDidChange: ========================================
 //
 // Purpose:		Reconfigure the part browser display based on new user 
 //				preferences.
 //
 //==============================================================================
-- (void) partBrowserStyleDidChange:(NSNotification *)notification
+- (void) partBrawserStyleDidChange:(NSNotification *)notification
 {
 	NSUserDefaults			*userDefaults		= [NSUserDefaults standardUserDefaults];
 	PartBrowserStyleT		 newStyle			= [userDefaults integerForKey:PART_BROWSER_STYLE_KEY];
@@ -462,7 +387,7 @@
 			break;
 	} 
 	
-}//end partBrowserStyleDidChange:
+}//end partBrawserStyleDidChange:
 
 
 #pragma mark -
@@ -476,9 +401,9 @@
 //				a folder for us if the one we have defined doesn't pan out.
 //
 //==============================================================================
-- (NSString *) findLDrawPath
-{
+- (NSString *) findLDrawPath {
 	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
+	NSFileManager	*fileManager		= [NSFileManager defaultManager];
 	int				 counter			= 0;
 	BOOL			 foundAPath			= NO;
 	
@@ -491,6 +416,7 @@
 	//Try User Defaults first; maybe we've already saved one.
 	NSString		*preferencePath		= [userDefaults stringForKey:LDRAW_PATH_KEY];
 	NSString		*ldrawPath			= preferencePath;
+	BOOL			 prefsPathValid		= NO;
 	
 	if(preferencePath == nil)
 		preferencePath = @""; //we're going to add this to an array. Can't have a nil object.
@@ -507,19 +433,16 @@
 														library,
 														userLibrary,
 														nil ];
-	for(counter = 0; counter < [potentialPaths count] && foundAPath == NO; counter++)
-	{
+	for(counter = 0; counter < [potentialPaths count] && foundAPath == NO; counter++){
 		ldrawPath = [potentialPaths objectAtIndex:counter];
 		foundAPath = [partLibrary validateLDrawFolder:ldrawPath];
 	}
 
 	//We found one.
-	if(foundAPath == YES)
-	{
+	if(foundAPath == YES){
 		[userDefaults setObject:ldrawPath forKey:LDRAW_PATH_KEY];
 	}
-	else
-	{	//never mind.
+	else{ //never mind.
 		//If they *thought* they had a selection then display a message 
 		// telling them their selection is no good.
 		if([preferencePath length] >= 0)
@@ -541,14 +464,12 @@
 // Purpose:		The curtain falls.
 //
 //==============================================================================
-- (void) dealloc
-{
+- (void) dealloc{
 	[partLibrary		release];
 	[inspector			release];
 	[sharedGLContext	release];
 
 	[super dealloc];
-	
-}//end dealloc
+}
 
 @end

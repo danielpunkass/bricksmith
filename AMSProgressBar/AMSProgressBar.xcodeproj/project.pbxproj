@@ -16,6 +16,38 @@
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildStyle section */
+		014CEA440018CDF011CA2923 /* Development */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_LOCATION = NO;
+				DSTROOT = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = DYNAMIC;
+				SKIP_INSTALL = NO;
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		014CEA450018CDF011CA2923 /* Deployment */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				INSTALL_PATH = "@executable_path/../Frameworks";
+				LIBRARY_STYLE = DYNAMIC;
+				SKIP_INSTALL = YES;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+/* End PBXBuildStyle section */
+
 /* Begin PBXFileReference section */
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -144,6 +176,20 @@
 			);
 			buildRules = (
 			);
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = AMSProgressBar_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = AMSProgressBar;
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = framework;
+			};
 			dependencies = (
 			);
 			name = AMSProgressBar;
@@ -158,12 +204,16 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 2BB596FD09FEFCD00077A885 /* Build configuration list for PBXProject "AMSProgressBar" */;
-			compatibilityVersion = "Xcode 2.4";
+			buildSettings = {
+			};
+			buildStyles = (
+				014CEA440018CDF011CA2923 /* Development */,
+				014CEA450018CDF011CA2923 /* Deployment */,
+			);
 			hasScannedForEncodings = 1;
 			mainGroup = 0867D691FE84028FC02AAC07 /* AMSProgressBar */;
 			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
 			projectDirPath = "";
-			projectRoot = "";
 			targets = (
 				8DC2EF4F0486A6940098B216 /* AMSProgressBar */,
 			);
@@ -222,7 +272,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		2BB596FA09FEFCD00077A885 /* Debug */ = {
+		2BB596FA09FEFCD00077A885 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (
@@ -242,19 +292,18 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = AMSProgressBar_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "@executable_path/../Frameworks";
-				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
+				INSTALL_PATH = "";
 				LIBRARY_STYLE = DYNAMIC;
 				MACH_O_TYPE = mh_dylib;
 				PREBINDING = NO;
 				PRODUCT_NAME = AMSProgressBar;
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = framework;
 				ZERO_LINK = YES;
 			};
-			name = Debug;
+			name = Development;
 		};
-		2BB596FB09FEFCD00077A885 /* Release */ = {
+		2BB596FB09FEFCD00077A885 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (
@@ -271,7 +320,6 @@
 				GCC_PREFIX_HEADER = AMSProgressBar_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
-				LD_DYLIB_INSTALL_NAME = "$(DYLIB_INSTALL_NAME_BASE:standardizepath)/$(EXECUTABLE_PATH)";
 				LIBRARY_STYLE = DYNAMIC;
 				MACH_O_TYPE = mh_dylib;
 				PREBINDING = NO;
@@ -280,21 +328,47 @@
 				WRAPPER_EXTENSION = framework;
 				ZERO_LINK = NO;
 			};
-			name = Release;
+			name = Deployment;
 		};
-		2BB596FE09FEFCD00077A885 /* Debug */ = {
+		2BB596FC09FEFCD00077A885 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_VERSION = A;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = AMSProgressBar_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = AMSProgressBar;
+				SKIP_INSTALL = YES;
+				WRAPPER_EXTENSION = framework;
 			};
-			name = Debug;
+			name = Default;
 		};
-		2BB596FF09FEFCD00077A885 /* Release */ = {
+		2BB596FE09FEFCD00077A885 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
-			name = Release;
+			name = Development;
+		};
+		2BB596FF09FEFCD00077A885 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Deployment;
+		};
+		2BB5970009FEFCD00077A885 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Default;
 		};
 /* End XCBuildConfiguration section */
 
@@ -302,20 +376,22 @@
 		2BB596F909FEFCD00077A885 /* Build configuration list for PBXNativeTarget "AMSProgressBar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2BB596FA09FEFCD00077A885 /* Debug */,
-				2BB596FB09FEFCD00077A885 /* Release */,
+				2BB596FA09FEFCD00077A885 /* Development */,
+				2BB596FB09FEFCD00077A885 /* Deployment */,
+				2BB596FC09FEFCD00077A885 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Default;
 		};
 		2BB596FD09FEFCD00077A885 /* Build configuration list for PBXProject "AMSProgressBar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2BB596FE09FEFCD00077A885 /* Debug */,
-				2BB596FF09FEFCD00077A885 /* Release */,
+				2BB596FE09FEFCD00077A885 /* Development */,
+				2BB596FF09FEFCD00077A885 /* Deployment */,
+				2BB5970009FEFCD00077A885 /* Default */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Default;
 		};
 /* End XCConfigurationList section */
 	};

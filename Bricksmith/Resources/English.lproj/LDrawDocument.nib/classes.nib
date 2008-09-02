@@ -1,287 +1,115 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>IBClasses</key>
-	<array>
-		<dict>
-			<key>CLASS</key>
-			<string>LDrawFileOutlineView</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSOutlineView</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>PartBrowserTableView</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSTableView</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>IconTextCell</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSTextFieldCell</string>
-		</dict>
-		<dict>
-			<key>ACTIONS</key>
-			<dict>
-				<key>addCommentClicked</key>
-				<string>id</string>
-				<key>addConditionalClicked</key>
-				<string>id</string>
-				<key>addLineClicked</key>
-				<string>id</string>
-				<key>addModelClicked</key>
-				<string>id</string>
-				<key>addPartClicked</key>
-				<string>id</string>
-				<key>addQuadrilateralClicked</key>
-				<string>id</string>
-				<key>addRawCommandClicked</key>
-				<string>id</string>
-				<key>addStepClicked</key>
-				<string>id</string>
-				<key>addSubmodelReferenceClicked</key>
-				<string>id</string>
-				<key>addTriangleClicked</key>
-				<string>id</string>
-				<key>advanceOneStep</key>
-				<string>id</string>
-				<key>backOneStep</key>
-				<string>id</string>
-				<key>changeLDrawColor</key>
-				<string>id</string>
-				<key>copy</key>
-				<string>id</string>
-				<key>delete</key>
-				<string>id</string>
-				<key>doMissingPiecesCheck</key>
-				<string>id</string>
-				<key>doMovedPiecesCheck</key>
-				<string>id</string>
-				<key>duplicate</key>
-				<string>id</string>
-				<key>exportSteps</key>
-				<string>id</string>
-				<key>gridGranularityMenuChanged</key>
-				<string>id</string>
-				<key>hideParts</key>
-				<string>id</string>
-				<key>insertLDrawPart</key>
-				<string>id</string>
-				<key>modelSelected</key>
-				<string>id</string>
-				<key>orderFrontRotationPanel</key>
-				<string>id</string>
-				<key>panelMoveParts</key>
-				<string>id</string>
-				<key>panelRotateParts</key>
-				<string>id</string>
-				<key>paste</key>
-				<string>id</string>
-				<key>quickRotateClicked</key>
-				<string>id</string>
-				<key>showDimensions</key>
-				<string>id</string>
-				<key>showInspector</key>
-				<string>id</string>
-				<key>showParts</key>
-				<string>id</string>
-				<key>showPieceCount</key>
-				<string>id</string>
-				<key>snapSelectionToGrid</key>
-				<string>id</string>
-				<key>toggleFileContentsDrawer</key>
-				<string>id</string>
-				<key>toggleStepDisplay</key>
-				<string>id</string>
-				<key>zoomActual</key>
-				<string>id</string>
-				<key>zoomIn</key>
-				<string>id</string>
-				<key>zoomOut</key>
-				<string>id</string>
-			</dict>
-			<key>CLASS</key>
-			<string>LDrawDocument</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>OUTLETS</key>
-			<dict>
-				<key>bindingsController</key>
-				<string>NSObjectController</string>
-				<key>fileContentsDrawer</key>
-				<string>NSDrawer</string>
-				<key>fileContentsOutline</key>
-				<string>LDrawFileOutlineView</string>
-				<key>fileDetailView1</key>
-				<string>LDrawGLView</string>
-				<key>fileDetailView2</key>
-				<string>LDrawGLView</string>
-				<key>fileDetailView3</key>
-				<string>LDrawGLView</string>
-				<key>fileGraphicView</key>
-				<string>LDrawGLView</string>
-				<key>horizontalSplitView</key>
-				<string>ExtendedSplitView</string>
-				<key>partBrowserDrawer</key>
-				<string>NSDrawer</string>
-				<key>partsBrowser</key>
-				<string>PartBrowserDataSource</string>
-				<key>toolbarController</key>
-				<string>DocumentToolbarController</string>
-				<key>verticalDetailSplitView</key>
-				<string>ExtendedSplitView</string>
-			</dict>
-			<key>SUPERCLASS</key>
-			<string>NSDocument</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>NSObject</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-		</dict>
-		<dict>
-			<key>ACTIONS</key>
-			<dict>
-				<key>addPartClicked</key>
-				<string>id</string>
-				<key>categoryComboBoxChanged</key>
-				<string>id</string>
-				<key>doubleClickedInPartTable</key>
-				<string>id</string>
-				<key>searchFieldChanged</key>
-				<string>id</string>
-			</dict>
-			<key>CLASS</key>
-			<string>PartBrowserDataSource</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>OUTLETS</key>
-			<dict>
-				<key>categoryComboBox</key>
-				<string>NSComboBox</string>
-				<key>partPreview</key>
-				<string>LDrawGLView</string>
-				<key>partsTable</key>
-				<string>NSTableView</string>
-				<key>searchField</key>
-				<string>NSSearchField</string>
-			</dict>
-			<key>SUPERCLASS</key>
-			<string>NSObject</string>
-		</dict>
-		<dict>
-			<key>ACTIONS</key>
-			<dict>
-				<key>drawThreaded</key>
-				<string>id</string>
-				<key>viewingAngleSelected</key>
-				<string>id</string>
-				<key>zoomIn</key>
-				<string>id</string>
-				<key>zoomOut</key>
-				<string>id</string>
-			</dict>
-			<key>CLASS</key>
-			<string>LDrawGLView</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>OUTLETS</key>
-			<dict>
-				<key>delegate</key>
-				<string>id</string>
-				<key>document</key>
-				<string>LDrawDocument</string>
-			</dict>
-			<key>SUPERCLASS</key>
-			<string>NSOpenGLView</string>
-		</dict>
-		<dict>
-			<key>ACTIONS</key>
-			<dict>
-				<key>nudgeXClicked</key>
-				<string>id</string>
-				<key>nudgeYClicked</key>
-				<string>id</string>
-				<key>nudgeZClicked</key>
-				<string>id</string>
-				<key>rotateNegativeXClicked</key>
-				<string>id</string>
-				<key>rotateNegativeYClicked</key>
-				<string>id</string>
-				<key>rotateNegativeZClicked</key>
-				<string>id</string>
-				<key>rotatePositiveXClicked</key>
-				<string>id</string>
-				<key>rotatePositiveYClicked</key>
-				<string>id</string>
-				<key>rotatePositiveZClicked</key>
-				<string>id</string>
-				<key>zoomScaleChanged</key>
-				<string>id</string>
-			</dict>
-			<key>CLASS</key>
-			<string>DocumentToolbarController</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>OUTLETS</key>
-			<dict>
-				<key>document</key>
-				<string>LDrawDocument</string>
-				<key>nudgeXToolView</key>
-				<string>NSView</string>
-				<key>nudgeYToolView</key>
-				<string>NSView</string>
-				<key>nudgeZToolView</key>
-				<string>NSView</string>
-				<key>zoomToolTextField</key>
-				<string>NSTextField</string>
-			</dict>
-			<key>SUPERCLASS</key>
-			<string>NSObject</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>LDrawDocumentWindow</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSWindow</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>NSWindow</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSResponder</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>NSScrollView</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSView</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>ExtendedSplitView</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSSplitView</string>
-		</dict>
-	</array>
-	<key>IBVersion</key>
-	<string>1</string>
-</dict>
-</plist>
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                nudgeXClicked = id; 
+                nudgeYClicked = id; 
+                nudgeZClicked = id; 
+                rotateNegativeXClicked = id; 
+                rotateNegativeYClicked = id; 
+                rotateNegativeZClicked = id; 
+                rotatePositiveXClicked = id; 
+                rotatePositiveYClicked = id; 
+                rotatePositiveZClicked = id; 
+                zoomScaleChanged = id; 
+            }; 
+            CLASS = DocumentToolbarController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                document = LDrawDocument; 
+                nudgeXToolView = NSView; 
+                nudgeYToolView = NSView; 
+                nudgeZToolView = NSView; 
+                zoomToolTextField = NSTextField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = ExtendedSplitView; LANGUAGE = ObjC; SUPERCLASS = NSSplitView; }, 
+        {CLASS = IconTextCell; LANGUAGE = ObjC; SUPERCLASS = NSTextFieldCell; }, 
+        {
+            ACTIONS = {
+                addCommentClicked = id; 
+                addConditionalClicked = id; 
+                addLineClicked = id; 
+                addModelClicked = id; 
+                addPartClicked = id; 
+                addQuadrilateralClicked = id; 
+                addStepClicked = id; 
+                addSubmodelReferenceClicked = id; 
+                addTriangleClicked = id; 
+                advanceOneStep = id; 
+                backOneStep = id; 
+                changeLDrawColor = id; 
+                copy = id; 
+                delete = id; 
+                doMissingPiecesCheck = id; 
+                doMovedPiecesCheck = id; 
+                duplicate = id; 
+                exportSteps = id; 
+                gridGranularityMenuChanged = id; 
+                hideParts = id; 
+                insertLDrawPart = id; 
+                modelSelected = id; 
+                orderFrontRotationPanel = id; 
+                panelMoveParts = id; 
+                panelRotateParts = id; 
+                paste = id; 
+                showDimensions = id; 
+                showInspector = id; 
+                showParts = id; 
+                showPieceCount = id; 
+                snapSelectionToGrid = id; 
+                toggleFileContentsDrawer = id; 
+                toggleStepDisplay = id; 
+                zoomActual = id; 
+                zoomIn = id; 
+                zoomOut = id; 
+            }; 
+            CLASS = LDrawDocument; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                bindingsController = NSObjectController; 
+                fileContentsDrawer = NSDrawer; 
+                fileContentsOutline = LDrawFileOutlineView; 
+                fileDetailView1 = LDrawGLView; 
+                fileDetailView2 = LDrawGLView; 
+                fileDetailView3 = LDrawGLView; 
+                fileGraphicView = LDrawGLView; 
+                horizontalSplitView = ExtendedSplitView; 
+                partBrowserDrawer = NSDrawer; 
+                partsBrowser = PartBrowserDataSource; 
+                toolbarController = DocumentToolbarController; 
+                verticalDetailSplitView = ExtendedSplitView; 
+            }; 
+            SUPERCLASS = NSDocument; 
+        }, 
+        {CLASS = LDrawDocumentWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }, 
+        {CLASS = LDrawFileOutlineView; LANGUAGE = ObjC; SUPERCLASS = NSOutlineView; }, 
+        {
+            ACTIONS = {zoomIn = id; zoomOut = id; }; 
+            CLASS = LDrawGLView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {document = LDrawDocument; }; 
+            SUPERCLASS = NSOpenGLView; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }, 
+        {
+            ACTIONS = {
+                addPartClicked = id; 
+                categoryComboBoxChanged = id; 
+                doubleClickedInPartTable = id; 
+                searchFieldChanged = id; 
+            }; 
+            CLASS = PartBrowserDataSource; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                categoryComboBox = NSComboBox; 
+                partPreview = LDrawGLView; 
+                partsTable = NSTableView; 
+                searchField = NSSearchField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

@@ -9,17 +9,11 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
-#import "ColorLibrary.h"
+#import "LDrawColor.h"
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Class:		LDrawColorWell
-//
-////////////////////////////////////////////////////////////////////////////////
 @interface LDrawColorWell : NSButton <LDrawColorable>
 {
 	LDrawColorT colorCode;
-	NSColor		*nsColor;
 }
 
 //Active color well
@@ -27,7 +21,9 @@
 + (void) setActiveColorWell:(LDrawColorWell *)newWell;
 
 //Accessors
+- (LDrawColorT) colorCode;
 -(LDrawColorT) LDrawColor;
+- (void) setColorCode:(LDrawColorT) newColorCode;
 - (void) setLDrawColor:(LDrawColorT)newColor;
 
 //Actions

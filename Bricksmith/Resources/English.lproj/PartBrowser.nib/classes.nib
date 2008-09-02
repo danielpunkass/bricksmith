@@ -37,7 +37,6 @@
             }; 
             SUPERCLASS = NSPanel; 
         }, 
-        {CLASS = PartBrowserTableView; LANGUAGE = ObjC; SUPERCLASS = NSTableView; }, 
         {CLASS = "java.lang.Object"; LANGUAGE = Java; }
     ); 
     IBVersion = 1; 

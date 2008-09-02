@@ -20,9 +20,6 @@
 
 @implementation PreferencesDialogController
 
-#define PREFERENCES_WINDOW_AUTOSAVE_NAME	@"PreferencesWindow"
-
-
 //The shared preferences window. We need to store this reference here so that 
 // we can simply bring the window to the front when it is already onscreen, 
 // rather than accidentally creating a whole new one.
@@ -51,57 +48,44 @@ PreferencesDialogController *preferencesDialog = nil;
 		lastIdentifier = PREFS_LDRAW_TAB_IDENTFIER;
 	[self selectPanelWithIdentifier:lastIdentifier];
 	
-	// After the window has been resized for the tab, *then* restore the size.
-	[self->preferencesWindow setFrameUsingName:PREFERENCES_WINDOW_AUTOSAVE_NAME];
-	
 }//end awakeFromNib
-
 
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- doPreferences -------------------------------------------[static]--
+//========== doPreferences =====================================================
 //
 // Purpose:		Show the preferences window.
 //
-//------------------------------------------------------------------------------
-+ (void) doPreferences
-{
+//==============================================================================
++ (void) doPreferences{
+
 	if(preferencesDialog == nil)
 		preferencesDialog = [[PreferencesDialogController alloc] init];
 	
 	[preferencesDialog showPreferencesWindow];
-
-}//end doPreferences
-
+}
 
 //========== init ==============================================================
 //
 // Purpose:		Make us an object. Load us our window.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init{
 	self = [super init];
-	
 	[NSBundle loadNibNamed:@"Preferences" owner:self];
-	
 	return self;
-	
-}//end init
-
+}
 
 //========== showPreferencesWindow =============================================
 //
 // Purpose:		Brings the window on screen.
 //
 //==============================================================================
-- (void) showPreferencesWindow
-{
+- (void) showPreferencesWindow{
 	[self setDialogValues];
 	[preferencesWindow makeKeyAndOrderFront:nil];
-	
 }//end showPreferencesWindow
 
 
@@ -143,10 +127,6 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[gridSpacingForm cellAtIndex:1] setFloatValue:gridMedium];
 	[[gridSpacingForm cellAtIndex:2] setFloatValue:gridCoarse];
 	
-	// Mouse Dragging
-	MouseDragBehaviorT	mouseBehavior	= [userDefaults integerForKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
-	[self->mouseDraggingRadioButtons selectCellWithTag:mouseBehavior];
-	
 }//end setGeneralTabValues
 
 
@@ -164,7 +144,6 @@ PreferencesDialogController *preferencesDialog = nil;
 	NSColor			*stepsColor			= [userDefaults colorForKey:SYNTAX_COLOR_STEPS_KEY];
 	NSColor			*partsColor			= [userDefaults colorForKey:SYNTAX_COLOR_PARTS_KEY];
 	NSColor			*primitivesColor	= [userDefaults colorForKey:SYNTAX_COLOR_PRIMITIVES_KEY];
-	NSColor			*colorsColor		= [userDefaults colorForKey:SYNTAX_COLOR_COLORS_KEY];
 	NSColor			*commentsColor		= [userDefaults colorForKey:SYNTAX_COLOR_COMMENTS_KEY];
 	NSColor			*unknownColor		= [userDefaults colorForKey:SYNTAX_COLOR_UNKNOWN_KEY];
 	
@@ -175,7 +154,6 @@ PreferencesDialogController *preferencesDialog = nil;
 	[partsColorWell			setColor:partsColor];
 	[primitivesColorWell	setColor:primitivesColor];
 	[commentsColorWell		setColor:commentsColor];
-	[colorsColorWell		setColor:colorsColor];
 	[unknownColorWell		setColor:unknownColor];
 
 }//end setStylesTabValues
@@ -188,7 +166,9 @@ PreferencesDialogController *preferencesDialog = nil;
 //==============================================================================
 - (void) setLDrawTabValues
 {
+	PartLibrary			*partLibrary		= [LDrawApplication sharedPartLibrary];
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
+	NSFileManager		*fileManager		= [NSFileManager defaultManager];
 	NSString			*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
 	PartBrowserStyleT	 partBrowserStyle	= [userDefaults integerForKey:PART_BROWSER_STYLE_KEY];
 	
@@ -208,19 +188,18 @@ PreferencesDialogController *preferencesDialog = nil;
 #pragma mark ACTIONS
 #pragma mark -
 
-//========== changeTab: ========================================================
+//========== changeTab =========================================================
 //
 // Purpose:		Sent by the toolbar "tabs" to indicate the preferences pane 
 //				should change.
 //
 //==============================================================================
-- (void) changeTab:(id)sender
+- (void)changeTab:(id)sender
 {	
 	NSString	*itemIdentifier	= [sender itemIdentifier];
 	
 	[self selectPanelWithIdentifier:itemIdentifier];
-	
-}//end changeTab:
+}
 
 
 #pragma mark -
@@ -248,46 +227,8 @@ PreferencesDialogController *preferencesDialog = nil;
 }//end gridSpacingChanged:
 
 
-//========== mouseDraggingChanged: =============================================
-//
-// Purpose:		Mouse drag-and-drop behavior was changed.
-//
-//==============================================================================
-- (IBAction) mouseDraggingChanged:(id)sender
-{
-	NSUserDefaults		*userDefaults	= [NSUserDefaults standardUserDefaults];
-	MouseDragBehaviorT	mouseBehavior	= [self->mouseDraggingRadioButtons selectedTag];
-	
-	[userDefaults setInteger:mouseBehavior
-					  forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
-	
-}//end mouseDraggingChanged:
-
-
 #pragma mark -
 #pragma mark Parts Tab
-
-//========== partBrowserStyleChanged: ==========================================
-//
-// Purpose:		We have multiple ways of showing the part browser.
-//
-//==============================================================================
-- (IBAction) partBrowserStyleChanged:(id)sender
-{
-	NSUserDefaults		*userDefaults	= [NSUserDefaults standardUserDefaults];
-	PartBrowserStyleT	 newStyle		= [self->partBrowserStyleRadioButtons selectedTag];
-	
-	[userDefaults setInteger:newStyle forKey:PART_BROWSER_STYLE_KEY];
-	
-	//inform interested parties.
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawPartBrowserStyleDidChangeNotification
-						  object:[NSNumber numberWithInt:newStyle] ];
-	
-}//end partBrowserStyleChanged:
-
-
-#pragma mark -
 
 //========== chooseLDrawFolder =================================================
 //
@@ -329,8 +270,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	NSString *newPath = [LDrawPathTextField stringValue];
 	
 	[self changeLDrawFolderPath:newPath];
-	
-}//end pathTextFieldChanged:
+}
 
 
 //========== reloadParts: ======================================================
@@ -349,6 +289,27 @@ PreferencesDialogController *preferencesDialog = nil;
 	
 }//end reloadParts:
 
+
+#pragma mark -
+
+//========== partBrowserStyleChanged: ==========================================
+//
+// Purpose:		We have multiple ways of showing the part browser.
+//
+//==============================================================================
+- (IBAction) partBrowserStyleChanged:(id)sender
+{
+	NSUserDefaults		*userDefaults	= [NSUserDefaults standardUserDefaults];
+	PartBrowserStyleT	 newStyle		= [self->partBrowserStyleRadioButtons selectedTag];
+	
+	[userDefaults setInteger:newStyle forKey:PART_BROWSER_STYLE_KEY];
+	
+	//inform interested parties.
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName:LDrawPartBrowserStyleDidChangeNotification
+						  object:[NSNumber numberWithInt:newStyle] ];
+	
+}//end partBrowserStyleChanged:
 
 #pragma mark -
 #pragma mark Styles Tab
@@ -388,8 +349,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[NSNotificationCenter defaultCenter] 
 			postNotificationName:LDrawSyntaxColorsDidChangeNotification
 						  object:NSApp ];
-						  
-}//end modelsColorWellChanged:
+}
 
 
 //========== stepsColorWellChanged: ============================================
@@ -397,8 +357,7 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		This syntax-color well changed. Update the value in preferences.
 //
 //==============================================================================
-- (IBAction) stepsColorWellChanged:(id)sender
-{
+- (IBAction) stepsColorWellChanged:(id)sender{
 	NSColor			*newColor		= [sender color];
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
@@ -407,17 +366,14 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[NSNotificationCenter defaultCenter] 
 			postNotificationName:LDrawSyntaxColorsDidChangeNotification
 						  object:NSApp ];
-						  
-}//end stepsColorWellChanged:
-
+}
 
 //========== partsColorWellChanged: ============================================
 //
 // Purpose:		This syntax-color well changed. Update the value in preferences.
 //
 //==============================================================================
-- (IBAction) partsColorWellChanged:(id)sender
-{
+- (IBAction) partsColorWellChanged:(id)sender{
 	NSColor			*newColor		= [sender color];
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
@@ -426,17 +382,14 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[NSNotificationCenter defaultCenter] 
 			postNotificationName:LDrawSyntaxColorsDidChangeNotification
 						  object:NSApp ];
-						  
-}//end partsColorWellChanged:
-
+}
 
 //========== primitivesColorWellChanged: =======================================
 //
 // Purpose:		This syntax-color well changed. Update the value in preferences.
 //
 //==============================================================================
-- (IBAction) primitivesColorWellChanged:(id)sender
-{
+- (IBAction) primitivesColorWellChanged:(id)sender{
 	NSColor			*newColor		= [sender color];
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
@@ -445,27 +398,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[NSNotificationCenter defaultCenter] 
 			postNotificationName:LDrawSyntaxColorsDidChangeNotification
 						  object:NSApp ];
-						  
-}//end primitivesColorWellChanged:
-
-
-//========== colorsColorWellChanged: ===========================================
-//
-// Purpose:		This syntax-color well changed. Update the value in preferences.
-//
-//==============================================================================
-- (IBAction) colorsColorWellChanged:(id)sender
-{
-	NSColor			*newColor		= [sender color];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setColor:newColor forKey:SYNTAX_COLOR_COLORS_KEY];
-	
-	[[NSNotificationCenter defaultCenter] 
-			postNotificationName:LDrawSyntaxColorsDidChangeNotification
-						  object:NSApp ];
-	
-}//end colorsColorWellChanged:
+}
 
 
 //========== commentsColorWellChanged: =========================================
@@ -473,8 +406,7 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		This syntax-color well changed. Update the value in preferences.
 //
 //==============================================================================
-- (IBAction) commentsColorWellChanged:(id)sender
-{
+- (IBAction) commentsColorWellChanged:(id)sender{
 	NSColor			*newColor		= [sender color];
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
@@ -483,8 +415,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[NSNotificationCenter defaultCenter] 
 			postNotificationName:LDrawSyntaxColorsDidChangeNotification
 						  object:NSApp ];
-						  
-}//end commentsColorWellChanged:
+}
 
 
 //========== unknownColorWellChanged: ==========================================
@@ -492,8 +423,7 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		This syntax-color well changed. Update the value in preferences.
 //
 //==============================================================================
-- (IBAction) unknownColorWellChanged:(id)sender
-{
+- (IBAction) unknownColorWellChanged:(id)sender{
 	NSColor			*newColor		= [sender color];
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
@@ -502,8 +432,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[[NSNotificationCenter defaultCenter] 
 			postNotificationName:LDrawSyntaxColorsDidChangeNotification
 						  object:NSApp ];
-						  
-}//end unknownColorWellChanged:
+}
 
 
 #pragma mark -
@@ -522,8 +451,9 @@ PreferencesDialogController *preferencesDialog = nil;
 						PREFS_GENERAL_TAB_IDENTIFIER,
 						PREFS_LDRAW_TAB_IDENTFIER,
 						PREFS_STYLE_TAB_IDENTFIER,
-						nil ];
-}//end toolbarAllowedItemIdentifiers:
+						nil
+			];
+}
 
 
 //**** NSToolbar ****
@@ -535,8 +465,7 @@ PreferencesDialogController *preferencesDialog = nil;
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
 {
 	return [self toolbarAllowedItemIdentifiers:toolbar];
-	
-}//end toolbarDefaultItemIdentifiers:
+}
 
 
 //**** NSToolbar ****
@@ -545,15 +474,14 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		The tabs selectable in the preferences window.
 //
 //==============================================================================
-- (NSArray *) toolbarSelectableItemIdentifiers:(NSToolbar *)toolbar
+- (NSArray *)toolbarSelectableItemIdentifiers:(NSToolbar *)toolbar
 {
 	return [self toolbarAllowedItemIdentifiers:toolbar];
-	
-}//end toolbarSelectableItemIdentifiers:
+}
 
 
 //**** NSToolbar ****
-//========== toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: ==========
+//========== toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:: =========
 //
 // Purpose:		Creates the "tabs" used in the preferences window.
 //
@@ -579,9 +507,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[newItem setAction:@selector(changeTab:)];
 	
 	return [newItem autorelease];
-	
-}//end toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:
-
+}
 
 #pragma mark -
 #pragma mark WINDOW DELEGATE
@@ -593,7 +519,7 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		Used to release the preferences controller.
 //
 //==============================================================================
-- (BOOL) windowShouldClose:(id)sender
+- (BOOL)windowShouldClose:(id)sender
 {
 	//Save out the last tab view.
 	NSUserDefaults	*userDefaults = [NSUserDefaults standardUserDefaults];
@@ -602,16 +528,10 @@ PreferencesDialogController *preferencesDialog = nil;
 	[userDefaults setObject:lastIdentifier
 					 forKey:PREFERENCES_LAST_TAB_DISPLAYED];
 	
-	// Cocoa autosaving doesn't necessarily get restored when we need it to, so 
-	// we have to track in manually.  
-	[self->preferencesWindow saveFrameUsingName:PREFERENCES_WINDOW_AUTOSAVE_NAME];
-	
 	//Make sure our memory is all released.
 	[preferencesDialog autorelease];
-	
 	return YES;
-	
-}//end windowShouldClose:
+}
 
 
 #pragma mark -
@@ -619,7 +539,7 @@ PreferencesDialogController *preferencesDialog = nil;
 #pragma mark -
 
 
-//---------- ensureDefaults ------------------------------------------[static]--
+//========== ensureDefaults ====================================================
 //
 // Purpose:		Verifies that all expected settings exist in preferences. If a 
 //				setting is not found, it is restored to its default value.
@@ -628,32 +548,27 @@ PreferencesDialogController *preferencesDialog = nil;
 //				rest of the program need not worry about preference 
 //				error-checking.
 //
-//------------------------------------------------------------------------------
+//==============================================================================
 + (void) ensureDefaults
 {
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 	NSMutableDictionary	*initialDefaults	= [NSMutableDictionary dictionary];
 	
-	NSColor				*backgroundColor	= [NSColor whiteColor];
-	NSColor				*modelsColor		= [NSColor blackColor];
-	NSColor				*stepsColor			= [NSColor blackColor];
-	NSColor				*partsColor			= [NSColor blackColor];
-	NSColor				*primitivesColor	= [NSColor blueColor];
-	NSColor				*colorsColor		= [NSColor colorWithDeviceRed:  0./ 255
-																    green:128./ 255
-																	 blue:128./ 255
-																    alpha:1.0 ];
-	NSColor				*commentsColor		= [NSColor colorWithDeviceRed: 35./ 255
-																    green:110./ 255
-																	 blue: 37./ 255
-																    alpha:1.0 ];
-	NSColor				*unknownColor		= [NSColor lightGrayColor];
+	NSColor			*backgroundColor	= [NSColor whiteColor];
+	NSColor			*modelsColor		= [NSColor blackColor];
+	NSColor			*stepsColor			= [NSColor blackColor];
+	NSColor			*partsColor			= [NSColor blackColor];
+	NSColor			*primitivesColor	= [NSColor blueColor];
+	NSColor			*commentsColor		= [NSColor colorWithDeviceRed:(float) 35 / 255
+																green:(float)110 / 255
+																 blue:(float) 37 / 255
+																alpha:1.0 ];
+	NSColor			*unknownColor		= [NSColor lightGrayColor];
 	
 	//
 	// General
 	//
-	[initialDefaults setObject:[NSNumber numberWithInt:PartBrowserShowAsDrawer]			forKey:PART_BROWSER_STYLE_KEY];
-	[initialDefaults setObject:[NSNumber numberWithInt:MouseDraggingBeginImmediately]	forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
+	[initialDefaults setObject:[NSNumber numberWithInt:PartBrowserShowAsDrawer]	forKey:PART_BROWSER_STYLE_KEY];
 
 	//
 	// Syntax Colors
@@ -665,7 +580,6 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:partsColor]		forKey:SYNTAX_COLOR_PARTS_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:primitivesColor]	forKey:SYNTAX_COLOR_PRIMITIVES_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:commentsColor]	forKey:SYNTAX_COLOR_COMMENTS_KEY];
-	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:colorsColor]		forKey:SYNTAX_COLOR_COLORS_KEY];
 	[initialDefaults setObject:[NSArchiver archivedDataWithRootObject:unknownColor]		forKey:SYNTAX_COLOR_UNKNOWN_KEY];
 	
 	//
@@ -777,7 +691,6 @@ PreferencesDialogController *preferencesDialog = nil;
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
 	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" MinifigureGeneratorView"]];
-	[initialDefaults setObject:(id)kCFBooleanFalse									forKey:@"UseThreads"];
 	
 	//
 	// COMMIT!
@@ -793,8 +706,8 @@ PreferencesDialogController *preferencesDialog = nil;
 //				check it out and reload the parts from it.
 //
 //==============================================================================
-- (void) changeLDrawFolderPath:(NSString *) folderPath
-{
+- (void) changeLDrawFolderPath:(NSString *) folderPath{
+
 	PartLibrary		*partLibrary	= [LDrawApplication sharedPartLibrary];
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	
@@ -808,9 +721,7 @@ PreferencesDialogController *preferencesDialog = nil;
 		[self reloadParts:self];
 	}
 	//else we displayed an error message already.
-	
-}//end changeLDrawFolderPath:
-
+}
 
 //========== selectPanelWithIdentifier: ========================================
 //
@@ -818,7 +729,7 @@ PreferencesDialogController *preferencesDialog = nil;
 //				represented by itemIdentifier.
 //
 //==============================================================================
-- (void) selectPanelWithIdentifier:(NSString *)itemIdentifier
+- (void)selectPanelWithIdentifier:(NSString *)itemIdentifier
 {
 	NSView		*newContentView	= nil;
 	NSRect		 newFrameRect	= NSZeroRect;
@@ -858,7 +769,7 @@ PreferencesDialogController *preferencesDialog = nil;
 // Purpose:		It's time to get fitted for a halo.
 //
 //==============================================================================
-- (void) dealloc
+- (void)dealloc
 {
 	[generalTabContentView	release];
 	[preferencesWindow		release];
@@ -869,8 +780,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	preferencesDialog = nil;
 	
 	[super dealloc];
-	
-}//end dealloc
+}
 
 
 @end

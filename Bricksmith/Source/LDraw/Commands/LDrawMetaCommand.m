@@ -10,28 +10,23 @@
 //
 //				where
 //
-//				* command is a string; it could mean anything. We have specific 
-//				subclasses to deal with recognized meta-commands. This class is 
-//				the fallback class for unrecognized commands. 
+//				* command is a string; it could mean anything.
 //
 //  Created by Allen Smith on 2/21/05.
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
 #import "LDrawMetaCommand.h"
 
-#import "LDrawColor.h"
 #import "LDrawComment.h"
 #import "LDrawUtilities.h"
-#import "MacLDraw.h"
 
 @implementation LDrawMetaCommand
-
 
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- commandWithDirectiveText: -------------------------------[static]--
+//========== commandWithDirectiveText: =========================================
 //
 // Purpose:		Given a line from an LDraw file, parse a basic meta-command line.
 //
@@ -39,106 +34,52 @@
 //
 //				0 command... 
 //
-//------------------------------------------------------------------------------
-+ (LDrawMetaCommand *) commandWithDirectiveText:(NSString *)directive
-{
+//==============================================================================
++ (LDrawMetaCommand *) commandWithDirectiveText:(NSString *)directive{
 	return [LDrawMetaCommand directiveWithString:directive];
-	
-}//end commandWithDirectiveText:
+}
 
 
-//---------- directiveWithString: ------------------------------------[static]--
+//========== directiveWithString: ==============================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
 //
-//				This method determines and returns a subclass instance for known 
-//				meta-commands. 
-//
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
-{
-	LDrawMetaCommand	*directive		= nil;
-	NSString			*parsedField	= nil;
-	NSScanner			*scanner		= [NSScanner scannerWithString:lineFromFile];
-	int					 lineCode		= 0;
-	int					 metaLineStart	= 0;
+//==============================================================================
++ (id) directiveWithString:(NSString *)lineFromFile{
+		
+	LDrawMetaCommand	*parsedLDrawMetaCommand = nil;
+	NSString			*workingLine = lineFromFile;
+	NSString			*parsedField;
 	
-	[scanner setCharactersToBeSkipped:nil];
+	//First try creating directives with all of the subclasses of this file.
+	parsedLDrawMetaCommand = [LDrawComment directiveWithString:lineFromFile];
 	
-	//A malformed part could easily cause a string indexing error, which would 
-	// raise an exception. We don't want this to happen here.
-	@try
-	{
-		//Read in the line code and advance past it.
-		[scanner scanInt:&lineCode];
-//		parsedField = [LDrawUtilities readNextField:  lineFromFile
-//										  remainder: &metaLine ];
-		// Make sure the line code matches.
-		if(lineCode == 0)
-		{
-			// The first word of a meta-command should indicate the command 
-			// itself, and thus the syntax of the rest of the line. However, the 
-			// first word might not be a recognized command. It might not even 
-			// be anything. "0\n" is perfectly valid LDraw.
-			[scanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:nil];
-			metaLineStart = [scanner scanLocation];
-			
-			[scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&parsedField];
-//			parsedField = [LDrawUtilities readNextField:  metaLine
-//											  remainder: &workingLine ];
+	if(parsedLDrawMetaCommand == nil){
+		//A malformed part could easily cause a string indexing error, which would 
+		// raise an exception. We don't want this to happen here.
+		NS_DURING
+			//Read in the line code and advance past it.
+			parsedField = [LDrawUtilities readNextField:  workingLine
+											  remainder: &workingLine ];
+			//Only attempt to create the part if this is a valid line.
+			if([parsedField intValue] == 0){
+				parsedLDrawMetaCommand = [[LDrawMetaCommand new] autorelease];
 		
-			// Comment?
-			if(		[parsedField isEqualToString:LDRAW_COMMENT_SLASH]
-			   ||	[parsedField isEqualToString:LDRAW_COMMENT_WRITE]
-			   ||   [parsedField isEqualToString:LDRAW_COMMENT_PRINT]    )
-			{
-				directive = [[LDrawComment new] autorelease];
-			}
-			// Color Definition?
-			else if([parsedField isEqualToString:LDRAW_COLOR_DEFINITION])
-			{
-				directive = [[LDrawColor new] autorelease];
+				NSString *command = [workingLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+		
+				[parsedLDrawMetaCommand setStringValue:command];
 			}
 			
-			// If we recognized the metacommand, use the subclass to finish 
-			// parsing. 
-			if(directive != nil)
-			{
-				[directive finishParsing:scanner];
-//				success = [directive finishParsing:scanner];
-				
-				// If it was malformed, let's just act like we didn't recognize 
-				// it after all.
-//				if(success == NO)
-//					directive = nil;
-			}
-			
-			// Didn't specifically recognize this metacommand. Create a 
-			// non-functional generic command to record its existence. 
-			if(directive == nil)
-			{				
-				directive = [[LDrawMetaCommand new] autorelease];
-				NSString *command = [[scanner string] substringFromIndex:metaLineStart];
+		NS_HANDLER
+			NSLog(@"the meta-command %@ was fatally invalid", lineFromFile);
+			NSLog(@" raised exception %@", [localException name]);
+		NS_ENDHANDLER
 		
-//				NSString *command = [metaLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-		
-				[directive setStringValue:command];
-			}
-		}
-		
-	}		
-	@catch(NSException *exception)
-	{
-		NSLog(@"the meta-command %@ was fatally invalid", lineFromFile);
-		NSLog(@" raised exception %@", [exception name]);
-		
-		directive = nil;
 	}
 	
-	return directive;
-	
-}//end directiveWithString:
+	return parsedLDrawMetaCommand;
+}//end lineWithDirectiveText
 
 
 //========== init ==============================================================
@@ -146,13 +87,11 @@
 // Purpose:		Initialize an empty command.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init {
 	self = [super init];
 	[self setStringValue:@""];
 	return self;
-	
-}//end init
+}
 
 
 //========== initWithCoder: ====================================================
@@ -164,13 +103,14 @@
 //==============================================================================
 - (id)initWithCoder:(NSCoder *)decoder
 {
+	const uint8_t *temporary = NULL; //pointer to a temporary buffer returned by the decoder.
+	
 	self = [super initWithCoder:decoder];
 	
 	commandString	= [[decoder decodeObjectForKey:@"commandString"] retain];
 	
 	return self;
-	
-}//end initWithCoder:
+}
 
 
 //========== encodeWithCoder: ==================================================
@@ -180,13 +120,12 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (void) encodeWithCoder:(NSCoder *)encoder
+- (void)encodeWithCoder:(NSCoder *)encoder
 {
 	[super encodeWithCoder:encoder];
 	
 	[encoder encodeObject:commandString forKey:@"commandString"];
-	
-}//end encodeWithCoder:
+}
 
 
 //========== copyWithZone: =====================================================
@@ -194,49 +133,28 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone
-{
+- (id) copyWithZone:(NSZone *)zone {
+	
 	LDrawMetaCommand *copied = (LDrawMetaCommand *)[super copyWithZone:zone];
 	
 	[copied setStringValue:[self stringValue]];
 	
 	return copied;
-	
-}//end copyWithZone:
-
-
-//========== finishParsing: ====================================================
-//
-// Purpose:		Subclasses override this method to finish parsing their specific 
-//				syntax once +directiveWithString: has determined which subclass 
-//				to instantiate. 
-//
-// Returns:		YES on success; NO on a syntax error.
-//
-//==============================================================================
-- (BOOL) finishParsing:(NSScanner *)scanner
-{
-	// LDrawMetaCommand itself doesn't have any special syntax, so we shouldn't 
-	// be getting any in this method. 
-	return NO;
-	
-}//end finishParsing:
+}
 
 
 #pragma mark -
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw ==============================================================
 //
 // Purpose:		Draws the part.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
-{
-	// Nothing to do here.
-	
-}//end draw:parentColor:
+- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor{
+	//[super draw];
+}
 
 
 //========== write =============================================================
@@ -246,8 +164,7 @@
 //				0 command... 
 //
 //==============================================================================
-- (NSString *) write
-{
+- (NSString *) write{
 	return [NSString stringWithFormat:
 				@"0 %@",
 				[self stringValue]
@@ -265,12 +182,11 @@
 //				which can be presented to the user.
 //
 //==============================================================================
-- (NSString *) browsingDescription
+- (NSString *)browsingDescription
 {
 //	return NSLocalizedString(@"Unknown Metacommand", nil);
 	return commandString;
-	
-}//end browsingDescription
+}
 
 
 //========== iconName ==========================================================
@@ -279,11 +195,9 @@
 //				object, or nil if there is no icon.
 //
 //==============================================================================
-- (NSString *) iconName
-{
+- (NSString *) iconName{
 	return @"Unknown";
-	
-}//end iconName
+}
 
 
 //========== inspectorClassName ================================================
@@ -291,11 +205,9 @@
 // Purpose:		Returns the name of the class used to inspect this one.
 //
 //==============================================================================
-- (NSString *) inspectorClassName
-{
+- (NSString *) inspectorClassName{
 	return @"InspectionUnknownCommand";
-	
-}//end inspectorClassName
+}
 
 
 #pragma mark -
@@ -307,14 +219,12 @@
 // Purpose:		updates the basic command string.
 //
 //==============================================================================
--(void) setStringValue:(NSString *)newString
-{
+-(void) setStringValue:(NSString *)newString{
 	[newString retain];
 	[commandString release];
 	
 	commandString = newString;
-	
-}//end setStringValue:
+}
 
 
 //========== stringValue =======================================================
@@ -322,11 +232,9 @@
 // Purpose:		
 //
 //==============================================================================
--(NSString *) stringValue
-{
+-(NSString *) stringValue{
 	return commandString;
-	
-}//end stringValue
+}
 
 #pragma mark -
 #pragma mark UTILITIES
@@ -338,16 +246,15 @@
 //				not to any superclass.
 //
 //==============================================================================
-- (void) registerUndoActions:(NSUndoManager *)undoManager
-{
+- (void) registerUndoActions:(NSUndoManager *)undoManager {
+	
 	[super registerUndoActions:undoManager];
 	
 	[[undoManager prepareWithInvocationTarget:self] setStringValue:[self stringValue]];
 	
 	//[undoManager setActionName:NSLocalizedString(@"UndoAttributesLine", nil)];
 	// (unused for this class; a plain "Undo" will probably be less confusing.)
-	
-}//end registerUndoActions:
+}
 
 
 #pragma mark -
@@ -359,12 +266,10 @@
 // Purpose:		Embraced by the light.
 //
 //==============================================================================
-- (void) dealloc
-{
+- (void) dealloc {
 	[commandString release];
 	
 	[super dealloc];
-	
-}//end dealloc
+}
 
 @end

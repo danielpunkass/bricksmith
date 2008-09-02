@@ -33,8 +33,7 @@
 //				visible. Returns the indexes of the selected objects.
 //
 //==============================================================================
-- (NSIndexSet *) selectObjects:(NSArray *)objects
-{
+- (NSIndexSet *) selectObjects:(NSArray *)objects {
 	//Select all the objects which have been added.
 	id					 currentObject		= nil;
 	unsigned int		 indexOfObject		= 0;
@@ -42,16 +41,13 @@
 	int					 counter			= 0;
 	
 	//Gather up the indices of the pasted objects.
-	for(counter = 0; counter < [objects count]; counter++)
-	{
+	for(counter = 0; counter < [objects count]; counter++) {
 		currentObject = [objects objectAtIndex:counter];
 		indexOfObject = [self rowForItem:currentObject];
 		[indexesToSelect addIndex:indexOfObject];
 	}
 	[self selectRowIndexes:indexesToSelect byExtendingSelection:NO];
 
-	return indexesToSelect;
-	
 }//end selectObjects:
 
 

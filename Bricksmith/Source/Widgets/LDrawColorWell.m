@@ -26,7 +26,6 @@
 //==============================================================================
 #import "LDrawColorWell.h"
 
-#import "LDrawColor.h"
 #import "LDrawColorPanel.h"
 
 @implementation LDrawColorWell
@@ -99,26 +98,31 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 //				redraws the receiever.
 //
 //==============================================================================
-- (void) setLDrawColor:(LDrawColorT)newColorCode
+- (void) setLDrawColor:(LDrawColorT)newColor
 {
-	LDrawColor	*color			= [[ColorLibrary sharedColorLibrary] colorForCode:newColorCode];
-	GLfloat		 components[4];
-	
-	// assign ivar
-	self->colorCode = newColorCode;
-	
-	// Set cached NSColor too
-	[color getColorRGBA:components];
-	
-	[self->nsColor release];
-	self->nsColor = [[NSColor colorWithCalibratedRed:components[0]
-											   green:components[1]
-												blue:components[2]
-											   alpha:1.0 ] retain];
-	
+	colorCode = newColor;
 	[self setNeedsDisplay:YES];
-	
-}//end setLDrawColor:
+}
+
+//========== colorCode =========================================================
+//
+// Purpose:		**** Deprecated ****
+//
+//==============================================================================
+- (LDrawColorT) colorCode
+{
+	return [self LDrawColor];
+}
+
+//========== setColorCode: =====================================================
+//
+// Purpose:		**** Deprecated ****
+//
+//==============================================================================
+- (void) setColorCode:(LDrawColorT) newColorCode
+{
+	[self setLDrawColor:newColorCode];
+}
 
 
 #pragma mark -
@@ -134,9 +138,10 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 {
 	[super drawRect:aRect];
 	
+	NSColor	*colorRepresented = [LDrawColor colorForCode:colorCode];
 	NSRect	 colorRect = NSInsetRect(aRect, 4, 4);
 	
-	[self->nsColor set];
+	[colorRepresented set];
 	NSRectFill(colorRect);
 	
 }
@@ -186,9 +191,7 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 //
 //==============================================================================
 - (BOOL)sendAction:(SEL)theAction to:(id)theTarget
-{	
-	BOOL handledAction	= NO;
-	
+{
 	//in any event open the color panel.
 	[[LDrawColorPanel sharedColorPanel] orderFront:self];
 	
@@ -196,7 +199,7 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 	if([[self cell] showsStateBy] == NSNoCellMask) //not a toggle button
 	{
 		//just pass the action along.
-		handledAction = [super sendAction:theAction to:theTarget];
+		[super sendAction:theAction to:theTarget];
 	}
 	else
 	{
@@ -208,22 +211,19 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 			if([LDrawColorWell activeColorWell] != self)
 			{
 				[LDrawColorWell setActiveColorWell:self];
-				handledAction = YES;
 			}
 				
 			//already active; this must be a color-change action!
 			else
-				handledAction = [super sendAction:theAction to:theTarget];
+				[super sendAction:theAction to:theTarget];
 		}
 		//we deactivate?
 		else if([self state] == NSOffState && [LDrawColorWell activeColorWell] == self)
 		{
 			[LDrawColorWell setActiveColorWell:nil];
-			handledAction = YES;
 		}
 	}
-	
-	return handledAction;
+
 
 }//end sendAction:to:
 
@@ -243,10 +243,7 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 	if([LDrawColorWell activeColorWell] == self)
 		[LDrawColorWell setActiveColorWell:nil];
 	
-	[self->nsColor	release];
-	
 	[super dealloc];
-	
-}//end dealloc
+}
 
 @end

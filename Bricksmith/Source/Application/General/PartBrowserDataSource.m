@@ -21,8 +21,6 @@
 #import "PartBrowserDataSource.h"
 
 #import "LDrawApplication.h"
-#import "LDrawColorPanel.h"
-#import "LDrawPart.h"
 #import "MacLDraw.h"
 #import "PartLibrary.h"
 #import "StringCategory.h"
@@ -52,15 +50,14 @@
 	[self->partsTable setTarget:self];
 	[self->partsTable setDoubleAction:@selector(doubleClickedInPartTable:)];
 	
-	[self->partPreview setAcceptsFirstResponder:NO];
-	[self->partPreview setDelegate:self];
+	[partPreview setAcceptsFirstResponder:NO];
 	
 	//Configure the search field's menu
-	noRecentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
-											   action:NULL
-										keyEquivalent:@"" ];
-	[noRecentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
-	[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
+	recentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
+											 action:NULL
+									  keyEquivalent:@"" ];
+	[recentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
+	[searchMenuTemplate insertItem:recentsItem atIndex:0];
 	
 	recentsItem = [[NSMenuItem alloc] initWithTitle:@"recent items placeholder"
 											 action:NULL
@@ -143,8 +140,7 @@
 	NSDictionary	*partRecord	= nil;
 	NSString		*partName	= nil;
 	
-	if(rowIndex >= 0)
-	{
+	if(rowIndex >= 0) {
 		partRecord	= [tableDataSource objectAtIndex:rowIndex];
 		partName	= [partRecord objectForKey:PART_NUMBER_KEY];
 	}
@@ -295,7 +291,7 @@
 - (IBAction) addPartClicked:(id)sender
 {
 	//anyone who implements this message will know what to do.
-	[NSApp sendAction:@selector(insertLDrawPart:) to:nil from:self];
+	BOOL success = [NSApp sendAction:@selector(insertLDrawPart:) to:nil from:self];
 
 }//end addPartClicked:
 
@@ -339,13 +335,14 @@
 //				part library.
 //
 //==============================================================================
-- (IBAction) searchFieldChanged:(id)sender
+- (IBAction) searchFieldChanged:(id)sender;
 {
-	// Setting the category will filter the results.
+	NSString *searchString = [searchField stringValue];
+	
 	[self setCategory:NSLocalizedString(@"All Categories", nil)];
 	[self syncSelectionAndPartDisplayed];
 
-}//end searchFieldChanged:
+}
 
 
 #pragma mark -
@@ -388,16 +385,15 @@
 //==============================================================================
 - (NSString *)comboBox:(NSComboBox *)comboBox completedString:(NSString *)uncompletedString
 {
-	NSString			*currentCategory	= nil;
-	BOOL				 foundMatch			= NO;
-	NSComparisonResult	 comparisonResult	= NSOrderedSame;
-	NSString			*completedString	= nil;
-	int					 counter			= 0;
+	NSString			*currentCategory;
+	BOOL				 foundMatch = NO;
+	NSComparisonResult	 comparisonResult;
+	NSString			*completedString;
+	int					 counter = 0;
 	
 	//Search through all available categories, trying to find one with a 
 	// case-insensitive prefix of uncompletedString
-	while(counter < [categoryList count] && foundMatch == NO)
-	{
+	while(counter < [categoryList count] && foundMatch == NO){
 		currentCategory = [categoryList objectAtIndex:counter];
 		
 		//See if the current category starts with the string we are looking for.
@@ -479,55 +475,22 @@
 #pragma mark -
 
 //**** NSTableDataSource ****
-//========== tableView:writeRowsWithIndexes:toPasteboard: ======================
+//========== tableView:writeRows:toPasteboard: =================================
 //
 // Purpose:		It's time for drag-and-drop parts!
 //
-//				This method adds LDraw parts to the pasteboard.
-//
-// Notes:		We can have but one part selected in the browser, so the rows 
-//				parameter is irrelevant. 
-//
 //==============================================================================
-- (BOOL)     tableView:(NSTableView *)aTableView
-  writeRowsWithIndexes:(NSIndexSet *)rowIndexes
-		  toPasteboard:(NSPasteboard *)pasteboard
+- (BOOL)tableView:(NSTableView *)tableView
+		writeRows:(NSArray *)rows
+	 toPasteboard:(NSPasteboard *)pboard
 {
-	BOOL	success = NO;
-	
-	// Select the dragged row (it may not have been selected), then write it to 
-	// the pasteboard. 
-	[self->partsTable selectRowIndexes:rowIndexes byExtendingSelection:NO];
-	success = [self writeSelectedPartToPasteboard:pasteboard];
-	
-	return success;
-		
-}//end tableView:writeRowsWithIndexes:toPasteboard:
+	//LDrawDraggingPboardType
+}//end tableView:writeRows:toPasteboard:
 
 #pragma mark -
 #pragma mark DELEGATES
 #pragma mark -
 
-#pragma mark LDrawGLView
-
-//========== LDrawGLView:writeDirectivesToPasteboard:asCopy: ===================
-//
-// Purpose:		Begin a drag-and-drop part insertion initiated in the directive 
-//				view. 
-//
-//==============================================================================
-- (BOOL)         LDrawGLView:(LDrawGLView *)glView
- writeDirectivesToPasteboard:(NSPasteboard *)pasteboard
-					  asCopy:(BOOL)copyFlag
-{
-	BOOL	success = [self writeSelectedPartToPasteboard:pasteboard];
-	
-	return success;
-	
-}//end LDrawGLView:writeDirectivesToPasteboard:asCopy:
-
-#pragma mark -
-#pragma mark NSTableView
 
 //**** NSTableView ****
 //========== tableViewSelectionDidChange: ======================================
@@ -535,8 +498,7 @@
 // Purpose:		A new part has been selected.
 //
 //==============================================================================
-- (void)tableViewSelectionDidChange:(NSNotification *)aNotification
-{
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	int				 newRow			= [self->partsTable selectedRow];
 	
@@ -580,50 +542,32 @@
 // Returns:		An array with all matching parts, or an empty array if no parts 
 //				match.
 //
-// Notes:		The nasty problem is that LDraw names are formed so that they 
-//				line up nicely in a monospaced font. Thus we have names like 
-//				"Brick  2 x  4" (note extra spaces!). I sidestep the problem by 
-//				stripping all the spaces from the search and find strings. It's 
-//				still lame, but probably okay for most uses.
-//
-//				Tiger has fantabulous search predicates that would reduce a 
-//				hefty hunk of this code to a 1-liner AND be whitespace neutral 
-//				too. But I don't have Tiger, so instead I'm going for the 
-//				cheeseball approach.  
-//
 //==============================================================================
 - (NSMutableArray *) filterParts:(NSArray *)partRecords
 				  bySearchString:(NSString *)searchString
 {
-	NSDictionary	*record					= nil;
-	int				 counter				= 0;
-	NSString		*partNumber				= nil;
-	NSString		*partDescription		= nil;
-	NSString		*partSansWhitespace		= nil;
-	NSMutableArray	*matchingParts			= [NSMutableArray array];
-	NSString		*searchSansWhitespace	= [searchString stringByRemovingWhitespace];
+	NSDictionary	*record				= nil;
+	int				 counter			= 0;
+	NSString		*partNumber			= nil;
+	NSString		*partDescription	= nil;
+	NSMutableArray	*matchingParts		= [NSMutableArray array];
 	
-	if([searchString length] == 0)
-	{
+	if([searchString length] == 0){
 		//Everybody's a winner here.
 		matchingParts = [NSMutableArray arrayWithArray:partRecords];
 	}
-	else
-	{
+	else {
 		matchingParts = [NSMutableArray array];
 		
-		// Search through all the given records and try to find matches on the 
-		// search string. But search part names whitespace-neutral so as not to 
-		// be thrown off by goofy name spacing. 
-		for(counter = 0; counter < [partRecords count]; counter++)
-		{
-			record				= [partRecords objectAtIndex:counter];
-			partNumber			= [record objectForKey:PART_NUMBER_KEY];
-			partDescription		= [record objectForKey:PART_NAME_KEY];
-			partSansWhitespace	= [partDescription stringByRemovingWhitespace];
+		//Search through all the given records and try to find matches on the search 
+		// string.
+		for(counter = 0; counter < [partRecords count]; counter++){
+			record			= [partRecords objectAtIndex:counter];
+			partNumber		= [record objectForKey:PART_NUMBER_KEY];
+			partDescription	= [record objectForKey:PART_NAME_KEY];
 			
 			if(		[partNumber			containsString:searchString options:NSCaseInsensitiveSearch]
-				||	[partSansWhitespace	containsString:searchSansWhitespace options:NSCaseInsensitiveSearch] )
+				||	[partDescription	containsString:searchString options:NSCaseInsensitiveSearch] )
 			{
 				[matchingParts addObject:record];
 			}
@@ -634,7 +578,6 @@
 	return matchingParts;
 	
 }//end filterParts:bySearchString:
-
 
 //========== syncSelectionAndPartDisplayed =====================================
 //
@@ -654,50 +597,6 @@
 	[partPreview setLDrawDirective:modelToView];
 	
 }//end syncSelectionAndPartDisplayed
-
-
-//========== writeSelectedPartToPasteboard: ====================================
-//
-// Purpose:		Writes the current part-browser selection onto the pasteboard.
-//
-//==============================================================================
-- (BOOL) writeSelectedPartToPasteboard:(NSPasteboard *)pasteboard
-{
-	NSMutableArray	*archivedParts		= [NSMutableArray array];
-	NSString		*partName			= [self selectedPartName];
-	LDrawPart		*newPart			= [[[LDrawPart alloc] init] autorelease];
-	NSData			*partData			= nil;
-	LDrawColorT		 selectedColor		= [[LDrawColorPanel sharedColorPanel] LDrawColor];
-	BOOL			 success			= NO;
-	
-	//We got a part; let's add it!
-	if(partName != nil)
-	{
-		newPart		= [[[LDrawPart alloc] init] autorelease];
-		
-		//Set up the part attributes
-		[newPart setLDrawColor:selectedColor];
-		[newPart setDisplayName:partName];
-		
-		partData	= [NSKeyedArchiver archivedDataWithRootObject:newPart];
-		
-		[archivedParts addObject:partData];
-		
-		// Set up pasteboard
-		[pasteboard declareTypes:[NSArray arrayWithObjects:LDrawDraggingPboardType, LDrawDraggingIsUninitializedPboardType, nil] owner:self];
-		
-		[pasteboard setPropertyList:archivedParts
-							forType:LDrawDraggingPboardType];
-		
-		[pasteboard setPropertyList:[NSNumber numberWithBool:YES]
-							forType:LDrawDraggingIsUninitializedPboardType];
-		
-		success = YES;
-	}
-	
-	return success;
-	
-}//end writeSelectedPartToPasteboard:
 
 
 #pragma mark -

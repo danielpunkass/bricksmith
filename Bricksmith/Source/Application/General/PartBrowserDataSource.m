@@ -7,13 +7,10 @@
 //				A part browser consists of a table which displays part numbers 
 //				and descriptions, and a combo box to choose part categories.
 //
-// Usage:		An instance of this class should exist in each Nib file which 
+//				An instance of this class should exist in each Nib file which 
 //				contains a part browser, and the browser widgets and actions 
 //				should be connected to it. This class will then take care of 
 //				managing those widgets.
-//
-//				Clients wishing to know about part insertions should implement 
-//				the action -insertLDrawPart:.
 //
 //  Created by Allen Smith on 2/17/05.
 //  Copyright 2005. All rights reserved.
@@ -21,10 +18,7 @@
 #import "PartBrowserDataSource.h"
 
 #import "LDrawApplication.h"
-#import "LDrawColorPanel.h"
-#import "LDrawPart.h"
 #import "MacLDraw.h"
-#import "PartLibrary.h"
 #import "StringCategory.h"
 
 
@@ -37,30 +31,30 @@
 //				So when awaking, we grab the actual data source for the class.
 //
 //==============================================================================
-- (void) awakeFromNib
-{
+- (void) awakeFromNib {
+
 	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
 	NSString		*startingCategory	= [userDefaults stringForKey:PART_BROWSER_PREVIOUS_CATEGORY];
-	int				 startingRow		= [userDefaults integerForKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
 	NSMenu			*searchMenuTemplate	= [[NSMenu alloc] initWithTitle:@"Search template"];
 	NSMenuItem		*recentsItem		= nil;
 	NSMenuItem		*noRecentsItem		= nil;
 	
+	if(startingCategory == nil)
+		startingCategory = NSLocalizedString(@"All Categories", nil);
+
+	[partPreview setAcceptsFirstResponder:NO];
+	[self setPartCatalog:[[LDrawApplication sharedPartLibrary] partCatalog]];
+	[self setCategory:startingCategory];
+	[partPreview setHasInfiniteDepth:YES]; //we don't want any clipping on our previews.
+	[self syncSelectionAndPartDisplayed];
 	
-	//---------- Widget Setup --------------------------------------------------
-	
-	[self->partsTable setTarget:self];
-	[self->partsTable setDoubleAction:@selector(doubleClickedInPartTable:)];
-	
-	[self->partPreview setAcceptsFirstResponder:NO];
-	[self->partPreview setDelegate:self];
 	
 	//Configure the search field's menu
-	noRecentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
-											   action:NULL
-										keyEquivalent:@"" ];
-	[noRecentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
-	[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
+	recentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
+											 action:NULL
+									  keyEquivalent:@"" ];
+	[recentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
+	[searchMenuTemplate insertItem:recentsItem atIndex:0];
 	
 	recentsItem = [[NSMenuItem alloc] initWithTitle:@"recent items placeholder"
 											 action:NULL
@@ -69,31 +63,7 @@
 	[searchMenuTemplate insertItem:recentsItem atIndex:1];
 	
 	[[self->searchField cell] setSearchMenuTemplate:searchMenuTemplate];
-	
-	// If there is no sort order yet, define one.
-	if([[self->partsTable sortDescriptors] count] == 0)
-	{
-		NSTableColumn		*descriptionColumn	= [self->partsTable tableColumnWithIdentifier:PART_NAME_KEY];
-		NSSortDescriptor	*sortDescriptor		= [descriptionColumn sortDescriptorPrototype];
 		
-		if(sortDescriptor != nil)
-			[self->partsTable setSortDescriptors:[NSArray arrayWithObject:sortDescriptor]];
-	}
-	
-	
-	//---------- Set Data ------------------------------------------------------
-	
-	[self setPartCatalog:[[LDrawApplication sharedPartLibrary] partCatalog]];
-	[self setCategory:startingCategory];
-	
-	[partsTable scrollRowToVisible:startingRow];
-	[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:startingRow]
-			byExtendingSelection:NO];
-	[self syncSelectionAndPartDisplayed];
-	
-	
-	//---------- Notifications -------------------------------------------------
-	
 	//We also want to know if the part catalog changes while the program is running.
 	[[NSNotificationCenter defaultCenter]
 			addObserver: self
@@ -101,13 +71,11 @@
 				   name: LDrawPartCatalogDidChangeNotification
 				 object: nil ];
 	
-	
-	//---------- Free Memory ---------------------------------------------------
+	//Free Memory.
 	[searchMenuTemplate	release];
 	[recentsItem		release];
 	[noRecentsItem		release];
-
-}//end awakeFromNib
+}
 
 
 //========== init ==============================================================
@@ -115,13 +83,12 @@
 // Purpose:		This is very basic; it's not where the action is.
 //
 //==============================================================================
-- (id) init
-{
-	self = [super init];
+- (id) init {
+	[super init];
 	
 	//Not displaying anything yet.
-	categoryList	= [[NSArray array] retain];
-	tableDataSource	= [[NSMutableArray array] retain];
+	categoryList = [[NSArray array] retain];
+	tableDataSource = [[NSMutableArray array] retain];
 	
 	return self;
 }
@@ -131,28 +98,25 @@
 #pragma mark ACCESSORS
 #pragma mark -
 
-//========== selectedPartName ==================================================
+//========== selectedPart ======================================================
 //
 // Purpose:		Returns the name of the selected part file.
 //				i.e., "3001.dat"
 //
 //==============================================================================
-- (NSString *) selectedPartName
-{
+- (NSString *) selectedPart {
+
 	int				 rowIndex	= [partsTable selectedRow];
 	NSDictionary	*partRecord	= nil;
 	NSString		*partName	= nil;
 	
-	if(rowIndex >= 0)
-	{
+	if(rowIndex >= 0) {
 		partRecord	= [tableDataSource objectAtIndex:rowIndex];
 		partName	= [partRecord objectForKey:PART_NUMBER_KEY];
 	}
 	
 	return partName;
-	
-}//end selectedPartName
-
+}
 
 //========== setPartCatalog: ===================================================
 //
@@ -160,8 +124,7 @@
 //				set up the data sources to reflect it.
 //
 //==============================================================================
-- (void) setPartCatalog:(NSDictionary *)newCatalog
-{
+- (void) setPartCatalog:(NSDictionary *)newCatalog {
 	partCatalog = newCatalog;
 	
 	//Get all the categories.
@@ -240,8 +203,7 @@
 //				the category combo box's data source.
 //
 //==============================================================================
-- (void) setCategoryList:(NSArray *)newCategoryList
-{
+- (void) setCategoryList:(NSArray *)newCategoryList{
 	//swap the variable
 	[newCategoryList retain];
 	[categoryList release];
@@ -263,8 +225,8 @@
 //				The new parts are then displayed in the table.
 //
 //==============================================================================
-- (void) setTableDataSource:(NSMutableArray *) partsInCategory
-{
+- (void) setTableDataSource:(NSMutableArray *) partsInCategory{
+	
 	//Sort the parts based on whatever the current sort order is for the table.
 	[partsInCategory sortUsingDescriptors:[partsTable sortDescriptors]];
 	
@@ -284,29 +246,12 @@
 #pragma mark ACTIONS
 #pragma mark -
 
-
-//========== addPartClicked: ===================================================
-//
-// Purpose:		Need to add the selected part to whoever is interested in that. 
-//				This is dispatched as a nil-targeted action, and will most 
-//				likely be picked up by the foremost document.
-//
-//==============================================================================
-- (IBAction) addPartClicked:(id)sender
-{
-	//anyone who implements this message will know what to do.
-	[NSApp sendAction:@selector(insertLDrawPart:) to:nil from:self];
-
-}//end addPartClicked:
-
-
 //========== categoryComboBoxChanged: ==========================================
 //
 // Purpose:		A new category has been selected.
 //
 //==============================================================================
-- (IBAction) categoryComboBoxChanged:(id)sender
-{
+- (IBAction) categoryComboBoxChanged:(id)sender{
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	NSString		*newCategory	= [sender stringValue];
 	BOOL			 success		= NO;
@@ -323,29 +268,20 @@
 }
 
 
-//========== doubleClickedInPartTable: =========================================
-//
-// Purpose:		We mean this to insert a part.
-//
-//==============================================================================
-- (void) doubleClickedInPartTable:(id)sender
-{
-	[self addPartClicked:sender];
-}
-
 //========== searchFieldChanged: ===============================================
 //
 // Purpose:		The search string has been changed. We do a search on the entire 
 //				part library.
 //
 //==============================================================================
-- (IBAction) searchFieldChanged:(id)sender
+- (IBAction) searchFieldChanged:(id)sender;
 {
-	// Setting the category will filter the results.
+	NSString *searchString = [searchField stringValue];
+	
 	[self setCategory:NSLocalizedString(@"All Categories", nil)];
 	[self syncSelectionAndPartDisplayed];
 
-}//end searchFieldChanged:
+}
 
 
 #pragma mark -
@@ -388,16 +324,15 @@
 //==============================================================================
 - (NSString *)comboBox:(NSComboBox *)comboBox completedString:(NSString *)uncompletedString
 {
-	NSString			*currentCategory	= nil;
-	BOOL				 foundMatch			= NO;
-	NSComparisonResult	 comparisonResult	= NSOrderedSame;
-	NSString			*completedString	= nil;
-	int					 counter			= 0;
+	NSString			*currentCategory;
+	BOOL				 foundMatch = NO;
+	NSComparisonResult	 comparisonResult;
+	NSString			*completedString;
+	int					 counter = 0;
 	
 	//Search through all available categories, trying to find one with a 
 	// case-insensitive prefix of uncompletedString
-	while(counter < [categoryList count] && foundMatch == NO)
-	{
+	while(counter < [categoryList count] && foundMatch == NO){
 		currentCategory = [categoryList objectAtIndex:counter];
 		
 		//See if the current category starts with the string we are looking for.
@@ -477,57 +412,9 @@
 
 
 #pragma mark -
-
-//**** NSTableDataSource ****
-//========== tableView:writeRowsWithIndexes:toPasteboard: ======================
-//
-// Purpose:		It's time for drag-and-drop parts!
-//
-//				This method adds LDraw parts to the pasteboard.
-//
-// Notes:		We can have but one part selected in the browser, so the rows 
-//				parameter is irrelevant. 
-//
-//==============================================================================
-- (BOOL)     tableView:(NSTableView *)aTableView
-  writeRowsWithIndexes:(NSIndexSet *)rowIndexes
-		  toPasteboard:(NSPasteboard *)pasteboard
-{
-	BOOL	success = NO;
-	
-	// Select the dragged row (it may not have been selected), then write it to 
-	// the pasteboard. 
-	[self->partsTable selectRowIndexes:rowIndexes byExtendingSelection:NO];
-	success = [self writeSelectedPartToPasteboard:pasteboard];
-	
-	return success;
-		
-}//end tableView:writeRowsWithIndexes:toPasteboard:
-
-#pragma mark -
-#pragma mark DELEGATES
+#pragma mark NOTIFICATIONS
 #pragma mark -
 
-#pragma mark LDrawGLView
-
-//========== LDrawGLView:writeDirectivesToPasteboard:asCopy: ===================
-//
-// Purpose:		Begin a drag-and-drop part insertion initiated in the directive 
-//				view. 
-//
-//==============================================================================
-- (BOOL)         LDrawGLView:(LDrawGLView *)glView
- writeDirectivesToPasteboard:(NSPasteboard *)pasteboard
-					  asCopy:(BOOL)copyFlag
-{
-	BOOL	success = [self writeSelectedPartToPasteboard:pasteboard];
-	
-	return success;
-	
-}//end LDrawGLView:writeDirectivesToPasteboard:asCopy:
-
-#pragma mark -
-#pragma mark NSTableView
 
 //**** NSTableView ****
 //========== tableViewSelectionDidChange: ======================================
@@ -535,23 +422,9 @@
 // Purpose:		A new part has been selected.
 //
 //==============================================================================
-- (void)tableViewSelectionDidChange:(NSNotification *)aNotification
-{
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	int				 newRow			= [self->partsTable selectedRow];
-	
-	//Redisplay preview.
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification {
 	[self syncSelectionAndPartDisplayed];
-	
-	//save for posterity.
-	if(newRow != -1)
-		[userDefaults setInteger:newRow forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
-}//end tableViewSelectionDidChange
-
-
-#pragma mark -
-#pragma mark NOTIFICATIONS
-#pragma mark -
+}
 
 
 //========== sharedPartCatalogDidChange: =======================================
@@ -580,50 +453,32 @@
 // Returns:		An array with all matching parts, or an empty array if no parts 
 //				match.
 //
-// Notes:		The nasty problem is that LDraw names are formed so that they 
-//				line up nicely in a monospaced font. Thus we have names like 
-//				"Brick  2 x  4" (note extra spaces!). I sidestep the problem by 
-//				stripping all the spaces from the search and find strings. It's 
-//				still lame, but probably okay for most uses.
-//
-//				Tiger has fantabulous search predicates that would reduce a 
-//				hefty hunk of this code to a 1-liner AND be whitespace neutral 
-//				too. But I don't have Tiger, so instead I'm going for the 
-//				cheeseball approach.  
-//
 //==============================================================================
 - (NSMutableArray *) filterParts:(NSArray *)partRecords
 				  bySearchString:(NSString *)searchString
 {
-	NSDictionary	*record					= nil;
-	int				 counter				= 0;
-	NSString		*partNumber				= nil;
-	NSString		*partDescription		= nil;
-	NSString		*partSansWhitespace		= nil;
-	NSMutableArray	*matchingParts			= [NSMutableArray array];
-	NSString		*searchSansWhitespace	= [searchString stringByRemovingWhitespace];
+	NSDictionary	*record				= nil;
+	int				 counter			= 0;
+	NSString		*partNumber			= nil;
+	NSString		*partDescription	= nil;
+	NSMutableArray	*matchingParts		= [NSMutableArray array];
 	
-	if([searchString length] == 0)
-	{
+	if([searchString length] == 0){
 		//Everybody's a winner here.
 		matchingParts = [NSMutableArray arrayWithArray:partRecords];
 	}
-	else
-	{
+	else {
 		matchingParts = [NSMutableArray array];
 		
-		// Search through all the given records and try to find matches on the 
-		// search string. But search part names whitespace-neutral so as not to 
-		// be thrown off by goofy name spacing. 
-		for(counter = 0; counter < [partRecords count]; counter++)
-		{
-			record				= [partRecords objectAtIndex:counter];
-			partNumber			= [record objectForKey:PART_NUMBER_KEY];
-			partDescription		= [record objectForKey:PART_NAME_KEY];
-			partSansWhitespace	= [partDescription stringByRemovingWhitespace];
+		//Search through all the given records and try to find matches on the search 
+		// string.
+		for(counter = 0; counter < [partRecords count]; counter++){
+			record			= [partRecords objectAtIndex:counter];
+			partNumber		= [record objectForKey:PART_NUMBER_KEY];
+			partDescription	= [record objectForKey:PART_NAME_KEY];
 			
 			if(		[partNumber			containsString:searchString options:NSCaseInsensitiveSearch]
-				||	[partSansWhitespace	containsString:searchSansWhitespace options:NSCaseInsensitiveSearch] )
+				||	[partDescription	containsString:searchString options:NSCaseInsensitiveSearch] )
 			{
 				[matchingParts addObject:record];
 			}
@@ -635,69 +490,22 @@
 	
 }//end filterParts:bySearchString:
 
-
 //========== syncSelectionAndPartDisplayed =====================================
 //
 // Purpose:		Makes the current part displayed match the part selected in the 
 //				table.
 //
 //==============================================================================
-- (void) syncSelectionAndPartDisplayed
-{
-	NSString	*selectedPartName	= [self selectedPartName];
+- (void) syncSelectionAndPartDisplayed {
+	NSString	*selectedPartName	= [self selectedPart];
 	PartLibrary	*partLibrary		= [LDrawApplication sharedPartLibrary];
 	id			 modelToView		= nil;
 	
 	if(selectedPartName != nil) {
 		modelToView = [partLibrary modelForName:selectedPartName];
 	}
-	[partPreview setLDrawDirective:modelToView];
-	
-}//end syncSelectionAndPartDisplayed
-
-
-//========== writeSelectedPartToPasteboard: ====================================
-//
-// Purpose:		Writes the current part-browser selection onto the pasteboard.
-//
-//==============================================================================
-- (BOOL) writeSelectedPartToPasteboard:(NSPasteboard *)pasteboard
-{
-	NSMutableArray	*archivedParts		= [NSMutableArray array];
-	NSString		*partName			= [self selectedPartName];
-	LDrawPart		*newPart			= [[[LDrawPart alloc] init] autorelease];
-	NSData			*partData			= nil;
-	LDrawColorT		 selectedColor		= [[LDrawColorPanel sharedColorPanel] LDrawColor];
-	BOOL			 success			= NO;
-	
-	//We got a part; let's add it!
-	if(partName != nil)
-	{
-		newPart		= [[[LDrawPart alloc] init] autorelease];
-		
-		//Set up the part attributes
-		[newPart setLDrawColor:selectedColor];
-		[newPart setDisplayName:partName];
-		
-		partData	= [NSKeyedArchiver archivedDataWithRootObject:newPart];
-		
-		[archivedParts addObject:partData];
-		
-		// Set up pasteboard
-		[pasteboard declareTypes:[NSArray arrayWithObjects:LDrawDraggingPboardType, LDrawDraggingIsUninitializedPboardType, nil] owner:self];
-		
-		[pasteboard setPropertyList:archivedParts
-							forType:LDrawDraggingPboardType];
-		
-		[pasteboard setPropertyList:[NSNumber numberWithBool:YES]
-							forType:LDrawDraggingIsUninitializedPboardType];
-		
-		success = YES;
-	}
-	
-	return success;
-	
-}//end writeSelectedPartToPasteboard:
+	[partPreview setLDrawDirective:modelToView];	
+}
 
 
 #pragma mark -

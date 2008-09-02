@@ -12,7 +12,6 @@
 //==============================================================================
 #import "LDrawContainer.h"
 
-#import "LDrawUtilities.h"
 #import "MacLDraw.h"
 #import "PartReport.h"
 
@@ -77,13 +76,12 @@
 //				receiver.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone
-{
-	LDrawContainer	*copiedContainer	= (LDrawContainer *)[super copyWithZone:zone];
-	int				numberSubdirectives	= [self->containedObjects count];
-	id				currentObject		= nil;
-	id				copiedObject		= nil;
-	int				counter				= 0;
+- (id) copyWithZone:(NSZone *)zone {
+	LDrawContainer *copiedContainer = (LDrawContainer *)[super copyWithZone:zone];
+	int numberSubdirectives = [self->containedObjects count];
+	id	currentObject = nil;
+	id	copiedObject = nil;
+	int counter		= 0;
 	
 	//Allocate our instance varibales.
 	copiedContainer->containedObjects = [[NSMutableArray alloc] initWithCapacity:numberSubdirectives];
@@ -97,37 +95,12 @@
 	}
 	
 	return copiedContainer;
-}//end copyWithZone:
+}
 
 
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
-
-//========== allEnclosedElements ===============================================
-//
-// Purpose:		Returns all of the terminal (leaf-node) subdirectives contained 
-//				within this object and all enclosed containers. Does not return 
-//				the enclosed containers themselves.
-//
-//==============================================================================
-- (NSArray *) allEnclosedElements {
-	NSMutableArray	*subelements		= [NSMutableArray array];
-	id				 currentDirective	= nil;
-	int				 counter			= 0;
-	
-	for(counter = 0; counter < [self->containedObjects count]; counter++){
-		currentDirective = [self->containedObjects objectAtIndex:counter];
-		if([currentDirective respondsToSelector:@selector(allEnclosedElements)])
-			[subelements addObjectsFromArray:[currentDirective allEnclosedElements]];
-		else
-			[subelements addObject:currentDirective];
-	}
-	
-	return subelements;
-	
-}//end allEnclosedElements
-
 
 //========== boundingBox3 ======================================================
 //
@@ -136,7 +109,7 @@
 //
 //==============================================================================
 - (Box3) boundingBox3 {
-	return [LDrawUtilities boundingBox3ForDirectives:self->containedObjects];
+	return [LDrawDirective boundingBox3ForDirectives:self->containedObjects];
 }
 
 
@@ -181,8 +154,7 @@
 //				how deeply they may be contained.
 //
 //==============================================================================
-- (void) collectPartReport:(PartReport *)report
-{
+- (void) collectPartReport:(PartReport *)report {
 	id		currentDirective	= nil;
 	int		counter				= 0;
 	
@@ -191,7 +163,7 @@
 		if([currentDirective respondsToSelector:@selector(collectPartReport:)])
 			[currentDirective collectPartReport:report];
 	}
-}//end collectPartReport:
+}
 
 
 //========== removeDirective: ==================================================
@@ -201,8 +173,7 @@
 //				If it isn't in the collection, well, that's that.
 //
 //==============================================================================
-- (void) removeDirective:(LDrawDirective *)doomedDirective
-{
+- (void) removeDirective:(LDrawDirective *)doomedDirective{
 	//First, find the object (making sure it's actually there in the process)
 	int indexOfObject = [self indexOfDirective:doomedDirective];
 	
@@ -210,7 +181,7 @@
 		//We found it; kill it!
 		[self removeDirectiveAtIndex:indexOfObject];
 	}
-}//end removeDirective:
+}
 
 
 //========== insertDirective:atIndex: ==========================================
@@ -218,8 +189,8 @@
 // Purpose:		Adds directive into the collection at position index.
 //
 //==============================================================================
-- (void) insertDirective:(LDrawDirective *)directive atIndex:(int)index
-{
+- (void) insertDirective:(LDrawDirective *)directive atIndex:(int)index{
+	
 	[containedObjects insertObject:directive atIndex:index];
 	[directive setEnclosingDirective:self];
 	
@@ -227,7 +198,7 @@
 			postNotificationName:LDrawDirectiveDidChangeNotification
 						  object:self];
 	
-}//end insertDirective:atIndex:
+}
 
 
 //========== removeDirectiveAtIndex: ===========================================
@@ -235,8 +206,7 @@
 // Purpose:		Removes the LDraw directive stored at index in this collection.
 //
 //==============================================================================
-- (void) removeDirectiveAtIndex:(int)index
-{
+- (void) removeDirectiveAtIndex:(int)index{
 	LDrawDirective *doomedDirective = [self->containedObjects objectAtIndex:index];
 	
 	if([doomedDirective enclosingDirective] == self)
@@ -246,7 +216,7 @@
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawDirectiveDidChangeNotification
 						  object:self];
-}//end removeDirectiveAtIndex:
+}
 
 #pragma mark -
 #pragma mark DESTRUCTOR
@@ -257,13 +227,7 @@
 // Purpose:		IT'S THE END OF THE WORLD AS WE KNOW IT!!!
 //
 //==============================================================================
-- (void) dealloc
-{
-	//the children must not be allowed to remember us. Crashes could result otherwise.
-	[self->containedObjects makeObjectsPerformSelector:@selector(setEnclosingDirective:)
-											withObject:nil ];
-
-	//release instance variables
+- (void) dealloc {
 	[containedObjects release];
 	
 	[super dealloc];

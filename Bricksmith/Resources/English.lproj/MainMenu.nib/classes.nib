@@ -1,119 +1,43 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>IBClasses</key>
-	<array>
-		<dict>
-			<key>ACTIONS</key>
-			<dict>
-				<key>doGettingNewPartsHelp</key>
-				<string>id</string>
-				<key>doHelp</key>
-				<string>id</string>
-				<key>doKeyboardShortcutHelp</key>
-				<string>id</string>
-				<key>doPreferences</key>
-				<string>id</string>
-				<key>showColors</key>
-				<string>id</string>
-				<key>showInspector</key>
-				<string>id</string>
-				<key>showMouseTools</key>
-				<string>id</string>
-			</dict>
-			<key>CLASS</key>
-			<string>LDrawApplication</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSObject</string>
-		</dict>
-		<dict>
-			<key>ACTIONS</key>
-			<dict>
-				<key>addCommentClicked</key>
-				<string>id</string>
-				<key>addConditionalClicked</key>
-				<string>id</string>
-				<key>addLineClicked</key>
-				<string>id</string>
-				<key>addMinifigure</key>
-				<string>id</string>
-				<key>addModelClicked</key>
-				<string>id</string>
-				<key>addPartClicked</key>
-				<string>id</string>
-				<key>addQuadrilateralClicked</key>
-				<string>id</string>
-				<key>addRawCommandClicked</key>
-				<string>id</string>
-				<key>addStepClicked</key>
-				<string>id</string>
-				<key>addTriangleClicked</key>
-				<string>id</string>
-				<key>advanceOneStep</key>
-				<string>id</string>
-				<key>backOneStep</key>
-				<string>id</string>
-				<key>doGettingNewPartsHelp</key>
-				<string>id</string>
-				<key>doKeyboardShortcutHelp</key>
-				<string>id</string>
-				<key>doPartBrowser</key>
-				<string>id</string>
-				<key>duplicate</key>
-				<string>id</string>
-				<key>exportSteps</key>
-				<string>id</string>
-				<key>gridGranularityMenuChanged</key>
-				<string>id</string>
-				<key>hideParts</key>
-				<string>id</string>
-				<key>orderFrontMovePanel</key>
-				<string>id</string>
-				<key>orderFrontRotationPanel</key>
-				<string>id</string>
-				<key>quickRotateClicked</key>
-				<string>id</string>
-				<key>showColors</key>
-				<string>id</string>
-				<key>showDimensions</key>
-				<string>id</string>
-				<key>showParts</key>
-				<string>id</string>
-				<key>showPieceCount</key>
-				<string>id</string>
-				<key>snapSelectionToGrid</key>
-				<string>id</string>
-				<key>toggleFileContentsDrawer</key>
-				<string>id</string>
-				<key>toggleStepDisplay</key>
-				<string>id</string>
-				<key>viewingAngleSelected</key>
-				<string>id</string>
-				<key>zoomActual</key>
-				<string>id</string>
-				<key>zoomIn</key>
-				<string>id</string>
-				<key>zoomOut</key>
-				<string>id</string>
-			</dict>
-			<key>CLASS</key>
-			<string>FirstResponder</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSObject</string>
-		</dict>
-		<dict>
-			<key>CLASS</key>
-			<string>NSObject</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-		</dict>
-	</array>
-	<key>IBVersion</key>
-	<string>1</string>
-</dict>
-</plist>
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                addCommentClicked = id; 
+                addConditionalClicked = id; 
+                addLineClicked = id; 
+                addModelClicked = id; 
+                addPartClicked = id; 
+                addQuadrilateralClicked = id; 
+                addStepClicked = id; 
+                addTriangleClicked = id; 
+                advanceOneStep = id; 
+                backOneStep = id; 
+                duplicate = id; 
+                exportSteps = id; 
+                gridGranularityMenuChanged = id; 
+                hideParts = id; 
+                showColors = id; 
+                showDimensions = id; 
+                showParts = id; 
+                showPieceCount = id; 
+                snapSelectionToGrid = id; 
+                toggleFileContentsDrawer = id; 
+                togglePartBrowserDrawer = id; 
+                toggleStepDisplay = id; 
+                zoomActual = id; 
+                zoomIn = id; 
+                zoomOut = id; 
+            }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {doPreferences = id; showInspector = id; }; 
+            CLASS = LDrawApplication; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

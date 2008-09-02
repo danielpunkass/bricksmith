@@ -24,8 +24,6 @@
 //==============================================================================
 #import "LDrawConditionalLine.h"
 
-#import "LDrawUtilities.h"
-
 @implementation LDrawConditionalLine
 
 #pragma mark -
@@ -61,81 +59,78 @@
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
-	@try
-	{
+	NS_DURING
 		//Read in the line code and advance past it.
-		parsedField = [LDrawUtilities readNextField:  workingLine
+		parsedField = [LDrawDirective readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
 		if([parsedField intValue] == 5){
-			parsedConditionalLine = [[LDrawConditionalLine new] autorelease];
+			parsedConditionalLine = [LDrawConditionalLine new];
 			
 			//Read in the color code.
 			// (color)
-			parsedField = [LDrawUtilities readNextField:  workingLine
+			parsedField = [LDrawDirective readNextField:  workingLine
 											  remainder: &workingLine ];
 			[parsedConditionalLine setLDrawColor:[parsedField intValue]];
 			
 			//Read Vertex 1.
 			// (x1)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.x = [parsedField floatValue];
 			// (y1)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.y = [parsedField floatValue];
 			// (z1)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
 			[parsedConditionalLine setVertex1:workingVertex];
 				
 			//Read Vertex 2.
 			// (x2)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.x = [parsedField floatValue];
 			// (y2)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.y = [parsedField floatValue];
 			// (z2)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
 			[parsedConditionalLine setVertex2:workingVertex];
 			
 			//Read Conditonal Vertex 1.
 			// (x3)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.x = [parsedField floatValue];
 			// (y3)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.y = [parsedField floatValue];
 			// (z3)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
 			[parsedConditionalLine setConditionalVertex1:workingVertex];
 			
 			//Read Conditonal Vertex 2.
 			// (x4)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.x = [parsedField floatValue];
 			// (y4)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.y = [parsedField floatValue];
 			// (z4)
-			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
+			parsedField = [LDrawDirective readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
 			[parsedConditionalLine setConditionalVertex2:workingVertex];
 			
 		}
 		
-	}	
-	@catch(NSException *exception)
-	{
+	NS_HANDLER
 		NSLog(@"the conditional line primitive %@ was fatally invalid", lineFromFile);
-		NSLog(@" raised exception %@", [exception name]);
-	}
+		NSLog(@" raised exception %@", [localException name]);
+	NS_ENDHANDLER
 	
 	return parsedConditionalLine;
 }//end directiveWithString
@@ -208,8 +203,7 @@
 //				further review (read: better programming skill).
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
-{
+- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor{
 	//do nothing.
 }
 
@@ -222,9 +216,9 @@
 // Note:		DISABLED. See -draw:parentColor:
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
-{
-	[super drawElement:optionsMask withColor:drawingColor];
+- (void) drawElement:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor {
+	
+	[super drawElement:optionsMask parentColor:parentColor];
 }
 
 
@@ -342,21 +336,23 @@
 #pragma mark ACTIONS
 #pragma mark -
 
-//========== moveBy: ===========================================================
+//========== nudge: ============================================================
 //
 // Purpose:		Moves the receiver in the specified direction.
 //
 //==============================================================================
-- (void) moveBy:(Vector3)moveVector
-{
-	//I don't know if this makes any sense.
-	conditionalVertex1.x += moveVector.x;
-	conditionalVertex1.y += moveVector.y;
-	conditionalVertex1.z += moveVector.z;
+- (void) nudge:(Vector3)nudgeVector{
+
+	[super nudge:nudgeVector];
 	
-	conditionalVertex2.x += moveVector.x;
-	conditionalVertex2.y += moveVector.y;
-	conditionalVertex2.z += moveVector.z;
+	//I don't know if this makes any sense.
+	conditionalVertex1.x += nudgeVector.x;
+	conditionalVertex1.y += nudgeVector.y;
+	conditionalVertex1.z += nudgeVector.z;
+	
+	conditionalVertex2.x += nudgeVector.x;
+	conditionalVertex2.y += nudgeVector.y;
+	conditionalVertex2.z += nudgeVector.z;
 	
 }
 

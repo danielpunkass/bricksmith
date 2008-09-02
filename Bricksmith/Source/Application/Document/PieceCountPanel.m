@@ -129,13 +129,12 @@
 //========== setActiveModelName: ===============================================
 //
 // Purpose:		Sets the name of the submodel in the file whose dimensions we 
-//				are currently analyzing, and also updates the data view.
+//				are currently analyzing and updates the data view.
 //
 //==============================================================================
-- (void) setActiveModelName:(NSString *)newName
-{
+- (void) setActiveModelName:(NSString *)newName {
 	LDrawMPDModel	*activeModel	= nil;
-	PartReport		*modelReport	= nil;
+	PartReport		*modelReport	= [PartReport partReport];
 	
 	//Update the model name.
 	[newName retain];
@@ -144,17 +143,14 @@
 	
 	//Get the report for the new model.
 	activeModel = [self->file modelWithName:newName];
-	modelReport = [PartReport partReportForContainer:activeModel];
-	[modelReport getPieceCountReport];
-	
+	[activeModel collectPartReport:modelReport];
 	[self setPartReport:modelReport];
-	
-}//end setActiveModelName:
+}
 
 
-//========== setFile: ==========================================================
+//========== setContainer: =====================================================
 //
-// Purpose:		Sets the file we are reporting on.
+// Purpose:		Returns the container whose dimensions we are analyzing.
 //
 //==============================================================================
 - (void) setFile:(LDrawFile *)newFile {
@@ -174,8 +170,8 @@
 // Notes:		You should never call this method directly.
 //
 //==============================================================================
-- (void) setPartReport:(PartReport *)newPartReport
-{
+- (void) setPartReport:(PartReport *)newPartReport {
+	
 	NSMutableArray *flattened = nil;
 	
 	//Update the part report
@@ -200,8 +196,8 @@
 //				The new parts are then displayed in the table.
 //
 //==============================================================================
-- (void) setTableDataSource:(NSMutableArray *) newReport
-{	
+- (void) setTableDataSource:(NSMutableArray *) newReport{
+	
 	//Sort the parts based on whatever the current sort order is for the table.
 	[newReport sortUsingDescriptors:[pieceCountTable sortDescriptors]];
 	
@@ -222,53 +218,13 @@
 #pragma mark TABLE VIEW
 #pragma mark -
 
-//========== exportButtonClicked: ==============================================
-//
-// Purpose:		Export a tab-delimited text file of the part list.
-//
-//==============================================================================
-- (IBAction) exportButtonClicked:(id)sender
-{
-	NSSavePanel	*savePanel			= [NSSavePanel savePanel];
-	NSURL		*savePath			= nil;
-	NSString	*exported			= nil;
-	NSArray		*sortDescriptors	= [self->pieceCountTable sortDescriptors];
-	int			 result				= 0;
-	
-	//set up the save panel
-	[savePanel setRequiredFileType:@"txt"];
-	[savePanel setCanSelectHiddenExtension:YES];
-	[savePanel setTitle:NSLocalizedString(@"PieceCountSaveDialogTitle", nil)];
-	[savePanel setMessage:NSLocalizedString(@"PieceCountSaveDialogMessage", nil)];
-	
-	//run it and export the file if needed
-	result = [savePanel runModalForDirectory:nil
-										file:NSLocalizedString(@"untitled", nil)];
-	if(result == NSFileHandlingPanelOKButton)
-	{
-		savePath	= [savePanel URL];
-		exported	= [self->partReport textualRepresentationWithSortDescriptors:sortDescriptors];
-		
-		[exported writeToURL:savePath
-				  atomically:YES
-					encoding:NSUTF8StringEncoding
-					   error:NULL ];
-	}
-
-}//end exportButtonClicked:
-
-#pragma mark -
-#pragma mark TABLE VIEW
-#pragma mark -
-
 //**** NSTableDataSource ****
 //========== numberOfRowsInTableView: ==========================================
 //
-// Purpose:		How many parts?
+// Purpose:		End the sheet (we are the sheet!)
 //
 //==============================================================================
-- (int) numberOfRowsInTableView:(NSTableView *)aTableView
-{
+- (int) numberOfRowsInTableView:(NSTableView *)aTableView {
 	return [flattenedReport count];
 }
 
@@ -276,7 +232,11 @@
 //**** NSTableDataSource ****
 //========== tableView:objectValueForTableColumn:row: ==========================
 //
-// Purpose:		Provide the information for each part row.
+// Purpose:		Return the appropriate dimensions.
+//
+//				This is downright ugly. Studs are different depending on whether 
+//				they are horizontal or vertical. Oh yeah, and we want to display 
+//				integers, floats, and strings in one table.
 //
 //==============================================================================
 - (id)				tableView:(NSTableView *)tableView
@@ -353,8 +313,7 @@
 	id				 modelToView		= nil;
 	int				 rowIndex			= [pieceCountTable selectedRow];
 	
-	if(rowIndex >= 0)
-	{
+	if(rowIndex >= 0) {
 		partRecord	= [flattenedReport objectAtIndex:rowIndex];
 		partName	= [partRecord objectForKey:PART_NUMBER_KEY];
 		partColor	= [[partRecord objectForKey:LDRAW_COLOR_CODE] intValue];
@@ -376,8 +335,7 @@
 // Purpose:		The end is nigh.
 //
 //==============================================================================
-- (void) dealloc
-{
+- (void) dealloc {
 	[file				release];
 	[activeModelName	release];
 	[partReport			release];

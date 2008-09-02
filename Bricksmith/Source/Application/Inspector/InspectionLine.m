@@ -39,9 +39,10 @@
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender{
+- (IBAction)finishedEditing:(id)sender{
 
 	LDrawLine *representedObject = [self object];
+	[representedObject snapshot];
 	
 	Point3 vertex1 = [startPoint coordinateValue];
 	Point3 vertex2 = [endPoint coordinateValue];
@@ -49,7 +50,7 @@
 	[representedObject setVertex1:vertex1];
 	[representedObject setVertex2:vertex2];
 	
-	[super commitChanges:sender];
+	[super finishedEditing:sender];
 }
 
 //========== revert ============================================================
@@ -64,7 +65,7 @@
 
 	LDrawLine *representedObject = [self object];
 
-	[colorWell setLDrawColor:[representedObject LDrawColor]];
+	[colorWell setColorCode:[representedObject LDrawColor]];
 
 	Point3 vertex1 = [representedObject vertex1];
 	Point3 vertex2 = [representedObject vertex2];
@@ -90,7 +91,7 @@
 	Point3 vertex1		= [[self object] vertex1];
 	
 	//If the values really did change, then update.
-	if(V3EqualPoints(formContents, vertex1) == NO)
+	if(LDrawEqualPoints(formContents, vertex1) == NO)
 		[self finishedEditing:sender];
 }
 
@@ -107,7 +108,7 @@
 	Point3 vertex2		= [[self object] vertex2];
 	
 	//If the values really did change, then update.
-	if(V3EqualPoints(formContents, vertex2) == NO)
+	if(LDrawEqualPoints(formContents, vertex2) == NO)
 		[self finishedEditing:sender];
 }
 

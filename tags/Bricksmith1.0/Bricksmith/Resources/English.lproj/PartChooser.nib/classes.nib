@@ -1,0 +1,26 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = LDrawGLView; LANGUAGE = ObjC; SUPERCLASS = NSOpenGLView; }, 
+        {
+            ACTIONS = {categoryComboBoxChanged = id; }; 
+            CLASS = PartBrowserDataSource; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                categoryComboBox = NSComboBox; 
+                partPreview = LDrawGLView; 
+                partsTable = NSTableView; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {cancelClicked = id; insertPartClicked = id; }; 
+            CLASS = PartChooserPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {partChooserPanel = PartChooserPanel; partsBrowser = PartBrowserDataSource; }; 
+            SUPERCLASS = NSPanel; 
+        }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

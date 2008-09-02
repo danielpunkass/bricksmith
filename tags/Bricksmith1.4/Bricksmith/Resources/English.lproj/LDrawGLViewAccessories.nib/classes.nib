@@ -1,0 +1,14 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {viewingAngleSelected = id; zoomIn = id; zoomOut = id; }; 
+            CLASS = LDrawGLView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {document = LDrawDocument; }; 
+            SUPERCLASS = NSOpenGLView; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }
+    ); 
+    IBVersion = 1; 
+}

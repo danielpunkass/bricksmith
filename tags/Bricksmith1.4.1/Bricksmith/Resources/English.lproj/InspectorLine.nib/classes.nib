@@ -1,0 +1,21 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {endPointEndedEditing = id; startPointEndedEditing = id; }; 
+            CLASS = InspectionLine; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {colorWell = LDrawColorWell; endPoint = NSForm; startPoint = NSForm; }; 
+            SUPERCLASS = ObjectInspectionController; 
+        }, 
+        {CLASS = LDrawColorWell; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {
+            ACTIONS = {finishedEditing = id; revert = id; }; 
+            CLASS = ObjectInspectionController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {editingObject = id; window = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

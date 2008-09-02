@@ -1,0 +1,26 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {okButtonClicked = id; }; 
+            CLASS = DialogPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {dialogPanel = DialogPanel; objectController = NSObjectController; }; 
+            SUPERCLASS = NSPanel; 
+        }, 
+        {
+            ACTIONS = {panelMoveParts = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {moveButtonClicked = id; }; 
+            CLASS = MovePanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {formatterPoints = NSFormatter; }; 
+            SUPERCLASS = DialogPanel; 
+        }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

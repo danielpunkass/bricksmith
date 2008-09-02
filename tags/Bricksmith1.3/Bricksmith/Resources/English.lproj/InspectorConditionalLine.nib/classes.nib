@@ -1,0 +1,33 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                conditionalVertex1EndedEditing = id; 
+                conditionalVertex2EndedEditing = id; 
+                vertex1EndedEditing = id; 
+                vertex2EndedEditing = id; 
+            }; 
+            CLASS = InspectionConditionalLine; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorWell = LDrawColorWell; 
+                conditionalVertex1Form = NSForm; 
+                conditionalVertex2Form = NSForm; 
+                vertex1Form = NSForm; 
+                vertex2Form = NSForm; 
+            }; 
+            SUPERCLASS = ObjectInspectionController; 
+        }, 
+        {CLASS = LDrawColorWell; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {
+            ACTIONS = {finishedEditing = id; revert = id; }; 
+            CLASS = ObjectInspectionController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {editingObject = id; window = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = QuadrilateralView; LANGUAGE = ObjC; SUPERCLASS = NSView; }
+    ); 
+    IBVersion = 1; 
+}

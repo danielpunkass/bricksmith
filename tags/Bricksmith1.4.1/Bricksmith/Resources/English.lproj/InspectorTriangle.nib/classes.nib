@@ -1,0 +1,31 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                vertex1EndedEditing = id; 
+                vertex2EndedEditing = id; 
+                vertex3EndedEditing = id; 
+            }; 
+            CLASS = InspectionTriangle; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorWell = LDrawColorWell; 
+                vertex1Form = NSForm; 
+                vertex2Form = NSForm; 
+                vertex3Form = NSForm; 
+            }; 
+            SUPERCLASS = ObjectInspectionController; 
+        }, 
+        {CLASS = LDrawColorWell; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {
+            ACTIONS = {finishedEditing = id; revert = id; }; 
+            CLASS = ObjectInspectionController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {editingObject = id; window = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = TriangleView; LANGUAGE = ObjC; SUPERCLASS = NSView; }
+    ); 
+    IBVersion = 1; 
+}

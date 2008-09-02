@@ -1,0 +1,19 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {okButtonClicked = id; }; 
+            CLASS = DialogPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {dialogPanel = NSPanel; objectController = NSObjectController; }; 
+            SUPERCLASS = NSPanel; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            CLASS = PieceCountPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {pieceCountTable = NSTableView; }; 
+            SUPERCLASS = DialogPanel; 
+        }
+    ); 
+    IBVersion = 1; 
+}

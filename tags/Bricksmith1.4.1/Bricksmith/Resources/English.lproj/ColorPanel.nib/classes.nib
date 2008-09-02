@@ -1,0 +1,22 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = IconTextCell; LANGUAGE = ObjC; SUPERCLASS = NSTextFieldCell; }, 
+        {CLASS = LDrawColorBar; LANGUAGE = ObjC; SUPERCLASS = NSView; }, 
+        {CLASS = LDrawColorCell; LANGUAGE = ObjC; SUPERCLASS = NSCell; }, 
+        {
+            ACTIONS = {searchFieldChanged = id; }; 
+            CLASS = LDrawColorPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                colorBar = LDrawColorBar; 
+                colorPanel = LDrawColorPanel; 
+                colorTable = NSTableView; 
+                searchField = NSSearchField; 
+            }; 
+            SUPERCLASS = NSPanel; 
+        }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

@@ -1,0 +1,39 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                changeTab = id; 
+                chooseLDrawFolder = id; 
+                commentsColorWellChanged = id; 
+                gridSpacingChanged = id; 
+                modelsColorWellChanged = id; 
+                partsColorWellChanged = id; 
+                pathTextFieldChanged = id; 
+                primitivesColorWellChanged = id; 
+                reloadParts = id; 
+                stepsColorWellChanged = id; 
+                unknownColorWellChanged = id; 
+            }; 
+            CLASS = PreferencesDialogController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                LDrawPathTextField = NSTextField; 
+                commentsColorWell = NSColorWell; 
+                folderChooserAccessoryView = NSView; 
+                gridSpacingForm = NSForm; 
+                ldrawContentView = NSView; 
+                modelsColorWell = NSColorWell; 
+                partsColorWell = NSColorWell; 
+                preferencesWindow = NSWindow; 
+                primitivesColorWell = NSColorWell; 
+                stepsColorWell = NSColorWell; 
+                stylesContentView = NSView; 
+                unknownColorWell = NSColorWell; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

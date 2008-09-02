@@ -1,0 +1,61 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = LDrawColorWell; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {
+            ACTIONS = {drawThreaded = id; viewingAngleSelected = id; zoomIn = id; zoomOut = id; }; 
+            CLASS = LDrawGLView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {document = LDrawDocument; }; 
+            SUPERCLASS = NSOpenGLView; 
+        }, 
+        {
+            ACTIONS = {
+                cancelButtonClicked = id; 
+                colorWellChanged = id; 
+                generateMinifigure = id; 
+                okButtonClicked = id; 
+            }; 
+            CLASS = MinifigureDialogController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                hatsColorWell = LDrawColorWell; 
+                hatsController = NSArrayController; 
+                headsColorWell = LDrawColorWell; 
+                headsController = NSArrayController; 
+                hipsColorWell = LDrawColorWell; 
+                hipsController = NSArrayController; 
+                leftArmsColorWell = LDrawColorWell; 
+                leftArmsController = NSArrayController; 
+                leftHandAccessoriesColorWell = LDrawColorWell; 
+                leftHandAccessoriesController = NSArrayController; 
+                leftHandsColorWell = LDrawColorWell; 
+                leftHandsController = NSArrayController; 
+                leftLegAccessoriesColorWell = LDrawColorWell; 
+                leftLegAccessoriesController = NSArrayController; 
+                leftLegsColorWell = LDrawColorWell; 
+                leftLegsController = NSArrayController; 
+                minifigureGeneratorPanel = NSPanel; 
+                minifigurePreview = LDrawGLView; 
+                necksColorWell = LDrawColorWell; 
+                necksController = NSArrayController; 
+                rightArmsColorWell = LDrawColorWell; 
+                rightArmsController = NSArrayController; 
+                rightHandAccessoriesColorWell = LDrawColorWell; 
+                rightHandAccessoriesController = NSArrayController; 
+                rightHandsColorWell = LDrawColorWell; 
+                rightHandsController = NSArrayController; 
+                rightLegAccessoriesColorWell = LDrawColorWell; 
+                rightLegAccessoriesController = NSArrayController; 
+                rightLegsColorWell = LDrawColorWell; 
+                rightLegsController = NSArrayController; 
+                torsosColorWell = LDrawColorWell; 
+                torsosController = NSArrayController; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

@@ -1,0 +1,90 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                nudgeXClicked = id; 
+                nudgeYClicked = id; 
+                nudgeZClicked = id; 
+                rotateNegativeXClicked = id; 
+                rotateNegativeYClicked = id; 
+                rotateNegativeZClicked = id; 
+                rotatePositiveXClicked = id; 
+                rotatePositiveYClicked = id; 
+                rotatePositiveZClicked = id; 
+                zoomScaleChanged = id; 
+            }; 
+            CLASS = DocumentToolbarController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                document = LDrawDocument; 
+                nudgeXToolView = NSView; 
+                nudgeYToolView = NSView; 
+                nudgeZToolView = NSView; 
+                zoomToolTextField = NSTextField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = IconTextCell; LANGUAGE = ObjC; SUPERCLASS = NSTextFieldCell; }, 
+        {
+            ACTIONS = {
+                addCommentClicked = id; 
+                addConditionalClicked = id; 
+                addLineClicked = id; 
+                addModelClicked = id; 
+                addPartClicked = id; 
+                addQuadrilateralClicked = id; 
+                addStepClicked = id; 
+                addTriangleClicked = id; 
+                advanceOneStep = id; 
+                backOneStep = id; 
+                changeLDrawColor = id; 
+                copy = id; 
+                delete = id; 
+                duplicate = id; 
+                gridGranularityMenuChanged = id; 
+                modelSelected = id; 
+                paste = id; 
+                showInspector = id; 
+                snapSelectionToGrid = id; 
+                toggleFileContentsDrawer = id; 
+                togglePartBrowserDrawer = id; 
+                toggleStepDisplay = id; 
+                zoomActual = id; 
+                zoomIn = id; 
+                zoomOut = id; 
+            }; 
+            CLASS = LDrawDocument; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                fileContentsDrawer = NSDrawer; 
+                fileContentsOutline = LDrawFileOutlineView; 
+                fileGraphicView = LDrawGLView; 
+                partBrowserDrawer = NSDrawer; 
+                partsBrowser = PartBrowserDataSource; 
+                toolbarController = DocumentToolbarController; 
+            }; 
+            SUPERCLASS = NSDocument; 
+        }, 
+        {CLASS = LDrawDocumentWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }, 
+        {CLASS = LDrawFileOutlineView; LANGUAGE = ObjC; SUPERCLASS = NSOutlineView; }, 
+        {
+            CLASS = LDrawGLView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {delegate = id; document = LDrawDocument; }; 
+            SUPERCLASS = NSOpenGLView; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }, 
+        {
+            ACTIONS = {categoryComboBoxChanged = id; }; 
+            CLASS = PartBrowserDataSource; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                categoryComboBox = NSComboBox; 
+                partPreview = LDrawGLView; 
+                partsTable = NSTableView; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

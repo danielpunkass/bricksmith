@@ -1,0 +1,39 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                addCommentClicked = id; 
+                addConditionalClicked = id; 
+                addLineClicked = id; 
+                addModelClicked = id; 
+                addPartClicked = id; 
+                addQuadrilateralClicked = id; 
+                addStepClicked = id; 
+                addTriangleClicked = id; 
+                advanceOneStep = id; 
+                backOneStep = id; 
+                duplicate = id; 
+                exportSteps = id; 
+                gridGranularityMenuChanged = id; 
+                showColors = id; 
+                snapSelectionToGrid = id; 
+                toggleFileContentsDrawer = id; 
+                togglePartBrowserDrawer = id; 
+                toggleStepDisplay = id; 
+                zoomActual = id; 
+                zoomIn = id; 
+                zoomOut = id; 
+            }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {doPreferences = id; showInspector = id; }; 
+            CLASS = LDrawApplication; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

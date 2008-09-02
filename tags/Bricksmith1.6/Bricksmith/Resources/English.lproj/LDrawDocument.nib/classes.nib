@@ -1,0 +1,115 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                nudgeXClicked = id; 
+                nudgeYClicked = id; 
+                nudgeZClicked = id; 
+                rotateNegativeXClicked = id; 
+                rotateNegativeYClicked = id; 
+                rotateNegativeZClicked = id; 
+                rotatePositiveXClicked = id; 
+                rotatePositiveYClicked = id; 
+                rotatePositiveZClicked = id; 
+                zoomScaleChanged = id; 
+            }; 
+            CLASS = DocumentToolbarController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                document = LDrawDocument; 
+                nudgeXToolView = NSView; 
+                nudgeYToolView = NSView; 
+                nudgeZToolView = NSView; 
+                zoomToolTextField = NSTextField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = ExtendedSplitView; LANGUAGE = ObjC; SUPERCLASS = NSSplitView; }, 
+        {CLASS = IconTextCell; LANGUAGE = ObjC; SUPERCLASS = NSTextFieldCell; }, 
+        {
+            ACTIONS = {
+                addCommentClicked = id; 
+                addConditionalClicked = id; 
+                addLineClicked = id; 
+                addModelClicked = id; 
+                addPartClicked = id; 
+                addQuadrilateralClicked = id; 
+                addStepClicked = id; 
+                addSubmodelReferenceClicked = id; 
+                addTriangleClicked = id; 
+                advanceOneStep = id; 
+                backOneStep = id; 
+                changeLDrawColor = id; 
+                copy = id; 
+                delete = id; 
+                doMissingPiecesCheck = id; 
+                doMovedPiecesCheck = id; 
+                duplicate = id; 
+                exportSteps = id; 
+                gridGranularityMenuChanged = id; 
+                hideParts = id; 
+                insertLDrawPart = id; 
+                modelSelected = id; 
+                orderFrontRotationPanel = id; 
+                panelMoveParts = id; 
+                panelRotateParts = id; 
+                paste = id; 
+                showDimensions = id; 
+                showInspector = id; 
+                showParts = id; 
+                showPieceCount = id; 
+                snapSelectionToGrid = id; 
+                toggleFileContentsDrawer = id; 
+                toggleStepDisplay = id; 
+                zoomActual = id; 
+                zoomIn = id; 
+                zoomOut = id; 
+            }; 
+            CLASS = LDrawDocument; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                bindingsController = NSObjectController; 
+                fileContentsDrawer = NSDrawer; 
+                fileContentsOutline = LDrawFileOutlineView; 
+                fileDetailView1 = LDrawGLView; 
+                fileDetailView2 = LDrawGLView; 
+                fileDetailView3 = LDrawGLView; 
+                fileGraphicView = LDrawGLView; 
+                horizontalSplitView = ExtendedSplitView; 
+                partBrowserDrawer = NSDrawer; 
+                partsBrowser = PartBrowserDataSource; 
+                toolbarController = DocumentToolbarController; 
+                verticalDetailSplitView = ExtendedSplitView; 
+            }; 
+            SUPERCLASS = NSDocument; 
+        }, 
+        {CLASS = LDrawDocumentWindow; LANGUAGE = ObjC; SUPERCLASS = NSWindow; }, 
+        {CLASS = LDrawFileOutlineView; LANGUAGE = ObjC; SUPERCLASS = NSOutlineView; }, 
+        {
+            ACTIONS = {zoomIn = id; zoomOut = id; }; 
+            CLASS = LDrawGLView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {document = LDrawDocument; }; 
+            SUPERCLASS = NSOpenGLView; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }, 
+        {
+            ACTIONS = {
+                addPartClicked = id; 
+                categoryComboBoxChanged = id; 
+                doubleClickedInPartTable = id; 
+                searchFieldChanged = id; 
+            }; 
+            CLASS = PartBrowserDataSource; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                categoryComboBox = NSComboBox; 
+                partPreview = LDrawGLView; 
+                partsTable = NSTableView; 
+                searchField = NSSearchField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

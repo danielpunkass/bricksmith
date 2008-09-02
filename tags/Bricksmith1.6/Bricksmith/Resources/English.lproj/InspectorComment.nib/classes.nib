@@ -1,0 +1,21 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {commandFieldChanged = id; }; 
+            CLASS = InspectionUnknownCommand; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {commandField = NSTextField; }; 
+            SUPERCLASS = ObjectInspectionController; 
+        }, 
+        {CLASS = LDrawColorWell; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
+        {
+            ACTIONS = {finishedEditing = id; revert = id; }; 
+            CLASS = ObjectInspectionController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {editingObject = id; window = NSWindow; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

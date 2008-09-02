@@ -1,0 +1,43 @@
+{
+    IBClasses = (
+        {CLASS = ExtendedSplitView; LANGUAGE = ObjC; SUPERCLASS = NSSplitView; }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {zoomIn = id; zoomOut = id; }; 
+            CLASS = LDrawGLView; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {document = LDrawDocument; }; 
+            SUPERCLASS = NSOpenGLView; 
+        }, 
+        {CLASS = NSObject; LANGUAGE = ObjC; }, 
+        {
+            ACTIONS = {
+                addPartClicked = id; 
+                categoryComboBoxChanged = id; 
+                doubleClickedInPartTable = id; 
+                searchFieldChanged = id; 
+            }; 
+            CLASS = PartBrowserDataSource; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                categoryComboBox = NSComboBox; 
+                partPreview = LDrawGLView; 
+                partsTable = NSTableView; 
+                searchField = NSSearchField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            CLASS = PartBrowserPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                partBrowserPanel = PartBrowserPanel; 
+                partsBrowser = PartBrowserDataSource; 
+                splitView = ExtendedSplitView; 
+            }; 
+            SUPERCLASS = NSPanel; 
+        }, 
+        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
+    ); 
+    IBVersion = 1; 
+}

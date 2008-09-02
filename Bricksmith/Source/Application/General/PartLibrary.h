@@ -13,7 +13,7 @@
 @class LDrawModel;
 @class LDrawPart;
 
-#import "ColorLibrary.h"
+#import "LDrawColor.h"
 
 @interface PartLibrary : NSObject {
 
@@ -37,7 +37,7 @@
 - (LDrawModel *) modelForPart:(LDrawPart *) part;
 - (NSString *) pathForPartName:(NSString *)partName;
 - (LDrawModel *) modelFromNeighboringFileForPart:(LDrawPart *)part;
-- (GLuint) retainDisplayListForPart:(LDrawPart *)part color:(GLfloat *)color;
+- (int) retainDisplayListForPart:(LDrawPart *)part color:(LDrawColorT)color;
 
 //Utilites
 - (void) addPartsInFolder:(NSString *)folderPath

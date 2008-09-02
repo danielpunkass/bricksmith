@@ -814,6 +814,7 @@
 {
 	NSArray		*parts			= [controller arrangedObjects];
 	LDrawPart	*currentPart	= nil;
+	NSString	*currentName	= nil;
 	int			 partCount		= [parts count];
 	int			 counter		= 0;
 	

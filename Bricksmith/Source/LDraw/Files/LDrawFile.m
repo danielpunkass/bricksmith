@@ -334,18 +334,6 @@
 #pragma mark -
 
 
-//========== activeModel =======================================================
-//
-// Purpose:		Returns the name of the currently-active model in the file.
-//
-//==============================================================================
-- (LDrawMPDModel *) activeModel
-{
-	return activeModel;
-	
-}//end activeModel
-
-
 //========== addSubmodel: ======================================================
 //
 // Purpose:		Adds a new submodel to the file. This method only accepts MPD 
@@ -356,19 +344,6 @@
 - (void) addSubmodel:(LDrawMPDModel *)newSubmodel {
 	[self insertDirective:newSubmodel atIndex:[[self subdirectives] count]];
 }//end addSubmodel:
-
-
-//========== draggingDirectives ================================================
-//
-// Purpose:		Returns the objects that are currently being displayed as part 
-//			    of drag-and-drop. 
-//
-//==============================================================================
-- (NSArray *) draggingDirectives
-{
-	return [[self activeModel] draggingDirectives];
-	
-}//end draggingDirectives
 
 
 //========== modelNames ========================================================
@@ -440,13 +415,20 @@
 //				LDrawMPDModels) which constitute this file.
 //
 //==============================================================================
-- (NSArray *) submodels
-{
+- (NSArray *) submodels{
 	return [self subdirectives];
 }
 
 
-#pragma mark -
+//========== activeModel =======================================================
+//
+// Purpose:		Returns the name of the currently-active model in the file.
+//
+//==============================================================================
+- (LDrawMPDModel *) activeModel{
+	return activeModel;
+}//end activeModel
+
 
 //========== setActiveModel: ===================================================
 //
@@ -477,24 +459,6 @@
 	else
 		NSLog(@"Attempted to set the active model to one which is not in the file!");
 }//end setActiveModel
-
-
-//========== setDraggingDirectives: ============================================
-//
-// Purpose:		Sets the parts which are being manipulated in the model via 
-//			    drag-and-drop. 
-//
-// Notes:		This is a convenience method for LDrawGLView, which might not 
-//			    care to wonder whether it's displaying a model or a file. In 
-//			    either event, we just want to drag-and-drop, and that's defined 
-//			    in the model. 
-//
-//==============================================================================
-- (void) setDraggingDirectives:(NSArray *)directives
-{
-	[[self activeModel] setDraggingDirectives:directives];
-	
-}//end setDraggingDirectives:
 
 
 //========== setEnclosingDirective: ============================================

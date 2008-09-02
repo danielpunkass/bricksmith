@@ -194,8 +194,8 @@
 //				PART_NUMBER_KEY, LDRAW_COLOR_CODE, PART_QUANTITY
 //
 //==============================================================================
-- (NSArray *) flattenedReport
-{
+- (NSArray *) flattenedReport {
+	
 	NSMutableArray	*flattenedReport	= [NSMutableArray array];
 	NSArray			*allPartNames		= [partsReport allKeys];
 	NSDictionary	*quantitiesForPart	= nil;
@@ -214,20 +214,18 @@
 	int				 colorCounter		= 0;
 	
 	//Loop through every type of part in the report
-	for(counter = 0; counter < [allPartNames count]; counter++)
-	{
+	for(counter = 0; counter < [allPartNames count]; counter++){
 		currentPartNumber	= [allPartNames objectAtIndex:counter];
 		quantitiesForPart	= [partsReport objectForKey:currentPartNumber];
 		allColors			= [quantitiesForPart allKeys];
 		
 		//For each type of part, find each color/quantity pair recorded for it.
-		for(colorCounter = 0; colorCounter < [allColors count]; colorCounter++)
-		{
+		for(colorCounter = 0; colorCounter < [allColors count]; colorCounter++){
 			currentPartColor	= [allColors objectAtIndex:colorCounter];
 			currentPartQuantity	= [quantitiesForPart objectForKey:currentPartColor];
 			
 			currentPartName		= [partLibrary descriptionForPartName:currentPartNumber];
-			currentColorName	= [[[ColorLibrary sharedColorLibrary] colorForCode:[currentPartColor intValue]] localizedName];
+			currentColorName	= [LDrawColor nameForLDrawColor:[currentPartColor intValue]];
 			
 			//Now we have all the information we need. Flatten it into a single
 			// record.
@@ -287,57 +285,6 @@
 - (unsigned) numberOfParts {
 	return self->totalNumberOfParts;
 }
-
-
-//========== textualRepresentation =============================================
-//
-// Purpose:		Returns a string containing the part report as tab-delimited 
-//				plain text. Output appears as follows:
-//				
-//					Part		Description		Quantity	Color
-//					3001.dat	Brick 2 x 4		5			Red
-//					3710.dat	Plate 1 x 4		17			Blue
-//
-// Parameters:	sortDescriptors	- sort order of the data columns. Part reports 
-//								  have no intrinsic sorting, so we must impose 
-//								  it from the outside.
-//
-// Notes:		We should also (or instead) support Bricklink XML format.
-//
-//==============================================================================
-- (NSString *) textualRepresentationWithSortDescriptors:(NSArray *)sortDescriptors
-{
-	NSArray			*flattenedReport	= [self flattenedReport];
-	NSMutableString	*text				= [NSMutableString stringWithCapacity:1024];
-	NSString		*lineFormat			= @"%@\t%@\t%@\t%@\n";
-	NSDictionary	*partRecord			= nil;
-	int				 counter			= 0;
-	
-	//rely on someone outside us providing a sort order
-	if(sortDescriptors != nil)
-		flattenedReport = [flattenedReport sortedArrayUsingDescriptors:sortDescriptors];
-
-	//the Header
-	[text appendFormat: lineFormat,
-									NSLocalizedString(@"PieceCountQuantityColumnName", nil),
-									NSLocalizedString(@"PieceCountPartNumberColumnName", nil),
-									NSLocalizedString(@"PieceCountDescriptionColumnName", nil),
-									NSLocalizedString(@"PieceCountColorColumnName", nil) ];
-	//Part Rows
-	for(counter = 0; counter < [flattenedReport count]; counter++)
-	{
-		partRecord	= [flattenedReport objectAtIndex:counter];
-		
-		[text appendFormat: lineFormat,
-									[partRecord objectForKey:PART_QUANTITY],
-									[partRecord objectForKey:PART_NUMBER_KEY],
-									[partRecord objectForKey:PART_NAME_KEY],
-									[partRecord objectForKey:COLOR_NAME] ];
-	}
-	
-	return text;
-	
-}//end textualRepresentationWithSortDescriptors:
 
 
 #pragma mark -

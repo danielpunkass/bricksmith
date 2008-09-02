@@ -16,7 +16,6 @@
             SUPERCLASS = NSOpenGLView; 
         }, 
         {
-            ACTIONS = {exportButtonClicked = id; }; 
             CLASS = PieceCountPanel; 
             LANGUAGE = ObjC; 
             OUTLETS = {partPreview = LDrawGLView; pieceCountTable = NSTableView; }; 

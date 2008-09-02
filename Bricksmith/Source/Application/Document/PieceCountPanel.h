@@ -15,8 +15,7 @@
 @class LDrawGLView;
 @class PartReport;
 
-@interface PieceCountPanel : DialogPanel
-{
+@interface PieceCountPanel : DialogPanel{
 	LDrawFile		*file;
 	NSString		*activeModelName;
 	PartReport		*partReport;
@@ -38,9 +37,6 @@
 - (void) setFile:(LDrawFile *)newFile;
 - (void) setPartReport:(PartReport *)newPartReport;
 - (void) setTableDataSource:(NSMutableArray *) newReport;
-
-//Actions
-- (IBAction) exportButtonClicked:(id)sender;
 
 //Utilities
 - (void) syncSelectionAndPartDisplayed;

@@ -32,14 +32,12 @@
 //				track keys properly for LDrawGLView's tool mode. Unfortunately, 
 //				Cocoa seems to supress command-keyup events--at least, I never 
 //				see them anywhere. All we do here is dispatch them to a custom 
-//				method before they vanish into the ether. And we want other 
-//				tool-mode key events to be processed whether or not the view is 
-//				first responder. 
+//				method before they vanish into the ether.
 //
 //==============================================================================
 - (void)sendEvent:(NSEvent *)theEvent
 {
-	// We want to track keyboard events in our own little place, completely 
+	//we want to track keyboard events in our own little place, completely 
 	// separate from the responder chain.
 	if(		[theEvent type] == NSKeyDown
 		||	[theEvent type] == NSKeyUp
@@ -49,47 +47,37 @@
 							postNotificationName:LDrawKeyboardDidChangeNotification
 										  object:theEvent ];
 	}
-	
-	
-	// Deliver all events except for Command-space. That has special meaning to 
-	// the Bricksmith tool palette, but it is never actually processed by 
-	// Bricksmith's responder chain. That mean it generates a beep when pressed. 
-	if( [self shouldPropogateEvent:theEvent] == YES )
+
+	//Intercept command-keyups, which NSApplication seems otherwise to 
+	// completely discard.	
+	if(		([theEvent modifierFlags] & NSCommandKeyMask) != 0
+		&&	[theEvent type] == NSKeyUp )
 	{
-		// Send all events, even command-keyups, to the application to do 
-		// whatever it expects to do with them. 
-		[super sendEvent:theEvent];
+		//okay, we've got it. Now what do we do with it?
+		
+		//for command-keydown, NSApplication calls the private method 
+		// -_handleKeyEquivalent:, which in turn calls -performKeyEquivalent: \
+		// on the key window. That in turn starts traversing the view heirarchy.
+		// In other words, a whole lot of views received the same message. This 
+		// is different from other events, which are sent to the first 
+		// responder first, and usually stop right there.
+		
+		//Well, to mimic that properly would require subclassing NSWindow and 
+		// posing a subclass of NSView, all to add one lousy method. And for 
+		// our limited case here, we really only want the first responder to 
+		// respond anyway. So it's going to be okay to just send this one up 
+		// the responder chain.
+		[self sendAction:@selector(commandKeyUp:) to:nil from:theEvent];
+		
+		//P.S. That means that classes using -performKeyEvent: in tandem with 
+		// this command-keyup hack had better check that they are the first 
+		// responder before acting.
 	}
 	
+	//Send all events, even command-keyups, to the application to do whatever 
+	// it expects to do with them.
+	[super sendEvent:theEvent];
+	
 }//end sendEvent:
-
-
-//========== shouldPropogateEvent: =============================================
-//
-// Purpose:		Returns whether the normal responder chain should be allowed to 
-//				get a crack at processing theEvent. 
-//
-// Notes:		Command-space has special meaning to the Bricksmith tool 
-//				palette, but it is never actually processed by Bricksmith's 
-//				responder chain. That mean it generates a beep when pressed. So 
-//				we kill it here. 
-//
-//				I guess we could handle this in LDrawGLView, but that would only 
-//				work if the view is first responder. In places like the 
-//				minifigure dialog or part browser, that is not the case. 
-//
-//==============================================================================
-- (BOOL) shouldPropogateEvent:(NSEvent *)theEvent
-{
-	if(		[theEvent type] == NSKeyDown
-	   &&	[[theEvent characters] isEqualToString:@" "] == YES
-	   &&	([theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask) == NSCommandKeyMask
-	   )
-		return NO;
-	else
-		return YES;
-		
-}//end shouldPropogateEvent:
-
 
 @end

@@ -21,8 +21,8 @@
 //				differently-sized panes, like a preferences window.
 //
 //==============================================================================
-- (NSRect) frameRectForContentSize:(NSSize)newSize
-{
+- (NSRect) frameRectForContentSize:(NSSize)newSize{
+	
 	//Get the current size.
 	NSSize currentContentSize	= [[self contentView] frame].size;
 	//And the current frame, which takes into account the title bar and toolbar.
@@ -36,25 +36,6 @@
 	newFrameRect.origin.y		-= newSize.height - currentContentSize.height;
 	
 	return newFrameRect;
-	
-}//end frameRectForContentSize:
-
-
-//========== resizeToSize:animate: =============================================
-//
-// Purpose:		Resizes the window to the given frame size, anchoring the 
-//				position in the upper-left of the original window frame. 
-//
-//==============================================================================
-- (void) resizeToSize:(NSSize)newSize animate:(BOOL)animate
-{
-	NSRect	currentFrame	= [self frame];
-	NSPoint	upperLeft		= NSMakePoint( NSMinX(currentFrame), NSMaxY(currentFrame) );
-	NSRect	newRect			= NSMakeRect(upperLeft.x, upperLeft.y - newSize.height,
-										 newSize.width, newSize.height );
-
-	[self setFrame:newRect display:YES animate:animate];	
-
-}//end resizeToSize:animate:
+}
 
 @end

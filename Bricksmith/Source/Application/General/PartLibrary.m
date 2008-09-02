@@ -166,16 +166,12 @@
 //				LDraw/parts/
 //				LDraw/parts/s/
 //
-//				LDraw/Unofficial/p/
-//				LDraw/Unofficial/p/48/
-//				LDraw/Unofficial/parts/
-//				LDraw/Unofficial/parts/s/
-//
 //				It is important that the part name added to the library bear 
 //				the correct reference style. For LDraw/p/ and LDraw/parts/, it 
 //				is simply the filename (in lowercase). But for subdirectories, 
 //				the filename must be prefixed with the subdirectory in DOS 
 //				format, i.e., "s\file.dat" or "48\file.dat".
+//				
 //
 //==============================================================================
 - (void)reloadParts:(id)sender
@@ -184,8 +180,6 @@
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 	
 	NSString			*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
-	NSString			*unofficialPath		= [ldrawPath stringByAppendingPathComponent:UNOFFICIAL_DIRECTORY_NAME]; //base for unofficial directories
-	
 	//make sure the LDraw folder is still valid; otherwise, why bother doing anything?
 	if([self validateLDrawFolder:ldrawPath] == NO)
 		return;
@@ -195,12 +189,6 @@
 	NSString			*primitives48Path	= [NSString stringWithFormat:@"%@/%@", primitivesPath, PRIMITIVES_48_DIRECTORY_NAME];
 	NSString			*partsPath			= [NSString stringWithFormat:@"%@/%@", ldrawPath, PARTS_DIRECTORY_NAME];
 	NSString			*subpartsPath		= [NSString stringWithFormat:@"%@/%@", partsPath, SUBPARTS_DIRECTORY_NAME];
-
-	//search unofficial directories as well.
-	NSString			*unofficialPrimitivesPath	= [NSString stringWithFormat:@"%@/%@", unofficialPath, PRIMITIVES_DIRECTORY_NAME];
-	NSString			*unofficialPrimitives48Path	= [NSString stringWithFormat:@"%@/%@", unofficialPrimitivesPath, PRIMITIVES_48_DIRECTORY_NAME];
-	NSString			*unofficialPartsPath		= [NSString stringWithFormat:@"%@/%@", unofficialPath, PARTS_DIRECTORY_NAME];
-	NSString			*unofficialSubpartsPath		= [NSString stringWithFormat:@"%@/%@", unofficialPartsPath, SUBPARTS_DIRECTORY_NAME];
 	
 	NSString			*partCatalogPath	= [NSString stringWithFormat:@"%@/%@", ldrawPath, PART_CATALOG_NAME];
 	NSMutableDictionary	*newPartCatalog		= [NSMutableDictionary dictionary];
@@ -212,11 +200,7 @@
 	[progressPanel setMaxValue:	[[fileManager directoryContentsAtPath:primitivesPath] count] + 
 								[[fileManager directoryContentsAtPath:primitives48Path] count] + 
 								[[fileManager directoryContentsAtPath:partsPath] count] + 
-								[[fileManager directoryContentsAtPath:subpartsPath] count] +
-								[[fileManager directoryContentsAtPath:unofficialPrimitivesPath] count] +
-								[[fileManager directoryContentsAtPath:unofficialPrimitives48Path] count] +
-								[[fileManager directoryContentsAtPath:unofficialPartsPath] count] +
-								[[fileManager directoryContentsAtPath:unofficialSubpartsPath] count]
+								[[fileManager directoryContentsAtPath:subpartsPath] count]
 	];
 	[progressPanel setMessage:@"Loading Parts"];
 	[progressPanel showProgressPanel];
@@ -252,31 +236,6 @@
 				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME] //prefix subpart numbers with the DOS path "s\"; that's just how it is. Yuck!
 			 progressPanel:progressPanel ];
 	
-	
-	//Scan unofficial part folders.
-	[self addPartsInFolder:unofficialPrimitivesPath
-				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Primitives", nil) //groups unofficial primitives with official primitives
-			    namePrefix:nil //a directory deeper, but no DOS path separators to manage
-			 progressPanel:progressPanel ];
-	
-	[self addPartsInFolder:unofficialPrimitives48Path
-				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Primitives", nil)
-				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME]
-			 progressPanel:progressPanel ];
-	
-	[self addPartsInFolder:unofficialPartsPath
-				 toCatalog:newPartCatalog
-			 underCategory:nil
-				namePrefix:nil
-			 progressPanel:progressPanel ];
-	
-	[self addPartsInFolder:unofficialSubpartsPath
-				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Subparts", nil) //groups unofficial subparts with official subparts
-				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME]
-			 progressPanel:progressPanel ];
 	
 	//Save the part catalog out for future reference.
 	[newPartCatalog writeToFile:partCatalogPath atomically:YES];
@@ -482,76 +441,65 @@
 //
 // Purpose:		Returns the display list tag used to draw the given part. 
 //				Display lists are shared among multiple part instances of the 
-//				same name and color in order to reduce memory space.	
-//
-// Parameters:	part	- part to get/create a display list for.
-//				color	- RGBA color for the part. We can't just ask the part for 
-//						  its color because it might be LDrawCurrentColor, in 
-//						  which case it is supposed to draw with its parent 
-//						  color. 
+//				same name and color in order to reduce memory space.				
 //
 //==============================================================================
-- (GLuint) retainDisplayListForPart:(LDrawPart *) part
-							  color:(GLfloat *) glColor
+- (int) retainDisplayListForPart:(LDrawPart *)part
+						   color:(LDrawColorT)color
 {
-	GLuint				 displayListTag	= 0;
-	NSString			*referenceName	= [part referenceName];
-	NSMutableDictionary	*partRecord		= nil;
-	NSString			*key			= [NSString stringWithFormat:@"%f %f %f %f", glColor[0], glColor[1], glColor[2], glColor[3] ];
-	NSNumber			*listTag		= nil;
+	int			 displayListTag	= 0;
+	NSString	*referenceName	= [part referenceName];
+	NSString	*keyPath		= nil;
+	NSNumber	*listTag		= nil;
 	
 	if([referenceName length] > 0)
 	{
-		partRecord	= [self->fileDisplayLists objectForKey:referenceName];
-		
-		if(partRecord == nil)
-		{
-			// create a new record for hold list tags.
-			partRecord = [NSMutableDictionary dictionary];
-			[self->fileDisplayLists setObject:partRecord forKey:referenceName];
-		}
-		else
-		{
-			// try to get a previously-cached list for this part/color
-			listTag = [partRecord objectForKey:key];
-		}
-	
 		if(listTag != nil)
-		{
 			displayListTag = [listTag intValue];
-//			NSLog(@"found %d for %@ %d", displayListTag, referenceName, color);
-		}
 		else
 		{
-			LDrawModel	*modelToDraw = [self modelForPart:part];
+			keyPath = [NSString stringWithFormat:@"%@.%d.displayListTag", [part referenceName], color];
+			listTag = [self->fileDisplayLists valueForKeyPath:keyPath];
+		
+			GLfloat glColor[4]; //OpenGL equivalent of the LDrawColor.
+			LDrawModel *modelToDraw = [self modelForPart:part];
 			
+			rgbafForCode(color, glColor);
+
 			if(modelToDraw != nil)
 			{
 				displayListTag = glGenLists(1); //create new list name
 				
-				//Don't ask the part to draw itself, either. Parts modify the 
-				//transformation matrix, and we want our display list to be 
-				//independent of the transformation. So we shortcut part drawing 
-				//and do the model itself. 
-//				glPushMatrix();
-//					glLoadIdentity();
-					glNewList(displayListTag, GL_COMPILE);
-						[modelToDraw draw:DRAW_IN_IMMEDIATE_MODE parentColor:glColor];
-					glEndList();
-//				glPopMatrix();
+					//Don't ask the part to draw itself, either. Parts modify the 
+					// transformation matrix, and we want our display list to be 
+					// independent of the transformation. So we shortcut part 
+					// drawing and do the model itself.
+				glNewList(displayListTag, GL_COMPILE);
+		//			glColor4fv(self->glColor); //set the color for this element.
+					[modelToDraw draw:DRAW_NO_OPTIONS parentColor:glColor];
+				glEndList();
 				
-				[partRecord setObject:[NSNumber numberWithUnsignedInt:displayListTag]
-							   forKey:key ];
-				
-//				NSLog(@"generated %d for %@ %d", displayListTag, referenceName, color);
+				[self->fileDisplayLists setValue:[NSNumber numberWithInt:displayListTag]
+									  forKeyPath:keyPath];
 			}
 		}
+		
 	}
 	
 	
 	return displayListTag;
 	
-}//end retainDisplayListForPart:color:
+//	NSDictionary	*colorsForParts	= [self->fileDisplayLists objectForKey:partName];
+//	NSDictionary	*partWithColor	= nil;
+//	int				 displayListTag	= 0;
+//	
+//	if(colorsForParts != nil)
+//	{
+//		partWithColor = [colorsForParts objectForKey:[NSNumber numberWithInt:color];
+//		
+//		displayListTag = [partWithColor objectForKey:
+//	}
+}
 
 
 #pragma mark -
@@ -565,16 +513,14 @@
 //				category if you wish to use the categories defined in the parts 
 //				themselves.
 //
-// Parameters:	categoryOverride	- force all parts in the folder to be filed 
-//									  under this category, rather than the one 
-//									  defined inside the part. 
-//				namePrefix			- appends this prefix to each part scanned. 
-//									  Part references in LDraw/parts/s should be 
-//									  prefixed with the DOS path "s\". Pass nil 
-//									  to ignore the prefix. 
-//				progressPanel		- a progress panel which is displaying the 
-//									  progress of the creation of the part 
-//									  catalog. 
+// Parameters:	categoryOverride: force all parts in the folder to be filed 
+//					under this category, rather than the one defined inside the 
+//					part.
+//				namePrefix: appends this prefix to each part scanned. Part 
+//					references in LDraw/parts/s should be prefixed with the DOS 
+//					path "s\". Pass nil to ignore the prefix.
+//				progressPanel: a progress panel which is displaying the progress 
+//					of the creation of the part catalog.
 //
 //==============================================================================
 - (void) addPartsInFolder:(NSString *)folderPath
@@ -584,21 +530,25 @@
 			progressPanel:(AMSProgressPanel	*)progressPanel
 {
 	NSFileManager		*fileManager		= [NSFileManager defaultManager];
+	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 // Not working for some reason. Why?
 //	NSArray				*readableFileTypes = [NSDocument readableTypes];
 //	NSLog(@"readable types: %@", readableFileTypes);
-	NSArray				*readableFileTypes	= [NSArray arrayWithObjects:@"dat", @"ldr", nil];
+	NSArray				*readableFileTypes	= [NSArray arrayWithObject:@"dat"];
 	
 	NSArray				*partNames			= [fileManager directoryContentsAtPath:folderPath];
 	int					 numberOfParts		= [partNames count];
 	int					 counter;
 	
 	NSString			*currentPath		= nil;
+	NSString			*fileContents		= nil;
 	NSString			*category			= nil;
 	NSString			*partName			= nil;
 	NSString			*partNumber			= nil;
+	NSData				*archivedModel		= nil;
 	
 	NSMutableDictionary	*categoryRecord		= nil;
+	NSMutableDictionary *partListRecord		= nil;
 	
 	//Get the subreference tables out of the main catalog (the should already exist!).
 	NSMutableDictionary *partNumberList		= [catalog objectForKey:PARTS_LIST_KEY]; //lookup parts by number

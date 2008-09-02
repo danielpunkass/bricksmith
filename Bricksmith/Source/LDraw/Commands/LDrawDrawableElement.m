@@ -11,7 +11,6 @@
 //==============================================================================
 #import "LDrawDrawableElement.h"
 
-#import "ColorLibrary.h"
 #import "LDrawColor.h"
 #import "LDrawContainer.h"
 #import "MacLDraw.h"
@@ -28,15 +27,13 @@
 // Purpose:		Create a fresh object. This is the default initializer.
 //
 //==============================================================================
-- (id) init
-{
+- (id) init {
 	self = [super init];
 	
 	self->hidden = NO;
 	
 	return self;
-	
-}//end init
+}
 
 
 //========== initWithCoder: ====================================================
@@ -46,7 +43,7 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (id) initWithCoder:(NSCoder *)decoder
+- (id)initWithCoder:(NSCoder *)decoder
 {
 	self = [super initWithCoder:decoder];
 	
@@ -54,8 +51,7 @@
 	[self setHidden:[decoder decodeBoolForKey:@"hidden"]];
 	
 	return self;
-	
-}//end initWithCoder:
+}
 
 
 //========== encodeWithCoder: ==================================================
@@ -65,14 +61,13 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (void) encodeWithCoder:(NSCoder *)encoder
+- (void)encodeWithCoder:(NSCoder *)encoder
 {
 	[super encodeWithCoder:encoder];
 	
 	[encoder encodeInt:color	forKey:@"color"];
 	[encoder encodeBool:hidden	forKey:@"hidden"];
-	
-}//end encodeWithCoder:
+}
 
 
 
@@ -81,15 +76,14 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone
-{
+- (id) copyWithZone:(NSZone *)zone {
+	
 	LDrawDrawableElement *copied = (LDrawDrawableElement *)[super copyWithZone:zone];
 	
 	[copied setLDrawColor:[self LDrawColor]];
 	
 	return copied;
-	
-}//end copyWithZone:
+}
 
 
 #pragma mark -
@@ -113,19 +107,12 @@
 		// drawing it as a wireframe instead of a filled color. This setting also 
 		// conveniently applies to all referenced parts herein. 
 		if(self->isSelected == YES)
-		{
-			//a bug on Intel iMacs is causing the wireframe not to get drawn 
-			// unless lighting OR blending is off. We don't need blending here 
-			// because we are already drawing wireframes!
-			glDisable(GL_BLEND);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
 		
 		//Load names for mouse-selection, if that's the mode we're in.
 		// Only elements contained within a step should ever wind up here.
 		// Any other nestings are invalid.
-		if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
-		{
+		if((optionsMask & DRAW_HIT_TEST_MODE) != 0){
 			LDrawContainer *enclosingStep = [self enclosingDirective];
 			int partIndex = [enclosingStep indexOfDirective:self]; 
 			int stepIndex = [[enclosingStep enclosingDirective] indexOfDirective:enclosingStep];
@@ -143,51 +130,48 @@
 		
 		if(self->color == LDrawCurrentColor)
 		{
+			#if (OPTIMIZE_STEPS == 0)
+				glColor4fv(parentColor); //restore the parent color. OFF IF STEP-OPTIMIZING.
+			#endif
+			
 			//Just draw; don't fool with colors. A significant portion of our 
 			// drawing code probably falls into this category.
-			[self drawElement:optionsMask withColor:parentColor];
+			[self drawElement:optionsMask parentColor:parentColor];
 		}
 		else
 		{
-			// We'll need to turn this on to support file-local colors.
-//			ColorLibrary	*colorLibrary	= [[[self enclosingDirective] enclosingModel] colorLibrary];
-//			LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
-			
-			if(self->color == LDrawEdgeColor)
-				complimentColor(parentColor, self->glColor);
-//			else
-//			{
-//				[colorObject getColorRGBA:self->glColor];
-//			}
-	
-			[self drawElement:optionsMask withColor:self->glColor];
+			#if (OPTIMIZE_STEPS == 0) //we don't HAVE the parent color when steps are optimized
+				if(self->color == LDrawEdgeColor)
+					complimentColor(parentColor, glColor);
+			#endif
+		
+			glColor4fv(glColor); //set the color for this element.
+			[self drawElement:optionsMask parentColor:glColor];
+			#if OPTIMIZE_STEPS
+				//restore the parent color. NO NEED. Each element does its own color now.
+				glColor4fv(parentColor);
+			#endif
 		}
 			
-		// Done drawing a selected part? Then switch back to normal filled 
-		// drawing. 
+		//Done drawing a selected part? Then switch back to normal filled drawing.
 		if(self->isSelected == YES)
-		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glEnable(GL_BLEND);
-		}
 		
 	}
 	
 }//end draw:optionsMask:
 
 
-//========== drawElement:withColor: ============================================
+//========== drawElement =======================================================
 //
 // Purpose:		Draws the actual drawable stuff (polygons, etc.) of the element. 
 //				This is a subroutine of the -draw: method, which wraps some 
 //				shared functionality such as setting colors.
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
-{
+- (void) drawElement:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor{
 	//implemented by subclasses.
-	
-}//end drawElement:withColor:
+}
 
 
 #pragma mark -
@@ -200,15 +184,13 @@
 //				perfectly contains this object.
 //
 //==============================================================================
-- (Box3) boundingBox3
-{
+- (Box3) boundingBox3 {
 	Box3 bounds = InvalidBox;
 	
 	//You shouldn't be here. Look in a subclass.
 	
 	return bounds;
-	
-}//end boundingBox3
+}
 
 
 //========== isHidden ==========================================================
@@ -216,39 +198,19 @@
 // Purpose:		Returns whether this element will be drawn or not.
 //
 //==============================================================================
-- (BOOL) isHidden
-{
+- (BOOL) isHidden {
 	return self->hidden;
-	
-}//end isHidden
-
+}
 
 //========== LDrawColor ========================================================
 //
 // Purpose:		Returns the LDraw color code of the receiver.
 //
 //==============================================================================
--(LDrawColorT) LDrawColor
-{
+-(LDrawColorT) LDrawColor{
 	return color;
-	
-}//end LDrawColor
+}//end color
 
-
-//========== position ==========================================================
-//
-// Purpose:		Returns some position for the element. This is used by 
-//				drag-and-drop. This is not necessarily human-usable information.
-//
-//==============================================================================
-- (Point3) position
-{
-	return ZeroPoint3;
-	
-}//end position
-
-
-#pragma mark -
 
 //========== setHidden: ========================================================
 //
@@ -258,11 +220,9 @@
 //				hiddenness is a temporary state; it is not saved and restored.
 //
 //==============================================================================
-- (void) setHidden:(BOOL) flag
-{
+- (void) setHidden:(BOOL) flag {
 	self->hidden = flag;
-	
-}//end setHidden:
+}
 
 
 //========== setLDrawColor: ====================================================
@@ -275,24 +235,13 @@
 	self->color = newColor;
 	
 	//Look up the OpenGL color now so we don't have to whenever we draw.
-	// -- Now that we are complying with the LDraw Colour Definition 
-	// Language, we must look up the color at draw time because of 
-	// registration/scoping issues. It shouldn't be a big deal because parts are 
-	// optimized into a display list. I hope.
+	rgbafForCode(color, glColor);
 	
-	// Model-local colors got messy with optimization. Decided not to be 
-	// compliant right now. 
-	
-	ColorLibrary	*colorLibrary	= [ColorLibrary sharedColorLibrary]; //[[[self enclosingDirective] enclosingModel] colorLibrary];
-	LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
-	
-	[colorObject getColorRGBA:self->glColor];
-	
-}//end setLDrawColor:
+}//end setColor
 
 
 #pragma mark -
-#pragma mark MOVEMENT
+#pragma mark ACTIONS
 #pragma mark -
 
 //========== displacementForNudge: =============================================
@@ -307,8 +256,7 @@
 {
 	//possibly refined by subclasses.
 	return nudgeVector;
-	
-}//end displacementForNudge:
+}
 
 
 //========== moveBy: ===========================================================
@@ -325,34 +273,6 @@
 - (void) moveBy:(Vector3)moveVector
 {
 	//implemented by subclasses.
-	
-}//end moveBy:
-
-
-//========== position:snappedToGrid: ===========================================
-//
-// Purpose:		Orients position at discrete points separated by the given grid 
-//				spacing. 
-//
-// Notes:		This method may be overridden by subclasses to provide more 
-//				intelligent grid alignment. 
-//
-//				This method is provided mainly as a service to drag-and-drop. 
-//				In the case of LDrawParts, you should generally avoid this 
-//				method in favor of 
-//				-[LDrawPart components:snappedToGrid:minimumAngle:].
-//
-//==============================================================================
-- (Point3) position:(Point3)position
-	  snappedToGrid:(float)gridSpacing
-{
-	position.x = roundf(position.x/gridSpacing) * gridSpacing;
-	position.y = roundf(position.y/gridSpacing) * gridSpacing;
-	position.z = roundf(position.z/gridSpacing) * gridSpacing;
-	
-	return position;
-	
-}//end position:snappedToGrid:
-
+}
 
 @end

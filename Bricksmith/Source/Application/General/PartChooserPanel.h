@@ -11,8 +11,7 @@
 
 @class PartBrowserDataSource;
 
-@interface PartChooserPanel : NSPanel
-{
+@interface PartChooserPanel : NSPanel {
 	IBOutlet	PartChooserPanel		*partChooserPanel;
 	IBOutlet	PartBrowserDataSource	*partsBrowser;
 	IBOutlet	NSSearchField			*searchField;
@@ -26,7 +25,7 @@
 + (PartChooserPanel *) partChooserPanel;
 
 //Accessors
-- (NSString *) selectedPartName;
+- (NSString *) selectedPart;
 
 //Actions
 - (int) runModal;

@@ -82,11 +82,11 @@
 //				the data in their inspector palettes.
 //
 //==============================================================================
-- (IBAction) revert:(id)sender
-{
+- (IBAction) revert:(id)sender{
+
 	LDrawTriangle *representedObject = [self object];
 
-	[colorWell setLDrawColor:[representedObject LDrawColor]];
+	[colorWell setColorCode:[representedObject LDrawColor]];
 
 	Point3 vertex1 = [representedObject vertex1];
 	Point3 vertex2 = [representedObject vertex2];

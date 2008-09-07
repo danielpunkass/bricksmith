@@ -28,9 +28,13 @@
 #define TOOLBAR_ZOOM_OUT				@"Zoom Out"
 #define TOOLBAR_ZOOM_SPECIFY			@"Specify Zoom"
 
-
-@interface DocumentToolbarController : NSObject {
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// class DocumentToolbarController
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface DocumentToolbarController : NSObject
+{
 	IBOutlet LDrawDocument			*document; //link to the documnt to which this is attached.
 
 	IBOutlet NSView					*nudgeXToolView;
@@ -38,7 +42,7 @@
 	IBOutlet NSView					*nudgeZToolView;
 	IBOutlet NSTextField			*zoomToolTextField; //enter zoom percentage.
 	
-			NSSegmentedControl		*gridSegmentedControl;
+	IBOutlet NSSegmentedControl		*gridSegmentedControl;
 }
 
 //Button factories
@@ -53,12 +57,12 @@
 - (NSToolbarItem *) makeZoomInItem;
 - (NSToolbarItem *) makeZoomOutItem;
 - (NSToolbarItem *) makeZoomTextFieldItem;
-- (NSSegmentedControl *) makeGridSegmentControl;
 
 //Accessors
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;
 
 //Actions
+- (void) gridSpacingSegmentedControlClicked:(id)sender;
 - (IBAction) nudgeXClicked:(id)sender;
 - (IBAction) nudgeYClicked:(id)sender;
 - (IBAction) nudgeZClicked:(id)sender;

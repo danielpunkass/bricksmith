@@ -29,22 +29,22 @@
 //==============================================================================
 - (void) awakeFromNib
 {
-	gridSegmentedControl = [[self makeGridSegmentControl] retain];
-	
-	//Retain all our custom views for toolbar items. Why? Because all of these 
+	// Retain all our custom views for toolbar items. Why? Because all of these 
 	// could be inserted into the toolbar's view hierarchy, thereby *removing* 
 	// them from their current superview, which holds the ONLY retain on them!
 	// The result is that without retains here, all these views would be 
 	// deallocated once added then removed from the toolbar!
-	[nudgeXToolView		retain];
-	[nudgeYToolView		retain];
-	[nudgeZToolView		retain];
-	[zoomToolTextField	retain];
+	[gridSegmentedControl	retain];
+	[nudgeXToolView			retain];
+	[nudgeYToolView			retain];
+	[nudgeZToolView			retain];
+	[zoomToolTextField		retain];
 	
-	[nudgeXToolView		removeFromSuperview];
-	[nudgeYToolView		removeFromSuperview];
-	[nudgeZToolView		removeFromSuperview];
-	[zoomToolTextField	removeFromSuperview];
+	[gridSegmentedControl	removeFromSuperview];
+	[nudgeXToolView			removeFromSuperview];
+	[nudgeYToolView			removeFromSuperview];
+	[nudgeZToolView			removeFromSuperview];
+	[zoomToolTextField		removeFromSuperview];
 	
 }//end awakeFromNib
 
@@ -456,48 +456,8 @@
 
 
 #pragma mark -
-
-//========== makeGridSegmentControl ============================================
-//
-// Purpose:		Initializes the segmented cell to track the grid mode. Under 
-//				System 10.4, this is all available in Interface Builder.
-//
-//==============================================================================
-- (NSSegmentedControl *) makeGridSegmentControl
-{
-	NSRect				segmentFrame	= NSMakeRect(0,0, 32, 32);
-	NSSegmentedControl	*gridSegments	= [[NSSegmentedControl alloc] initWithFrame:segmentFrame];
-	NSSegmentedCell		*segmentsCell	= [gridSegments cell];
-	
-	//We are going to be very rigorous here and use tags for identifying the 
-	// grid mode. This is total overkill; we could use indices. But I just got 
-	// done fixing a "simplification" like that at work today, so I'm wary.
-	[gridSegments setSegmentCount:3];
-	
-	[segmentsCell setTag:gridModeFine							forSegment:0];
-	[segmentsCell setImage:[NSImage imageNamed:@"GridFine"]		forSegment:0];
-	[segmentsCell setWidth:24.0									forSegment:0];
-	
-	[segmentsCell setTag:gridModeMedium							forSegment:1];
-	[segmentsCell setImage:[NSImage imageNamed:@"GridMedium"]	forSegment:1];
-	[segmentsCell setWidth:24.0									forSegment:1];
-	
-	[segmentsCell setTag:gridModeCoarse							forSegment:2];
-	[segmentsCell setImage:[NSImage imageNamed:@"GridCoarse"]	forSegment:2];
-	[segmentsCell setWidth:24.0									forSegment:2];
-	
-	[gridSegments setTarget:self];
-	[gridSegments setAction:@selector(gridSpacingSegmentedControlClicked:)];
-	
-	return [gridSegments autorelease];
-	
-}//end makeGridSegmentControl
-
-
-#pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
-
 
 //========== gridSpacingSegmentedControlClicked: ===============================
 //
@@ -646,12 +606,11 @@
 //==============================================================================
 - (void) dealloc
 {
+	[gridSegmentedControl	release];
 	[nudgeXToolView			release];
 	[nudgeYToolView			release];
 	[nudgeZToolView			release];
 	[zoomToolTextField		release];
-
-	[gridSegmentedControl	release];
 	
 	[super dealloc];
 	

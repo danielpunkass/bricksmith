@@ -43,16 +43,32 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 	gridModeCoarse	= 2
 } gridSpacingModeT;
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// class LDrawDocument
+//
+////////////////////////////////////////////////////////////////////////////////
 @interface LDrawDocument : NSDocument
 {
 	IBOutlet DocumentToolbarController	*toolbarController;
 	IBOutlet NSObjectController			*bindingsController;
-
+	
+	// Window satellites
 	IBOutlet NSDrawer					*partBrowserDrawer;
 	IBOutlet NSDrawer					*fileContentsDrawer;
 	IBOutlet LDrawFileOutlineView		*fileContentsOutline;
 	IBOutlet PartBrowserDataSource		*partsBrowser;
 	
+	// Scope bar
+	IBOutlet NSButton					*viewAllButton;
+	IBOutlet NSButton					*viewStepsButton;
+	IBOutlet NSPopUpButton				*submodelPopUpMenu;
+	IBOutlet NSView						*scopeStepControlsContainer;
+	IBOutlet NSTextField				*stepField;
+	IBOutlet NSSegmentedControl			*stepNavigator;
+	
+	// Window contents
 	IBOutlet ExtendedSplitView			*horizontalSplitView;
 	IBOutlet ExtendedSplitView			*verticalDetailSplitView;
 	IBOutlet LDrawGLView				*fileGraphicView;
@@ -75,9 +91,12 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (float) gridSpacing;
 - (gridSpacingModeT) gridSpacingMode;
 - (NSDrawer *) partBrowserDrawer;
+
+- (void) setCurrentStep:(int)requestedStep;
 - (void) setDocumentContents:(LDrawFile *)newContents;
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;
 - (void) setLastSelectedPart:(LDrawPart *)newPart;
+- (void) setStepDisplay:(BOOL)showStepsFlag;
 
 //Activities
 - (void) moveSelectionBy:(Vector3) movementVector;
@@ -97,6 +116,12 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 // - miscellaneous
 - (void) doMissingPiecesCheck:(id)sender;
 - (void) doMovedPiecesCheck:(id)sender;
+
+// - Scope bar
+- (IBAction) viewAll:(id)sender;
+- (IBAction) viewSteps:(id)sender;
+- (IBAction) stepFieldChanged:(id)sender;
+- (IBAction) stepNavigatorClicked:(id)sender;
 
 // - File menu
 - (IBAction) exportSteps:(id)sender;
@@ -157,7 +182,7 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (void)syntaxColorChanged:(NSNotification *)notification;
 
 //Menus
-- (void) addModelsToMenu;
+- (void) addModelsToMenus;
 - (void) clearModelMenus;
 
 //Utilites

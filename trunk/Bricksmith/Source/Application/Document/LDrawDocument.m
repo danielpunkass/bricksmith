@@ -67,8 +67,8 @@
 - (id) init
 {
     self = [super init];
-    if (self) {
-		
+    if (self)
+	{
 		[self setDocumentContents:[LDrawFile newFile]];
         insertionMode = insertAtEnd;
 		[self setGridSpacingMode:gridModeMedium];
@@ -179,6 +179,16 @@
 	[horizontalSplitView		restoreConfiguration];
 	[verticalDetailSplitView	restoreConfiguration];
 	
+	// update scope step display controls
+	[self setStepDisplay:NO];
+	
+	// Tiger does not have the system-provided template images we use on 
+	// Leopard. Fall back on some internal images. 
+	if([self->stepNavigator imageForSegment:0] == nil || [[[self->stepNavigator imageForSegment:0] representations] count] == 0)
+		[self->stepNavigator setImage:[NSImage imageNamed:@"GoBack"] forSegment:0];
+	if([self->stepNavigator imageForSegment:1] == nil || [[[self->stepNavigator imageForSegment:1] representations] count] == 0)
+		[self->stepNavigator setImage:[NSImage imageNamed:@"GoForward"] forSegment:1];
+
 	//Display our model.
 	[self loadDataIntoDocumentUI];
 	
@@ -453,6 +463,30 @@
 
 #pragma mark -
 
+//========== setCurrentStep: ===================================================
+//
+// Purpose:		Sets the current maximum step displayed in step display mode and 
+//				updates the UI. 
+//
+// Notes:		This does not activate step display if it isn't on.
+//
+// Parameters:	requestedStep	- the 0-relative step number. Does not do 
+//								  bounds-checking. 
+//
+//==============================================================================
+- (void) setCurrentStep:(int)requestedStep
+{
+	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
+	
+	[activeModel setMaximumStepDisplayed:requestedStep];
+	
+	// Update UI
+	[self->stepField setIntValue:(requestedStep + 1)]; // make 1-relative
+	[[self documentContents] setNeedsDisplay];
+
+}//end setCurrentStep:
+
+
 //========== setDocumentContents: ==============================================
 //
 // Purpose:		Sets the logical representation of the LDraw file this 
@@ -507,6 +541,40 @@
 	lastSelectedPart = newPart;
 	
 }//end setLastSelectedPart:
+
+
+//========== toggleStepDisplay: ================================================
+//
+// Purpose:		Turns step display (like Lego instructions) on or off for the 
+//				active model.
+//
+//==============================================================================
+- (void) setStepDisplay:(BOOL)showStepsFlag
+{
+	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
+	
+	if(showStepsFlag != [activeModel stepDisplay])
+	{
+		if(showStepsFlag == YES)
+			[activeModel setMaximumStepDisplayed:0];
+		else // turn it off now
+			[activeModel setStepDisplay:NO];
+		
+		[[self documentContents] setNeedsDisplay];
+	}
+	
+	// Set scope button state no matter what. The scope buttons are really 
+	// toggle buttons which call this method; if you click "Steps" and step 
+	// display is already on, you want the button to *stay* selected. This makes 
+	// sure that happens. 
+	[self->viewAllButton setState:(showStepsFlag == NO)];
+	[self->viewStepsButton setState:(showStepsFlag == YES)];
+	
+	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
+	[self->stepField setIntValue:[activeModel maximumStepDisplayed] + 1];
+	
+}//end toggleStepDisplay:
+
 
 #pragma mark -
 #pragma mark ACTIVITIES
@@ -946,6 +1014,76 @@
 
 
 #pragma mark -
+#pragma mark Scope Bar
+
+//========== viewAll: ==========================================================
+//
+// Purpose:		Turn off Step Display.
+//
+//==============================================================================
+- (IBAction) viewAll:(id)sender
+{
+	// Call the simple method. This also takes care of button state for us.
+	[self setStepDisplay:NO];
+	
+}//end viewAll:
+
+
+//========== viewSteps: ========================================================
+//
+// Purpose:		Turn on Step Display.
+//
+//==============================================================================
+- (IBAction) viewSteps:(id)sender
+{
+	// Call the simple method. This also takes care of button state for us.
+	[self setStepDisplay:YES];
+
+}//end viewSteps:
+
+
+//========== stepFieldChanged: =================================================
+//
+// Purpose:		This allows you to type in a specific step and go to it.
+//
+//==============================================================================
+- (IBAction) stepFieldChanged:(id)sender
+{
+	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
+	int				numberSteps		= [[activeModel steps] count];
+	int				requestedStep	= [sender intValue]; // 1-relative
+	int				actualStep		= 0; // 1-relative
+	
+	// The user's number may have been out of range.
+	actualStep = CLAMP(requestedStep, 1, numberSteps);
+	
+	[self setCurrentStep:(actualStep - 1)]; // convert to 0-relative
+	
+	// If we had to clamp, that is a user error. Tell him.
+	if(actualStep != requestedStep)
+		NSBeep();
+		
+}//end stepFieldChanged:
+
+
+//========== stepNavigatorClicked: =============================================
+//
+// Purpose:		The step navigator is a segmented control that presents a back 
+//				and forward button. 
+//
+//==============================================================================
+- (IBAction) stepNavigatorClicked:(id)sender
+{
+	// Back == 0; Forward == 1
+	if([sender selectedSegment] == 0)
+		[self backOneStep:sender];
+	else
+		[self advanceOneStep:sender];
+	
+}//end stepNavigatorClicked:
+
+
+#pragma mark -
 #pragma mark File Menu
 
 //========== exportSteps: ======================================================
@@ -954,8 +1092,8 @@
 //				as a series of files, one for each progressive step.
 //
 //==============================================================================
-- (IBAction) exportSteps:(id)sender {
-	
+- (IBAction) exportSteps:(id)sender
+{
 	NSSavePanel *exportPanel	= [NSSavePanel savePanel];
 	NSString	*activeName		= [[[self documentContents] activeModel] modelName];
 	NSString	*nameFormat		= NSLocalizedString(@"ExportedStepsFolderFormat", nil);
@@ -1439,11 +1577,9 @@
 	BOOL			 stepDisplay	= [activeModel stepDisplay];
 	
 	if(stepDisplay == NO) //was off; so turn it on.
-		[activeModel setMaximumStepDisplayed:0];
+		[self setStepDisplay:YES];
 	else //on; turn it off now
-		[activeModel setStepDisplay:NO];
-	
-	[[self documentContents] setNeedsDisplay];
+		[self setStepDisplay:NO];
 	
 }//end toggleStepDisplay:
 
@@ -1459,8 +1595,7 @@
 	int				currentStep		= [activeModel maximumStepDisplayed];
 	int				numberSteps		= [[activeModel steps] count];
 	
-	[activeModel setMaximumStepDisplayed: (currentStep+1) % numberSteps ];
-	[[self documentContents] setNeedsDisplay];
+	[self setCurrentStep: (currentStep+1) % numberSteps ];
 	
 }//end advanceOneStep:
 
@@ -1476,12 +1611,12 @@
 	int				currentStep		= [activeModel maximumStepDisplayed];
 	int				numberSteps		= [[activeModel steps] count];
 	
+	// Wrap around?
 	if(currentStep == 0)
 		currentStep = numberSteps;
 	
-	[activeModel setMaximumStepDisplayed: (currentStep-1) % numberSteps ];
-	[[self documentContents] setNeedsDisplay];
-	
+	[self setCurrentStep: (currentStep-1) % numberSteps ];
+
 }//end backOneStep:
 
 
@@ -2529,12 +2664,12 @@
 		for(counter = 0; counter < selectionCount; counter++)
 		{
 			currentDirective	= [self->selectedDirectives objectAtIndex:counter];
-			originalPosition	= [currentDirective position];
 			
 			if([currentDirective isKindOfClass:[LDrawDrawableElement class]])
 			{
 				dragPart		= [directives objectAtIndex:dropDirectiveIndex];
-				dragPosition	= [dragPart position];
+				originalPosition= [(LDrawDrawableElement*)currentDirective position];
+				dragPosition	= [(LDrawDrawableElement*)dragPart position];
 				displacement	= V3Sub(dragPosition, originalPosition);
 
 				[self moveDirective:currentDirective inDirection:displacement];
@@ -2766,7 +2901,7 @@
 	//[fileContentsOutline reloadData];
 	
 	//Update the models menu.
-	[self addModelsToMenu];
+	[self addModelsToMenus];
 	
 	[self setLastSelectedPart:nil];
 	
@@ -2845,9 +2980,10 @@
 		//	*model name changes (in the model)
 		if(		[[notification object] isKindOfClass:[LDrawFile class]]
 			||	[[notification object] isKindOfClass:[LDrawModel class]])
-			[self addModelsToMenu];
+			[self addModelsToMenus];
 	}
 }//end partChanged:
+
 
 //========== syntaxColorChanged: ===============================================
 //
@@ -2871,7 +3007,7 @@
 {
 	[self updateInspector];
 	
-	[self addModelsToMenu];
+	[self addModelsToMenus];
 	
 }//end windowDidBecomeMain:
 
@@ -2997,6 +3133,7 @@
 			enable = ([activeModel stepDisplay] == YES);
 			break;
 		
+		
 		////////////////////////////////////////
 		//
 		// Piece Menu
@@ -3014,7 +3151,8 @@
 		case snapToGridMenuTag:
 			enable = (selectedPart != nil);
 			break;
-			
+		
+				
 		////////////////////////////////////////
 		//
 		// Model Menu
@@ -3045,6 +3183,7 @@
 	
 }//end validateMenuItem:
 
+
 //========== validateToolbarItem: ==============================================
 //
 // Purpose:		Toolbar validation: eye candy that probably slows everything to 
@@ -3074,9 +3213,10 @@
 	
 }//end validateToolbarItem:
 
+
 #pragma mark -
 
-//========== addModelsToMenu ===================================================
+//========== addModelsToMenus ==================================================
 //
 // Purpose:		Creates a menu used to switch the active model. A list of all 
 //				the models in the document is inserted into the Models menu in 
@@ -3088,8 +3228,8 @@
 //				additional validation which occurs in validateMenuItem.
 //
 //==============================================================================
-- (void) addModelsToMenu {
-	
+- (void) addModelsToMenus
+{
 	NSMenu			*mainMenu		= [NSApp mainMenu];
 	NSMenu			*modelMenu		= [[mainMenu itemWithTag:modelsMenuTag] submenu];
 	NSMenu			*referenceMenu	= [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
@@ -3103,8 +3243,8 @@
 	[self clearModelMenus];
 	
 	//Create menu items for each model.
-	for(counter = 0; counter < [models count]; counter++){
-		
+	for(counter = 0; counter < [models count]; counter++)
+	{
 		currentModel = [models objectAtIndex:counter];
 		
 		//
@@ -3115,8 +3255,6 @@
 		[modelItem setRepresentedObject:currentModel];
 		[modelItem setTarget:self];
 		[modelItem setAction:@selector(modelSelected:)];
-		if([[self documentContents] activeModel] == currentModel)
-			[modelItem setState:NSOnState];
 		
 		//
 		// MPD reference menu items
@@ -3135,9 +3273,19 @@
 		//
 		[modelMenu insertItem:modelItem atIndex:separatorIndex+counter+1];
 		[referenceMenu addItem:referenceItem];
+		[[self->submodelPopUpMenu menu] addItem:[[modelItem copy] autorelease]];
+		
+		//
+		// Set (or re-set) the selected state
+		//
+		if([[self documentContents] activeModel] == currentModel)
+		{
+			[modelItem setState:NSOnState];
+			[self->submodelPopUpMenu selectItemAtIndex:counter];
+		}
 	}
 	
-}//end addModelsToMenu
+}//end addModelsToMenus
 
 
 //========== clearModelMenus ===================================================
@@ -3148,7 +3296,8 @@
 //				parts).
 //
 //==============================================================================
-- (void) clearModelMenus {
+- (void) clearModelMenus
+{
 	NSMenu			*mainMenu		= [NSApp mainMenu];
 	NSMenu			*modelMenu		= [[mainMenu itemWithTag:modelsMenuTag] submenu];
 	NSMenu			*referenceMenu	= [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
@@ -3161,6 +3310,8 @@
 	
 	for(counter = [referenceMenu numberOfItems]-1; counter >= 0; counter--)
 		[referenceMenu removeItemAtIndex:counter];
+		
+	[self->submodelPopUpMenu removeAllItems];
 	
 }//end clearModelMenus
 
@@ -3515,7 +3666,7 @@
 	[self->fileDetailView3		setLDrawDirective:[self documentContents]];
 	[self->fileContentsOutline	reloadData];
 	
-	[self addModelsToMenu];
+	[self addModelsToMenus];
 
 }//end loadDataIntoDocumentUI
 

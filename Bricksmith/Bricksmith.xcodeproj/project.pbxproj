@@ -54,7 +54,6 @@
 		0B74F2920D0BB5BB00ED8419 /* CenteringClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B74F2900D0BB5BB00ED8419 /* CenteringClipView.m */; };
 		0B7588D80D8DC4DD00357703 /* ColorLibrary.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B7588D60D8DC4DD00357703 /* ColorLibrary.h */; };
 		0B7588D90D8DC4DD00357703 /* ColorLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B7588D70D8DC4DD00357703 /* ColorLibrary.m */; };
-		0B77A2FD0CE81694009B6BCC /* AMSProgressBar.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2B1C603A09FF00B3001EE8FA /* AMSProgressBar.framework */; };
 		0B83E9B907E3BB0D009C2384 /* LDrawComment.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B83E9B707E3BB0D009C2384 /* LDrawComment.h */; };
 		0B83E9BA07E3BB0D009C2384 /* LDrawComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B83E9B807E3BB0D009C2384 /* LDrawComment.m */; };
 		0B8EBCF10938383000D87E0C /* ZoomInCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBCEF0938383000D87E0C /* ZoomInCursor.tiff */; };
@@ -140,9 +139,6 @@
 		0B9FE59608AD97670046511D /* ArrowSW.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE57A08AD97670046511D /* ArrowSW.tiff */; };
 		0B9FE59708AD97670046511D /* ArrowW-.tif in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE57B08AD97670046511D /* ArrowW-.tif */; };
 		0B9FE59808AD97670046511D /* ArrowW.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE57C08AD97670046511D /* ArrowW.tiff */; };
-		0B9FE59908AD97670046511D /* GridCoarse.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE57E08AD97670046511D /* GridCoarse.tiff */; };
-		0B9FE59A08AD97670046511D /* GridFine.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE57F08AD97670046511D /* GridFine.tiff */; };
-		0B9FE59B08AD97670046511D /* GridMedium.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58008AD97670046511D /* GridMedium.tiff */; };
 		0B9FE59C08AD97670046511D /* LDrawLogo.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58108AD97670046511D /* LDrawLogo.tiff */; };
 		0B9FE59D08AD97670046511D /* Rotate+X.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58308AD97670046511D /* Rotate+X.tiff */; };
 		0B9FE59E08AD97670046511D /* Rotate+Y.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58408AD97670046511D /* Rotate+Y.tiff */; };
@@ -181,6 +177,14 @@
 		0BC699CD08B93A0500DAF996 /* DimensionsPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BC699CB08B93A0500DAF996 /* DimensionsPanel.h */; };
 		0BC699CE08B93A0500DAF996 /* DimensionsPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BC699CC08B93A0500DAF996 /* DimensionsPanel.m */; };
 		0BC6AAEB0987296700505A88 /* Help in Resources */ = {isa = PBXBuildFile; fileRef = 0BC6AACC0987296700505A88 /* Help */; };
+		0BC71D650E6CB26A0007F10D /* ScopeBar.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BC71D630E6CB26A0007F10D /* ScopeBar.h */; };
+		0BC71D660E6CB26A0007F10D /* ScopeBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BC71D640E6CB26A0007F10D /* ScopeBar.m */; };
+		0BC71D910E6CC8340007F10D /* AMSProgressBar.framework in Copy Frameworks (1) */ = {isa = PBXBuildFile; fileRef = 2BB5975E09FEFD250077A885 /* AMSProgressBar.framework */; };
+		0BC71E440E6E51F20007F10D /* GridCoarseTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */; };
+		0BC71E450E6E51F20007F10D /* GridFineTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */; };
+		0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */; };
+		0BC71FC80E738C4D0007F10D /* GoBack.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71FC60E738C4D0007F10D /* GoBack.tiff */; };
+		0BC71FC90E738C4D0007F10D /* GoForward.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71FC70E738C4D0007F10D /* GoForward.tiff */; };
 		0BCD0C6507FD0BA10066A536 /* LDrawContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */; };
 		0BCD0C6607FD0BA10066A536 /* LDrawContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */; };
 		0BDC145A0B9D04E2001D1FF1 /* PartBrowser.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0BDC14540B9D04E1001D1FF1 /* PartBrowser.nib */; };
@@ -240,14 +244,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		0BB5926D08AD93610049B708 /* CopyFiles */ = {
+		0BB5926D08AD93610049B708 /* Copy Frameworks (1) */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				0B77A2FD0CE81694009B6BCC /* AMSProgressBar.framework in CopyFiles */,
+				0BC71D910E6CC8340007F10D /* AMSProgressBar.framework in Copy Frameworks (1) */,
 			);
+			name = "Copy Frameworks (1)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -396,9 +401,6 @@
 		0B9FE57A08AD97670046511D /* ArrowSW.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ArrowSW.tiff; sourceTree = "<group>"; };
 		0B9FE57B08AD97670046511D /* ArrowW-.tif */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "ArrowW-.tif"; sourceTree = "<group>"; };
 		0B9FE57C08AD97670046511D /* ArrowW.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ArrowW.tiff; sourceTree = "<group>"; };
-		0B9FE57E08AD97670046511D /* GridCoarse.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridCoarse.tiff; sourceTree = "<group>"; };
-		0B9FE57F08AD97670046511D /* GridFine.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridFine.tiff; sourceTree = "<group>"; };
-		0B9FE58008AD97670046511D /* GridMedium.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridMedium.tiff; sourceTree = "<group>"; };
 		0B9FE58108AD97670046511D /* LDrawLogo.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = LDrawLogo.tiff; sourceTree = "<group>"; };
 		0B9FE58308AD97670046511D /* Rotate+X.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "Rotate+X.tiff"; sourceTree = "<group>"; };
 		0B9FE58408AD97670046511D /* Rotate+Y.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "Rotate+Y.tiff"; sourceTree = "<group>"; };
@@ -425,6 +427,13 @@
 		0BC699CB08B93A0500DAF996 /* DimensionsPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DimensionsPanel.h; sourceTree = "<group>"; };
 		0BC699CC08B93A0500DAF996 /* DimensionsPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DimensionsPanel.m; sourceTree = "<group>"; };
 		0BC6AACD0987296700505A88 /* English */ = {isa = PBXFileReference; lastKnownFileType = folder; name = English; path = English.lproj/Help; sourceTree = "<group>"; };
+		0BC71D630E6CB26A0007F10D /* ScopeBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScopeBar.h; sourceTree = "<group>"; };
+		0BC71D640E6CB26A0007F10D /* ScopeBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScopeBar.m; sourceTree = "<group>"; };
+		0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridCoarseTemplate.tiff; sourceTree = "<group>"; };
+		0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridFineTemplate.tiff; sourceTree = "<group>"; };
+		0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridMediumTemplate.tiff; sourceTree = "<group>"; };
+		0BC71FC60E738C4D0007F10D /* GoBack.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GoBack.tiff; sourceTree = "<group>"; };
+		0BC71FC70E738C4D0007F10D /* GoForward.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GoForward.tiff; sourceTree = "<group>"; };
 		0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LDrawContainer.h; path = Source/LDraw/Files/LDrawContainer.h; sourceTree = SOURCE_ROOT; };
 		0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LDrawContainer.m; path = Source/LDraw/Files/LDrawContainer.m; sourceTree = SOURCE_ROOT; };
 		0BDC14550B9D04E1001D1FF1 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PartBrowser.nib; sourceTree = "<group>"; };
@@ -578,6 +587,8 @@
 			isa = PBXGroup;
 			children = (
 				0B9FE5BC08AD977F0046511D /* OneBrick.tiff */,
+				0BC71FC60E738C4D0007F10D /* GoBack.tiff */,
+				0BC71FC70E738C4D0007F10D /* GoForward.tiff */,
 				0B9FE5AA08AD97770046511D /* Badges */,
 				0B8EBCEE0938383000D87E0C /* Cursors */,
 				0B9FE56F08AD97670046511D /* Toolbar Items */,
@@ -637,6 +648,8 @@
 				0B8EBE7C093C100100D87E0C /* LDrawGLView.m */,
 				0B2DD1480CD810DC0093E8E5 /* PartBrowserTableView.h */,
 				0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */,
+				0BC71D630E6CB26A0007F10D /* ScopeBar.h */,
+				0BC71D640E6CB26A0007F10D /* ScopeBar.m */,
 			);
 			name = Widgets;
 			path = Source/Widgets;
@@ -723,9 +736,9 @@
 		0B9FE57D08AD97670046511D /* Grid */ = {
 			isa = PBXGroup;
 			children = (
-				0B9FE57E08AD97670046511D /* GridCoarse.tiff */,
-				0B9FE57F08AD97670046511D /* GridFine.tiff */,
-				0B9FE58008AD97670046511D /* GridMedium.tiff */,
+				0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */,
+				0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */,
+				0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */,
 			);
 			path = Grid;
 			sourceTree = "<group>";
@@ -998,6 +1011,7 @@
 				0B74F2910D0BB5BB00ED8419 /* CenteringClipView.h in Headers */,
 				0B7588D80D8DC4DD00357703 /* ColorLibrary.h in Headers */,
 				0B9907D80DDD540D003F6B13 /* LDrawColor.h in Headers */,
+				0BC71D650E6CB26A0007F10D /* ScopeBar.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1012,7 +1026,7 @@
 				8D15AC2B0486D014006FF6A4 /* Resources */,
 				8D15AC300486D014006FF6A4 /* Sources */,
 				8D15AC330486D014006FF6A4 /* Frameworks */,
-				0BB5926D08AD93610049B708 /* CopyFiles */,
+				0BB5926D08AD93610049B708 /* Copy Frameworks (1) */,
 			);
 			buildRules = (
 			);
@@ -1078,9 +1092,6 @@
 				0B9FE59608AD97670046511D /* ArrowSW.tiff in Resources */,
 				0B9FE59708AD97670046511D /* ArrowW-.tif in Resources */,
 				0B9FE59808AD97670046511D /* ArrowW.tiff in Resources */,
-				0B9FE59908AD97670046511D /* GridCoarse.tiff in Resources */,
-				0B9FE59A08AD97670046511D /* GridFine.tiff in Resources */,
-				0B9FE59B08AD97670046511D /* GridMedium.tiff in Resources */,
 				0B9FE59C08AD97670046511D /* LDrawLogo.tiff in Resources */,
 				0B9FE59D08AD97670046511D /* Rotate+X.tiff in Resources */,
 				0B9FE59E08AD97670046511D /* Rotate+Y.tiff in Resources */,
@@ -1137,6 +1148,11 @@
 				0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */,
 				0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */,
 				0B9907630DD7EDBB003F6B13 /* ldconfig.ldr in Resources */,
+				0BC71E440E6E51F20007F10D /* GridCoarseTemplate.tiff in Resources */,
+				0BC71E450E6E51F20007F10D /* GridFineTemplate.tiff in Resources */,
+				0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */,
+				0BC71FC80E738C4D0007F10D /* GoBack.tiff in Resources */,
+				0BC71FC90E738C4D0007F10D /* GoForward.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1212,6 +1228,7 @@
 				0B74F2920D0BB5BB00ED8419 /* CenteringClipView.m in Sources */,
 				0B7588D90D8DC4DD00357703 /* ColorLibrary.m in Sources */,
 				0B9907D70DDD540C003F6B13 /* LDrawColor.m in Sources */,
+				0BC71D660E6CB26A0007F10D /* ScopeBar.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1442,7 +1459,7 @@
 			buildSettings = {
 				ARCHS = "$(NATIVE_ARCH)";
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1450,7 +1467,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Source/Other/Mac LDraw_Prefix.pch";
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)/AMSProgressBar.framework/Headers";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)/AMSProgressBar.framework/Headers\"";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
@@ -1471,13 +1488,13 @@
 					i386,
 				);
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)";
+				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Source/Other/Mac LDraw_Prefix.pch";
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)/AMSProgressBar.framework/Headers";
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)/AMSProgressBar.framework/Headers\"";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
@@ -1493,14 +1510,14 @@
 		2BB5975209FEFD180077A885 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 			};
 			name = Debug;
 		};
 		2BB5975309FEFD180077A885 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 			};
 			name = Release;
 		};

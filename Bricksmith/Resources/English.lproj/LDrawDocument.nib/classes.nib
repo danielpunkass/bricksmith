@@ -97,9 +97,17 @@
 				<string>id</string>
 				<key>snapSelectionToGrid</key>
 				<string>id</string>
+				<key>stepFieldChanged</key>
+				<string>id</string>
+				<key>stepNavigatorClicked</key>
+				<string>id</string>
 				<key>toggleFileContentsDrawer</key>
 				<string>id</string>
 				<key>toggleStepDisplay</key>
+				<string>id</string>
+				<key>viewAll</key>
+				<string>id</string>
+				<key>viewSteps</key>
 				<string>id</string>
 				<key>zoomActual</key>
 				<string>id</string>
@@ -134,10 +142,22 @@
 				<string>NSDrawer</string>
 				<key>partsBrowser</key>
 				<string>PartBrowserDataSource</string>
+				<key>scopeStepControlsContainer</key>
+				<string>NSView</string>
+				<key>stepField</key>
+				<string>NSTextField</string>
+				<key>stepNavigator</key>
+				<string>NSSegmentedControl</string>
+				<key>submodelPopUpMenu</key>
+				<string>NSPopUpButton</string>
 				<key>toolbarController</key>
 				<string>DocumentToolbarController</string>
 				<key>verticalDetailSplitView</key>
 				<string>ExtendedSplitView</string>
+				<key>viewAllButton</key>
+				<string>NSButton</string>
+				<key>viewStepsButton</key>
+				<string>NSButton</string>
 			</dict>
 			<key>SUPERCLASS</key>
 			<string>NSDocument</string>
@@ -205,8 +225,18 @@
 			<string>NSOpenGLView</string>
 		</dict>
 		<dict>
+			<key>CLASS</key>
+			<string>ScopeBar</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSView</string>
+		</dict>
+		<dict>
 			<key>ACTIONS</key>
 			<dict>
+				<key>gridSpacingSegmentedControlClicked</key>
+				<string>id</string>
 				<key>nudgeXClicked</key>
 				<string>id</string>
 				<key>nudgeYClicked</key>
@@ -236,6 +266,8 @@
 			<dict>
 				<key>document</key>
 				<string>LDrawDocument</string>
+				<key>gridSegmentedControl</key>
+				<string>NSSegmentedControl</string>
 				<key>nudgeXToolView</key>
 				<string>NSView</string>
 				<key>nudgeYToolView</key>

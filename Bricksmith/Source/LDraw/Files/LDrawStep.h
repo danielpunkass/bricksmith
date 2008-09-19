@@ -15,6 +15,23 @@
 
 @class LDrawModel;
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// Types & Constants
+//
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	LDrawStepRotationNone		= 0,	// inherit previous step rotation (or default view)
+	LDrawStepRotationRelative	= 1,	// rotate relative to default 3D viewing angle
+	LDrawStepRotationAbsolute	= 2,	// rotate relative to (0, 0, 0)
+	LDrawStepRotationAdditive	= 3,	// rotate relative to the previous step's rotation
+	LDrawStepRotationEnd		= 4		// cancel the effect of the previous rotation
+
+} LDrawStepRotationT;
+
+
 //Describes the contents of this step.
 typedef enum
 {
@@ -34,6 +51,9 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawStep : LDrawContainer
 {
+	LDrawStepRotationT	stepRotationType;
+	Tuple3				rotationAngle;		// in degrees
+
 	//Optimization variables
 	LDrawStepFlavorT	stepFlavor; //defaults to LDrawStepAnyDirectives
 	LDrawColorT			colorOfAllDirectives;
@@ -57,8 +77,13 @@ typedef enum
 //Accessors
 - (void) addDirective:(LDrawDirective *)newDirective;
 - (LDrawModel *) enclosingModel;
+- (Tuple3) rotationAngle;
+- (LDrawStepRotationT) stepRotationType;
+
 - (void) setModel:(LDrawModel *)enclosingModel;
+- (void) setRotationAngle:(Tuple3)newAngle;
 - (void) setStepFlavor:(LDrawStepFlavorT)newFlavor;
+- (void) setStepRotationType:(LDrawStepRotationT)newValue;
 
 //Utilities
 - (void) optimize;

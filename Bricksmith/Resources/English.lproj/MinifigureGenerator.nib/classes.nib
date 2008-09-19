@@ -1,61 +1,143 @@
-{
-    IBClasses = (
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
-        {CLASS = LDrawColorWell; LANGUAGE = ObjC; SUPERCLASS = NSButton; }, 
-        {
-            ACTIONS = {drawThreaded = id; viewingAngleSelected = id; zoomIn = id; zoomOut = id; }; 
-            CLASS = LDrawGLView; 
-            LANGUAGE = ObjC; 
-            OUTLETS = {document = LDrawDocument; }; 
-            SUPERCLASS = NSOpenGLView; 
-        }, 
-        {
-            ACTIONS = {
-                cancelButtonClicked = id; 
-                colorWellChanged = id; 
-                generateMinifigure = id; 
-                okButtonClicked = id; 
-            }; 
-            CLASS = MinifigureDialogController; 
-            LANGUAGE = ObjC; 
-            OUTLETS = {
-                hatsColorWell = LDrawColorWell; 
-                hatsController = NSArrayController; 
-                headsColorWell = LDrawColorWell; 
-                headsController = NSArrayController; 
-                hipsColorWell = LDrawColorWell; 
-                hipsController = NSArrayController; 
-                leftArmsColorWell = LDrawColorWell; 
-                leftArmsController = NSArrayController; 
-                leftHandAccessoriesColorWell = LDrawColorWell; 
-                leftHandAccessoriesController = NSArrayController; 
-                leftHandsColorWell = LDrawColorWell; 
-                leftHandsController = NSArrayController; 
-                leftLegAccessoriesColorWell = LDrawColorWell; 
-                leftLegAccessoriesController = NSArrayController; 
-                leftLegsColorWell = LDrawColorWell; 
-                leftLegsController = NSArrayController; 
-                minifigureGeneratorPanel = NSPanel; 
-                minifigurePreview = LDrawGLView; 
-                necksColorWell = LDrawColorWell; 
-                necksController = NSArrayController; 
-                rightArmsColorWell = LDrawColorWell; 
-                rightArmsController = NSArrayController; 
-                rightHandAccessoriesColorWell = LDrawColorWell; 
-                rightHandAccessoriesController = NSArrayController; 
-                rightHandsColorWell = LDrawColorWell; 
-                rightHandsController = NSArrayController; 
-                rightLegAccessoriesColorWell = LDrawColorWell; 
-                rightLegAccessoriesController = NSArrayController; 
-                rightLegsColorWell = LDrawColorWell; 
-                rightLegsController = NSArrayController; 
-                torsosColorWell = LDrawColorWell; 
-                torsosController = NSArrayController; 
-            }; 
-            SUPERCLASS = NSObject; 
-        }, 
-        {CLASS = NSObject; LANGUAGE = ObjC; }, 
-        {CLASS = "java.lang.Object"; LANGUAGE = Java; }
-    ); 
-    IBVersion = 1; 
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IBClasses</key>
+	<array>
+		<dict>
+			<key>CLASS</key>
+			<string>NSObject</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+		</dict>
+		<dict>
+			<key>ACTIONS</key>
+			<dict>
+				<key>drawThreaded</key>
+				<string>id</string>
+				<key>viewOrientationSelected</key>
+				<string>id</string>
+				<key>zoomIn</key>
+				<string>id</string>
+				<key>zoomOut</key>
+				<string>id</string>
+			</dict>
+			<key>CLASS</key>
+			<string>LDrawGLView</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>OUTLETS</key>
+			<dict>
+				<key>document</key>
+				<string>LDrawDocument</string>
+			</dict>
+			<key>SUPERCLASS</key>
+			<string>NSOpenGLView</string>
+		</dict>
+		<dict>
+			<key>ACTIONS</key>
+			<dict>
+				<key>cancelButtonClicked</key>
+				<string>id</string>
+				<key>colorWellChanged</key>
+				<string>id</string>
+				<key>generateMinifigure</key>
+				<string>id</string>
+				<key>okButtonClicked</key>
+				<string>id</string>
+			</dict>
+			<key>CLASS</key>
+			<string>MinifigureDialogController</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>OUTLETS</key>
+			<dict>
+				<key>hatsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>hatsController</key>
+				<string>NSArrayController</string>
+				<key>headsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>headsController</key>
+				<string>NSArrayController</string>
+				<key>hipsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>hipsController</key>
+				<string>NSArrayController</string>
+				<key>leftArmsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>leftArmsController</key>
+				<string>NSArrayController</string>
+				<key>leftHandAccessoriesColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>leftHandAccessoriesController</key>
+				<string>NSArrayController</string>
+				<key>leftHandsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>leftHandsController</key>
+				<string>NSArrayController</string>
+				<key>leftLegAccessoriesColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>leftLegAccessoriesController</key>
+				<string>NSArrayController</string>
+				<key>leftLegsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>leftLegsController</key>
+				<string>NSArrayController</string>
+				<key>minifigureGeneratorPanel</key>
+				<string>NSPanel</string>
+				<key>minifigurePreview</key>
+				<string>LDrawGLView</string>
+				<key>necksColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>necksController</key>
+				<string>NSArrayController</string>
+				<key>rightArmsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>rightArmsController</key>
+				<string>NSArrayController</string>
+				<key>rightHandAccessoriesColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>rightHandAccessoriesController</key>
+				<string>NSArrayController</string>
+				<key>rightHandsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>rightHandsController</key>
+				<string>NSArrayController</string>
+				<key>rightLegAccessoriesColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>rightLegAccessoriesController</key>
+				<string>NSArrayController</string>
+				<key>rightLegsColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>rightLegsController</key>
+				<string>NSArrayController</string>
+				<key>torsosColorWell</key>
+				<string>LDrawColorWell</string>
+				<key>torsosController</key>
+				<string>NSArrayController</string>
+			</dict>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
+			<string>LDrawColorWell</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSButton</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
+			<string>FirstResponder</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+	</array>
+	<key>IBVersion</key>
+	<string>1</string>
+</dict>
+</plist>

@@ -49,15 +49,15 @@ typedef enum
 // Viewing Angle
 typedef enum
 {
-	ViewingAngle3D				= 0,
-	ViewingAngleFront			= 1,
-	ViewingAngleBack			= 2,
-	ViewingAngleLeft			= 3,
-	ViewingAngleRight			= 4,
-	ViewingAngleTop				= 5,
-	ViewingAngleBottom			= 6
+	ViewOrientation3D			= 0,
+	ViewOrientationFront		= 1,
+	ViewOrientationBack			= 2,
+	ViewOrientationLeft			= 3,
+	ViewOrientationRight		= 4,
+	ViewOrientationTop			= 5,
+	ViewOrientationBottom		= 6
 	
-} ViewingAngleT;
+} ViewOrientationT;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ typedef enum
 	GLfloat				 glColor[4];			// OpenGL equivalent of the LDrawColor.
 	ProjectionModeT		 projectionMode;
 	RotationDrawModeT	 rotationDrawMode;		// drawing detail while rotating.
-	ViewingAngleT		 viewingAngle;			// our orientation
+	ViewOrientationT	 viewOrientation;		// our orientation
 	
 	// Event Tracking
 	BOOL				 isTrackingDrag;		// true if the last mousedown was followed by a drag, and we're tracking it (drag-and-drop doesn't count)
@@ -108,19 +108,21 @@ typedef enum
 - (LDrawDocument *) document;
 - (Matrix4) getInverseMatrix;
 - (Matrix4) getMatrix;
-- (ViewingAngleT) viewingAngle;
+- (Tuple3) viewingAngle;
+- (ViewOrientationT) viewOrientation;
 - (float) zoomPercentage;
+
 - (void) setAcceptsFirstResponder:(BOOL)flag;
 - (void) setAutosaveName:(NSString *)newName;
 - (void) setDelegate:(id)object;
 - (void) setLDrawColor:(LDrawColorT)newColor;
 - (void) setLDrawDirective:(LDrawDirective *) newFile;
 - (void) setProjectionMode:(ProjectionModeT) newProjectionMode;
-- (void) setViewingAngle:(ViewingAngleT) newAngle;
+- (void) setViewOrientation:(ViewOrientationT) newAngle;
 - (void) setZoomPercentage:(float) newPercentage;
 
 // Actions
-- (IBAction) viewingAngleSelected:(id)sender;
+- (IBAction) viewOrientationSelected:(id)sender;
 - (IBAction) zoomIn:(id)sender;
 - (IBAction) zoomOut:(id)sender;
 

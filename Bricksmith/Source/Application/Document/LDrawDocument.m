@@ -461,6 +461,20 @@
 }//end partBrowserDrawer
 
 
+//========== viewingAngle ======================================================
+//
+// Purpose:		Returns the modelview rotation for the focused LDrawGLView.
+//
+//==============================================================================
+- (Tuple3) viewingAngle
+{
+	Tuple3	angle	= [self->mostRecentLDrawView viewingAngle];
+	
+	return angle;
+	
+}//end viewingAngle
+
+
 #pragma mark -
 
 //========== setCurrentStep: ===================================================
@@ -831,7 +845,7 @@
 //==============================================================================
 - (void) setZoomPercentage:(float)newPercentage
 {
-	[mostRecentLDrawView setZoomPercentage:newPercentage];
+	[self->mostRecentLDrawView setZoomPercentage:newPercentage];
 	
 }//end setZoomPercentage:
 
@@ -1547,7 +1561,7 @@
 }//end zoomOut:
 
 
-//========== orientationSelected: ==============================================
+//========== viewOrientationSelected: ==========================================
 //
 // Purpose:		The user has chosen a new viewing angle from a menu.
 //				sender is the menu item, whose tag is the viewing angle. We'll 
@@ -1558,11 +1572,11 @@
 //				because this method has the same name as the one in LDrawGLView.
 //
 //==============================================================================
-- (IBAction) viewingAngleSelected:(id)sender
+- (IBAction) viewOrientationSelected:(id)sender
 {
-	[self->mostRecentLDrawView viewingAngleSelected:sender];
+	[self->mostRecentLDrawView viewOrientationSelected:sender];
 	
-}//end viewingAngleSelected:
+}//end viewOrientationSelected:
 
 
 //========== toggleStepDisplay: ================================================

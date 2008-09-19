@@ -203,7 +203,7 @@
 			<dict>
 				<key>drawThreaded</key>
 				<string>id</string>
-				<key>viewingAngleSelected</key>
+				<key>viewOrientationSelected</key>
 				<string>id</string>
 				<key>zoomIn</key>
 				<string>id</string>

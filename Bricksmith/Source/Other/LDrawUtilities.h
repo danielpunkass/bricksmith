@@ -10,6 +10,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "MatrixMath.h"
+#import "LDrawGLView.h"
 
 @class LDrawPart;
 
@@ -18,6 +19,7 @@
 
 }
 
++ (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;
 + (Box3) boundingBox3ForDirectives:(NSArray *)directives;
 + (Class) classForLineType:(int)lineType;
 + (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset;

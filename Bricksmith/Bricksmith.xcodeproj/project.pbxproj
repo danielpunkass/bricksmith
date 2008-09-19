@@ -54,6 +54,9 @@
 		0B74F2920D0BB5BB00ED8419 /* CenteringClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B74F2900D0BB5BB00ED8419 /* CenteringClipView.m */; };
 		0B7588D80D8DC4DD00357703 /* ColorLibrary.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B7588D60D8DC4DD00357703 /* ColorLibrary.h */; };
 		0B7588D90D8DC4DD00357703 /* ColorLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B7588D70D8DC4DD00357703 /* ColorLibrary.m */; };
+		0B76F2F90E74CC1700349D03 /* InspectionStep.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B76F2F70E74CC1700349D03 /* InspectionStep.h */; };
+		0B76F2FA0E74CC1700349D03 /* InspectionStep.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B76F2F80E74CC1700349D03 /* InspectionStep.m */; };
+		0B76F3010E74DF8B00349D03 /* InspectorStep.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B76F2FF0E74DF8B00349D03 /* InspectorStep.xib */; };
 		0B83E9B907E3BB0D009C2384 /* LDrawComment.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B83E9B707E3BB0D009C2384 /* LDrawComment.h */; };
 		0B83E9BA07E3BB0D009C2384 /* LDrawComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B83E9B807E3BB0D009C2384 /* LDrawComment.m */; };
 		0B8EBCF10938383000D87E0C /* ZoomInCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBCEF0938383000D87E0C /* ZoomInCursor.tiff */; };
@@ -318,6 +321,9 @@
 		0B7588D70D8DC4DD00357703 /* ColorLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ColorLibrary.m; sourceTree = "<group>"; };
 		0B7588DA0D8DC4EF00357703 /* LDrawColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawColor.h; sourceTree = "<group>"; };
 		0B7588DB0D8DC4EF00357703 /* LDrawColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawColor.m; sourceTree = "<group>"; };
+		0B76F2F70E74CC1700349D03 /* InspectionStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectionStep.h; sourceTree = "<group>"; };
+		0B76F2F80E74CC1700349D03 /* InspectionStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectionStep.m; sourceTree = "<group>"; };
+		0B76F3000E74DF8B00349D03 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Resources/English.lproj/InspectorStep.xib; sourceTree = "<group>"; };
 		0B83E9B707E3BB0D009C2384 /* LDrawComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawComment.h; sourceTree = "<group>"; };
 		0B83E9B807E3BB0D009C2384 /* LDrawComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawComment.m; sourceTree = "<group>"; };
 		0B8EBCEF0938383000D87E0C /* ZoomInCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomInCursor.tiff; sourceTree = "<group>"; };
@@ -619,6 +625,8 @@
 				0B8EBE4E093C0FAD00D87E0C /* Inspector.m */,
 				0B8EBE4F093C0FAD00D87E0C /* ObjectInspectionController.h */,
 				0B8EBE50093C0FAD00D87E0C /* ObjectInspectionController.m */,
+				0B76F2F70E74CC1700349D03 /* InspectionStep.h */,
+				0B76F2F80E74CC1700349D03 /* InspectionStep.m */,
 			);
 			path = Inspector;
 			sourceTree = "<group>";
@@ -667,6 +675,7 @@
 				0B8EBD4E09383CBB00D87E0C /* InspectorMPDModel.nib */,
 				0B8EBD5009383CBB00D87E0C /* InspectorPart.nib */,
 				0B8EBD5209383CBB00D87E0C /* InspectorQuadrilateral.nib */,
+				0B76F2FF0E74DF8B00349D03 /* InspectorStep.xib */,
 				0B8EBD5409383CBB00D87E0C /* InspectorTriangle.nib */,
 				0B8EBD5609383CBB00D87E0C /* InspectorUnknownCommand.nib */,
 				0B8EBD5809383CBB00D87E0C /* LDrawDocument.nib */,
@@ -1012,6 +1021,7 @@
 				0B7588D80D8DC4DD00357703 /* ColorLibrary.h in Headers */,
 				0B9907D80DDD540D003F6B13 /* LDrawColor.h in Headers */,
 				0BC71D650E6CB26A0007F10D /* ScopeBar.h in Headers */,
+				0B76F2F90E74CC1700349D03 /* InspectionStep.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1153,6 +1163,7 @@
 				0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */,
 				0BC71FC80E738C4D0007F10D /* GoBack.tiff in Resources */,
 				0BC71FC90E738C4D0007F10D /* GoForward.tiff in Resources */,
+				0B76F3010E74DF8B00349D03 /* InspectorStep.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1229,6 +1240,7 @@
 				0B7588D90D8DC4DD00357703 /* ColorLibrary.m in Sources */,
 				0B9907D70DDD540C003F6B13 /* LDrawColor.m in Sources */,
 				0BC71D660E6CB26A0007F10D /* ScopeBar.m in Sources */,
+				0B76F2FA0E74CC1700349D03 /* InspectionStep.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1257,6 +1269,15 @@
 				0B34306608B2E93D00A06A40 /* Localizable.strings */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		0B76F2FF0E74DF8B00349D03 /* InspectorStep.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0B76F3000E74DF8B00349D03 /* English */,
+			);
+			name = InspectorStep.xib;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		0B8EBD4209383CBB00D87E0C /* ColorPanel.nib */ = {
@@ -1468,6 +1489,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Source/Other/Mac LDraw_Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)/AMSProgressBar.framework/Headers\"";
+				IBC_NOTICES = NO;
+				IBC_WARNINGS = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
@@ -1495,6 +1518,8 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Source/Other/Mac LDraw_Prefix.pch";
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)/AMSProgressBar.framework/Headers\"";
+				IBC_NOTICES = NO;
+				IBC_WARNINGS = NO;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.4;

@@ -189,6 +189,7 @@ extern Vector3	V3Make(float x, float y, float z);
 extern Vector3*	V3Duplicate(Vector3 *a);
 extern Vector3	V3FromV4(Vector4 originalVector);
 extern bool		V3EqualPoints(Point3 point1, Point3 point2);
+extern bool		V3PointsWithinTolerance(Point3 point1, Point3 point2);
 extern float	V3SquaredLength(Vector3 v);
 extern float	V3Length(Vector3 v);
 extern Vector3	V3Negate(Vector3 v);

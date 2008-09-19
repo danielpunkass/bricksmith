@@ -12,7 +12,7 @@
 
 #import "MacLDraw.h"
 #import "LDrawApplication.h"
-#import "LDrawGLView.h"			//for ViewingAngleT
+#import "LDrawGLView.h"			//for ViewOrientationT
 #import "PartLibrary.h"
 #import "UserDefaultsCategory.h"
 #import "WindowCategory.h"
@@ -682,16 +682,16 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerOpenState]	forKey:FILE_CONTENTS_DRAWER_STATE];
 	
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngle3D]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicsView"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientation3D]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicsView"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModePerspective]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicsView"]];
 	
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView1"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView1"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView1"]];
 	
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView2"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView2"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView2"]];
 
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleTop]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView3"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationTop]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView3"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView3"]];
 	
 	//
@@ -775,7 +775,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:[NSNumber numberWithFloat:4.0]			forKey:MINIFIGURE_HEAD_ELEVATION];
 	
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewingAngleFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" MinifigureGeneratorView"]];
 	[initialDefaults setObject:(id)kCFBooleanFalse									forKey:@"UseThreads"];
 	

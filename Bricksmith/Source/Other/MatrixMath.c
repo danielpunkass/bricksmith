@@ -124,6 +124,27 @@ bool V3EqualPoints(Point3 point1, Point3 point2)
 }//end V3EqualPoints
 
 
+//========== V3PointsWithinTolerance() =========================================
+//
+// Purpose:		Returns YES if point1 and point2 are sufficiently close to equal 
+//				that we can call them equal. 
+//
+// Notes:		Floating-point numbers often suffer weird rounding errors which 
+//				make them ill-suited for == comparison. 
+//
+//==============================================================================
+bool V3PointsWithinTolerance(Point3 point1, Point3 point2)
+{
+	if(		fabs(point1.x - point2.x) <= SMALL_NUMBER
+	   &&	fabs(point1.y - point2.y) <= SMALL_NUMBER
+	   &&	fabs(point1.z - point2.z) <= SMALL_NUMBER )
+		return true;
+	else
+		return false;
+	
+}//end V3PointsWithinTolerance
+
+
 //========== V3SquaredLength ===================================================
 //
 // Purpose:		returns squared length of input vector

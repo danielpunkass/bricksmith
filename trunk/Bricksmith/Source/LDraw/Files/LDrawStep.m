@@ -11,6 +11,17 @@
 //				The subdirectives which make up a step are a list of 
 //				LDrawDirectives including parts, primitives, and meta-commands.
 //
+//				Steps may have rotations associated with them. A step rotation 
+//				defines the viewing angle at which the step is intended to be 
+//				displayed (for instance, upside-down). However, since steps are 
+//				drawn in a pipeline, they can't actually draw their own 
+//				rotations. It is the responsibility of the controller object to 
+//				enforce the rotation defined by the step. In Bricksmith, step 
+//				rotations are only honored when the model is being drawn in Step 
+//				Display mode. 
+//
+//				The step rotation functionality was originally defined by MLCad.
+//
 //  Created by Allen Smith on 2/20/05.
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
@@ -28,52 +39,58 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== emptyStep =========================================================
+//---------- emptyStep -----------------------------------------------[static]--
 //
 // Purpose:		Creates a new step ready to be edited, with nothing inside it.
 //
-//==============================================================================
-+ (id) emptyStep {
+//------------------------------------------------------------------------------
++ (id) emptyStep
+{
 	LDrawStep *newStep = [[LDrawStep alloc] init];
 	
 	return [newStep autorelease];
-}
+	
+}//end emptyStep
 
 
-//========== emptyStepWithFlavor ===============================================
+//---------- emptyStepWithFlavor: ------------------------------------[static]--
 //
 // Purpose:		Creates a new step ready to be edited, and prespecifies that 
 //				only directives of the flavorType will be added.
 //
-//==============================================================================
-+ (id) emptyStepWithFlavor:(LDrawStepFlavorT) flavorType {
-	LDrawStep *newStep = [[LDrawStep alloc] init];
+//------------------------------------------------------------------------------
++ (id) emptyStepWithFlavor:(LDrawStepFlavorT) flavorType
+{
+	LDrawStep *newStep = [LDrawStep emptyStep];
 	[newStep setStepFlavor:flavorType];
 	
-	return [newStep autorelease];
-}
+	return newStep;
+	
+}//end emptyStepWithFlavor:
 
 
-//========== stepWithLines =====================================================
+//---------- stepWithLines: ------------------------------------------[static]--
 //
 // Purpose:		Creates a new step ready to be edited, with nothing inside it.
 //
-//==============================================================================
-+ (LDrawStep *) stepWithLines:(NSArray *)lines{
-	LDrawStep		*newStep = [[LDrawStep alloc] init];
+//------------------------------------------------------------------------------
++ (LDrawStep *) stepWithLines:(NSArray *)lines
+{
+	LDrawStep		*newStep			= [[LDrawStep alloc] init];
 	
-	NSString		*currentLine;
-	NSString		*commandCodeString;
-	int				 commandCode;
-	Class			 CommandClass;
-	id				 newDirective;
-	int				 counter;
+	NSString		*currentLine		= nil;
+	NSString		*commandCodeString	= nil;
+	int				 commandCode		= 0;
+	Class			 CommandClass		= Nil;
+	id				 newDirective		= nil;
+	int				 counter			= 0;
 	
 	//Convert each line into a directive, and add it to this step.
-	for(counter = 0; counter < [lines count]; counter++){
+	for(counter = 0; counter < [lines count]; counter++)
+	{
 		currentLine = [lines objectAtIndex:counter];
-		if([currentLine length] > 0){
-		
+		if([currentLine length] > 0)
+		{
 			commandCodeString = [LDrawUtilities readNextField:currentLine remainder:NULL];
 			//We may need to check for nil here someday.
 			commandCode = [commandCodeString intValue];
@@ -96,13 +113,17 @@
 // Purpose:		Creates a new step ready to be edited, with nothing inside it.
 //
 //==============================================================================
-- (id) init {
+- (id) init
+{
 	[super init];
 	
-	stepFlavor = LDrawStepAnyDirectives;
+	stepRotationType	= LDrawStepRotationNone;
+	rotationAngle		= ZeroPoint3;
+	stepFlavor			= LDrawStepAnyDirectives;
 	
 	return self;
-}
+	
+}//end init
 
 
 //========== copyWithZone: =====================================================
@@ -110,14 +131,15 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone {
-	
+- (id) copyWithZone:(NSZone *)zone
+{
 	LDrawStep	*copied	= (LDrawStep *)[super copyWithZone:zone];
 	
 	[copied setStepFlavor:self->stepFlavor];
 	
 	return copied;
-}
+	
+}//end copyWithZone:
 
 
 #pragma mark -
@@ -183,9 +205,12 @@
 //				0 STEP
 //
 //==============================================================================
-- (NSString *) write{
+- (NSString *) write
+{
 	return [self writeWithStepCommand:YES];
-}
+	
+}//end write
+
 
 //========== writeWithStepCommand: =============================================
 //
@@ -196,8 +221,8 @@
 //				is inferred rather than explicit.
 //
 //==============================================================================
-- (NSString *) writeWithStepCommand:(BOOL) flag{
-	
+- (NSString *) writeWithStepCommand:(BOOL) flag
+{
 	NSMutableString	*written		= [NSMutableString string];
 	NSString		*CRLF			= [NSString CRLF];
 	
@@ -223,7 +248,8 @@
 	}
 	
 	return [written stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-}
+	
+}//end writeWithStepCommand:
 
 
 #pragma mark -
@@ -257,7 +283,20 @@
 	}
 	
 	return description;
+	
 }//end browsingDescription
+
+
+//========== inspectorClassName ================================================
+//
+// Purpose:		Returns the name of the class used to inspect this one.
+//
+//==============================================================================
+- (NSString *) inspectorClassName
+{
+	return @"InspectionStep";
+	
+}//end inspectorClassName
 
 
 #pragma mark -
@@ -273,7 +312,9 @@
 {
 	//might want to do some type checking here.
 	[super addDirective:newDirective];
-}
+	
+}//end addDirective:
+
 
 //========== enclosingModel ====================================================
 //
@@ -283,8 +324,35 @@
 - (LDrawModel *) enclosingModel
 {
 	return (LDrawModel *)[self enclosingDirective];
-}//end setModel:
+}//end enclosingModel
 
+
+//========== rotationAngle =====================================================
+//
+// Purpose:		Returns the xyz angle in degrees of the rotation. The value must 
+//				be interpreted according to the step rotation type. 
+//
+//==============================================================================
+- (Tuple3) rotationAngle
+{
+	return self->rotationAngle;
+
+}//end rotationAngle
+
+
+//========== stepRotationType ==================================================
+//
+// Purpose:		Returns what kind of rotation is attached to this step.
+//
+//==============================================================================
+- (LDrawStepRotationT) stepRotationType
+{
+	return self->stepRotationType;
+	
+}//end stepRotationType
+
+
+#pragma mark -
 
 //========== setModel: =========================================================
 //
@@ -295,7 +363,21 @@
 - (void) setModel:(LDrawModel *)enclosingModel
 {
 	[self setEnclosingDirective:enclosingModel];
+	
 }//end setModel:
+
+
+//========== setRotationAngle: =================================================
+//
+// Purpose:		Sets the xyz angle (in degrees) of the receiver's rotation. The 
+//				meaning of the value is determined by the step rotation type. 
+//
+//==============================================================================
+- (void) setRotationAngle:(Tuple3)newAngle
+{
+	self->rotationAngle = newAngle;
+	
+}//end setRotationAngle:
 
 
 //========== setStepFlavor: ====================================================
@@ -307,9 +389,26 @@
 //				starting a new group for each directive encountered.
 //
 //==============================================================================
-- (void) setStepFlavor:(LDrawStepFlavorT)newFlavor {
+- (void) setStepFlavor:(LDrawStepFlavorT)newFlavor
+{
 	self->stepFlavor = newFlavor;
-}
+	
+}//end setStepFlavor:
+
+
+//========== setStepRotationType: ==============================================
+//
+// Purpose:		Sets the kind of rotation attached to this step.
+//
+// Notes:		Honoring a step rotation is the responsibility of the object 
+//				drawing the model, not the step itself. 
+//
+//==============================================================================
+- (void) setStepRotationType:(LDrawStepRotationT)newValue
+{
+	self->stepRotationType = newValue;
+	
+}//end setStepRotationType:
 
 
 #pragma mark -
@@ -401,6 +500,29 @@
 #endif
 }//end optimize
 
+
+#pragma mark -
+#pragma mark UTILITIES
+#pragma mark -
+
+//========== registerUndoActions ===============================================
+//
+// Purpose:		Registers the undo actions that are unique to this subclass, 
+//				not to any superclass.
+//
+//==============================================================================
+- (void) registerUndoActions:(NSUndoManager *)undoManager
+{
+	[super registerUndoActions:undoManager];
+	
+	[[undoManager prepareWithInvocationTarget:self] setRotationAngle:[self rotationAngle]];
+	[[undoManager prepareWithInvocationTarget:self] setStepRotationType:[self stepRotationType]];
+	
+	[undoManager setActionName:NSLocalizedString(@"UndoAttributesStep", nil)];
+	
+}//end registerUndoActions:
+
+
 #pragma mark -
 #pragma mark DESTRUCTOR
 #pragma mark -
@@ -410,9 +532,10 @@
 // Purpose:		The Fat Lady has sung.
 //
 //==============================================================================
-- (void) dealloc {
-	
+- (void) dealloc
+{
 	[super dealloc];
+	
 }//end dealloc
 
 

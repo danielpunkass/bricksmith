@@ -245,34 +245,12 @@
 
 //========== doHelp: ===========================================================
 //
-// Purpose:		Apple's automatic help registration is worthless. I've tried the 
-//				program on numerous Macs; it refuses to load until the OS 
-//				finally realizes a new program is there, which takes either 
-//				a) 2 million years or b) voodoo/ritualistic sacrifice. So 
-//				I'm bypassing what it does for something much less magical.
-//
-// Note:		I did manage to do *something* on two computers that got it 
-//				working automatically (touching, copying, I don't know). But 
-//				it never just happened when the application was first installed.
-//
-// Addendum:	I think the files need to be run through some help 
-//				utility/indexer in the Developer Tools. But Help Viewer in 
-//				Leopard is so abominable that I'm just going to launch a 
-//				browser. On my  PowerBook G4, the Leopard Help Viewer takes 
-//				2 minutes 42 seconds to launch and become responsive to events. 
-//				That is shockingly unacceptible. 
+// Purpose:		Display the Bricksmith tutorial.
 //
 //==============================================================================
 - (IBAction) doHelp:(id)sender
 {
-	NSBundle	*applicationBundle	= [NSBundle mainBundle];
-	NSString	*helpPath			= [applicationBundle pathForResource:@"index"
-																  ofType:@"html"
-															 inDirectory:@"Help"];
-	NSURL		*helpURL			= [NSURL fileURLWithPath:helpPath];
-
-//	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
-	[[NSWorkspace sharedWorkspace] openURL:helpURL];
+	[self openHelpAnchor:@"index"];
 	
 }//end doHelp:
 
@@ -286,14 +264,7 @@
 //==============================================================================
 - (IBAction) doKeyboardShortcutHelp:(id)sender
 {
-	NSBundle	*applicationBundle	= [NSBundle mainBundle];
-	NSString	*helpPath			= [applicationBundle pathForResource:@"KeyboardShortcuts"
-																  ofType:@"html"
-															 inDirectory:@"Help"];
-	NSURL		*helpURL			= [NSURL fileURLWithPath:helpPath];
-
-//	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
-	[[NSWorkspace sharedWorkspace] openURL:helpURL];
+	[self openHelpAnchor:@"KeyboardShortcuts"];
 	
 }//end doKeyboardShortcutHelp:
 
@@ -307,14 +278,7 @@
 //==============================================================================
 - (IBAction) doGettingNewPartsHelp:(id)sender
 {
-	NSBundle	*applicationBundle	= [NSBundle mainBundle];
-	NSString	*helpPath			= [applicationBundle pathForResource:@"AboutLDraw"
-																  ofType:@"html"
-															 inDirectory:@"Help"];
-	NSURL		*helpURL			= [NSURL fileURLWithPath:helpPath];
-
-//	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
-	[[NSWorkspace sharedWorkspace] openURL:helpURL];
+	[self openHelpAnchor:@"AboutLDraw"];
 	
 }//end doKeyboardShortcutHelp:
 
@@ -468,6 +432,44 @@
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
+
+//========== openHelpAnchor: ===================================================
+//
+// Purpose:		Provides much-needed API layering to open the specified help 
+//				anchor token. DO NOT USE NSHelpManager DIRECTLY! 
+//
+// Rant:		Apple's automatic help registration is worthless. I've tried the 
+//				program on numerous Macs; it refuses to load until the OS 
+//				finally realizes a new program is there, which takes either 
+//				a) 2 million years or b) voodoo/ritualistic sacrifice. So 
+//				I'm bypassing what it does for something much less magical.
+//
+// Note:		I did manage to do *something* on two computers that got it 
+//				working automatically (touching, copying, I don't know). But 
+//				it never just happened when the application was first installed.
+//
+// Addendum:	I think the files need to be run through some help 
+//				utility/indexer in the Developer Tools. But Help Viewer in 
+//				Leopard is so abominable that I'm just going to launch a 
+//				browser. On my  PowerBook G4, the Leopard Help Viewer takes 
+//				2 minutes 42 seconds to launch and become responsive to events. 
+//				That is shockingly unacceptible. 
+//
+//==============================================================================
+- (void) openHelpAnchor:(NSString *)helpAnchor
+{
+	NSBundle	*applicationBundle	= [NSBundle mainBundle];
+	NSString	*fileName			= helpAnchor; // help anchor is the filename by my convention
+	NSString	*helpPath			= [applicationBundle pathForResource:fileName
+																  ofType:@"html"
+															 inDirectory:@"Help"];
+	NSURL		*helpURL			= [NSURL fileURLWithPath:helpPath];
+	
+//	[[NSWorkspace sharedWorkspace] openFile:helpRoot withApplication:@"Help Viewer.app"];
+	[[NSWorkspace sharedWorkspace] openURL:helpURL];
+		
+}//end openHelpAnchor:
+
 
 //========== findLDrawPath =====================================================
 //

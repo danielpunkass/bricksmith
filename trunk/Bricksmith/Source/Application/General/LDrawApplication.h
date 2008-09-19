@@ -48,5 +48,6 @@
 
 //Utilities
 - (NSString *) findLDrawPath;
+- (void) openHelpAnchor:(NSString *)helpAnchor;
 
 @end

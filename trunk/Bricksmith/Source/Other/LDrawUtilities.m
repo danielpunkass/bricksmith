@@ -29,6 +29,51 @@
 #pragma mark -
 //This is stuff that didn't really go anywhere else.
 
+//---------- angleForViewOrientation: --------------------------------[static]--
+//
+// Purpose:		Returns the viewing angle in degrees for the given orientation.
+//
+//------------------------------------------------------------------------------
++ (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation
+{
+	Tuple3 angle	= ZeroPoint3;
+
+	switch(orientation)
+	{
+		case ViewOrientation3D:
+			angle = V3Make(45, 45, 0);
+			break;
+	
+		case ViewOrientationFront:
+			angle = V3Make(0, 0, 0);
+			break;
+			
+		case ViewOrientationBack:
+			angle = V3Make(0, 180, 0);
+			break;
+			
+		case ViewOrientationLeft:
+			angle = V3Make(0, -90, 0);
+			break;
+			
+		case ViewOrientationRight:
+			angle = V3Make(0, 90, 0);
+			break;
+			
+		case ViewOrientationTop:
+			angle = V3Make(90, 0, 0);
+			break;
+			
+		case ViewOrientationBottom:
+			angle = V3Make(-90, 0, 0);
+			break;
+	}
+	
+	return angle;
+	
+}//end angleForViewOrientation:
+
+
 //---------- boundingBox3ForDirectives: ------------------------------[static]--
 //
 // Purpose:		Returns the minimum and maximum points of the box which 

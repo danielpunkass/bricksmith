@@ -142,7 +142,7 @@
 	isTrackingDrag			= NO;
 	projectionMode			= ProjectionModePerspective;
 	rotationDrawMode		= LDrawGLDrawNormal;
-	viewingAngle			= ViewingAngle3D;
+	viewOrientation			= ViewOrientation3D;
 	
 	
 	//Set up our OpenGL context. We need to base it on a shared context so that 
@@ -189,7 +189,7 @@
 	//Our light position is transformed by the modelview matrix. That means 
 	// we need to have a standard model matrix loaded to get our light to 
 	// land in the right place! But our modelview might have already been 
-	// affected by someone calling -setViewingAngle:. So we restore the 
+	// affected by someone calling -setViewOrientation:. So we restore the 
 	// default here.
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -246,7 +246,7 @@
 	
 	//Now that the light is positioned where we want it, we can restore the 
 	// correct viewing angle.
-	[self setViewingAngle:self->viewingAngle];
+	[self setViewOrientation:self->viewOrientation];
 	
 }//end prepareOpenGL
 
@@ -568,6 +568,8 @@
 	
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
+		[[self openGLContext] makeCurrentContext];
+
 		glGetFloatv(GL_MODELVIEW_MATRIX, currentMatrix);
 		transformation = Matrix4CreateFromGLMatrix4(currentMatrix); //convert to our utility library format
 		
@@ -614,14 +616,43 @@
 
 //========== viewingAngle ======================================================
 //
+// Purpose:		Returns the modelview rotation, in degrees.
+//
+// Notes:		These numbers do *not* include the fact that LDraw has an 
+//				upside-down coordinate system. So if this method returns 
+//				(0,0,0), that means "Front, looking right-side up." 
+//				
+//==============================================================================
+- (Tuple3) viewingAngle
+{
+	Matrix4              transformation		= IdentityMatrix4;
+	TransformComponents  components			= IdentityComponents;
+	Tuple3				 degrees			= ZeroPoint3;
+	
+	transformation = [self getMatrix];
+	transformation = Matrix4Rotate(transformation, V3Make(180, 0, 0)); // LDraw is upside-down
+	Matrix4DecomposeTransformation(transformation, &components);
+	degrees = components.rotate;
+	
+	degrees.x = degrees(degrees.x);
+	degrees.y = degrees(degrees.y);
+	degrees.z = degrees(degrees.z);
+	
+	return degrees;
+	
+}//end viewingAngle
+
+
+//========== viewOrientation ===================================================
+//
 // Purpose:		Returns the current camera orientation for this view.
 //
 //==============================================================================
-- (ViewingAngleT) viewingAngle
+- (ViewOrientationT) viewOrientation
 {
-	return self->viewingAngle;
+	return self->viewOrientation;
 	
-}//end viewingAngle
+}//end viewOrientation
 
 
 //========== zoomPercentage ====================================================
@@ -841,15 +872,15 @@
 } //end setProjectionMode:
 
 
-//========== setViewingAngle: ==================================================
+//========== setViewOrientation: ===============================================
 //
 // Purpose:		Changes the camera position from which we view the model. 
-//				i.e., ViewingAngleFront means we see the model head-on.
+//				i.e., ViewOrientationFront means we see the model head-on.
 //
 //==============================================================================
-- (void) setViewingAngle:(ViewingAngleT) newAngle
+- (void) setViewOrientation:(ViewOrientationT) newAngle
 {
-	self->viewingAngle = newAngle;
+	self->viewOrientation = newAngle;
 		
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
@@ -873,18 +904,18 @@
 		//okay, now we are oriented looking at the front of the model.
 		switch(newAngle)
 		{
-			case ViewingAngle3D:
+			case ViewOrientation3D:
 			
 				glRotatef( 45, 0, 1, 0);
 				glRotatef( 45, 1, 0, 1);
 				break;
 				
-			case ViewingAngleFront:			glRotatef(  0, 0, 0, 0); break;
-			case ViewingAngleBack:			glRotatef(180, 0, 1, 0); break;
-			case ViewingAngleLeft:			glRotatef(-90, 0, 1, 0); break;
-			case ViewingAngleRight:			glRotatef( 90, 0, 1, 0); break;
-			case ViewingAngleTop:			glRotatef( 90, 1, 0, 0); break;
-			case ViewingAngleBottom:		glRotatef(-90, 1, 0, 0); break;
+			case ViewOrientationFront:			glRotatef(  0, 0, 0, 0); break;
+			case ViewOrientationBack:			glRotatef(180, 0, 1, 0); break;
+			case ViewOrientationLeft:			glRotatef(-90, 0, 1, 0); break;
+			case ViewOrientationRight:			glRotatef( 90, 0, 1, 0); break;
+			case ViewOrientationTop:			glRotatef( 90, 1, 0, 0); break;
+			case ViewOrientationBottom:		glRotatef(-90, 1, 0, 0); break;
 		}
 		
 		[self setNeedsDisplay:YES];
@@ -892,7 +923,7 @@
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	
-}//end setViewingAngle:
+}//end setViewOrientation:
 
 
 //========== setZoomPercentage: ================================================
@@ -937,26 +968,26 @@
 #pragma mark ACTIONS
 #pragma mark -
 
-//========== viewingAngleSelected: =============================================
+//========== viewOrientationSelected: ==========================================
 //
 // Purpose:		The user has chosen a new viewing angle from a menu.
 //				sender is the menu item, whose tag is the viewing angle.
 //
 //==============================================================================
-- (IBAction) viewingAngleSelected:(id)sender
+- (IBAction) viewOrientationSelected:(id)sender
 {	
-	ViewingAngleT newAngle = [sender tag];
+	ViewOrientationT newAngle = [sender tag];
 	
-	[self setViewingAngle:newAngle];
+	[self setViewOrientation:newAngle];
 	
 	//We treat 3D as a request for perspective, but any straight-on view can 
 	// logically be expected to be displayed orthographically.
-	if(newAngle == ViewingAngle3D)
+	if(newAngle == ViewOrientation3D)
 		[self setProjectionMode:ProjectionModePerspective];
 	else
 		[self setProjectionMode:ProjectionModeOrthographic];
 	
-}//end viewingAngleSelected:
+}//end viewOrientationSelected:
 
 
 //========== zoomIn: ===========================================================
@@ -1209,32 +1240,32 @@
 			//viewing angle
 			case '4':
 				[self setProjectionMode:ProjectionModeOrthographic];
-				[self setViewingAngle:ViewingAngleLeft];
+				[self setViewOrientation:ViewOrientationLeft];
 				break;
 			case '6':
 				[self setProjectionMode:ProjectionModeOrthographic];
-				[self setViewingAngle:ViewingAngleRight];
+				[self setViewOrientation:ViewOrientationRight];
 				break;
 			case '2':
 				[self setProjectionMode:ProjectionModeOrthographic];
-				[self setViewingAngle:ViewingAngleBottom];
+				[self setViewOrientation:ViewOrientationBottom];
 				break;
 			case '8':
 				[self setProjectionMode:ProjectionModeOrthographic];
-				[self setViewingAngle:ViewingAngleTop];
+				[self setViewOrientation:ViewOrientationTop];
 				break;
 			case '5':
 				[self setProjectionMode:ProjectionModeOrthographic];
-				[self setViewingAngle:ViewingAngleFront];
+				[self setViewOrientation:ViewOrientationFront];
 				break;
 			case '7':
 			case '9':
 				[self setProjectionMode:ProjectionModeOrthographic];
-				[self setViewingAngle:ViewingAngleBack];
+				[self setViewOrientation:ViewOrientationBack];
 				break;
 			case '0':
 				[self setProjectionMode:ProjectionModePerspective];
-				[self setViewingAngle:ViewingAngle3D];
+				[self setViewOrientation:ViewOrientation3D];
 				break;
 				
 			default:
@@ -1744,10 +1775,10 @@
 		transformedVectorX = V4MulPointByMatrix(vectorX, inversed);
 		transformedVectorY = V4MulPointByMatrix(vectorY, inversed);
 		
-		if(self->viewingAngle != ViewingAngle3D)
+		if(self->viewOrientation != ViewOrientation3D)
 		{
 			[self setProjectionMode:ProjectionModePerspective];
-			self->viewingAngle = ViewingAngle3D;
+			self->viewOrientation = ViewOrientation3D;
 		}
 		
 		//Now rotate the model around the visual "up" and "down" directions.
@@ -2330,9 +2361,9 @@
 	// Check the appropriate item for the viewing angle. We have to check the 
 	// action selector here so as not to start checking other items like zoomIn: 
 	// that happen to have a tag which matches one of the viewing angles.) 
-	if([menuItem action] == @selector(viewingAngleSelected:))
+	if([menuItem action] == @selector(viewOrientationSelected:))
 	{
-		if([menuItem tag] == self->viewingAngle)
+		if([menuItem tag] == self->viewOrientation)
 			[menuItem setState:NSOnState];
 		else
 			[menuItem setState:NSOffState];
@@ -2804,7 +2835,7 @@
 		NSString		*viewingAngleKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_ANGLE, self->autosaveName];
 		NSString		*projectionModeKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_PROJECTION, self->autosaveName];
 		
-		[self   setViewingAngle:[userDefaults integerForKey:viewingAngleKey] ];
+		[self   setViewOrientation:[userDefaults integerForKey:viewingAngleKey] ];
 		[self setProjectionMode:[userDefaults integerForKey:projectionModeKey] ];
 	}
 	
@@ -2915,7 +2946,7 @@
 		NSString		*viewingAngleKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_ANGLE, self->autosaveName];
 		NSString		*projectionModeKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_PROJECTION, self->autosaveName];
 		
-		[userDefaults setInteger:[self viewingAngle]	forKey:viewingAngleKey];
+		[userDefaults setInteger:[self viewOrientation]	forKey:viewingAngleKey];
 		[userDefaults setInteger:[self projectionMode]	forKey:projectionModeKey];
 		
 		[userDefaults synchronize]; //because we may be quitting, we have to force this here.

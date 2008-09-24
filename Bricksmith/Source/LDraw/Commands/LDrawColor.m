@@ -46,9 +46,8 @@
 //========== finishParsing: ====================================================
 //
 // Purpose:		+directiveWithString: is responsible for parsing out the line 
-//				code and comment command (i.e., "0 //"); now we just have to 
-//				finish the comment-command specific syntax. As it happens, that 
-//				is everything after the comment command. 
+//				code and color command (i.e., "0 !COLOUR"); now we just have to 
+//				finish the color-command specific syntax.
 //
 //==============================================================================
 - (BOOL) finishParsing:(NSScanner *)scanner

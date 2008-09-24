@@ -412,7 +412,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 	NSPredicate		*searchPredicate		= nil;
 	BOOL			 searchByCode			= NO; //color name search by default.
 	NSScanner		*digitScanner			= nil;
-	int				 colorCode				= nil;
+	int				 colorCode				= 0;
 	
 	// If there is no string, then clear the search predicate (find all).
 	if([searchString length] == 0)

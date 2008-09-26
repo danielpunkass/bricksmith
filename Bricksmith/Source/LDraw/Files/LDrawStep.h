@@ -87,5 +87,6 @@ typedef enum
 
 //Utilities
 - (void) optimize;
+- (BOOL) parseRotationStepFromLine:(NSString *)rotstep;
 
 @end

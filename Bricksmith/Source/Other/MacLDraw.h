@@ -215,6 +215,13 @@
 #define LDRAW_MOVED_CATEGORY					@"Moved"
 #define LDRAW_MOVED_DESCRIPTION_PREFIX			@"~Moved to"
 
+// Rotation Steps
+#define LDRAW_ROTATION_STEP						@"0 ROTSTEP"
+#define LDRAW_ROTATION_END						@"END"
+#define LDRAW_ROTATION_RELATIVE					@"REL"
+#define LDRAW_ROTATION_ABSOLUTE					@"ABS"
+#define LDRAW_ROTATION_ADDITIVE					@"ADD"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

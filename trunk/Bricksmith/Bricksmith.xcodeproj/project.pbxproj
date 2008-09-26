@@ -1065,7 +1065,7 @@
 					ProjectRef = 2BB5975809FEFD250077A885 /* AMSProgressBar.xcodeproj */;
 				},
 			);
-			projectRoot = "";
+			projectRoot = ..;
 			targets = (
 				8D15AC270486D014006FF6A4 /* Bricksmith */,
 			);

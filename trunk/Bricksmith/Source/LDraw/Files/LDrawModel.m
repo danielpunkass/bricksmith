@@ -5,12 +5,11 @@
 // Purpose:		Represents a collection of Lego bricks that form a single model.
 //
 //				Bricksmith imposes an arbitrary requirement that a model be 
-//				coposed of a series of steps. Each model must have at least one 
+//				composed of a series of steps. Each model must have at least one 
 //				step in it, and only LDrawSteps can be put into the model's 
-//				subdirective array. When reading and writing the file, however, 
-//				the first step in the model is implicit. All of the lines in the 
-//				model which appear before the first 0 STEP command are 
-//				interpreted is the first step of the model.
+//				subdirective array. Each LDraw model contains at least one step 
+//				even if it contains no 0 STEP commands, since the final step in 
+//				the model is not required to have step marker. 
 //
 //  Created by Allen Smith on 2/19/05.
 //  Copyright (c) 2005. All rights reserved.
@@ -127,7 +126,17 @@
 //				These lines of strings should only describe one model, not 
 //				multiple ones.
 //
-//				The first line *must* be an MPD file delimiter.
+//				This method divides the model into steps. A step may be ended 
+//				by: 
+//					* a 0 STEP line
+//					* a 0 ROTSTEP line
+//					* the end of the file
+//
+//				A STEP or ROTSTEP command is part of the step they end, so they 
+//				are the last line IN the step. 
+//
+//				The final step marker is optional. Thus a file that has no step 
+//				markers still has one step. 
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
@@ -139,8 +148,8 @@
 	// will not contain it.
 	lines = [self parseHeaderFromLines:lines];
 	
-	//Parse out steps. Each time we run into a new 0 STEP command, we start a 
-	// new step.
+	// Parse out steps. Each time we run into a new 0 STEP command, we finish 
+	// the current step. 
 	NSMutableArray	*currentStepLines	= [NSMutableArray array];
 	LDrawStep		*newStep			= nil;
 	NSString		*currentLine		= nil;
@@ -150,25 +159,23 @@
 	for(counter = 0; counter < numberLines; counter++)
 	{
 		currentLine = [lines objectAtIndex:counter];
-		if([currentLine hasPrefix:LDRAW_STEP] == NO)
+		[currentStepLines addObject:currentLine];
+		
+		// Check for the end of the step.
+		if(		[currentLine hasPrefix:LDRAW_STEP ] == YES
+		   ||	[currentLine hasPrefix:LDRAW_ROTATION_STEP] == YES 
+		   ||	counter == numberLines ) // test for end of file.
 		{
-			[currentStepLines addObject:currentLine];
-		}
-		else
-		{
-			//We've hit a new step. Add the old one in to the list and start a 
-			// new one.
+			// We've hit the end of the step. Time to parse it and add it to the 
+			// model. 
 			newStep = [LDrawStep stepWithLines:currentStepLines];
 			[self addStep:newStep];
 			
-			currentStepLines = [NSMutableArray array];
+			// Start a new step if we still have lines left.
+			if(counter < numberLines)
+				currentStepLines = [NSMutableArray array];
 		}
 	}
-	
-	//Finish up with the last step.
-	newStep = [LDrawStep stepWithLines:currentStepLines];
-	[self addStep:newStep];
-	
 	
 	return self;
 	
@@ -301,8 +308,9 @@
 	for(counter = 0; counter < numberSteps; counter++)
 	{
 		currentStep = [steps objectAtIndex:counter];
-		//Skip the 0 STEP command for the first step; it is implied.
-		if(counter == 0)
+		
+		//Skip the 0 STEP command for the last step; it is implied.
+		if(counter == numberSteps - 1)
 			stepOutput = [currentStep writeWithStepCommand:NO];
 		else
 			stepOutput = [currentStep write];
@@ -311,7 +319,9 @@
 	}
 	
 	//Now remove that last CRLF.
-	return [written stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	[written deleteCharactersInRange:NSMakeRange([written length] - [CRLF length], [CRLF length])];
+	
+	return written;
 
 }//end write
 

@@ -84,9 +84,22 @@
 	Class			 CommandClass		= Nil;
 	id				 newDirective		= nil;
 	int				 counter			= 0;
+	int				 lastLineIndex		= [lines count] - 1; // index of last subdirective line.
+	NSString		*lastLine			= [lines objectAtIndex:lastLineIndex];
+	
+	if([lastLine hasPrefix:LDRAW_STEP])
+	{
+		lastLineIndex -= 1;
+	}
+	else if([lastLine hasPrefix:LDRAW_ROTATION_STEP])
+	{
+		// Parse the rotation step.
+		if( [newStep parseRotationStepFromLine:lastLine] == YES)
+			lastLineIndex -= 1;
+	}
 	
 	//Convert each line into a directive, and add it to this step.
-	for(counter = 0; counter < [lines count]; counter++)
+	for(counter = 0; counter < lastLineIndex; counter++)
 	{
 		currentLine = [lines objectAtIndex:counter];
 		if([currentLine length] > 0)
@@ -215,39 +228,80 @@
 //========== writeWithStepCommand: =============================================
 //
 // Purpose:		Write out all the commands in the step. The output will be 
-//				prefaced by the line 0 STEP if explicitStep is true. 
+//				postfaced by the line 0 STEP if explicitStep is true. 
 //				The reason this method exists is that we do not want to write 
-//				the step command for the very first step in the file. That step 
+//				the step command for the last step in the file. That step 
 //				is inferred rather than explicit.
 //
+// Note:		flag is ignored if this is a rotation step. In that case, you 
+//				get the step command no matter what.  
+//
 //==============================================================================
-- (NSString *) writeWithStepCommand:(BOOL) flag
+- (NSString *) writeWithStepCommand:(BOOL)flag
 {
-	NSMutableString	*written		= [NSMutableString string];
-	NSString		*CRLF			= [NSString CRLF];
+	NSMutableString	*written			= [NSMutableString string];
+	NSString		*CRLF				= [NSString CRLF];
 	
-	NSArray			*commandsInStep = [self subdirectives];
-	LDrawDirective	*currentCommand = nil;
-	int				 numberCommands	= [commandsInStep count];
-	int				 counter;
+	NSArray			*commandsInStep		= [self subdirectives];
+	LDrawDirective	*currentCommand		= nil;
+	int				 numberCommands		= [commandsInStep count];
+	int				 counter			= 0;
 	
-	//Start with 0 STEP
-	if(flag == YES)
-		[written appendFormat:@"%@%@", LDRAW_STEP, CRLF];
-	
-	//Write all the subcommands under it.
-	for(counter = 0; counter < numberCommands; counter++){
+	// Write all the step's subdirectives
+	for(counter = 0; counter < numberCommands; counter++)
+	{
 		currentCommand = [commandsInStep objectAtIndex:counter];
 		[written appendFormat:@"%@%@", [currentCommand write], CRLF];
 	}
 	
+	// End with 0 STEP or 0 ROTSTEP
+	if(		flag == YES
+		||	self->stepRotationType != LDrawStepRotationNone )
+	{
+		switch(self->stepRotationType)
+		{
+			case LDrawStepRotationNone:
+				[written appendString:LDRAW_STEP];
+				break;
+			
+			case LDrawStepRotationRelative:
+				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
+															self->rotationAngle.x, 
+															self->rotationAngle.y, 
+															self->rotationAngle.z, 
+															LDRAW_ROTATION_RELATIVE ];
+				break;
+			
+			case LDrawStepRotationAbsolute:
+				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
+															self->rotationAngle.x, 
+															self->rotationAngle.y, 
+															self->rotationAngle.z, 
+															LDRAW_ROTATION_ABSOLUTE ];
+				break;
+			
+			case LDrawStepRotationAdditive:
+				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
+															self->rotationAngle.x, 
+															self->rotationAngle.y, 
+															self->rotationAngle.z, 
+															LDRAW_ROTATION_ADDITIVE ];
+				break;
+			
+			case LDrawStepRotationEnd:
+				[written appendFormat:@"%@ %@", LDRAW_ROTATION_STEP, LDRAW_ROTATION_END];
+				break;
+		}
+	}
+	
 	//Now remove that last CRLF, if it's there.
-	if([written hasSuffix:CRLF]){
+	if([written hasSuffix:CRLF])
+	{
 		NSRange lastNewline = NSMakeRange([written length] - [CRLF length], [CRLF length]);
 		[written deleteCharactersInRange:lastNewline];
 	}
 	
-	return [written stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	return written;
 	
 }//end writeWithStepCommand:
 
@@ -504,6 +558,84 @@
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
+
+//========== parseRotationStepFromLine: ========================================
+//
+// Purpose:		Parses out the rotation step values from the given line.
+//
+//				Rotation steps can have the following forms:
+//
+//					0 ROTSTEP angleX angleY angleZ		// implied REL
+//					0 ROTSTEP angleX angleY angleZ REL
+//					0 ROTSTEP angleX angleY angleZ ABS
+//					0 ROTSTEP angleX angleY angleZ ADD
+//					0 ROTSTEP END
+//
+// Returns:		YES on success.
+//
+//==============================================================================
+- (BOOL) parseRotationStepFromLine:(NSString *)rotstep
+{
+	NSScanner	*scanner	= [NSScanner scannerWithString:rotstep];
+	Tuple3		 angles		= ZeroPoint3;
+	BOOL		 success	= NO;
+	
+	@try
+	{
+		if([scanner scanString:LDRAW_ROTATION_STEP intoString:NULL] == NO)
+			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad ROTSTEP syntax" userInfo:nil];
+
+		// Is it an end rotation?
+		if([scanner scanString:LDRAW_ROTATION_END intoString:NULL] == YES)
+		{
+			[self setStepRotationType:LDrawStepRotationEnd];
+		}
+		else
+		{
+			//---------- Angles ------------------------------------------------
+			
+			if([scanner scanFloat:&(angles.x)] == NO)
+				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad ROTSTEP syntax" userInfo:nil];
+
+			if([scanner scanFloat:&(angles.y)] == NO)
+				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad ROTSTEP syntax" userInfo:nil];
+
+			if([scanner scanFloat:&(angles.z)] == NO)
+				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad ROTSTEP syntax" userInfo:nil];
+		
+		
+			//---------- Rotation Type -----------------------------------------
+			
+			if( [scanner scanString:LDRAW_ROTATION_ABSOLUTE intoString:NULL] == YES )
+				[self setStepRotationType:LDrawStepRotationAbsolute];
+			
+			else if( [scanner scanString:LDRAW_ROTATION_ADDITIVE intoString:NULL] == YES )
+				[self setStepRotationType:LDrawStepRotationAdditive];
+
+			else if( [scanner scanString:LDRAW_ROTATION_RELATIVE intoString:NULL] == YES )
+				[self setStepRotationType:LDrawStepRotationRelative];
+			
+			// if no type is explicitly specified, it is a relative rotation.
+			else if( [scanner isAtEnd] == YES )
+				[self setStepRotationType:LDrawStepRotationRelative];
+			
+			// there is some syntax we don't recognize. Abort parsing attempt.
+			else
+				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad ROTSTEP syntax" userInfo:nil];
+				
+			// Set the parsed angles if we successfully got the type.
+			[self setRotationAngle:angles];
+		}
+	}
+	@catch(NSException *exception)
+	{
+		success = NO;
+	}
+	
+	return success;
+	
+}//end parseRotationStepFromLine:
+
 
 //========== registerUndoActions ===============================================
 //

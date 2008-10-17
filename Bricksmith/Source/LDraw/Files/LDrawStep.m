@@ -99,7 +99,7 @@
 	}
 	
 	//Convert each line into a directive, and add it to this step.
-	for(counter = 0; counter < lastLineIndex; counter++)
+	for(counter = 0; counter <= lastLineIndex; counter++)
 	{
 		currentLine = [lines objectAtIndex:counter];
 		if([currentLine length] > 0)
@@ -578,7 +578,7 @@
 {
 	NSScanner	*scanner	= [NSScanner scannerWithString:rotstep];
 	Tuple3		 angles		= ZeroPoint3;
-	BOOL		 success	= NO;
+	BOOL		 success	= YES;
 	
 	@try
 	{

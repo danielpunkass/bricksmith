@@ -164,7 +164,7 @@
 		// Check for the end of the step.
 		if(		[currentLine hasPrefix:LDRAW_STEP ] == YES
 		   ||	[currentLine hasPrefix:LDRAW_ROTATION_STEP] == YES 
-		   ||	counter == numberLines ) // test for end of file.
+		   ||	counter == (numberLines - 1) ) // test for end of file.
 		{
 			// We've hit the end of the step. Time to parse it and add it to the 
 			// model. 
@@ -172,7 +172,7 @@
 			[self addStep:newStep];
 			
 			// Start a new step if we still have lines left.
-			if(counter < numberLines)
+			if(counter < (numberLines - 1))
 				currentStepLines = [NSMutableArray array];
 		}
 	}

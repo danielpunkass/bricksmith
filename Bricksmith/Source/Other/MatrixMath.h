@@ -66,7 +66,7 @@ typedef struct Matrix3Struct
 //4-by-4 matrix
 typedef struct Matrix4Struct
 {
-	float element[4][4];
+	float element[4][4]; // [row][column]
 	
 } Matrix4;
 
@@ -220,6 +220,8 @@ extern Vector4	V4MulPointByMatrix(Vector4 pin, Matrix4 m);
 extern Matrix4	Matrix4CreateFromGLMatrix4(const GLfloat *glMatrix);
 extern Matrix4	Matrix4CreateTransformation(TransformComponents *);
 extern int		Matrix4DecomposeTransformation( Matrix4 originalMatrix, TransformComponents *decomposed);
+extern Tuple3	Matrix4DecomposeXYZRotation(Matrix4 matrix);
+extern Tuple3	Matrix4DecomposeZYXRotation(Matrix4 matrix);
 extern Matrix4	Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate);
 extern Matrix4	Matrix4Translate(Matrix4 original, Vector3 displacement);
 extern Matrix4	Matrix4Transpose(Matrix4 a);

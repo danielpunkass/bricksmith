@@ -78,10 +78,12 @@ typedef enum
 - (void) addDirective:(LDrawDirective *)newDirective;
 - (LDrawModel *) enclosingModel;
 - (Tuple3) rotationAngle;
+- (Tuple3) rotationAngleZYX;
 - (LDrawStepRotationT) stepRotationType;
 
 - (void) setModel:(LDrawModel *)enclosingModel;
 - (void) setRotationAngle:(Tuple3)newAngle;
+- (void) setRotationAngleZYX:(Tuple3)newAngleZYX;
 - (void) setStepFlavor:(LDrawStepFlavorT)newFlavor;
 - (void) setStepRotationType:(LDrawStepRotationT)newValue;
 

@@ -241,6 +241,7 @@
 {
 	NSMutableString	*written			= [NSMutableString string];
 	NSString		*CRLF				= [NSString CRLF];
+	Tuple3			 angleZYX			= [self rotationAngleZYX];
 	
 	NSArray			*commandsInStep		= [self subdirectives];
 	LDrawDirective	*currentCommand		= nil;
@@ -266,25 +267,25 @@
 			
 			case LDrawStepRotationRelative:
 				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
-															self->rotationAngle.x, 
-															self->rotationAngle.y, 
-															self->rotationAngle.z, 
+															angleZYX.x, 
+															angleZYX.y, 
+															angleZYX.z, 
 															LDRAW_ROTATION_RELATIVE ];
 				break;
 			
 			case LDrawStepRotationAbsolute:
 				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
-															self->rotationAngle.x, 
-															self->rotationAngle.y, 
-															self->rotationAngle.z, 
+															angleZYX.x, 
+															angleZYX.y, 
+															angleZYX.z, 
 															LDRAW_ROTATION_ABSOLUTE ];
 				break;
 			
 			case LDrawStepRotationAdditive:
 				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
-															self->rotationAngle.x, 
-															self->rotationAngle.y, 
-															self->rotationAngle.z, 
+															angleZYX.x, 
+															angleZYX.y, 
+															angleZYX.z, 
 															LDRAW_ROTATION_ADDITIVE ];
 				break;
 			
@@ -394,6 +395,34 @@
 }//end rotationAngle
 
 
+//========== rotationAngleZYX ==================================================
+//
+// Purpose:		Returns the zyx angle in degrees of the rotation.
+//
+// Notes:		Of of Bricksmith's matrix math functions expect angles to be in 
+//				x-y-z order, so this value is not useful internally. However, 
+//				the ROTSTEP directive (and the rest of MLCad) uses a z-y-x 
+//				angle, so we have to save to the file in this format.
+//
+//==============================================================================
+- (Tuple3) rotationAngleZYX
+{
+	// Translate our internal XYZ angle to ZYX by creating a rotation matrix and 
+	// decomposing it in a different order. 
+
+	Matrix4	rotationMatrix	= Matrix4Rotate(IdentityMatrix4, self->rotationAngle);
+	Tuple3	angleZYX		= Matrix4DecomposeZYXRotation(rotationMatrix);
+	
+	// convert from radians to degrees
+	angleZYX.x	= degrees(angleZYX.x);
+	angleZYX.y	= degrees(angleZYX.y);
+	angleZYX.z	= degrees(angleZYX.z);
+	
+	return angleZYX;
+	
+}//end rotationAngleZYX
+
+
 //========== stepRotationType ==================================================
 //
 // Purpose:		Returns what kind of rotation is attached to this step.
@@ -426,12 +455,47 @@
 // Purpose:		Sets the xyz angle (in degrees) of the receiver's rotation. The 
 //				meaning of the value is determined by the step rotation type. 
 //
+// Notes:		The angle stored in the LDraw file is in zyx order, so it is 
+//				unsuitable for feeding directly to this method. 
+//
 //==============================================================================
 - (void) setRotationAngle:(Tuple3)newAngle
 {
 	self->rotationAngle = newAngle;
 	
 }//end setRotationAngle:
+
+
+//========== setRotationAngleZYX: ==============================================
+//
+// Purpose:		Sets the rotation angle (in degrees) such the the z angle is 
+//				applied first, then y, and lastly x. 
+//
+// Notes:		This is the format in which ROTSTEP angles are saved in the 
+//				file, but Bricksmith's matrix functions expect XYZ angles. This 
+//				translates the ZYX angle so that it can be used by the rest of 
+//				Bricksmith. 
+//
+//==============================================================================
+- (void) setRotationAngleZYX:(Tuple3)newAngleZYX
+{
+	Matrix4	rotationMatrix	= IdentityMatrix4;
+	Tuple3	newAngleXYZ		= ZeroPoint3;
+	
+	rotationMatrix = Matrix4Rotate(rotationMatrix, V3Make(0, 0, newAngleZYX.z));
+	rotationMatrix = Matrix4Rotate(rotationMatrix, V3Make(0, newAngleZYX.y, 0));
+	rotationMatrix = Matrix4Rotate(rotationMatrix, V3Make(newAngleZYX.x, 0, 0));
+	
+	newAngleXYZ = Matrix4DecomposeXYZRotation(rotationMatrix);
+	
+	// convert from radians to degrees
+	newAngleXYZ.x	= degrees(newAngleXYZ.x);
+	newAngleXYZ.y	= degrees(newAngleXYZ.y);
+	newAngleXYZ.z	= degrees(newAngleXYZ.z);
+	
+	self->rotationAngle = newAngleXYZ;
+	
+}//end setRotationAngleZYX:
 
 
 //========== setStepFlavor: ====================================================
@@ -571,6 +635,9 @@
 //					0 ROTSTEP angleX angleY angleZ ADD
 //					0 ROTSTEP END
 //
+// Notes:		The angle in ROTSTEPs is in z-y-x order, which is backwards from 
+//				how Bricksmith expects the world to be. 
+//
 // Returns:		YES on success.
 //
 //==============================================================================
@@ -624,7 +691,7 @@
 				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad ROTSTEP syntax" userInfo:nil];
 				
 			// Set the parsed angles if we successfully got the type.
-			[self setRotationAngle:angles];
+			[self setRotationAngleZYX:angles];
 		}
 	}
 	@catch(NSException *exception)

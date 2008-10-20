@@ -816,7 +816,7 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
 	Matrix4		localMatrix	= originalMatrix;
 	Matrix4		pmat, invpmat, tinvpmat;
 	Vector4		prhs, psol;
-	Point3		row[3];
+	Tuple3		row[3];
 	
  	// Normalize the matrix.
  	if ( localMatrix.element[3][3] == 0 )
@@ -826,8 +826,12 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
  		for ( j=0; j<4; j++ )
  			localMatrix.element[counter][j] /= localMatrix.element[3][3];
 	
- 	//pmat is used to solve for perspective, but it also provides
-	//an easy way to test for singularity of the upper 3x3 component.
+	
+  	//---------- Perspective ---------------------------------------------------
+	// Perspective is not used by Bricksmith.
+	
+ 	// pmat is used to solve for perspective, but it also provides an easy way 
+ 	// to test for singularity of the upper 3x3 component. 
  	pmat = localMatrix;
  	for ( counter = 0; counter < 3; counter++ )
  		pmat.element[counter][3] = 0;
@@ -837,7 +841,6 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
  		return 0;
 	
  	// First, isolate perspective.  This is the messiest.
-	// Perspective is not used by Bricksmith.
  	if ( localMatrix.element[0][3] != 0 || localMatrix.element[1][3] != 0 ||
 		 localMatrix.element[2][3] != 0 ) {
  		// prhs is the right hand side of the equation.
@@ -846,9 +849,8 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
  		prhs.z = localMatrix.element[2][3];
  		prhs.w = localMatrix.element[3][3];
 		
- 		// Solve the equation by inverting pmat and multiplying
-		// prhs by the inverse.  (This is the easiest way, not
-		// necessarily the best.)
+ 		// Solve the equation by inverting pmat and multiplying prhs by the 
+ 		// inverse.  (This is the easiest way, not necessarily the best.) 
 		// inverse function (and Matrix4x4Determinant, above) from the Matrix
 		// Inversion gem in the first volume.
  		invpmat		= Matrix4Invert(pmat);
@@ -874,7 +876,10 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
 		decomposed->perspective.w = 0;
 	}
 	
- 	// Next take care of translation (easy).
+	
+  	//---------- Translation ---------------------------------------------------
+
+	// This is really easy.
 	decomposed->translate.x = localMatrix.element[3][0];
 	decomposed->translate.y = localMatrix.element[3][1];
 	decomposed->translate.z = localMatrix.element[3][2];
@@ -884,7 +889,11 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
 		localMatrix.element[3][counter] = 0;
  	}
 	
- 	// Now get scale and shear.
+	
+ 	//---------- Now get scale and shear. --------------------------------------
+	
+	// First translate to vector format, because all our linear combination 
+	// functions expect vector datatypes. 
  	for ( counter=0; counter<3; counter++ ) {
  		row[counter].x = localMatrix.element[counter][0];
  		row[counter].y = localMatrix.element[counter][1];
@@ -917,8 +926,8 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
  	decomposed->shear_YZ /= decomposed->scale.z;
 	
  	// At this point, the matrix (in rows[]) is orthonormal.
- 	// Check for a coordinate system flip.  If the determinant
- 	// is -1, then negate the matrix and the scaling factors.
+ 	// Check for a coordinate system flip.  If the determinant is -1, then 
+ 	// negate the matrix and the scaling factors. 
  	if ( V3Dot( row[0], V3Cross(row[1], row[2]) ) < 0 )
 	{
 		decomposed->scale.x *= -1;
@@ -935,28 +944,21 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
 	}
 	
 	
-	// Now, extract the rotation angles.
-	decomposed->rotate.y = asin(-row[0].z);
+ 	//---------- Extract Rotation Angles ---------------------------------------
 	
-	//cos(Y) != 0.
-	// We can just use some simple algebra on the simplest components 
-	// of the rotation matrix.
- 	if ( fabs(cos(decomposed->rotate.y)) > SMALL_NUMBER ) { //within a tolerance of zero.
- 		decomposed->rotate.x = atan2(row[1].z, row[2].z);
- 		decomposed->rotate.z = atan2(row[0].y, row[0].x);
+	// Convert back to the matrix datatype, because that is what the 
+	// decomposition function expects. 
+	localMatrix = IdentityMatrix4;
+ 	for ( counter = 0; counter < 3; counter++ )
+	{
+ 		localMatrix.element[counter][0] = row[counter].x;
+ 		localMatrix.element[counter][1] = row[counter].y;
+ 		localMatrix.element[counter][2] = row[counter].z;
  	}
-	//cos(Y) == 0; so Y = +/- PI/2
-	// this is a "singularity" that zeroes out the information we would 
-	// usually use to determine X and Y.
 	
-	else if( decomposed->rotate.y < 0) { // -PI/2
- 		decomposed->rotate.x = atan2(-row[2].y, row[1].y);
- 		decomposed->rotate.z = 0;
- 	}
-	else if( decomposed->rotate.y > 0) { // +PI/2
- 		decomposed->rotate.x = atan2(row[2].y, row[1].y);
- 		decomposed->rotate.z = 0;
- 	}
+	// extract rotation
+	decomposed->rotate = Matrix4DecomposeXYZRotation(localMatrix);
+	
 	
  	// All done!
  	return 1;
@@ -964,11 +966,111 @@ int Matrix4DecomposeTransformation( Matrix4 originalMatrix,
 }//end Matrix4DecomposeTransformation
 
 
+//========== Matrix4DecomposeXYZRotation =======================================
+//
+// Purpose:		Decomposes a rotation matrix into an X-Y-Z angle (in radians) 
+//				which would yield it, such that the X angle is applied first and 
+//				the Z angle last. 
+//
+//				The matrix must not have any affect other than rotation.
+//
+//==============================================================================
+Tuple3 Matrix4DecomposeXYZRotation(Matrix4 matrix)
+{
+	Tuple3 rotationAngle	= ZeroPoint3;
+	
+	// Y is easy.
+	rotationAngle.y = asin(-matrix.element[0][2]);
+	
+	//cos(Y) != 0.
+	// We can just use some simple algebra on the simplest components 
+	// of the rotation matrix.
+ 	
+	if ( fabs(cos(rotationAngle.y)) > SMALL_NUMBER )//within a tolerance of zero.
+	{
+ 		rotationAngle.x = atan2(matrix.element[1][2], matrix.element[2][2]);
+ 		rotationAngle.z = atan2(matrix.element[0][1], matrix.element[0][0]);
+ 	}
+	//cos(Y) == 0; so Y = +/- PI/2
+	// this is a "singularity" that zeroes out the information we would 
+	// usually use to determine X and Y.
+	
+	else if( rotationAngle.y < 0) // -PI/2
+	{
+ 		rotationAngle.x = atan2(-matrix.element[2][1], matrix.element[1][1]);
+ 		rotationAngle.z = 0;
+ 	}
+	else if( rotationAngle.y > 0) // +PI/2
+	{
+ 		rotationAngle.x = atan2(matrix.element[2][1], matrix.element[1][1]);
+ 		rotationAngle.z = 0;
+ 	}
+	
+	return rotationAngle;
+	
+}//end Matrix4DecomposeXYZRotation
+
+
+//========== Matrix4DecomposeZYXRotation =======================================
+//
+// Purpose:		Decomposes a rotation matrix into a Z-Y-X angle (in radians) 
+//				which would yield it, such that the Z angle is applied first and 
+//				the X angle last. 
+//
+//				The matrix must not have any affect other than rotation.
+//
+// Notes:		Any given rotation (matrix) is unique, but the angles which can 
+//				produce it are not. We must make assumptions when decomposing. 
+//				One of those assumptions is the order in which we assume the 
+//				constituent angles were applied to produce the rotation. This 
+//				method assumes they were applied in ZYX order, which will yield 
+//				completely different numbers than the XYZ order would give for 
+//				the same matrix. 
+//
+//==============================================================================
+Tuple3 Matrix4DecomposeZYXRotation(Matrix4 matrix)
+{
+	Tuple3 rotationAngle	= ZeroPoint3;
+	
+	// Y is easy.
+	rotationAngle.y = asin(matrix.element[2][0]);
+	
+	//cos(Y) != 0.
+	// We can just use some simple algebra on the simplest components 
+	// of the rotation matrix.
+ 	
+	if ( fabs(cos(rotationAngle.y)) > SMALL_NUMBER )//within a tolerance of zero.
+	{
+ 		rotationAngle.x = atan2(-matrix.element[2][1], matrix.element[2][2]);
+ 		rotationAngle.z = atan2(-matrix.element[1][0], matrix.element[0][0]);
+ 	}
+	//cos(Y) == 0; so Y = +/- PI/2
+	// this is a "singularity" that zeroes out the information we would 
+	// usually use to determine X and Y.
+	
+	else if( rotationAngle.y < 0) // -PI/2
+	{
+ 		rotationAngle.x = atan2(matrix.element[1][2], matrix.element[0][2]);
+ 		rotationAngle.z = 0;
+ 	}
+	else if( rotationAngle.y > 0) // +PI/2
+	{
+ 		rotationAngle.x = atan2(matrix.element[0][1], matrix.element[1][1]);
+ 		rotationAngle.z = 0;
+ 	}
+	
+	return rotationAngle;
+	
+}//end Matrix4DecomposeZYXRotation
+
+
 //========== Matrix4Rotate() ===================================================
 //
 // Purpose:		Rotates the given matrix by the given number of degrees around 
 //				each axis, placing the rotated matrix into the Matrix specified 
 //				by the result parameter. Also returns result.
+//
+//				Rotation order is first X, then Y, and lastly Z.
 //
 // Note:		You may safely pass the same matrix for original and result.
 //
@@ -1154,7 +1256,7 @@ void Matrix4Adjoint( Matrix4 *in, Matrix4 *out )
 float Matrix4x4Determinant( Matrix4 *m )
 {
     float ans;
-    float a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, 			d4;
+    float a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
 	
     /* assign to individual variable names to aid selecting */
 	/*  correct elements */

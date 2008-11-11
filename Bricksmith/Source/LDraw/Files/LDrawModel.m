@@ -536,6 +536,132 @@
 }//end maximumStepDisplayed
 
 
+//========== rotationAngleForStep: =============================================
+//
+// Purpose:		Returns the viewing angle which should be used when displaying 
+//				the given step in Step Display mode. 
+//
+// Notes:		Rotations are built up in a stack. Each step rotation pushes a 
+//				value onto the stack; it may need to consult the previous value. 
+//				One would think End Rotation removes an item from the stack, but 
+//				actually it restores the default view. The actual rotation is 
+//				determined by reading the last rotation on the stack for when we 
+//				get to the specified step. 
+//
+//				Neither the step, the model, nor any other data-level class is 
+//				responsible for enforcing this angle when drawing. It is up to 
+//				the document to enforce or ignore the step rotation angle. In 
+//				Bricksmith, the document only sets the step rotation when in 
+//				Step Display mode, when the step being viewed is changed. 
+//
+//==============================================================================
+- (Tuple3) rotationAngleForStep:(int)stepNumber
+{
+	NSMutableArray		*rotationStack		= [NSMutableArray arrayWithCapacity:stepNumber];
+	NSArray				*steps				= [self steps];
+	LDrawStep			*currentStep		= nil;
+	LDrawStepRotationT	rotationType		= LDrawStepRotationNone;
+	Tuple3				stepRotationAngle	= ZeroPoint3;
+	Tuple3				previousRotation	= ZeroPoint3;
+	Tuple3				newRotation			= ZeroPoint3;
+	NSValue				*rotationValue		= nil;
+	Matrix4				rotationMatrix		= IdentityMatrix4;
+	int					counter				= 0;
+	
+	// Push the default 3D angle onto the stack. If no rotation is ever 
+	// specified, that is the one we use. 
+	newRotation		= [LDrawUtilities angleForViewOrientation:ViewOrientation3D];
+	rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
+	[rotationStack addObject:rotationValue];
+	
+	// Build the rotation stack
+	for(counter = 0; counter <= stepNumber && counter < [steps count]; counter++)
+	{
+		currentStep			= [steps objectAtIndex:counter];
+		rotationType		= [currentStep stepRotationType];
+		stepRotationAngle	= [currentStep rotationAngle];
+		
+		switch(rotationType)
+		{
+			case LDrawStepRotationNone:
+				// Nothing to do here. This means "use whatever was on the stack 
+				// last." 
+				break;
+		
+			case LDrawStepRotationRelative:
+				
+				// Start with the default 3D rotation
+				previousRotation	= [LDrawUtilities angleForViewOrientation:ViewOrientation3D];
+
+				// Add the new value to it.
+				rotationMatrix	= Matrix4Rotate(IdentityMatrix4, stepRotationAngle);
+				rotationMatrix	= Matrix4Rotate(rotationMatrix,  previousRotation);
+				newRotation		= Matrix4DecomposeXYZRotation(rotationMatrix);
+				
+				// convert from radians to degrees
+				newRotation.x	= degrees(newRotation.x);
+				newRotation.y	= degrees(newRotation.y);
+				newRotation.z	= degrees(newRotation.z);
+				
+				// Push the rotation onto the stack
+				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
+				[rotationStack addObject:rotationValue];
+				break;
+				
+			case LDrawStepRotationAbsolute:
+				
+				// Use the step's angle directly
+				newRotation		= stepRotationAngle;
+				
+				// Push the rotation onto the stack
+				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
+				[rotationStack addObject:rotationValue];
+				break;
+				
+			case LDrawStepRotationAdditive:
+				
+				// Peek at the previous rotation on the stack
+				rotationValue		= [rotationStack lastObject];
+				[rotationValue getValue:&previousRotation];
+				
+				// Add the new value to it.
+				rotationMatrix	= Matrix4Rotate(IdentityMatrix4, stepRotationAngle);
+				rotationMatrix	= Matrix4Rotate(rotationMatrix,  previousRotation);
+				newRotation		= Matrix4DecomposeXYZRotation(rotationMatrix);
+				
+				// convert from radians to degrees
+				newRotation.x	= degrees(newRotation.x);
+				newRotation.y	= degrees(newRotation.y);
+				newRotation.z	= degrees(newRotation.z);
+				
+				// Push the rotation onto the stack
+				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
+				[rotationStack addObject:rotationValue];
+				break;
+				
+			case LDrawStepRotationEnd:
+			
+				// This means end all rotations and restore the default angle. 
+				// It's not a stack. Bizarre. 
+				newRotation		= [LDrawUtilities angleForViewOrientation:ViewOrientation3D];
+				
+				// Push the rotation onto the stack
+				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
+				[rotationStack addObject:rotationValue];
+				break;
+		}
+	}
+	
+	// Return the last angle on the stack. This is the absolute rotation to 
+	// which we are to set the view. 
+	rotationValue	= [rotationStack lastObject];
+	[rotationValue getValue:&newRotation];
+	
+	return newRotation;
+
+}//end rotationAngleForStep:
+
+
 //========== stepDisplay =======================================================
 //
 // Purpose:		Returns YES if the receiver only displays the steps through 

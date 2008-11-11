@@ -490,9 +490,20 @@
 //==============================================================================
 - (void) setCurrentStep:(int)requestedStep
 {
-	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
+	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
+	Tuple3				viewingAngle	= [activeModel rotationAngleForStep:requestedStep];
+	ViewOrientationT	viewOrientation	= [LDrawUtilities viewOrientationForAngle:viewingAngle];
 	
 	[activeModel setMaximumStepDisplayed:requestedStep];
+	
+	// Set the Viewing angle
+	if(viewOrientation != ViewOrientation3D)
+		[self->fileGraphicView setProjectionMode:ProjectionModeOrthographic];
+	else
+		[self->fileGraphicView setProjectionMode:ProjectionModePerspective];
+		
+	[self->fileGraphicView setViewOrientation:viewOrientation];
+	[self->fileGraphicView setViewingAngle:viewingAngle];
 	
 	// Update UI
 	[self->stepField setIntValue:(requestedStep + 1)]; // make 1-relative
@@ -570,9 +581,13 @@
 	if(showStepsFlag != [activeModel stepDisplay])
 	{
 		if(showStepsFlag == YES)
-			[activeModel setMaximumStepDisplayed:0];
+		{
+			[self setCurrentStep:0];
+		}
 		else // turn it off now
+		{
 			[activeModel setStepDisplay:NO];
+		}
 		
 		[[self documentContents] setNeedsDisplay];
 	}

@@ -127,6 +127,7 @@
 	
 	LDrawStepRotationT	stepRotationType	= [representedObject stepRotationType];
 	Tuple3				rotationAngle		= [representedObject rotationAngle];
+	ViewOrientationT	viewOrientation		= ViewOrientation3D;
 	
 	[self->rotationTypeRadioButtons selectCellWithTag:stepRotationType];
 	[self->rotationXField setDoubleValue:rotationAngle.x];
@@ -152,24 +153,11 @@
 	else if(	stepRotationType == LDrawStepRotationAbsolute
 			&&	[self->absoluteRotationPopUpMenu selectedTag] != InspectorRotationShortcutCustom )
 	{
-		if( V3PointsWithinTolerance(rotationAngle, [LDrawUtilities angleForViewOrientation:ViewOrientationFront]) == YES )
-			[self->absoluteRotationPopUpMenu selectItemWithTag:ViewOrientationFront];
+		viewOrientation = [LDrawUtilities viewOrientationForAngle:rotationAngle];
 		
-		else if( V3PointsWithinTolerance(rotationAngle, [LDrawUtilities angleForViewOrientation:ViewOrientationBack]) == YES )
-			[self->absoluteRotationPopUpMenu selectItemWithTag:ViewOrientationBack];
-		
-		else if( V3PointsWithinTolerance(rotationAngle, [LDrawUtilities angleForViewOrientation:ViewOrientationLeft]) == YES )
-			[self->absoluteRotationPopUpMenu selectItemWithTag:ViewOrientationLeft];
-		
-		else if( V3PointsWithinTolerance(rotationAngle, [LDrawUtilities angleForViewOrientation:ViewOrientationRight]) == YES )
-			[self->absoluteRotationPopUpMenu selectItemWithTag:ViewOrientationRight];
-		
-		else if( V3PointsWithinTolerance(rotationAngle, [LDrawUtilities angleForViewOrientation:ViewOrientationTop]) == YES )
-			[self->absoluteRotationPopUpMenu selectItemWithTag:ViewOrientationTop];
-		
-		else if( V3PointsWithinTolerance(rotationAngle, [LDrawUtilities angleForViewOrientation:ViewOrientationBottom]) == YES )
-			[self->absoluteRotationPopUpMenu selectItemWithTag:ViewOrientationBottom];
-		
+		// If the angle is a known head-on view, select that, otherwise, call it "custom."
+		if( viewOrientation != ViewOrientation3D)
+			[self->absoluteRotationPopUpMenu selectItemWithTag:viewOrientation];
 		else
 			[self->absoluteRotationPopUpMenu selectItemWithTag:InspectorRotationShortcutCustom];
 	}

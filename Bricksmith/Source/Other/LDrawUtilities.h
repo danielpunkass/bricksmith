@@ -27,5 +27,6 @@
 				   remainder:(NSString **) remainder;
 + (NSString *) stringFromFile:(NSString *)path;
 + (void) updateNameForMovedPart:(LDrawPart *)movedPart;
++ (ViewOrientationT) viewOrientationForAngle:(Tuple3)rotationAngle;
 
 @end

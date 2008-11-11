@@ -872,16 +872,18 @@
 } //end setProjectionMode:
 
 
-//========== setViewOrientation: ===============================================
+//========== setViewingAngle: ==================================================
 //
-// Purpose:		Changes the camera position from which we view the model. 
-//				i.e., ViewOrientationFront means we see the model head-on.
+// Purpose:		Sets the modelview rotation, in degrees. The angle is applied in 
+//				x-y-z order. 
+//
+// Notes:		These numbers do *not* include the fact that LDraw has an 
+//				upside-down coordinate system. So if this method returns 
+//				(0,0,0), that means "Front, looking right-side up." 
 //
 //==============================================================================
-- (void) setViewOrientation:(ViewOrientationT) newAngle
+- (void) setViewingAngle:(Tuple3)newAngle
 {
-	self->viewOrientation = newAngle;
-		
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
 		//This method can get called from -prepareOpenGL, which is itself called 
@@ -898,30 +900,39 @@
 		//The camera distance was set for us by -resetFrameSize, so as to be able 
 		// to see the entire model.
 		gluLookAt( 0, 0, self->cameraDistance, //camera location
-				   0,0,0, //look-at point
-				   0, -1, 0 ); //LDraw is upside down.
+				  0,0,0, //look-at point
+				  0, -1, 0 ); //LDraw is upside down.
 		
-		//okay, now we are oriented looking at the front of the model.
-		switch(newAngle)
-		{
-			case ViewOrientation3D:
-			
-				glRotatef( 45, 0, 1, 0);
-				glRotatef( 45, 1, 0, 1);
-				break;
-				
-			case ViewOrientationFront:			glRotatef(  0, 0, 0, 0); break;
-			case ViewOrientationBack:			glRotatef(180, 0, 1, 0); break;
-			case ViewOrientationLeft:			glRotatef(-90, 0, 1, 0); break;
-			case ViewOrientationRight:			glRotatef( 90, 0, 1, 0); break;
-			case ViewOrientationTop:			glRotatef( 90, 1, 0, 0); break;
-			case ViewOrientationBottom:		glRotatef(-90, 1, 0, 0); break;
-		}
-		
+		// Apply the requested angles, first x, then y, and lastly z.
+		// But wait, you say! That is not the order in source code!
+		// Well, that is because OpenGL's matrix order causes transformations to 
+		// be applied backwards from the order in which they are specified.
+		glRotatef( newAngle.z, 0, 0, 1);
+		glRotatef( newAngle.y, 0, 1, 0);
+		glRotatef( newAngle.x, 1, 0, 0);
+
 		[self setNeedsDisplay:YES];
 		
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
+	
+}//end setViewingAngle:
+
+
+//========== setViewOrientation: ===============================================
+//
+// Purpose:		Changes the camera position from which we view the model. 
+//				i.e., ViewOrientationFront means we see the model head-on.
+//
+//==============================================================================
+- (void) setViewOrientation:(ViewOrientationT)newOrientation
+{
+	Tuple3	newAngle	= [LDrawUtilities angleForViewOrientation:newOrientation];
+
+	self->viewOrientation = newOrientation;
+		
+	// Apply the angle itself.
+	[self setViewingAngle:newAngle];
 	
 }//end setViewOrientation:
 
@@ -2940,8 +2951,8 @@
 //==============================================================================
 - (void) saveConfiguration
 {
-	if(self->autosaveName != nil){
-		
+	if(self->autosaveName != nil)
+	{
 		NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
 		NSString		*viewingAngleKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_ANGLE, self->autosaveName];
 		NSString		*projectionModeKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_PROJECTION, self->autosaveName];

@@ -118,6 +118,7 @@ typedef enum
 - (void) setLDrawColor:(LDrawColorT)newColor;
 - (void) setLDrawDirective:(LDrawDirective *) newFile;
 - (void) setProjectionMode:(ProjectionModeT) newProjectionMode;
+- (void) setViewingAngle:(Tuple3)newAngle;
 - (void) setViewOrientation:(ViewOrientationT) newAngle;
 - (void) setZoomPercentage:(float) newPercentage;
 

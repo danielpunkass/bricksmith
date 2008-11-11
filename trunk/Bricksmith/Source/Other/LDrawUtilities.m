@@ -41,7 +41,9 @@
 	switch(orientation)
 	{
 		case ViewOrientation3D:
-			angle = V3Make(45, 45, 0);
+			// This is MLCad's default 3-D viewing angle, which is arrived at by 
+			// applying these rotations in order: z=0, y=45, x=23. 
+			angle = V3Make(30.976, 40.609, 21.342);
 			break;
 	
 		case ViewOrientationFront:
@@ -297,5 +299,44 @@
 	}
 	
 }//end updateNameForMovedPart:
+
+
+//---------- viewOrientationForAngle: --------------------------------[static]--
+//
+// Purpose:		Returns the viewing orientation for the given angle. If the 
+//				angle is not a recognized head-on view, ViewOrientation3D will 
+//				be returned. 
+//
+//------------------------------------------------------------------------------
++ (ViewOrientationT) viewOrientationForAngle:(Tuple3)rotationAngle
+{
+	ViewOrientationT	viewOrientation		= ViewOrientation3D;
+	int					counter				= 0;
+	Tuple3				testAngle			= ZeroPoint3;
+	ViewOrientationT	testOrientation		= ViewOrientation3D;
+	
+	ViewOrientationT	orientations[]		= {	ViewOrientationFront,
+												ViewOrientationBack,
+												ViewOrientationLeft,
+												ViewOrientationRight,
+												ViewOrientationTop,
+												ViewOrientationBottom
+											  };
+	int					orientationCount	= sizeof(orientations)/sizeof(ViewOrientationT);
+	
+	// See if the angle matches any of the head-on orientations.
+	for(counter = 0; viewOrientation == ViewOrientation3D && counter < orientationCount; counter++)
+	{
+		testOrientation	= orientations[counter];
+		testAngle		= [LDrawUtilities angleForViewOrientation:testOrientation];
+		
+		if( V3PointsWithinTolerance(rotationAngle, testAngle) == YES )
+			viewOrientation = testOrientation;
+	}
+	
+	return viewOrientation;
+	
+}//end viewOrientationForAngle:
+
 
 @end

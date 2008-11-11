@@ -59,6 +59,7 @@ typedef enum {
 - (NSString *)author;
 - (LDrawDotOrgModelStatusT) ldrawRepositoryStatus;
 - (int) maximumStepDisplayed;
+- (Tuple3) rotationAngleForStep:(int)stepNumber;
 - (BOOL) stepDisplay;
 - (NSArray *) steps;
 - (LDrawStep *) visibleStep;

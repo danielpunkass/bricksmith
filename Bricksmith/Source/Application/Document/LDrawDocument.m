@@ -491,22 +491,12 @@
 - (void) setCurrentStep:(int)requestedStep
 {
 	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
-	Tuple3				viewingAngle	= [activeModel rotationAngleForStep:requestedStep];
-	ViewOrientationT	viewOrientation	= [LDrawUtilities viewOrientationForAngle:viewingAngle];
 	
 	[activeModel setMaximumStepDisplayed:requestedStep];
 	
-	// Set the Viewing angle
-	if(viewOrientation != ViewOrientation3D)
-		[self->fileGraphicView setProjectionMode:ProjectionModeOrthographic];
-	else
-		[self->fileGraphicView setProjectionMode:ProjectionModePerspective];
-		
-	[self->fileGraphicView setViewOrientation:viewOrientation];
-	[self->fileGraphicView setViewingAngle:viewingAngle];
-	
 	// Update UI
 	[self->stepField setIntValue:(requestedStep + 1)]; // make 1-relative
+	[self updateViewingAngleToMatchStep];
 	[[self documentContents] setNeedsDisplay];
 
 }//end setCurrentStep:
@@ -2991,8 +2981,9 @@
 
 //========== partChanged: ======================================================
 //
-// Purpose:		Somewhere, somehow, a part was changed. There is some 
-//				possibility that our data could be stale now.
+// Purpose:		Somewhere, somehow, a part (or some other LDrawDirective) was 
+//				changed. There is some possibility that our data could be stale 
+//				now. 
 //
 //==============================================================================
 - (void) partChanged:(NSNotification *)notification
@@ -3009,7 +3000,16 @@
 		//	*model name changes (in the model)
 		if(		[[notification object] isKindOfClass:[LDrawFile class]]
 			||	[[notification object] isKindOfClass:[LDrawModel class]])
+		{
 			[self addModelsToMenus];
+		}
+		// If a step changed and we're in step display, we need to reset the 
+		// step's viewing angle. 
+		else if(	[[notification object] isKindOfClass:[LDrawStep class]]
+				&&	[[[self documentContents] activeModel] stepDisplay] == YES)
+		{
+			[self updateViewingAngleToMatchStep];
+		}
 	}
 }//end partChanged:
 
@@ -3023,6 +3023,7 @@
 - (void) syntaxColorChanged:(NSNotification *)notification
 {
 	[fileContentsOutline reloadData];
+	
 }//end syntaxColorChanged:
 
 
@@ -3854,6 +3855,31 @@
 	[[LDrawColorPanel sharedColorPanel] updateSelectionWithObjects:selectedObjects];
 	
 }//end updateInspector
+
+
+//========== updateViewingAngleToMatchStep =====================================
+//
+// Purpose:		Sets the viewing angle of the main viewport to the angle 
+//				requested by the current step for Step Display mode. 
+//
+//==============================================================================
+- (void) updateViewingAngleToMatchStep
+{
+	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
+	int					requestedStep	= [activeModel maximumStepDisplayed];
+	Tuple3				viewingAngle	= [activeModel rotationAngleForStep:requestedStep];
+	ViewOrientationT	viewOrientation	= [LDrawUtilities viewOrientationForAngle:viewingAngle];
+	
+	// Set the Viewing angle
+	if(viewOrientation != ViewOrientation3D)
+		[self->fileGraphicView setProjectionMode:ProjectionModeOrthographic];
+	else
+		[self->fileGraphicView setProjectionMode:ProjectionModePerspective];
+	
+	[self->fileGraphicView setViewOrientation:viewOrientation];
+	[self->fileGraphicView setViewingAngle:viewingAngle];
+	
+}//end updateViewingAngleToMatchStep
 
 
 //========== writeDirectives:toPasteboard: =====================================

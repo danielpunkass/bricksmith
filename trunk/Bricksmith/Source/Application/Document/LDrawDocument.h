@@ -202,6 +202,7 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (LDrawDirective *) selectedStepComponent;
 - (LDrawPart *) selectedPart;
 - (void) updateInspector;
+- (void) updateViewingAngleToMatchStep;
 - (void) writeDirectives:(NSArray *)directives toPasteboard:(NSPasteboard *)pasteboard;
 - (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard;
 

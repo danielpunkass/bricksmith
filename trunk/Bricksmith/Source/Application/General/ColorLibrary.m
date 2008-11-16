@@ -230,9 +230,9 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 	BOOL			 installSuccess	= NO;
 	
 	// Try in the LDraw folder first
-	if(installedPath != nil)
+	if(installedPath != nil) // could be nil if no LDraw folder is set in prefs
 	{
-		if([fileManager fileExistsAtPath:ldconfigPath] == YES)
+		if([fileManager fileExistsAtPath:installedPath] == YES)
 			ldconfigPath = installedPath;
 	}
 	

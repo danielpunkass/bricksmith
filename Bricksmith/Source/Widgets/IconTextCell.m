@@ -20,15 +20,19 @@
 
 //========== init ==============================================================
 //
+// Purpose:		Initialize the object.
+//
 //==============================================================================
-- (id) init {
+- (id) init
+{
 	[super init];
 	
 	image = nil;
 	imagePadding = 3.0;
 	
 	return self;
-}
+	
+}//end init
 
 
 //========== initWithCoder: ====================================================
@@ -36,12 +40,16 @@
 // Purpose:		Called by objects in a Nib file. They still need some defaults.
 //
 //==============================================================================
-- (id)initWithCoder:(NSCoder *)decoder{
+- (id)initWithCoder:(NSCoder *)decoder
+{
 	[super initWithCoder:decoder];
+	
 	image = nil;
 	imagePadding = 3.0;
+	
 	return self;
-}
+	
+}//end initWithCoder:
 
 
 //========== copyWithZone: =====================================================
@@ -50,13 +58,17 @@
 //				time. 
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone {
+- (id) copyWithZone:(NSZone *)zone
+{
 	IconTextCell *cell = (IconTextCell *)[super copyWithZone:zone];
+	
 	//The pitfall is that it releases it too. So we have to  retain our 
 	// instance variables here.
     cell->image = [image retain];
+	
 	return cell;
-}
+	
+}//end copyWithZone:
 
 
 #pragma mark -
@@ -69,7 +81,8 @@
 //				account the image we have added.
 //
 //==============================================================================
-- (NSSize)cellSize {
+- (NSSize) cellSize
+{
     NSSize cellSize = [super cellSize];
 	
 	if(image != nil)
@@ -77,7 +90,8 @@
     cellSize.width += 2 * imagePadding;
 	
     return cellSize;
-}
+	
+}//end cellSize
 
 
 //========== drawInteriorWithFrame:inView: =====================================
@@ -86,43 +100,52 @@
 //				text.
 //
 //==============================================================================
-- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView{
-
-	NSRect	textFrame = cellFrame;
+- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
+{
+	NSRect				textFrame	= cellFrame;
+	NSSize				imageSize	= NSZeroSize;
+	NSRect				imageFrame	= NSZeroRect;
+	NSAffineTransform	*inverter	= [NSAffineTransform transform];
 	
-    if (image != nil) {
-		
-		NSSize	imageSize;
-		NSRect	imageFrame;
-		
+    if (image != nil)
+	{
 		//Divide the cell frame into the image portion and the text portion.
         imageSize = [image size];
         NSDivideRect(cellFrame,
 					 &imageFrame, &textFrame,
 					 imageSize.width + 2*imagePadding, NSMinXEdge);
 
-		//dunno if we need this.
-//		if ([self drawsBackground]) {
-//            [[self backgroundColor] set];
-//            NSRectFill(imageFrame);
-//        }
-		
 		//Shift the image over by the amount of margins we need.
-        imageFrame.origin.x += imagePadding;
-        imageFrame.size = imageSize;
+        imageFrame.origin.x	+= imagePadding;
+        imageFrame.size		= imageSize;
+		
 		//now center the image in the frame afforded us.
         if ([controlView isFlipped])
             imageFrame.origin.y += ceil( (NSHeight(cellFrame) + NSHeight(imageFrame)) / 2 );
         else
             imageFrame.origin.y += ceil( (NSHeight(cellFrame) - NSHeight(imageFrame)) / 2 );
-		
-		//Finally, draw the image.
-        [image compositeToPoint:imageFrame.origin operation:NSCompositeSourceOver];
-    }
+				
+		//Finally, draw the image. In a flipped view, we must invert the 
+		//coordinate system and relocate it appropriately so that the image will 
+		//be drawn right-side up. 
+        if ([controlView isFlipped])
+		{
+			[inverter scaleXBy:1.0 yBy:-1.0];
+			[inverter translateXBy:0 yBy: -2 * NSMinY(imageFrame)];
+		}
+		[inverter concat];
+		{
+			[image drawAtPoint:imageFrame.origin fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+		}
+		[inverter invert];
+ 		[inverter concat];
+   }
 	
 	//Now draw the text.
     [super drawInteriorWithFrame:textFrame inView:controlView];
-}
+
+}//end drawInteriorWithFrame:inView:
+
 
 //========== selectWithFrame:inView:editor:delegate:start:length: ==============
 //
@@ -138,7 +161,8 @@
 {
 	NSRect	textFrame = cellFrame;
 
-    if (image != nil) {
+    if (image != nil)
+	{
         NSSize	imageSize;
         NSRect	imageFrame;
 		
@@ -156,7 +180,8 @@
 				  delegate: anObject
 					 start: selectionStart
 					length: selectionLength];
-}
+					
+}//end selectWithFrame:inView:editor:delegate:start:length:
 
 
 //========== editWithFrame:inView:editor:delegate:start:length: ================
@@ -191,7 +216,8 @@
 				  editor: textObject
 				delegate: anObject
 				   event:(NSEvent *)theEvent ];
-}
+				   
+}//end editWithFrame:inView:editor:delegate:start:length:
 
 
 #pragma mark -
@@ -203,7 +229,8 @@
 // Purpose:		Returns the image displayed along with the text in this cell.
 //
 //==============================================================================
-- (NSImage *)image{
+- (NSImage *)image
+{
 	return image;
 }
 
@@ -213,18 +240,22 @@
 // Purpose:		Changes the image displayed along with the text in this cell.
 //
 //==============================================================================
-- (void) setImage:(NSImage *)newImage{
+- (void) setImage:(NSImage *)newImage
+{
 	[newImage retain];
 	[image release];
 	image = newImage;
-}
+	
+}//end setImage:
+
 
 //========== imagePadding ======================================================
 //
 // Purpose:		Returns the horizontal margin of the image.
 //
 //==============================================================================
-- (float) imagePadding{
+- (float) imagePadding
+{
 	return imagePadding;
 }
 
@@ -235,7 +266,8 @@
 //				the cell's image.
 //
 //==============================================================================
-- (void) setImagePadding:(float)newAmount{
+- (void) setImagePadding:(float)newAmount
+{
 	imagePadding = newAmount;
 }
 
@@ -247,10 +279,12 @@
 
 //========== dealloc ===========================================================
 //==============================================================================
-- (void) dealloc{
+- (void) dealloc
+{
 	[image release];
 	[super dealloc];
-}
+	
+}//end dealloc
 
 
 @end

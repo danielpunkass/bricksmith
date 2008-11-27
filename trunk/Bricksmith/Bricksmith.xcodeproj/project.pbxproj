@@ -11,6 +11,8 @@
 		0B0DD7C709B5772200F8EBAA /* LDrawUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */; };
 		0B0DD7C809B5772200F8EBAA /* LDrawUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */; };
 		0B14DB940B94D4710002C053 /* GeneralPreferences.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */; };
+		0B17D2490ECE89C000F8B5FA /* RotationStep.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */; };
+		0B17D2FF0ED0D4C400F8B5FA /* RotationStepEnd.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */; };
 		0B25F040093D5F960099D85E /* BricksmithApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B25F03E093D5F960099D85E /* BricksmithApplication.h */; };
 		0B25F041093D5F960099D85E /* BricksmithApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B25F03F093D5F960099D85E /* BricksmithApplication.m */; };
 		0B2700870981FCEA0058A7BE /* ToolPalette.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2700850981FCEA0058A7BE /* ToolPalette.h */; };
@@ -23,6 +25,8 @@
 		0B2DD14B0CD810DC0093E8E5 /* PartBrowserTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */; };
 		0B2DD14E0CD810F20093E8E5 /* BezierPathCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2DD14C0CD810F20093E8E5 /* BezierPathCategory.h */; };
 		0B2DD14F0CD810F20093E8E5 /* BezierPathCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2DD14D0CD810F20093E8E5 /* BezierPathCategory.m */; };
+		0B30E08B0ED90D3000470615 /* Triangle.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B30E08A0ED90D3000470615 /* Triangle.pdf */; };
+		0B30E0D40EDA746900470615 /* Quadrilateral.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B30E0D30EDA746900470615 /* Quadrilateral.pdf */; };
 		0B34306708B2E93D00A06A40 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0B34306508B2E93D00A06A40 /* Localizable.strings */; };
 		0B34B52E090B07AE00F3A001 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B34B52D090B07AE00F3A001 /* Carbon.framework */; };
 		0B356A9708D371EE00695EEB /* PartReport.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B356A9508D371EE00695EEB /* PartReport.h */; };
@@ -158,8 +162,6 @@
 		0B9FE5B508AD97770046511D /* ConditionalLine.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5AD08AD97770046511D /* ConditionalLine.tiff */; };
 		0B9FE5B608AD97770046511D /* Document.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5AE08AD97770046511D /* Document.tiff */; };
 		0B9FE5B708AD97770046511D /* Line.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5AF08AD97770046511D /* Line.tiff */; };
-		0B9FE5B808AD97770046511D /* Quadrilateral.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5B008AD97770046511D /* Quadrilateral.tiff */; };
-		0B9FE5B908AD97770046511D /* Triangle.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5B108AD97770046511D /* Triangle.tiff */; };
 		0B9FE5BA08AD97770046511D /* Unknown.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5B208AD97770046511D /* Unknown.tiff */; };
 		0B9FE5BD08AD977F0046511D /* OneBrick.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5BC08AD977F0046511D /* OneBrick.tiff */; };
 		0B9FE5D208AD97990046511D /* LDraw Document.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5C908AD97990046511D /* LDraw Document.icns */; };
@@ -265,6 +267,8 @@
 		0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawUtilities.h; sourceTree = "<group>"; };
 		0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawUtilities.m; sourceTree = "<group>"; };
 		0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GeneralPreferences.tiff; sourceTree = "<group>"; };
+		0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = RotationStep.pdf; sourceTree = "<group>"; };
+		0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = RotationStepEnd.pdf; sourceTree = "<group>"; };
 		0B25F03E093D5F960099D85E /* BricksmithApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BricksmithApplication.h; sourceTree = "<group>"; };
 		0B25F03F093D5F960099D85E /* BricksmithApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BricksmithApplication.m; sourceTree = "<group>"; };
 		0B2700850981FCEA0058A7BE /* ToolPalette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolPalette.h; sourceTree = "<group>"; };
@@ -279,6 +283,8 @@
 		0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserTableView.m; sourceTree = "<group>"; };
 		0B2DD14C0CD810F20093E8E5 /* BezierPathCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BezierPathCategory.h; sourceTree = "<group>"; };
 		0B2DD14D0CD810F20093E8E5 /* BezierPathCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BezierPathCategory.m; sourceTree = "<group>"; };
+		0B30E08A0ED90D3000470615 /* Triangle.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Triangle.pdf; sourceTree = "<group>"; };
+		0B30E0D30EDA746900470615 /* Quadrilateral.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Quadrilateral.pdf; sourceTree = "<group>"; };
 		0B34306608B2E93D00A06A40 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0B34B52D090B07AE00F3A001 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		0B356A9508D371EE00695EEB /* PartReport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartReport.h; sourceTree = "<group>"; };
@@ -423,8 +429,6 @@
 		0B9FE5AD08AD97770046511D /* ConditionalLine.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ConditionalLine.tiff; sourceTree = "<group>"; };
 		0B9FE5AE08AD97770046511D /* Document.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Document.tiff; sourceTree = "<group>"; };
 		0B9FE5AF08AD97770046511D /* Line.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Line.tiff; sourceTree = "<group>"; };
-		0B9FE5B008AD97770046511D /* Quadrilateral.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Quadrilateral.tiff; sourceTree = "<group>"; };
-		0B9FE5B108AD97770046511D /* Triangle.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Triangle.tiff; sourceTree = "<group>"; };
 		0B9FE5B208AD97770046511D /* Unknown.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Unknown.tiff; sourceTree = "<group>"; };
 		0B9FE5BC08AD977F0046511D /* OneBrick.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OneBrick.tiff; sourceTree = "<group>"; };
 		0B9FE5C908AD97990046511D /* LDraw Document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "LDraw Document.icns"; sourceTree = "<group>"; };
@@ -774,8 +778,10 @@
 				0B9FE5AD08AD97770046511D /* ConditionalLine.tiff */,
 				0B9FE5AE08AD97770046511D /* Document.tiff */,
 				0B9FE5AF08AD97770046511D /* Line.tiff */,
-				0B9FE5B008AD97770046511D /* Quadrilateral.tiff */,
-				0B9FE5B108AD97770046511D /* Triangle.tiff */,
+				0B30E0D30EDA746900470615 /* Quadrilateral.pdf */,
+				0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */,
+				0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */,
+				0B30E08A0ED90D3000470615 /* Triangle.pdf */,
 				0B9FE5B208AD97770046511D /* Unknown.tiff */,
 			);
 			path = Badges;
@@ -1118,8 +1124,6 @@
 				0B9FE5B508AD97770046511D /* ConditionalLine.tiff in Resources */,
 				0B9FE5B608AD97770046511D /* Document.tiff in Resources */,
 				0B9FE5B708AD97770046511D /* Line.tiff in Resources */,
-				0B9FE5B808AD97770046511D /* Quadrilateral.tiff in Resources */,
-				0B9FE5B908AD97770046511D /* Triangle.tiff in Resources */,
 				0B9FE5BA08AD97770046511D /* Unknown.tiff in Resources */,
 				0B9FE5BD08AD977F0046511D /* OneBrick.tiff in Resources */,
 				0B9FE5D208AD97990046511D /* LDraw Document.icns in Resources */,
@@ -1164,6 +1168,10 @@
 				0BC71FC80E738C4D0007F10D /* GoBack.tiff in Resources */,
 				0BC71FC90E738C4D0007F10D /* GoForward.tiff in Resources */,
 				0B76F3010E74DF8B00349D03 /* InspectorStep.xib in Resources */,
+				0B17D2490ECE89C000F8B5FA /* RotationStep.pdf in Resources */,
+				0B17D2FF0ED0D4C400F8B5FA /* RotationStepEnd.pdf in Resources */,
+				0B30E08B0ED90D3000470615 /* Triangle.pdf in Resources */,
+				0B30E0D40EDA746900470615 /* Quadrilateral.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

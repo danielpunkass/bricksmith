@@ -342,6 +342,36 @@
 }//end browsingDescription
 
 
+//========== iconName ==========================================================
+//
+// Purpose:		Returns the name of image file used to display this kind of 
+//				object, or nil if there is no icon.
+//
+//==============================================================================
+- (NSString *) iconName
+{
+	NSString	*iconName	= nil;
+
+	switch(self->stepRotationType)
+	{
+		case LDrawStepRotationNone:
+			// no image.
+			break;
+	
+		case LDrawStepRotationEnd:
+			iconName = @"RotationStepEnd";
+			break;
+			
+		default:
+			iconName = @"RotationStep";
+			break;
+	}
+	
+	return iconName;
+	
+}//end iconName
+
+
 //========== inspectorClassName ================================================
 //
 // Purpose:		Returns the name of the class used to inspect this one.

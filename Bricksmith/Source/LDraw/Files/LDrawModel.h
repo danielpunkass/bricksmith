@@ -58,8 +58,8 @@ typedef enum {
 - (NSString *)fileName;
 - (NSString *)author;
 - (LDrawDotOrgModelStatusT) ldrawRepositoryStatus;
-- (int) maximumStepDisplayed;
-- (Tuple3) rotationAngleForStep:(int)stepNumber;
+- (int) maximumStepIndexDisplayed;
+- (Tuple3) rotationAngleForStepAtIndex:(int)stepNumber;
 - (BOOL) stepDisplay;
 - (NSArray *) steps;
 - (LDrawStep *) visibleStep;
@@ -70,7 +70,7 @@ typedef enum {
 - (void) setAuthor:(NSString *)newAuthor;
 - (void) setLDrawRepositoryStatus:(LDrawDotOrgModelStatusT) newStatus;
 - (void) setStepDisplay:(BOOL)flag;
-- (void) setMaximumStepDisplayed:(int)stepIndex;
+- (void) setMaximumStepIndexDisplayed:(int)stepIndex;
 
 //Actions
 - (LDrawStep *) addStep;

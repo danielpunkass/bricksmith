@@ -238,7 +238,7 @@
 	
 	copied->colorLibrary = [[ColorLibrary alloc] init]; // just make a new one. It will get current colors on the next draw.
 	[copied setStepDisplay:[self stepDisplay]];
-	[copied setMaximumStepDisplayed:[self maximumStepDisplayed]];
+	[copied setMaximumStepIndexDisplayed:[self maximumStepIndexDisplayed]];
 	
 	//I don't think we care about the cached bounds.
 	
@@ -523,30 +523,32 @@
 }//end ldrawRepositoryStatus
 
 
-//========== maximumStepDisplayed ==============================================
+//========== maximumStepIndexDisplayed =========================================
 //
-// Purpose:		Returns the index of the last step drawn. The value only has 
-//				meaning if the model is in step-display mode.
+// Purpose:		Returns the index of the last step which will be drawn. The 
+//				value only has meaning if the model is in step-display mode. 
 //
 //==============================================================================
-- (int) maximumStepDisplayed
+- (int) maximumStepIndexDisplayed
 {
 	return self->currentStepDisplayed;
 	
-}//end maximumStepDisplayed
+}//end maximumStepIndexDisplayed
 
 
-//========== rotationAngleForStep: =============================================
+//========== rotationAngleForStepAtIndex: ======================================
 //
 // Purpose:		Returns the viewing angle which should be used when displaying 
 //				the given step in Step Display mode. 
 //
-// Notes:		Rotations are built up in a stack. Each step rotation pushes a 
-//				value onto the stack; it may need to consult the previous value. 
-//				One would think End Rotation removes an item from the stack, but 
-//				actually it restores the default view. The actual rotation is 
-//				determined by reading the last rotation on the stack for when we 
-//				get to the specified step. 
+// Notes:		Rotations are NOT built up in a stack. One would think End 
+//				Rotation removes an item from the stack, but actually it 
+//				restores the default view. Each step rotation completely 
+//				replaces the previous rotation, although computing the new value 
+//				may require consulting the value about to be replaced. 
+//
+//				The actual rotation to use is whatever we get by calculating all 
+//				the rotations up to and including the specified step. 
 //
 //				Neither the step, the model, nor any other data-level class is 
 //				responsible for enforcing this angle when drawing. It is up to 
@@ -555,24 +557,22 @@
 //				Step Display mode, when the step being viewed is changed. 
 //
 //==============================================================================
-- (Tuple3) rotationAngleForStep:(int)stepNumber
+- (Tuple3) rotationAngleForStepAtIndex:(int)stepNumber
 {
-	NSMutableArray		*rotationStack		= [NSMutableArray arrayWithCapacity:stepNumber];
 	NSArray				*steps				= [self steps];
 	LDrawStep			*currentStep		= nil;
 	LDrawStepRotationT	rotationType		= LDrawStepRotationNone;
 	Tuple3				stepRotationAngle	= ZeroPoint3;
 	Tuple3				previousRotation	= ZeroPoint3;
 	Tuple3				newRotation			= ZeroPoint3;
-	NSValue				*rotationValue		= nil;
+	Tuple3				totalRotation		= ZeroPoint3;
 	Matrix4				rotationMatrix		= IdentityMatrix4;
 	int					counter				= 0;
 	
-	// Push the default 3D angle onto the stack. If no rotation is ever 
+	// Start with the default 3D angle onto the stack. If no rotation is ever 
 	// specified, that is the one we use. 
 	newRotation		= [LDrawUtilities angleForViewOrientation:ViewOrientation3D];
-	rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
-	[rotationStack addObject:rotationValue];
+	totalRotation	= newRotation;
 	
 	// Build the rotation stack
 	for(counter = 0; counter <= stepNumber && counter < [steps count]; counter++)
@@ -586,6 +586,7 @@
 			case LDrawStepRotationNone:
 				// Nothing to do here. This means "use whatever was on the stack 
 				// last." 
+				newRotation = totalRotation;
 				break;
 		
 			case LDrawStepRotationRelative:
@@ -602,27 +603,18 @@
 				newRotation.x	= degrees(newRotation.x);
 				newRotation.y	= degrees(newRotation.y);
 				newRotation.z	= degrees(newRotation.z);
-				
-				// Push the rotation onto the stack
-				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
-				[rotationStack addObject:rotationValue];
 				break;
 				
 			case LDrawStepRotationAbsolute:
 				
 				// Use the step's angle directly
 				newRotation		= stepRotationAngle;
-				
-				// Push the rotation onto the stack
-				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
-				[rotationStack addObject:rotationValue];
 				break;
 				
 			case LDrawStepRotationAdditive:
 				
 				// Peek at the previous rotation on the stack
-				rotationValue		= [rotationStack lastObject];
-				[rotationValue getValue:&previousRotation];
+				previousRotation = totalRotation;
 				
 				// Add the new value to it.
 				rotationMatrix	= Matrix4Rotate(IdentityMatrix4, stepRotationAngle);
@@ -633,10 +625,6 @@
 				newRotation.x	= degrees(newRotation.x);
 				newRotation.y	= degrees(newRotation.y);
 				newRotation.z	= degrees(newRotation.z);
-				
-				// Push the rotation onto the stack
-				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
-				[rotationStack addObject:rotationValue];
 				break;
 				
 			case LDrawStepRotationEnd:
@@ -644,22 +632,19 @@
 				// This means end all rotations and restore the default angle. 
 				// It's not a stack. Bizarre. 
 				newRotation		= [LDrawUtilities angleForViewOrientation:ViewOrientation3D];
-				
-				// Push the rotation onto the stack
-				rotationValue	= [NSValue valueWithBytes:&newRotation objCType:@encode(Tuple3)];
-				[rotationStack addObject:rotationValue];
 				break;
 		}
+		
+		// Replace the cumulative rotation with the newly-computed one
+		totalRotation	= newRotation;
 	}
 	
-	// Return the last angle on the stack. This is the absolute rotation to 
-	// which we are to set the view. 
-	rotationValue	= [rotationStack lastObject];
-	[rotationValue getValue:&newRotation];
+	// Return the final calculated angle. This is the absolute rotation to which 
+	// we are to set the view. 
 	
-	return newRotation;
+	return totalRotation;
 
-}//end rotationAngleForStep:
+}//end rotationAngleForStepAtIndex:
 
 
 //========== stepDisplay =======================================================
@@ -809,7 +794,7 @@
 }//end setLDrawRepositoryStatus:
 
 
-//========== setMaximumStepDisplayed ===========================================
+//========== setMaximumStepIndexDisplayed: =====================================
 //
 // Purpose:		Sets the index of the last step drawn. If the model is not 
 //				currently in step-display mode, this call will automatically set 
@@ -817,7 +802,7 @@
 //				be redisplayed.
 //
 //==============================================================================
-- (void) setMaximumStepDisplayed:(int)stepIndex
+- (void) setMaximumStepIndexDisplayed:(int)stepIndex
 {
 	//Need to check and make sure this step number is not overflowing the bounds.
 	int maximumIndex = [[self steps] count]-1;
@@ -830,7 +815,7 @@
 		[self setStepDisplay:YES];
 	}
 	
-}//end setMaximumStepDisplayed:
+}//end setMaximumStepIndexDisplayed:
 
 
 //========== setStepDisplay ====================================================
@@ -891,7 +876,7 @@
 	if(		stepIndex != NSNotFound
 		&&	stepIndex > [self maxStepIndexToOutput])
 	{
-		[self setMaximumStepDisplayed:stepIndex];
+		[self setMaximumStepIndexDisplayed:stepIndex];
 	}
 }//end makeStepVisible
 

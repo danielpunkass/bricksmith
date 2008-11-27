@@ -492,7 +492,7 @@
 {
 	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
 	
-	[activeModel setMaximumStepDisplayed:requestedStep];
+	[activeModel setMaximumStepIndexDisplayed:requestedStep];
 	
 	// Update UI
 	[self->stepField setIntValue:(requestedStep + 1)]; // make 1-relative
@@ -590,7 +590,7 @@
 	[self->viewStepsButton setState:(showStepsFlag == YES)];
 	
 	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
-	[self->stepField setIntValue:[activeModel maximumStepDisplayed] + 1];
+	[self->stepField setIntValue:[activeModel maximumStepIndexDisplayed] + 1];
 	
 }//end toggleStepDisplay:
 
@@ -1611,7 +1611,7 @@
 - (IBAction) advanceOneStep:(id)sender
 {
 	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	int				currentStep		= [activeModel maximumStepDisplayed];
+	int				currentStep		= [activeModel maximumStepIndexDisplayed];
 	int				numberSteps		= [[activeModel steps] count];
 	
 	[self setCurrentStep: (currentStep+1) % numberSteps ];
@@ -1627,7 +1627,7 @@
 - (IBAction) backOneStep:(id)sender
 {
 	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	int				currentStep		= [activeModel maximumStepDisplayed];
+	int				currentStep		= [activeModel maximumStepIndexDisplayed];
 	int				numberSteps		= [[activeModel steps] count];
 	
 	// Wrap around?
@@ -3866,8 +3866,8 @@
 - (void) updateViewingAngleToMatchStep
 {
 	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
-	int					requestedStep	= [activeModel maximumStepDisplayed];
-	Tuple3				viewingAngle	= [activeModel rotationAngleForStep:requestedStep];
+	int					requestedStep	= [activeModel maximumStepIndexDisplayed];
+	Tuple3				viewingAngle	= [activeModel rotationAngleForStepAtIndex:requestedStep];
 	ViewOrientationT	viewOrientation	= [LDrawUtilities viewOrientationForAngle:viewingAngle];
 	
 	// Set the Viewing angle

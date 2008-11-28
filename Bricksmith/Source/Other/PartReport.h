@@ -14,7 +14,13 @@
 @class LDrawPart;
 @class LDrawContainer;
 
-@interface PartReport : NSObject {
+////////////////////////////////////////////////////////////////////////////////
+//
+// class PartReport
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface PartReport : NSObject
+{
 	LDrawContainer		*reportedObject;
 	NSMutableDictionary	*partsReport;			//see -registerPart: for a description of this data
 	NSMutableArray		*missingParts;
@@ -31,6 +37,7 @@
 - (void) registerPart:(LDrawPart *)part;
 
 //Accessing Information
+- (NSArray *) allParts;
 - (NSArray *) flattenedReport;
 - (NSArray *) missingParts;
 - (NSArray *) movedParts;

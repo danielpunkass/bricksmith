@@ -23,6 +23,7 @@
 + (Box3) boundingBox3ForDirectives:(NSArray *)directives;
 + (Class) classForLineType:(int)lineType;
 + (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset;
++ (BOOL) isLDrawFilenameValid:(NSString *)fileName;
 + (NSString *) readNextField:(NSString *) partialDirective
 				   remainder:(NSString **) remainder;
 + (NSString *) stringFromFile:(NSString *)path;

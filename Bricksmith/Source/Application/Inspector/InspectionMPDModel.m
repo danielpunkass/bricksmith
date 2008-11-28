@@ -12,6 +12,7 @@
 #import "InspectionMPDModel.h"
 
 #import "LDrawMPDModel.h"
+#import "LDrawUtilities.h"
 
 @implementation InspectionMPDModel
 
@@ -20,14 +21,18 @@
 // Purpose:		Load the interface for this inspector.
 //
 //==============================================================================
-- (id) init {
-	
+- (id) init
+{
     self = [super init];
+	
     if ([NSBundle loadNibNamed:@"InspectorMPDModel" owner:self] == NO) {
         NSLog(@"Couldn't load InspectorMPDModel.nib");
     }
+	
     return self;
-}
+	
+}//end init
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -38,8 +43,8 @@
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender{
-
+- (void) commitChanges:(id)sender
+{
 	LDrawMPDModel *representedObject = [self object];
 	
 	NSString				*newName		= [modelNameField	stringValue];
@@ -58,7 +63,9 @@
 	
 	
 	[super commitChanges:sender];
-}
+	
+}//end commitChanges:
+
 
 //========== revert ============================================================
 //
@@ -68,8 +75,8 @@
 //				the data in their inspector palettes.
 //
 //==============================================================================
-- (IBAction) revert:(id)sender{
-
+- (IBAction) revert:(id)sender
+{
 	LDrawMPDModel *representedObject = [self object];
 
 	[modelNameField			setStringValue:[representedObject modelName]		];
@@ -83,7 +90,9 @@
 	[numberStepsField		setIntValue:[[representedObject steps] count]		];
 	
 	[super revert:sender];
-}
+	
+}//end revert:
+
 
 #pragma mark -
 
@@ -91,16 +100,33 @@
 //
 // Purpose:		The user has changed the model name.
 //
+//				They may have tried to do something un-kosher with their 
+//				modelname too. Beware! 
+//
 //==============================================================================
 - (IBAction) modelNameFieldChanged:(id)sender
 {
 	NSString *newValue	= [sender stringValue];
 	NSString *oldValue	= [[self object] modelName];
 	
+	// If they've tried to delete the stupid extension, add it back in. The spec 
+	// tells us to. #@$!@%!
+	if([LDrawUtilities isLDrawFilenameValid:newValue] == NO)
+	{
+		newValue = [newValue stringByAppendingPathExtension:@"ldr"];
+		
+		// Put the extension back in the UI and beep to complain. I'm too lazy 
+		// to write a dialog here. 
+		[self->modelNameField setStringValue:newValue];
+		NSBeep();
+	}
+	
 	//If the values really did change, then update.
 	if([newValue isEqualToString:oldValue] == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end modelNameFieldChanged:
+
 
 //========== descriptionFieldChanged: ==========================================
 //
@@ -115,7 +141,9 @@
 	//If the values really did change, then update.
 	if([newValue isEqualToString:oldValue] == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end descriptionFieldChanged:
+
 
 //========== authorFieldChanged: ===============================================
 //
@@ -130,7 +158,9 @@
 	//If the values really did change, then update.
 	if([newValue isEqualToString:oldValue] == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end authorFieldChanged:
+
 
 //========== ldrawDotOrgPopUpClicked: ==========================================
 //
@@ -145,6 +175,8 @@
 	//If the values really did change, then update.
 	if(newStatus != oldStatus)
 		[self finishedEditing:sender];
-}
+		
+}//end ldrawDotOrgPopUpClicked:
+
 
 @end

@@ -28,14 +28,16 @@
 //				ready to receive objects.
 //
 //==============================================================================
-- (id) init {
+- (id) init
+{
 	self = [super init];
 	
 	containedObjects = [NSMutableArray array];
 	[containedObjects retain];
 	
 	return self;
-}
+	
+}//end init
 
 
 //========== initWithCoder: ====================================================
@@ -52,7 +54,8 @@
 	containedObjects = [[decoder decodeObjectForKey:@"containedObjects"] retain];
 	
 	return self;
-}
+	
+}//end initWithCoder:
 
 
 //========== encodeWithCoder: ==================================================
@@ -62,12 +65,13 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (void)encodeWithCoder:(NSCoder *)encoder
+- (void) encodeWithCoder:(NSCoder *)encoder
 {
 	[super encodeWithCoder:encoder];
 	
 	[encoder encodeObject:containedObjects forKey:@"containedObjects"];
-}
+
+}//end encodeWithCoder:
 
 
 //========== copyWithZone: =====================================================
@@ -97,6 +101,7 @@
 	}
 	
 	return copiedContainer;
+	
 }//end copyWithZone:
 
 
@@ -111,13 +116,16 @@
 //				the enclosed containers themselves.
 //
 //==============================================================================
-- (NSArray *) allEnclosedElements {
+- (NSArray *) allEnclosedElements
+{
 	NSMutableArray	*subelements		= [NSMutableArray array];
 	id				 currentDirective	= nil;
 	int				 counter			= 0;
 	
-	for(counter = 0; counter < [self->containedObjects count]; counter++){
+	for(counter = 0; counter < [self->containedObjects count]; counter++)
+	{
 		currentDirective = [self->containedObjects objectAtIndex:counter];
+		
 		if([currentDirective respondsToSelector:@selector(allEnclosedElements)])
 			[subelements addObjectsFromArray:[currentDirective allEnclosedElements]];
 		else
@@ -135,9 +143,11 @@
 //				perfectly contains this object.
 //
 //==============================================================================
-- (Box3) boundingBox3 {
+- (Box3) boundingBox3
+{
 	return [LDrawUtilities boundingBox3ForDirectives:self->containedObjects];
-}
+
+}//end boundingBox3
 
 
 //========== indexOfDirective: =================================================
@@ -145,9 +155,11 @@
 // Purpose:		Adds directive into the collection at position index.
 //
 //==============================================================================
-- (int) indexOfDirective:(LDrawDirective *)directive {
+- (int) indexOfDirective:(LDrawDirective *)directive
+{
 	return [containedObjects indexOfObjectIdenticalTo:directive];
-}
+	
+}//end indexOfDirective:
 
 
 //========== subdirectives =====================================================
@@ -155,9 +167,12 @@
 // Purpose:		Returns the LDraw directives stored in this collection.
 //
 //==============================================================================
-- (NSArray *) subdirectives{
+- (NSArray *) subdirectives
+{
 	return containedObjects;
-}
+	
+}//end subdirectives
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -168,11 +183,12 @@
 // Purpose:		Adds directive into the collection at the end of the list.
 //
 //==============================================================================
-- (void) addDirective:(LDrawDirective *)directive {
-	
+- (void) addDirective:(LDrawDirective *)directive
+{
 	int index = [containedObjects count];
 	[self insertDirective:directive atIndex:index];
-}
+	
+}//end addDirective:
 
 
 //========== collectPartReport: ================================================
@@ -186,11 +202,14 @@
 	id		currentDirective	= nil;
 	int		counter				= 0;
 	
-	for(counter = 0; counter < [containedObjects count]; counter++){
+	for(counter = 0; counter < [containedObjects count]; counter++)
+	{
 		currentDirective = [containedObjects objectAtIndex:counter];
+		
 		if([currentDirective respondsToSelector:@selector(collectPartReport:)])
 			[currentDirective collectPartReport:report];
 	}
+	
 }//end collectPartReport:
 
 
@@ -206,7 +225,8 @@
 	//First, find the object (making sure it's actually there in the process)
 	int indexOfObject = [self indexOfDirective:doomedDirective];
 	
-	if(indexOfObject != NSNotFound) {
+	if(indexOfObject != NSNotFound)
+	{
 		//We found it; kill it!
 		[self removeDirectiveAtIndex:indexOfObject];
 	}
@@ -241,12 +261,15 @@
 	
 	if([doomedDirective enclosingDirective] == self)
 		[doomedDirective setEnclosingDirective:nil]; //no parent anymore; it's an orphan now.
+	
 	[containedObjects removeObjectAtIndex:index]; //or disowned at least.
 	
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawDirectiveDidChangeNotification
 						  object:self];
+						  
 }//end removeDirectiveAtIndex:
+
 
 #pragma mark -
 #pragma mark DESTRUCTOR
@@ -267,7 +290,8 @@
 	[containedObjects release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
 
 
 @end

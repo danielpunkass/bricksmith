@@ -24,6 +24,7 @@
 //==============================================================================
 #import "LDrawMPDModel.h"
 
+#import "LDrawFile.h"
 #import "MacLDraw.h"
 #import "StringCategory.h"
 
@@ -328,9 +329,23 @@
 //==============================================================================
 - (void) registerUndoActions:(NSUndoManager *)undoManager
 {
+	LDrawFile		*enclosingFile		= [self enclosingFile];
+	NSString		*oldName			= [self modelName];
+	
 	[super registerUndoActions:undoManager];
 	
-	[[undoManager prepareWithInvocationTarget:self] setModelName:[self modelName]];
+	// Changing the name of the model in an undo-aware way is pretty bothersome, 
+	// because we have to track down any references to the model and change 
+	// their names too. That operation is the responsibility of the LDrawFile, 
+	// not us. 
+	if(enclosingFile != nil)
+	{
+		[[undoManager prepareWithInvocationTarget:enclosingFile]
+									 renameModel: self
+										  toName: oldName ];
+	}
+	else
+		[[undoManager prepareWithInvocationTarget:self] setModelName:oldName];
 	
 }//end registerUndoActions:
 

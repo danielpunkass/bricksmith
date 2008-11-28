@@ -11,6 +11,7 @@
 //==============================================================================
 #import "InspectionMPDModel.h"
 
+#import "LDrawFile.h"
 #import "LDrawMPDModel.h"
 #import "LDrawUtilities.h"
 
@@ -45,22 +46,31 @@
 //==============================================================================
 - (void) commitChanges:(id)sender
 {
-	LDrawMPDModel *representedObject = [self object];
+	LDrawMPDModel	*representedObject	= [self object];
+	LDrawFile		*enclosingFile		= [representedObject enclosingFile];
 	
+	NSString				*oldName		= [representedObject modelName];
 	NSString				*newName		= [modelNameField	stringValue];
 	NSString				*newDescription	= [descriptionField	stringValue];
 	NSString				*newAuthor		= [authorField		stringValue];
 	LDrawDotOrgModelStatusT	newModelStatus	= [[ldrawDotOrgPopUp selectedItem] tag];
 	
-	//For the sake of simplicity, we group these similar fields of the MPD and 
+	// For the sake of simplicity, we group these similar fields of the MPD and 
 	// regular model together.
-	[representedObject setModelName:newName];
 	[representedObject setFileName:newName];
 	
 	[representedObject setModelDescription:newDescription];
 	[representedObject setAuthor:newAuthor];
 	[representedObject setLDrawRepositoryStatus:newModelStatus];
 	
+	// When renaming the model, also update all references to this submodel 
+	// within the entire file (in an undo-friendly way). 
+	if([oldName isEqualToString:newName] == NO)
+	{
+		// The file object is the one responsible for coordinating model 
+		// renames, because it has to update references in other submodels. 
+		[enclosingFile renameModel:representedObject toName:newName];
+	}
 	
 	[super commitChanges:sender];
 	
@@ -123,7 +133,9 @@
 	
 	//If the values really did change, then update.
 	if([newValue isEqualToString:oldValue] == NO)
+	{
 		[self finishedEditing:sender];
+	}
 		
 }//end modelNameFieldChanged:
 

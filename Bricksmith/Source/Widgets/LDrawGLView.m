@@ -124,8 +124,8 @@
 {	
 	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= { NSOpenGLPFADoubleBuffer,
 															NSOpenGLPFADepthSize,		32,
-															NSOpenGLPFASampleBuffers,	1,
-															NSOpenGLPFASamples,			2,
+															NSOpenGLPFASampleBuffers,	1, // enable line antialiasing
+															NSOpenGLPFASamples,			3, // antialiasing beauty
 															0};
 	NSOpenGLContext					*context			= nil;
 	NSOpenGLPixelFormat				*pixelFormat		= nil;
@@ -133,7 +133,7 @@
 	
 	self = [super initWithCoder: coder];
 	
-	//Yes, we have a nib file. Don't laugh. This view has accessories.
+	// Yes, we have a nib file. Don't laugh. This view has accessories.
 	[NSBundle loadNibNamed:@"LDrawGLViewAccessories" owner:self];
 	
 	[self setAcceptsFirstResponder:YES];
@@ -178,7 +178,6 @@
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_MULTISAMPLE); //antialiasing
-	glLineWidth(1);
 	
 	[self takeBackgroundColorFromUserDefaults]; //glClearColor()
 	
@@ -325,8 +324,10 @@
 			//Load the model matrix to make sure we are applying the right stuff.
 			glMatrixMode(GL_MODELVIEW);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			// Make lines look a little nicer; Max width 1.0; 0.5 at 100% zoom
+			glLineWidth(MIN([self zoomPercentage]/100 * 0.5, 1.0));
 
-			glLineWidth(1.0);
 			glColor4fv(glColor);
 			
 			// DRAW!

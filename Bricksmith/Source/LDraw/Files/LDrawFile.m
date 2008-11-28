@@ -642,7 +642,8 @@
 	LDrawPart	*currentPart		= nil;
 	int			counter				= 0;
 
-	if(containsSubmodel == YES)
+	if(		containsSubmodel == YES
+	   &&	[oldName isEqualToString:newName] == NO )
 	{
 		// Update the model name itself
 		[submodel setModelName:newName];

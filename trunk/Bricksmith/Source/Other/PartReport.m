@@ -2,13 +2,22 @@
 //
 // File:		PartReport.m
 //
-// Purpose:		Holds the data necessary to generate a report of the parts in a 
-//				model. We are interested in the quantities and colors of each 
-//				type of part included.
+// Purpose:		Part Reports provide a way to do bulk queries or updates to all 
+//				the parts in the model. 
+//
+//				Part Reports can generate a report of the parts in a model, with 
+//				the quantities and colors of each type of part included. Along 
+//				with statistics, this class can also report on things like 
+//				missing or moved parts. 
 //
 //				A newly-allocated copy of this object should be passed into a 
 //				model. The model will then register all its parts in the report.
-//				The information in the report can then be analyzed.
+//				The information in the report can then be analyzed. The idea 
+//				here is that the logic for traversing an LDraw hiearchy will be 
+//				encapsulated in the containers themselves (steps, etc.); this 
+//				class provides a way for the containers to flatten their 
+//				internal structure without revealing too many details about how 
+//				it is organized. 
 //
 //  Created by Allen Smith on 9/10/05.
 //  Copyright 2005. All rights reserved.
@@ -40,6 +49,7 @@
 	[partReport setLDrawContainer:container];
 	
 	return [partReport autorelease];
+	
 }//end partReportForContainer
 
 
@@ -49,13 +59,15 @@
 //				to be filled up with information.
 //
 //==============================================================================
-- (id) init {
+- (id) init
+{
 	self = [super init];
 	
 	partsReport = [NSMutableDictionary new];
 	
 	return self;
-}
+	
+}//end init
 
 
 #pragma mark -
@@ -85,10 +97,10 @@
 //==============================================================================
 - (void) getPieceCountReport
 {
-	//unfortunately, the reporting responsibility falls on the container itself. 
-	// The reason is that the parts we are reporting might wind up being MPD 
-	// references, in which case we need to merge the report for the referenced 
-	// submodel into *this* report.
+	// Unfortunately, the reporting responsibility falls on the container 
+	// itself. The reason is that the parts we are reporting might wind up being 
+	// MPD references, in which case we need to merge the report for the 
+	// referenced submodel into *this* report. 
 	[reportedObject collectPartReport:self];
 	
 }//end getPieceCountReport
@@ -138,6 +150,7 @@
 	}
 }//end getMissingPiecesReport
 
+
 //========== registerPart ======================================================
 //
 // Purpose:		We are being told to the add the specified part into our report.
@@ -161,17 +174,18 @@
 	unsigned			 numberColoredParts	= 0;
 
 	
-	if(partRecord == nil){
+	if(partRecord == nil)
+	{
 		//We haven't encountered one of these parts yet. Start counting!
 		partRecord = [NSMutableDictionary dictionary];
 		[self->partsReport setObject:partRecord forKey:partName];
 	}
 	
-	//Now let's see how many parts with this color we have so far. If we don't have 
-	// any, this call will conveniently return 0.
+	// Now let's see how many parts with this color we have so far. If we don't 
+	// have any, this call will conveniently return 0. 
 	numberColoredParts = [[partRecord objectForKey:partColor] intValue];
 	
-	//Update our tallies.
+	// Update our tallies.
 	self->totalNumberOfParts += 1;
 	numberColoredParts += 1;
 	
@@ -184,6 +198,35 @@
 #pragma mark -
 #pragma mark ACCESSING INFORMATION
 #pragma mark -
+
+//========== allParts ==========================================================
+//
+// Purpose:		Returns all the LDrawParts contained in this model.
+//
+//==============================================================================
+- (NSArray *) allParts
+{
+	NSArray			*elements			= [self->reportedObject allEnclosedElements];
+	id				 currentElement		= nil;
+	unsigned		 elementCount		= [elements count];
+	unsigned		 counter			= 0;
+	NSMutableArray	*parts				= [NSMutableArray array];
+	
+	// Find all LDrawPart instances in the contained elements
+	for(counter = 0; counter < elementCount; counter++)
+	{
+		currentElement = [elements objectAtIndex:counter];
+		
+		if( [currentElement isKindOfClass:[LDrawPart class]] )
+		{
+			[parts addObject:currentElement];
+		}
+	}
+	
+	return parts;
+	
+}//end allParts
+
 
 //========== flattenedReport ===================================================
 //
@@ -232,12 +275,12 @@
 			//Now we have all the information we need. Flatten it into a single
 			// record.
 			currentPartRecord = [NSDictionary dictionaryWithObjectsAndKeys:
-				currentPartNumber,		PART_NUMBER_KEY,
-				currentPartName,		PART_NAME_KEY,
-				currentPartColor,		LDRAW_COLOR_CODE,
-				currentColorName,		COLOR_NAME,
-				currentPartQuantity,	PART_QUANTITY,
-				nil ];
+						currentPartNumber,		PART_NUMBER_KEY,
+						currentPartName,		PART_NAME_KEY,
+						currentPartColor,		LDRAW_COLOR_CODE,
+						currentColorName,		COLOR_NAME,
+						currentPartQuantity,	PART_QUANTITY,
+						nil ];
 			[flattenedReport addObject:currentPartRecord];
 		}//end loop for color/quantity pairs within each part
 	}//end part loop
@@ -260,6 +303,7 @@
 		[self getMissingPiecesReport];
 	
 	return self->missingParts;
+	
 }//end missingParts
 
 
@@ -276,6 +320,7 @@
 		[self getMissingPiecesReport];
 		
 	return self->movedParts;
+	
 }//end movedParts
 
 
@@ -284,9 +329,11 @@
 // Purpose:		Returns the total number of parts registered in this report.
 //
 //==============================================================================
-- (unsigned) numberOfParts {
+- (unsigned) numberOfParts
+{
 	return self->totalNumberOfParts;
-}
+	
+}//end numberOfParts
 
 
 //========== textualRepresentation =============================================
@@ -355,6 +402,7 @@
 	[partsReport	release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
 
 @end

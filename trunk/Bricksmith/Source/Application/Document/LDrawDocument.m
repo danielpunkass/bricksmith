@@ -252,6 +252,7 @@
 	//Postflight: find missing and moved parts.
 	[self doMissingPiecesCheck:self];
 	[self doMovedPiecesCheck:self];
+	[self doMissingModelnameExtensionCheck:self];
 	
 	return YES;
 	
@@ -956,6 +957,52 @@
 
 #pragma mark -
 
+//========== doMissingModelnameExtensionCheck: =================================
+//
+// Purpose:		Ensures that the names of all submodels in the current model end 
+//				in a recognized LDraw extension (.ldr, .dat), renaming models 
+//				and updating references as needed. 
+//
+// Notes:		Previous versions of Bricksmith did not force submodel names to 
+//				end in a file extension, and this was a seemingly sensible, 
+//				Maclike thing to do. Alas, MLCad will NOT RECOGNIZE submodels 
+//				whose names do not have an extension. (Why...?!) Furthermore, 
+//				according to the LDraw File Specification, a type 1 MUST point 
+//				ot a "valid LDraw filename," which MUST include the extension. 
+//				http://www.ldraw.org/Article218.html#lt1 Sigh...
+//
+//				This action is not undoable. Why would you want to?
+//
+//==============================================================================
+- (void) doMissingModelnameExtensionCheck:(id)sender
+{
+	NSArray			*submodels			= [[self documentContents] submodels];
+	LDrawMPDModel	*currentSubmodel	= nil;
+	NSString		*currentName		= nil;
+	NSString		*newName			= nil;
+	int				counter				= 0;
+	
+	// Find submodels with bad names.
+	for(counter = 0; counter < [submodels count]; counter++)
+	{
+		currentSubmodel	= [submodels objectAtIndex:counter];
+		currentName		= [currentSubmodel modelName];
+		
+		// If the model name does not have a valid LDraw file extension, the 
+		// LDraw spec says we must give it one. Ugh. 
+		if( [LDrawUtilities isLDrawFilenameValid:currentName] == NO )
+		{
+			newName = [currentName stringByAppendingPathExtension:@"ldr"];
+			
+			[[self documentContents] renameModel:currentSubmodel toName:newName];
+			
+			// Mark document as modified.
+			[self updateChangeCount:NSChangeDone];
+		}
+	}
+	
+}//end doMissingModelnameExtensionCheck:
+
 
 //========== doMissingPiecesCheck: =============================================
 //
@@ -973,9 +1020,10 @@
 	if([missingParts count] > 0)
 	{
 		//Build a string listing all the missing parts.
+		missingNames = [missingParts valueForKey:@"displayName"]; // I love Cocoa.
+		
 		informativeString = [NSMutableString stringWithString:NSLocalizedString(@"MissingPiecesInformative", nil)];
 		[informativeString appendString:@"\n\n"];
-		missingNames = [missingParts valueForKey:@"displayName"]; // I love Cocoa.
 		[informativeString appendString:[missingNames componentsJoinedByString:@"\n"]];
 		
 		//Alert! Alert!
@@ -3260,28 +3308,30 @@
 //==============================================================================
 - (void) addModelsToMenus
 {
-	NSMenu			*mainMenu		= [NSApp mainMenu];
-	NSMenu			*modelMenu		= [[mainMenu itemWithTag:modelsMenuTag] submenu];
-	NSMenu			*referenceMenu	= [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
-	int				 separatorIndex	= [modelMenu indexOfItemWithTag:modelsSeparatorMenuTag];
-	NSMenuItem		*modelItem		= nil;
-	NSMenuItem		*referenceItem	= nil;
-	NSArray			*models			= [[self documentContents] submodels];
-	LDrawMPDModel	*currentModel	= nil;
-	int				 counter		= 0;
+	NSMenu			*mainMenu			= [NSApp mainMenu];
+	NSMenu			*modelMenu			= [[mainMenu itemWithTag:modelsMenuTag] submenu];
+	NSMenu			*referenceMenu		= [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
+	int				 separatorIndex		= [modelMenu indexOfItemWithTag:modelsSeparatorMenuTag];
+	NSMenuItem		*modelItem			= nil;
+	NSMenuItem		*referenceItem		= nil;
+	NSArray			*models				= [[self documentContents] submodels];
+	LDrawMPDModel	*currentModel		= nil;
+	NSString		*modelDescription	= nil;
+	int				 counter			= 0;
 	
 	[self clearModelMenus];
 	
 	//Create menu items for each model.
 	for(counter = 0; counter < [models count]; counter++)
 	{
-		currentModel = [models objectAtIndex:counter];
+		currentModel		= [models objectAtIndex:counter];
+		modelDescription	= [currentModel browsingDescription];
 		
 		//
 		// Active Model menu items
 		//
 		modelItem = [[[NSMenuItem alloc] init] autorelease];
-		[modelItem setTitle:[currentModel modelName]];
+		[modelItem setTitle:modelDescription];
 		[modelItem setRepresentedObject:currentModel];
 		[modelItem setTarget:self];
 		[modelItem setAction:@selector(modelSelected:)];
@@ -3290,7 +3340,7 @@
 		// MPD reference menu items
 		//
 		referenceItem = [[[NSMenuItem alloc] init] autorelease];
-		[referenceItem setTitle:[currentModel modelName]];
+		[referenceItem setTitle:modelDescription];
 		[referenceItem setRepresentedObject:currentModel];
 		//We set the same tag for all items in the reference menu.
 		// Validation will distinguish them with their represented objects.

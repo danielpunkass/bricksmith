@@ -21,8 +21,10 @@
 #import "LDrawFile.h"
 
 #import "LDrawMPDModel.h"
+#import "LDrawPart.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
+#import "PartReport.h"
 #import "StringCategory.h"
 
 
@@ -32,22 +34,24 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== newFile ===========================================================
+//---------- newFile -------------------------------------------------[static]--
 //
 // Purpose:		Creates a new LDraw document ready for editing. It should 
 //				include one submodel with one step inside it.
 //
-//==============================================================================
-+ (LDrawFile *) newFile {
+//------------------------------------------------------------------------------
++ (LDrawFile *) newFile
+{
 	return [[[LDrawFile alloc] initNew] autorelease];
-}
+	
+}//end newFile
 
 
-//========== fileFromContentsAtPath: ===========================================
+//---------- fileFromContentsAtPath: ---------------------------------[static]--
 //
 // Purpose:		Reads a file from the specified path. 
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (LDrawFile *) fileFromContentsAtPath:(NSString *)path
 {
 	NSString	*fileContents	= [LDrawUtilities stringFromFile:path];
@@ -61,11 +65,11 @@
 }//end fileFromContentsAtPath:
 
 
-//========== parseFromFileContents: ============================================
+//---------- parseFromFileContents: ----------------------------------[static]--
 //
 // Purpose:		Reads a file out of the raw file contents. 
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents
 {
 	LDrawFile	*newFile	= [[LDrawFile alloc] init];
@@ -81,15 +85,17 @@
 		[newFile setActiveModel:[models objectAtIndex:0]];
 	
 	return [newFile autorelease];
-}
+	
+}//end parseFromFileContents:
 
-//========== parseModelsFromLines ==============================================
+
+//---------- parseModelsFromLines: -----------------------------------[static]--
 //
 // Purpose:		Returns an array of MPD models culled out from the array of 
 //				lines given in linesFromFile. If linesFromFile contains a single 
 //				non-MPD model, it will be wrapped in an MPD model.
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (NSArray *) parseModelsFromLines:(NSArray *) linesFromFile
 {
 	NSMutableArray	*models				= [NSMutableArray array]; //array of parsed MPD models
@@ -138,7 +144,7 @@
 	
 	return models;
 
-}//end parseModelsFromLines
+}//end parseModelsFromLines:
 
 
 //========== init ==============================================================
@@ -146,7 +152,8 @@
 // Purpose:		Creates a new file with absolutely nothing in it.
 //
 //==============================================================================
-- (id) init {
+- (id) init
+{
 	self = [super init]; //initializes an empty list of subdirectives--in this 
 						// case, the models in the file.
 
@@ -155,7 +162,8 @@
 	editLock	= [[NSConditionLock alloc] initWithCondition:0];
 	
 	return self;
-}
+	
+}//end init
 
 
 //========== initNew ===========================================================
@@ -163,8 +171,8 @@
 // Purpose:		Creates a new MPD file with one model.
 //
 //==============================================================================
-- (id) initNew {
-
+- (id) initNew
+{
 	//Create a completely blank file.
 	[self init];
 	
@@ -175,7 +183,8 @@
 	[self setActiveModel:firstModel];
 	
 	return self;
-}
+	
+}//end initNew
 
 
 //========== initWithCoder: ====================================================
@@ -187,7 +196,6 @@
 //==============================================================================
 - (id)initWithCoder:(NSCoder *)decoder
 {
-	
 	self = [super initWithCoder:decoder];
 	
 	//We don't encode the active model; it is just assumed to be the first 
@@ -196,7 +204,8 @@
 	[self setActiveModel:firstModel];
 	
 	return self;
-}
+	
+}//end initWithCoder:
 
 
 //========== copyWithZone: =====================================================
@@ -204,8 +213,8 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone {
-
+- (id) copyWithZone:(NSZone *)zone
+{
 	LDrawFile	*copiedFile			= (LDrawFile *)[super copyWithZone:zone];
 	int			 indexOfActiveModel	= [self indexOfDirective:self->activeModel];
 	id			 copiedActiveModel	= [[copiedFile subdirectives] objectAtIndex:indexOfActiveModel];
@@ -213,14 +222,15 @@
 	[copiedFile setActiveModel:copiedActiveModel];
 	
 	return copiedFile;
-}
+	
+}//end copyWithZone:
 
 
 #pragma mark -
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw ==============================================================
+//========== draw:parentColor: =================================================
 //
 // Purpose:		Draw only the active model. The other submodels in an MPD file 
 //				are only meant to be seen when they are are referenced from the 
@@ -254,14 +264,17 @@
 	[editLock lock];
 	self->drawCount -= 1;
 	[editLock unlockWithCondition:(self->drawCount)];
-}
+	
+}//end draw:parentColor:
+
 
 //========== write =============================================================
 //
 // Purpose:		Write out all the submodels sequentially.
 //
 //==============================================================================
-- (NSString *) write{
+- (NSString *) write
+{
 	NSMutableString	*written		= [NSMutableString string];
 	NSString		*CRLF			= [NSString CRLF];
 	LDrawMPDModel	*currentModel	= nil;
@@ -287,7 +300,8 @@
 	
 	//Trim off any final newline characters.
 	return [written stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-}
+	
+}//end write
 
 
 #pragma mark -
@@ -329,10 +343,10 @@
 	
 }//end unlockEditor
 
+
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
-
 
 //========== activeModel =======================================================
 //
@@ -353,8 +367,10 @@
 //				outside of MPD models.
 //
 //==============================================================================
-- (void) addSubmodel:(LDrawMPDModel *)newSubmodel {
+- (void) addSubmodel:(LDrawMPDModel *)newSubmodel
+{
 	[self insertDirective:newSubmodel atIndex:[[self subdirectives] count]];
+	
 }//end addSubmodel:
 
 
@@ -376,7 +392,8 @@
 // Purpose:		Returns the the names of all the submodels in the file.
 //
 //==============================================================================
-- (NSArray *) modelNames {
+- (NSArray *) modelNames
+{
 	NSArray			*submodels		= [self subdirectives];
 	int				 numberModels	= [submodels count];
 	LDrawMPDModel	*currentModel	= nil;
@@ -390,6 +407,7 @@
 	}
 	
 	return modelNames;
+	
 }//end modelNames
 
 
@@ -399,7 +417,8 @@
 //				be found.
 //
 //==============================================================================
-- (LDrawMPDModel *) modelWithName:(NSString *)soughtName {
+- (LDrawMPDModel *) modelWithName:(NSString *)soughtName
+{
 	NSArray			*submodels		= [self subdirectives];
 	int				 numberModels	= [submodels count];
 	LDrawMPDModel	*currentModel	= nil;
@@ -417,7 +436,8 @@
 	}
 	
 	return foundModel;
-}
+	
+}//end modelWithName:
 
 
 //========== path ==============================================================
@@ -431,6 +451,7 @@
 - (NSString *)path
 {
 	return self->filePath;
+	
 }//end path
 
 
@@ -443,7 +464,8 @@
 - (NSArray *) submodels
 {
 	return [self subdirectives];
-}
+	
+}//end submodels
 
 
 #pragma mark -
@@ -454,13 +476,15 @@
 //				The active model is the only one drawn.
 //
 //==============================================================================
-- (void) setActiveModel:(LDrawMPDModel *)newModel{
+- (void) setActiveModel:(LDrawMPDModel *)newModel
+{
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 	
-	if([[self subdirectives] containsObject:newModel]){
+	if([[self subdirectives] containsObject:newModel])
+	{
 		//Don't bother doing anything if we aren't really changing models.
-		if(newModel != activeModel){
-			NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-			
+		if(newModel != activeModel)
+		{
 			[newModel retain];
 			[activeModel release];
 			
@@ -470,13 +494,15 @@
 											  object:self];
 		}
 	}
-	else if (newModel == nil){
+	else if (newModel == nil)
+	{
 		[activeModel release];//why are we retaining?!
 		activeModel = nil;
 	}
 	else
 		NSLog(@"Attempted to set the active model to one which is not in the file!");
-}//end setActiveModel
+		
+}//end setActiveModel:
 
 
 //========== setDraggingDirectives: ============================================
@@ -505,9 +531,11 @@
 //				method should have no effect.
 //
 //==============================================================================
-- (void) setEnclosingDirective:(LDrawContainer *)newParent{
+- (void) setEnclosingDirective:(LDrawContainer *)newParent
+{
 	// Do Nothing.
-}
+	
+}//end setEnclosingDirective:
 
 
 //========== setPath: ==========================================================
@@ -523,10 +551,11 @@
 	[self->filePath	release];
 	
 	self->filePath = newPath;
-}//end setPath
+	
+}//end setPath:
 
 
-//========== setEnclosingDirective: ============================================
+//========== removeDirective: ==================================================
 //
 // Purpose:		In other containers, this method would set the object which 
 //				encloses this one. LDrawFiles, however, are intended to be at 
@@ -534,7 +563,8 @@
 //				method should have no effect.
 //
 //==============================================================================
-- (void) removeDirective:(LDrawDirective *)doomedDirective {
+- (void) removeDirective:(LDrawDirective *)doomedDirective
+{
 	BOOL removedActiveModel = NO;
 	
 	if(doomedDirective == self->activeModel)
@@ -549,7 +579,8 @@
 			[self setActiveModel:nil]; //this is probably not a good thing.
 	}
 	
-}
+}//end removeDirective:
+
 
 #pragma mark -
 #pragma mark UTILITIES
@@ -561,9 +592,11 @@
 //				perfectly contains the part of this file being displayed.
 //
 //==============================================================================
-- (Box3) boundingBox3 {
+- (Box3) boundingBox3
+{
 	return [[self activeModel] boundingBox3];
-}
+	
+}//end boundingBox3
 
 
 //========== optimize ==========================================================
@@ -575,7 +608,8 @@
 //				library.
 //
 //==============================================================================
-- (void) optimize {
+- (void) optimize
+{
 	LDrawMPDModel	*currentModel	= nil;
 	NSArray			*modelsInFile	= [self subdirectives];
 	int				 numberModels	= [modelsInFile count];
@@ -587,7 +621,51 @@
 		[currentModel optimize];
 	}
 
-}
+}//end optimize
+
+
+//========== renameModel:toName: ===============================================
+//
+// Purpose:		Sets the name of the given member submodel to the new name, and 
+//				updates all internal references to the submodel to use the new 
+//				name as well. 
+//
+//==============================================================================
+- (void) renameModel:(LDrawMPDModel *)submodel
+			  toName:(NSString *)newName
+{
+	NSArray		*submodels			= [self submodels];
+	BOOL		containsSubmodel	= ([submodels indexOfObjectIdenticalTo:submodel] != NSNotFound);
+	NSString	*oldName			= [submodel modelName];
+	PartReport	*partReport			= nil;
+	NSArray		*allParts			= nil;
+	LDrawPart	*currentPart		= nil;
+	int			counter				= 0;
+
+	if(containsSubmodel == YES)
+	{
+		// Update the model name itself
+		[submodel setModelName:newName];
+		
+		// Update all references to the old name
+		partReport	= [PartReport partReportForContainer:self];
+		allParts	= [partReport allParts];
+		
+		for(counter = 0; counter < [allParts count]; counter++)
+		{
+			currentPart = [allParts objectAtIndex:counter];
+			
+			// If the part points to the old name, change it to the new one.
+			// Since the user can enter these values and Bricksmith is 
+			// case-insensitive, make sure to ignore case. 
+			if([[currentPart referenceName] caseInsensitiveCompare:oldName] == NSOrderedSame)
+			{
+				[currentPart setDisplayName:newName];
+			}
+		}
+	}
+	
+}//end renameModel:toName:
 
 
 //========== setNeedsDisplay ===================================================
@@ -597,11 +675,12 @@
 //				a notification, and anyone can pick that up.
 //
 //==============================================================================
-- (void) setNeedsDisplay {
+- (void) setNeedsDisplay
+{
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawFileDidChangeNotification
 						  object:self];
-}
+}//end setNeedsDisplay
 
 
 #pragma mark -
@@ -620,7 +699,8 @@
 	[editLock		release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
 
 
 @end

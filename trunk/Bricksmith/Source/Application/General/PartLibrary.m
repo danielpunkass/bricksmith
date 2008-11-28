@@ -717,19 +717,30 @@
 // Purpose:		Returns the description of the given part based on its name.
 //
 //==============================================================================
-- (NSString *)descriptionForPart:(LDrawPart *)part
+- (NSString *) descriptionForPart:(LDrawPart *)part
 {
 	//Look up the verbose part description in the scanned part catalog.
 	NSDictionary	*catalog			= [self partCatalog];
 	NSDictionary	*partList			= [catalog		objectForKey:PARTS_LIST_KEY];
 	NSDictionary	*partRecord			= [partList		objectForKey:[part referenceName]];
 	NSString		*partDescription	= [partRecord objectForKey:PART_NAME_KEY];
-	//If the part isn't known, all we can really do is just display the number.
+	
+	// Maybe it's an MPD reference?
 	if(partDescription == nil)
+	{
+		partDescription = [[part referencedMPDSubmodel] browsingDescription];
+	}
+	
+	// If the part STILL isn't known, all we can really do is just display the 
+	// number. 
+	if(partDescription == nil)
+	{
 		partDescription = [part displayName];
+	}
 	
 	return partDescription;
-}
+	
+}//end descriptionForPart:
 
 
 //========== descriptionForPartName: ===========================================

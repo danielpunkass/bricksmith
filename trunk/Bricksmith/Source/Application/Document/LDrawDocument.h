@@ -115,6 +115,7 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (void) panelRotateParts:(id)sender;
 
 // - miscellaneous
+- (void) doMissingModelnameExtensionCheck:(id)sender;
 - (void) doMissingPiecesCheck:(id)sender;
 - (void) doMovedPiecesCheck:(id)sender;
 

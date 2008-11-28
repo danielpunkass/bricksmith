@@ -192,6 +192,40 @@
 }//end dragImageWithOffset:
 
 
+//---------- isLDrawFilenameValid: -----------------------------------[static]--
+//
+// Purpose:		The LDraw File Specification defines what makes a valid LDraw 
+//				file name: http://www.ldraw.org/Article218.html#files 
+//
+//				Alas, these rules suck in MPD names too, thanks to the wording 
+//				on Linetype 1 in the spec. 
+//
+// Notes:		The spec also has disparaging things to say about whitespace and 
+//				special characters in filenames. To the spec I say: join the 
+//				1990s. 
+//
+//------------------------------------------------------------------------------
++ (BOOL) isLDrawFilenameValid:(NSString *)fileName
+{
+	NSString	*extension	= [fileName pathExtension];
+	BOOL		isValid		= NO;
+	
+	// Make sure it has a valid extension
+	if(		extension == nil
+	   ||	(	[extension isEqualToString:@"ldr"] == NO
+			 &&	[extension isEqualToString:@"dat"] == NO )
+	   )
+	{
+		isValid = NO;
+	}
+	else
+		isValid = YES;
+		
+	return isValid;
+	
+}//end isLDrawFilenameValid:
+
+
 //---------- readNextField:remainder: --------------------------------[static]--
 //
 // Purpose:		Given the portion of the LDraw line, read the first available 

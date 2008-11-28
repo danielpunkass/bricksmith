@@ -29,18 +29,18 @@
 	NSConditionLock		*editLock;
 }
 
-//Initialization
+// Initialization
 + (LDrawFile *) newFile;
 + (LDrawFile *) fileFromContentsAtPath:(NSString *)path;
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents;
 + (NSArray *) parseModelsFromLines:(NSArray *) linesFromFile;
 - (id) initNew;
 
-//Directives
+// Directives
 - (void) lockForEditing;
 - (void) unlockEditor;
 
-//Accessors
+// Accessors
 - (LDrawMPDModel *) activeModel;
 - (void) addSubmodel:(LDrawMPDModel *)newSubmodel;
 - (NSArray *) draggingDirectives;
@@ -53,8 +53,9 @@
 - (void) setDraggingDirectives:(NSArray *)directives;
 - (void) setPath:(NSString *)newPath;
 
-//Utilities
+// Utilities
 - (void) optimize;
+- (void) renameModel:(LDrawMPDModel *)submodel toName:(NSString *)newName;
 - (void) setNeedsDisplay;
 
 @end

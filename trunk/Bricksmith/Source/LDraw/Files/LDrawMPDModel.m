@@ -34,20 +34,21 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== newModel ==========================================================
+//---------- newModel ------------------------------------------------[static]--
 //
 // Purpose:		Creates a new model ready to be edited.
 //
-//==============================================================================
-+ (id) newModel {
+//------------------------------------------------------------------------------
++ (id) newModel
+{
 	LDrawMPDModel *newModel = [[LDrawMPDModel alloc] initNew];
 	
-
 	return [newModel autorelease];
-}
+	
+}//end newModel
 
 
-//========== modelWithLines: ===================================================
+//---------- modelWithLines: -----------------------------------------[static]--
 //
 // Purpose:		Creates a new model file based on the lines from a file.
 //				These lines of strings should only describe one model, not 
@@ -55,13 +56,14 @@
 //
 //				The first line *must* be an MPD file delimiter.
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (id) modelWithLines:(NSArray *)lines
 {
 	LDrawMPDModel *newModel = [[LDrawMPDModel alloc] initWithLines:lines];
 	
 	return [newModel autorelease];
-}
+	
+}//end modelWithLines:
 
 
 //========== init ==============================================================
@@ -69,14 +71,15 @@
 // Purpose:		Creates a blank submodel.
 //
 //==============================================================================
-- (id) init {
-	
+- (id) init
+{
 	[super init];
 	
 	modelName = @"";
 	
 	return self;
-}
+	
+}//end init
 
 
 //========== initNew ===========================================================
@@ -84,14 +87,21 @@
 // Purpose:		Creates a submodel ready for editing.
 //
 //==============================================================================
-- (id) initNew {
+- (id) initNew
+{
+	NSString	*newModelName	= nil;
+
+	self = [super initNew];
 	
-	[super initNew];
-	
-	[self setModelName:NSLocalizedString(@"UntitledModel", nil)];
+	// Set the spec-compliant model name with extension
+	newModelName = NSLocalizedString(@"UntitledModel", nil);
+	newModelName = [newModelName stringByAppendingPathExtension:@"ldr"];
+	[self setModelName:newModelName];
 	
 	return self;
-}
+	
+}//end initNew
+
 
 //========== initWithLines: ====================================================
 //
@@ -105,8 +115,7 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-{
-						//get the line that should contain 0 FILE
+{						//get the line that should contain 0 FILE
 	NSString		*mpdFileCommand		= [lines objectAtIndex:0];
 	NSString		*mpdSubmodelName	= @"";
 	BOOL			 isMPDModel			= NO;
@@ -164,7 +173,8 @@
 	modelName = [[decoder decodeObjectForKey:@"modelName"] retain];
 	
 	return self;
-}
+	
+}//end initWithCoder:
 
 
 //========== encodeWithCoder: ==================================================
@@ -179,7 +189,8 @@
 	[super encodeWithCoder:encoder];
 	
 	[encoder encodeObject:modelName forKey:@"modelName"];
-}
+	
+}//end encodeWithCoder:
 
 
 //========== copyWithZone: =====================================================
@@ -187,14 +198,15 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone {
-	
+- (id) copyWithZone:(NSZone *)zone
+{
 	LDrawMPDModel	*copied	= (LDrawMPDModel *)[super copyWithZone:zone];
 	
 	[copied setModelName:[self modelName]];
 	
 	return copied;
-}
+	
+}//end copyWithZone:
 
 
 #pragma mark -
@@ -206,7 +218,8 @@
 // Purpose:		Writes out the MPD submodel, wrapped in the MPD file commands.
 //
 //==============================================================================
-- (NSString *) write{
+- (NSString *) write
+{
 	NSString *CRLF = [NSString CRLF]; //we need a DOS line-end marker, because 
 									  //LDraw is predominantly DOS-based.
 	
@@ -223,16 +236,21 @@
 	[written appendString:LDRAW_MPD_FILE_END_MARKER];
 	
 	return written;
-}
+	
+}//end write
+
 
 //========== writeModel =============================================================
 //
 // Purpose:		Writes out the submodel, without the MPD file commands.
 //
 //==============================================================================
-- (NSString *) writeModel{
+- (NSString *) writeModel
+{
 	return [super write];
-}
+	
+}//end writeModel
+
 
 #pragma mark -
 #pragma mark DISPLAY
@@ -244,10 +262,13 @@
 //				which can be presented to the user.
 //
 //==============================================================================
-- (NSString *)browsingDescription
+- (NSString *) browsingDescription
 {
-	return [self modelName];
-}
+	// Chop off that hideous un-Maclike .ldr extension that the LDraw File 
+	// Specification forces us to add. 
+	return [[self modelName] stringByDeletingPathExtension];
+	
+}//end browsingDescription
 
 
 //========== inspectorClassName ================================================
@@ -255,9 +276,11 @@
 // Purpose:		Returns the name of the class used to inspect this one.
 //
 //==============================================================================
-- (NSString *) inspectorClassName{
+- (NSString *) inspectorClassName
+{
 	return @"InspectionMPDModel";
-}
+	
+}//end inspectorClassName
 
 
 #pragma mark -
@@ -270,9 +293,11 @@
 //				the part name to describe the entire submodel.
 //
 //==============================================================================
-- (NSString *)modelName{
+- (NSString *) modelName
+{
 	return modelName;
-}
+	
+}//end modelName
 
 
 //========== setModelName: =====================================================
@@ -281,12 +306,15 @@
 //				the part name to describe the entire submodel.
 //
 //==============================================================================
-- (void) setModelName:(NSString *)newModelName{
+- (void) setModelName:(NSString *)newModelName
+{
 	[newModelName retain];
 	[modelName release];
 	
 	modelName = newModelName;
-}
+	
+}//end setModelName:
+
 
 #pragma mark -
 #pragma mark UTILITIES
@@ -298,12 +326,13 @@
 //				not to any superclass.
 //
 //==============================================================================
-- (void) registerUndoActions:(NSUndoManager *)undoManager {
-	
+- (void) registerUndoActions:(NSUndoManager *)undoManager
+{
 	[super registerUndoActions:undoManager];
 	
 	[[undoManager prepareWithInvocationTarget:self] setModelName:[self modelName]];
-}
+	
+}//end registerUndoActions:
 
 
 #pragma mark -
@@ -315,10 +344,12 @@
 // Purpose:		Time to send the cows home.
 //
 //==============================================================================
-- (void) dealloc {
+- (void) dealloc
+{
 	[modelName	release];
 
 	[super dealloc];
+	
 }//end dealloc
 
 

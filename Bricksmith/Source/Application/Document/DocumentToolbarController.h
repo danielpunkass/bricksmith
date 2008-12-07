@@ -16,6 +16,7 @@
 #define TOOLBAR_NUDGE_X_IDENTIFIER		@"NudgeX"
 #define TOOLBAR_NUDGE_Y_IDENTIFIER		@"NudgeY"
 #define TOOLBAR_NUDGE_Z_IDENTIFIER		@"NudgeZ"
+#define TOOLBAR_PART_BROWSER			@"PartBrowser"
 	//Rotation identifiers match both localized string key and image name.
 #define TOOLBAR_ROTATE_POSITIVE_X		@"Rotate+X"
 #define TOOLBAR_ROTATE_NEGATIVE_X		@"Rotate-X"
@@ -53,6 +54,7 @@
 - (NSToolbarItem *) makeRotationMinusYItem;
 - (NSToolbarItem *) makeRotationPlusZItem;
 - (NSToolbarItem *) makeRotationMinusZItem;
+- (NSToolbarItem *) makePartBrowserItem;
 - (NSToolbarItem *) makeSnapToGridItem;
 - (NSToolbarItem *) makeZoomInItem;
 - (NSToolbarItem *) makeZoomOutItem;

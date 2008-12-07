@@ -61,6 +61,8 @@
 				<string>id</string>
 				<key>delete</key>
 				<string>id</string>
+				<key>doMissingModelnameExtensionCheck</key>
+				<string>id</string>
 				<key>doMissingPiecesCheck</key>
 				<string>id</string>
 				<key>doMovedPiecesCheck</key>
@@ -124,10 +126,10 @@
 			<dict>
 				<key>bindingsController</key>
 				<string>NSObjectController</string>
-				<key>fileContentsDrawer</key>
-				<string>NSDrawer</string>
 				<key>fileContentsOutline</key>
 				<string>LDrawFileOutlineView</string>
+				<key>fileContentsSplitView</key>
+				<string>ExtendedSplitView</string>
 				<key>fileDetailView1</key>
 				<string>LDrawGLView</string>
 				<key>fileDetailView2</key>

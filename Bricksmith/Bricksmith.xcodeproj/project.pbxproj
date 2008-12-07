@@ -211,6 +211,7 @@
 		0BF729C508AD849300E3DA53 /* PartLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF729B508AD849300E3DA53 /* PartLibrary.m */; };
 		0BF729C608AD849300E3DA53 /* PreferencesDialogController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BF729B608AD849300E3DA53 /* PreferencesDialogController.h */; };
 		0BF729C708AD849300E3DA53 /* PreferencesDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF729B708AD849300E3DA53 /* PreferencesDialogController.m */; };
+		0BFD363A0EEA49E100A1AAF5 /* PartBrowser.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */; };
 		2B1C603B09FF00B3001EE8FA /* AMSProgressBar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1C603A09FF00B3001EE8FA /* AMSProgressBar.framework */; };
 		2BB59F4309FEFE960077A885 /* AMSProgressBar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BB5975E09FEFD250077A885 /* AMSProgressBar.framework */; };
 		2BF2E2CD0AB0FBB50026D5DB /* MLCad.ini in Resources */ = {isa = PBXBuildFile; fileRef = 2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */; };
@@ -465,6 +466,7 @@
 		0BF729B508AD849300E3DA53 /* PartLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartLibrary.m; sourceTree = "<group>"; };
 		0BF729B608AD849300E3DA53 /* PreferencesDialogController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesDialogController.h; sourceTree = "<group>"; };
 		0BF729B708AD849300E3DA53 /* PreferencesDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesDialogController.m; sourceTree = "<group>"; };
+		0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PartBrowser.pdf; sourceTree = "<group>"; };
 		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -718,6 +720,7 @@
 				0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */,
 				0B9FE57D08AD97670046511D /* Grid */,
 				0B9FE58108AD97670046511D /* LDrawLogo.tiff */,
+				0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */,
 				0B9FE58208AD97670046511D /* Rotation */,
 				0B9FE58908AD97670046511D /* Snap To Grid.tiff */,
 				0B9FE58A08AD97670046511D /* SyntaxColoring.tiff */,
@@ -1172,6 +1175,7 @@
 				0B17D2FF0ED0D4C400F8B5FA /* RotationStepEnd.pdf in Resources */,
 				0B30E08B0ED90D3000470615 /* Triangle.pdf in Resources */,
 				0B30E0D40EDA746900470615 /* Quadrilateral.pdf in Resources */,
+				0BFD363A0EEA49E100A1AAF5 /* PartBrowser.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

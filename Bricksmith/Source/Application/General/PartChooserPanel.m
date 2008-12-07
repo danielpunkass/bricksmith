@@ -81,7 +81,7 @@
 - (int) runModal
 {
 	int		returnCode	= NSCancelButton;
-	long	OSVersion	= 0;
+	SInt32	OSVersion	= 0;
 	
 	Gestalt(gestaltSystemVersion, &OSVersion); //Carbon!
 	

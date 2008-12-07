@@ -56,8 +56,6 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 	
 	// Window satellites
 	IBOutlet NSDrawer					*partBrowserDrawer;
-	IBOutlet NSDrawer					*fileContentsDrawer;
-	IBOutlet LDrawFileOutlineView		*fileContentsOutline;
 	IBOutlet PartBrowserDataSource		*partsBrowser;
 	
 	// Scope bar
@@ -69,6 +67,10 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 	IBOutlet NSSegmentedControl			*stepNavigator;
 	
 	// Window contents
+	IBOutlet ExtendedSplitView			*fileContentsSplitView;
+	IBOutlet LDrawFileOutlineView		*fileContentsOutline;
+	
+	// LDraw graphic view
 	IBOutlet ExtendedSplitView			*horizontalSplitView;
 	IBOutlet ExtendedSplitView			*verticalDetailSplitView;
 	IBOutlet LDrawGLView				*fileGraphicView;

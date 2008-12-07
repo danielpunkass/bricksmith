@@ -266,27 +266,27 @@
 				break;
 			
 			case LDrawStepRotationRelative:
-				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
-															angleZYX.x, 
-															angleZYX.y, 
-															angleZYX.z, 
-															LDRAW_ROTATION_RELATIVE ];
+				[written appendFormat:@"%@ %.3f %.3f %.3f %@",	LDRAW_ROTATION_STEP,
+																angleZYX.x, 
+																angleZYX.y, 
+																angleZYX.z, 
+																LDRAW_ROTATION_RELATIVE ];
 				break;
 			
 			case LDrawStepRotationAbsolute:
-				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
-															angleZYX.x, 
-															angleZYX.y, 
-															angleZYX.z, 
-															LDRAW_ROTATION_ABSOLUTE ];
+				[written appendFormat:@"%@ %.3f %.3f %.3f %@",	LDRAW_ROTATION_STEP,
+																angleZYX.x, 
+																angleZYX.y, 
+																angleZYX.z, 
+																LDRAW_ROTATION_ABSOLUTE ];
 				break;
 			
 			case LDrawStepRotationAdditive:
-				[written appendFormat:@"%@ %f %f %f %@",	LDRAW_ROTATION_STEP,
-															angleZYX.x, 
-															angleZYX.y, 
-															angleZYX.z, 
-															LDRAW_ROTATION_ADDITIVE ];
+				[written appendFormat:@"%@ %.3f %.3f %.3f %@",	LDRAW_ROTATION_STEP,
+																angleZYX.x, 
+																angleZYX.y, 
+																angleZYX.z, 
+																LDRAW_ROTATION_ADDITIVE ];
 				break;
 			
 			case LDrawStepRotationEnd:

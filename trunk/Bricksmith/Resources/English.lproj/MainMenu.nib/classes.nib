@@ -5,14 +5,6 @@
 	<key>IBClasses</key>
 	<array>
 		<dict>
-			<key>CLASS</key>
-			<string>LDrawFileOutlineView</string>
-			<key>LANGUAGE</key>
-			<string>ObjC</string>
-			<key>SUPERCLASS</key>
-			<string>NSOutlineView</string>
-		</dict>
-		<dict>
 			<key>ACTIONS</key>
 			<dict>
 				<key>doGettingNewPartsHelp</key>
@@ -36,6 +28,14 @@
 			<string>ObjC</string>
 			<key>SUPERCLASS</key>
 			<string>NSObject</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
+			<string>LDrawFileOutlineView</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSOutlineView</string>
 		</dict>
 		<dict>
 			<key>ACTIONS</key>
@@ -69,6 +69,8 @@
 				<key>copy</key>
 				<string>id</string>
 				<key>delete</key>
+				<string>id</string>
+				<key>doMissingModelnameExtensionCheck</key>
 				<string>id</string>
 				<key>doMissingPiecesCheck</key>
 				<string>id</string>
@@ -137,6 +139,8 @@
 				<string>NSDrawer</string>
 				<key>fileContentsOutline</key>
 				<string>LDrawFileOutlineView</string>
+				<key>fileContentsSplitView</key>
+				<string>ExtendedSplitView</string>
 				<key>fileDetailView1</key>
 				<string>LDrawGLView</string>
 				<key>fileDetailView2</key>

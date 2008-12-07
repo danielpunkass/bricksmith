@@ -144,10 +144,6 @@
 	if(drawerState == NSDrawerOpenState)
 		[partBrowserDrawer open];
 	
-	drawerState = [userDefaults integerForKey:FILE_CONTENTS_DRAWER_STATE];
-	if(drawerState == NSDrawerOpenState)
-		[fileContentsDrawer open];
-	
 	//Restore the state of our 3D viewers.
 	[fileGraphicView	setAutosaveName:@"fileGraphicView"];
 	[fileDetailView1	setAutosaveName:@"fileDetailView1"];
@@ -173,9 +169,11 @@
 	// We have to do the splitview saving manually. C'mon Apple, get with it!
 	// Note: They did in Leopard. These calls will use the system function 
 	//		 there. 
-	[horizontalSplitView		setAutosaveName:@"Horizontal LDraw Splitview"];
+	[fileContentsSplitView		setAutosaveName:@"fileContentsSplitView"];
+	[horizontalSplitView		setAutosaveName:@"HorizontalLDrawSplitview2.1"];
 	[verticalDetailSplitView	setAutosaveName:@"Vertical LDraw Splitview"];
 	
+	[fileContentsSplitView		restoreConfiguration];
 	[horizontalSplitView		restoreConfiguration];
 	[verticalDetailSplitView	restoreConfiguration];
 	
@@ -1490,10 +1488,34 @@
 //
 // Purpose:		Either open or close the file contents outline.
 //
+// Notes:		Now that the file contents is part of the main window, this has 
+//				gotten quite a bit more complicated. 
+//
 //==============================================================================
 - (IBAction) toggleFileContentsDrawer:(id)sender
 {
-	[fileContentsDrawer toggle:sender];
+	NSView	*firstSubview	= [[self->fileContentsSplitView subviews] objectAtIndex:0];
+	CGFloat	maxPosition		= 0.0;
+	
+	// We collapse or un-collapse the split view. The API to do this does not 
+	// exist on Tiger. Grr... 
+	if([self->fileContentsSplitView respondsToSelector:@selector(setPosition:ofDividerAtIndex:)])
+	{
+		if([self->fileContentsSplitView isSubviewCollapsed:firstSubview])
+		{
+			// Un-collapse the view
+			maxPosition = [[self->fileContentsSplitView delegate] splitView:self->fileContentsSplitView
+													 constrainMinCoordinate:0.0
+																ofSubviewAt:0];
+																
+			[self->fileContentsSplitView setPosition:maxPosition ofDividerAtIndex:0];
+		}
+		else
+		{
+			// Collapse the view
+			[self->fileContentsSplitView setPosition:0.0 ofDividerAtIndex:0];
+		}
+	}
 	
 }//end toggleFileContentsDrawer:
 
@@ -2932,6 +2954,135 @@
 
 
 //**** NSSplitView ****
+//========== splitView:shouldCollapseSubview:forDoubleClickOnDividerAtIndex: ===
+//
+// Purpose:		Allow split views to collapse when their divider is 
+//				double-clicked. 
+//
+//==============================================================================
+- (BOOL)				splitView:(NSSplitView *)splitView
+			shouldCollapseSubview:(NSView *)subview
+	forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
+{
+	return YES;
+	
+}//end splitView:shouldCollapseSubview:forDoubleClickOnDividerAtIndex:
+
+
+//**** NSSplitView ****
+//========== splitView:constrainMinCoordinate:ofSubviewAt: =====================
+//
+// Purpose:		Allow the file Contents split view to collapse by giving it a 
+//				minimum size. 
+//
+//==============================================================================
+- (CGFloat)   splitView:(NSSplitView *)sender
+ constrainMinCoordinate:(CGFloat)proposedMin
+			ofSubviewAt:(NSInteger)offset
+{
+	CGFloat	actualMin	= 0.0;
+
+	if(		sender == self->fileContentsSplitView
+	   &&	offset == 0 )
+	{
+		actualMin = 100; // only return a collapsible minimum for the file contents
+	}
+	else
+		actualMin = proposedMin;
+	
+	return actualMin;
+	
+}//end splitView:constrainMinCoordinate:ofSubviewAt:
+
+
+//**** NSSplitView ****
+//========== splitView:constrainMaxCoordinate:ofSubviewAt: =====================
+//
+// Purpose:		Allow the graphics detail view to collapse by defining a maximum 
+//				extent for the the main graphic view. (It's counter-intuitive!)
+//
+//==============================================================================
+- (CGFloat)   splitView:(NSSplitView *)sender
+ constrainMaxCoordinate:(CGFloat)proposedMax
+			ofSubviewAt:(NSInteger)offset
+{
+	CGFloat	actualMax	= 0.0;
+	
+	// In order to allow the detail column to collapse, we have to do something 
+	// strange: specify a maximum position for the main graphic view pane. When 
+	// the divider is dragged more than halfway beyond that maximum point, the 
+	// detail column (view index 1) automatically collapses. Weird...
+	if(		sender == self->horizontalSplitView
+		&&	offset == 0 ) // yes, that offset is correct. This method is NEVER called with offset == 1.
+	{
+		actualMax = NSMaxX([sender frame]) - 80; // min size of 80 for the detail column
+	}
+	else
+		actualMax = proposedMax;
+	
+	return actualMax;
+	
+}//end splitView:constrainMinCoordinate:ofSubviewAt:
+
+
+//**** NSSplitView ****
+//========== splitView:resizeSubviewsWithOldSize: ==============================
+//
+// Purpose:		Do yucky MANUAL resizing of the split view subviews.
+//
+//				We use this method to make sure that the size of the File 
+//				Contents sidebar remains CONSTANT while the window is being 
+//				resized. This is how all Apple applications with sidebars 
+//				behave, and it is good. 
+//
+//==============================================================================
+- (void)splitView:(NSSplitView *)sender resizeSubviewsWithOldSize:(NSSize)oldSize
+{
+	// Make sure the width of the File Contents column remains constant during 
+	// live window resize. 
+	if(		sender == self->fileContentsSplitView
+		&&	[[[sender window] contentView] inLiveResize] == YES )
+	{
+		NSView	*fileContentsPane	= [[sender subviews] objectAtIndex:0];
+		NSView	*graphicPane		= [[sender subviews] objectAtIndex:1];
+		NSSize	totalSize			= [sender frame].size;
+		NSSize	graphicPaneSize		= [graphicPane frame].size;
+		
+		// The graphic pane absorbs ALL width changes.
+		graphicPaneSize.width		=	totalSize.width 
+									 -	[sender dividerThickness]
+									 -	NSWidth([fileContentsPane frame]);
+		
+		[graphicPane setFrameSize:graphicPaneSize];
+	}
+	
+	// Make sure the width of the OpenGL detail views column remains constant 
+	// during live window resize. 
+	if(		sender == self->horizontalSplitView
+		&&	[[[sender window] contentView] inLiveResize] == YES )
+	{
+		NSView	*mainViewPane		= [[sender subviews] objectAtIndex:0];
+		NSView	*detailViewsPane	= [[sender subviews] objectAtIndex:1];
+		NSSize	totalSize			= [sender frame].size;
+		NSSize	mainViewPaneSize	= [mainViewPane frame].size;
+		
+		// The graphic pane absorbs ALL width changes.
+		mainViewPaneSize.width		=	totalSize.width 
+									 -	[sender dividerThickness]
+									 -	NSWidth([detailViewsPane frame]);
+		
+		[mainViewPane setFrameSize:mainViewPaneSize];
+	}
+	
+	// Allow the split view to finish normal calculations. For the File Contents 
+	// split view, this does height resizing for us. For all other split views, 
+	// it just does behavior as normal. 
+	[sender adjustSubviews];
+	
+}//end splitView:resizeSubviewsWithOldSize:
+
+
+//**** NSSplitView ****
 //========== splitViewWillResizeSubviews: ======================================
 //
 // Purpose:		A splitview is about to resize. Since we are displaying OpenGL 
@@ -3102,7 +3253,6 @@
 	NSWindow		*window			= [notification object];
 	
 	[userDefaults setInteger:[partBrowserDrawer state]	forKey:PART_BROWSER_DRAWER_STATE];
-	[userDefaults setInteger:[fileContentsDrawer state]	forKey:FILE_CONTENTS_DRAWER_STATE];
 	
 	[userDefaults setObject:NSStringFromSize([window frame].size) forKey:DOCUMENT_WINDOW_SIZE];
 	[userDefaults synchronize]; //because we may be quitting, we have to force this here.

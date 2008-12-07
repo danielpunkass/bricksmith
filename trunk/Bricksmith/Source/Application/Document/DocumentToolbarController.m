@@ -59,20 +59,22 @@
 //==============================================================================
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
 {
-	return [NSArray arrayWithObjects:	TOOLBAR_ZOOM_IN,
-										TOOLBAR_ZOOM_OUT,
-										TOOLBAR_ZOOM_SPECIFY,
+	return [NSArray arrayWithObjects:
+										TOOLBAR_GRID_SPACING_IDENTIFIER,
 										TOOLBAR_NUDGE_X_IDENTIFIER,
 										TOOLBAR_NUDGE_Y_IDENTIFIER,
 										TOOLBAR_NUDGE_Z_IDENTIFIER,
-										TOOLBAR_SNAP_TO_GRID,
-										TOOLBAR_GRID_SPACING_IDENTIFIER,
-										TOOLBAR_ROTATE_POSITIVE_X,
+										TOOLBAR_PART_BROWSER,
 										TOOLBAR_ROTATE_NEGATIVE_X,
-										TOOLBAR_ROTATE_POSITIVE_Y,
 										TOOLBAR_ROTATE_NEGATIVE_Y,
-										TOOLBAR_ROTATE_POSITIVE_Z,
 										TOOLBAR_ROTATE_NEGATIVE_Z,
+										TOOLBAR_ROTATE_POSITIVE_X,
+										TOOLBAR_ROTATE_POSITIVE_Y,
+										TOOLBAR_ROTATE_POSITIVE_Z,
+										TOOLBAR_SNAP_TO_GRID,
+										TOOLBAR_ZOOM_IN,
+										TOOLBAR_ZOOM_OUT,
+										TOOLBAR_ZOOM_SPECIFY,
 
 										//Cocoa doodads
 										NSToolbarSeparatorItemIdentifier,
@@ -104,6 +106,8 @@
 										TOOLBAR_ROTATE_NEGATIVE_Y,
 										TOOLBAR_ROTATE_POSITIVE_Z,
 										TOOLBAR_ROTATE_NEGATIVE_Z,
+										NSToolbarFlexibleSpaceItemIdentifier,
+										TOOLBAR_PART_BROWSER,
 										nil ];
 }//end toolbarDefaultItemIdentifiers:
 
@@ -144,6 +148,9 @@
 	}
 	else if([itemIdentifier isEqualToString:TOOLBAR_GRID_SPACING_IDENTIFIER]) {
 		newItem = [self makeGridSpacingItem];
+	}
+	else if([itemIdentifier isEqualToString:TOOLBAR_PART_BROWSER]) {
+		newItem = [self makePartBrowserItem];
 	}
 	//Rotations
 	else if([itemIdentifier isEqualToString:TOOLBAR_ROTATE_POSITIVE_X]) {
@@ -228,6 +235,30 @@
 	return [newItem autorelease];
 	
 }//end makeGridSpacingItem
+
+
+//========== makePartBrowserItem ===========================================
+//
+// Purpose:		Button that shows the Lego Part Browser.
+//
+//==============================================================================
+- (NSToolbarItem *) makePartBrowserItem
+{
+	NSToolbarItem *newItem = [[NSToolbarItem alloc]
+									initWithItemIdentifier:TOOLBAR_PART_BROWSER];
+	
+	[newItem setLabel:NSLocalizedString(@"ShowPartBrowser", nil)];
+	[newItem setPaletteLabel:NSLocalizedString(@"ShowPartBrowser", nil)];
+	[newItem setImage:[NSImage imageNamed:@"PartBrowser"]];
+	
+	// Part Browser action lives in LDrawApplication, but it's easiest to just 
+	// dispatch it to the responder chain. That's what the menu item does. 
+	[newItem setTarget:nil];
+	[newItem setAction:@selector(doPartBrowser:)];
+	
+	return [newItem autorelease];
+	
+}//end makePartBrowserItem
 
 
 //========== makeRotationPlusXItem =============================================

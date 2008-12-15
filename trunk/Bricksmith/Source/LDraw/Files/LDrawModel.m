@@ -238,7 +238,7 @@
 	
 	copied->colorLibrary = [[ColorLibrary alloc] init]; // just make a new one. It will get current colors on the next draw.
 	[copied setStepDisplay:[self stepDisplay]];
-	[copied setMaximumStepIndexDisplayed:[self maximumStepIndexDisplayed]];
+	[copied setMaximumStepIndexForStepDisplay:[self maximumStepIndexForStepDisplay]];
 	
 	//I don't think we care about the cached bounds.
 	
@@ -529,7 +529,7 @@
 //				value only has meaning if the model is in step-display mode. 
 //
 //==============================================================================
-- (int) maximumStepIndexDisplayed
+- (int) maximumStepIndexForStepDisplay
 {
 	return self->currentStepDisplayed;
 	
@@ -794,15 +794,14 @@
 }//end setLDrawRepositoryStatus:
 
 
-//========== setMaximumStepIndexDisplayed: =====================================
+//========== setMaximumStepIndexForStepDisplay: ================================
 //
 // Purpose:		Sets the index of the last step drawn. If the model is not 
-//				currently in step-display mode, this call will automatically set 
-//				it up to be. However, this method does not cause the received to 
-//				be redisplayed.
+//				currently in step-display mode, this call will NOT cause it to 
+//				enter step display. 
 //
 //==============================================================================
-- (void) setMaximumStepIndexDisplayed:(int)stepIndex
+- (void) setMaximumStepIndexForStepDisplay:(int)stepIndex
 {
 	//Need to check and make sure this step number is not overflowing the bounds.
 	int maximumIndex = [[self steps] count]-1;
@@ -812,10 +811,9 @@
 	else
 	{
 		self->currentStepDisplayed = stepIndex;
-		[self setStepDisplay:YES];
 	}
 	
-}//end setMaximumStepIndexDisplayed:
+}//end setMaximumStepIndexForStepDisplay:
 
 
 //========== setStepDisplay ====================================================
@@ -873,11 +871,14 @@
 {
 	int stepIndex = [self indexOfDirective:step];
 	
+	// If we're in step display, but below this step, make it visible.
 	if(		stepIndex != NSNotFound
 		&&	stepIndex > [self maxStepIndexToOutput])
 	{
-		[self setMaximumStepIndexDisplayed:stepIndex];
+		[self setMaximumStepIndexForStepDisplay:stepIndex];
 	}
+	// Otherwise, we see everything, so by definition this step is visible.
+	
 }//end makeStepVisible
 
 
@@ -897,13 +898,18 @@
 	NSArray	*steps		= [self subdirectives];
 	int		 maxStep	= 0;
 	
-	//If step display is active, we want to display only as far as the specified 
-	// step, or the maximum step if the one specified exceeds the number of steps.
+	// If step display is active, we want to display only as far as the 
+	// specified step, or the maximum step if the one specified exceeds the 
+	// number of steps. 
 	if(self->stepDisplayActive == YES)
+	{
 		maxStep = MIN( [steps count] -1 , //subtract one to get last step index in model.
 					   self->currentStepDisplayed);
+	}
 	else
+	{
 		maxStep = [steps count] - 1;
+	}
 	
 	return maxStep;
 	

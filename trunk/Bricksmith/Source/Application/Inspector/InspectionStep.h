@@ -17,6 +17,7 @@ typedef enum
 	InspectorRotationShortcutUpsideDown			= 0,
 	InspectorRotationShortcutClockwise90		= 1,
 	InspectorRotationShortcutCounterClockwise90	= 2,
+	InspectorRotationShortcutBackside			= 3
 	// the rest of the tags match ViewOrientationT
 	
 } StepInspectorRotationShortcutT;

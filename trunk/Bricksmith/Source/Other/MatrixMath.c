@@ -97,6 +97,19 @@ bool FloatsApproximatelyEqual(float float1, float float2)
 	// different number depending on the magnitute of the float value. 
 	if(abs(value1.intValue - value2.intValue) < 5)
 		closeEnough = true;
+	
+	// The int method doesn't seem to work very well for numbers very close to 
+	// zero, where float values can have extremely precise representations. So 
+	// if we are trying to compare a float to 0, we fall back on the old 
+	// precision threshold. 
+	else if(	float1 > -1 && float1 < 1
+			&&	float1 > -1 && float1 < 1 )
+	{
+		if( fabs(float1 - float2) < SMALL_NUMBER)
+		{
+			closeEnough = true;
+		}
+	}
 		
 	return closeEnough;
 

@@ -2,7 +2,20 @@
 //
 // File:		InspectionStep.m
 //
-// Purpose:		Inspector controller for LDrawSteps.
+// Purpose:		Inspector controller for LDrawSteps. Allows selection of a step 
+//				rotatation angle (MLCad ROTSTEP). 
+//
+//				The UI is prettified to make ROTSTEP configuration easier. For 
+//				each rotation type, we present a pop-up menu of common viewing 
+//				angles appropriate for that rotation (such as Upside-down for 
+//				Relative). In so doing, we aim to make it easier for users to 
+//				select the correct rotation type for their viewing angle, which 
+//				is traditionally very difficult for new users to figure out. 
+//
+//				If they don't want a preset, they can always choose custom. 
+//				Under the hood, of course, everything is just an angle. But for 
+//				"magic" recognized angles (like upside-down) we disable the 
+//				custom fields and show the popup-menu item. 
 //
 // Modified:	9/7/08 Allen Smith. Creation date.
 //
@@ -147,6 +160,10 @@
 		else if( V3PointsWithinTolerance(rotationAngle, V3Make(0, -90, 0)) == YES )
 			[self->relativeRotationPopUpMenu selectItemWithTag:InspectorRotationShortcutCounterClockwise90];
 			
+		else if(	V3PointsWithinTolerance(rotationAngle, V3Make(0, 180, 0)) == YES 
+				||	V3PointsWithinTolerance(rotationAngle, V3Make(180, 0, 180)) == YES ) // an alternate decomposition that comes out of Bricksmith's math
+			[self->relativeRotationPopUpMenu selectItemWithTag:InspectorRotationShortcutBackside];
+			
 		else
 			[self->relativeRotationPopUpMenu selectItemWithTag:InspectorRotationShortcutCustom];
 	}
@@ -276,8 +293,6 @@
 //==============================================================================
 - (void) setAngleUIAccordingToPopUp
 {
-//	LDrawStep			*representedObject	= [self object];
-//	LDrawStepRotationT	stepRotationType	= [representedObject stepRotationType]; // not yet set just after radio buttons clicked
 	LDrawStepRotationT	stepRotationType	= [self->rotationTypeRadioButtons selectedTag];
 	int					shortcut			= 0;
 	Tuple3				newAngle			= ZeroPoint3;
@@ -299,6 +314,10 @@
 				
 			case InspectorRotationShortcutCounterClockwise90:
 				newAngle = V3Make(0, -90, 0);
+				break;
+				
+			case InspectorRotationShortcutBackside:
+				newAngle = V3Make(0, 180, 0);
 				break;
 				
 			case InspectorRotationShortcutCustom:
@@ -331,4 +350,6 @@
 	
 }//end setAngleUIAccordingToPopUp
 
+
 @end
+

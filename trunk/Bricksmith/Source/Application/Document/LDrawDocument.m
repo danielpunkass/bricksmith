@@ -981,7 +981,7 @@
 	NSArray			*submodels			= [[self documentContents] submodels];
 	LDrawMPDModel	*currentSubmodel	= nil;
 	NSString		*currentName		= nil;
-	NSString		*newName			= nil;
+	NSString		*acceptableName		= nil;
 	int				counter				= 0;
 	
 	// Find submodels with bad names.
@@ -989,17 +989,28 @@
 	{
 		currentSubmodel	= [submodels objectAtIndex:counter];
 		currentName		= [currentSubmodel modelName];
+		acceptableName	= [LDrawMPDModel ldrawCompliantNameForName:currentName];
 		
 		// If the model name does not have a valid LDraw file extension, the 
 		// LDraw spec says we must give it one. Ugh. 
-		if( [LDrawUtilities isLDrawFilenameValid:currentName] == NO )
+		if( [acceptableName isEqualToString:currentName] == NO )
 		{
-			newName = [currentName stringByAppendingPathExtension:@"ldr"];
+			// For files with only one model, we synthesize a name based on the 
+			// model description. We can safely do a direct rename of these 
+			// files. This also means LDrawMPDModel doesn't have to clean up 
+			// every official part we parse from the LDraw folder. 
+			if([submodels count] == 1)
+			{
+				[currentSubmodel setModelName:acceptableName];
+			}
+			else
+			{
+				// For MPD documents, we need to do a complex rename.
+				[[self documentContents] renameModel:currentSubmodel toName:acceptableName];
 			
-			[[self documentContents] renameModel:currentSubmodel toName:newName];
-			
-			// Mark document as modified.
-			[self updateChangeCount:NSChangeDone];
+				// Mark document as modified.
+				[self updateChangeCount:NSChangeDone];
+			}
 		}
 	}
 	

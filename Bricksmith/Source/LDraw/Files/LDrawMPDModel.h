@@ -24,11 +24,15 @@
 + (id) modelWithLines:(NSArray *)lines;
 - (id) initWithLines:(NSArray *)lines;
 
-//Directives
+// Directives
 - (NSString *) writeModel;
 
-//Accessors
+// Accessors
 - (NSString *)modelName;
+- (void) setModelDisplayName:(NSString *)newDisplayName;
 - (void) setModelName:(NSString *)newModelName;
+
+// Utilities
++ (NSString *) ldrawCompliantNameForName:(NSString *)newDisplayName;
 
 @end

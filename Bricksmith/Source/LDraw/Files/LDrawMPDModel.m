@@ -25,6 +25,7 @@
 #import "LDrawMPDModel.h"
 
 #import "LDrawFile.h"
+#import "LDrawUtilities.h"
 #import "MacLDraw.h"
 #import "StringCategory.h"
 
@@ -96,8 +97,7 @@
 	
 	// Set the spec-compliant model name with extension
 	newModelName = NSLocalizedString(@"UntitledModel", nil);
-	newModelName = [newModelName stringByAppendingPathExtension:@"ldr"];
-	[self setModelName:newModelName];
+	[self setModelDisplayName:newModelName];
 	
 	return self;
 	
@@ -150,10 +150,13 @@
 	//If it wasn't MPD, we still need a model name. We can get that via the 
 	// parsed model.
 	if(isMPDModel == NO)
+	{
 		mpdSubmodelName = [self modelDescription];
+	}
 
 	//And now set the MPD-specific attributes.
 	[self setModelName:mpdSubmodelName];
+	
 
 	return self;
 
@@ -317,9 +320,58 @@
 }//end setModelName:
 
 
+//========== setModelDisplayName: ==============================================
+//
+// Purpose:		Unfortunately, we can't accept any old input for model names. 
+//				This method accepts a user-entered string with arbitrary 
+//				characters, and sets the model name to the closest 
+//				representation thereof which is still LDraw-compliant. 
+//
+//				After calling this method, -browsingDescription will return a 
+//				value as close to newDisplayName as possible. 
+//
+//==============================================================================
+- (void) setModelDisplayName:(NSString *)newDisplayName
+{
+	NSString	*acceptableName	= [LDrawMPDModel ldrawCompliantNameForName:newDisplayName];
+	
+	[self setModelName:acceptableName];
+	
+}//end setModelDisplayName:
+
+
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
+
+//---------- ldrawCompliantNameForName: ------------------------------[static]--
+//
+// Purpose:		Unfortunately, we can't accept any old input for model names. 
+//				This method accepts a user-entered string with arbitrary 
+//				characters, and returns the model name or the closest 
+//				representation thereof which is still LDraw-compliant. 
+//
+//------------------------------------------------------------------------------
++ (NSString *) ldrawCompliantNameForName:(NSString *)newDisplayName
+{
+	NSString	*acceptableName	= nil;
+	
+	// Since LDraw is space-delimited, we can't have whitespace at the beginning 
+	// of the name. We'll chop of ending whitespace for good measure.
+	acceptableName = [newDisplayName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	
+	// The LDraw spec demands that the model name end with a valid LDraw 
+	// extension. Yuck! 
+	if([LDrawUtilities isLDrawFilenameValid:acceptableName] == NO)
+	{
+//		acceptableName = [acceptableName stringByAppendingPathExtension:@"ldr"];
+		acceptableName = [acceptableName stringByAppendingString:@".ldr"];
+	}
+	
+	return acceptableName;
+	
+}//end ldrawCompliantNameForName:
+
 
 //========== registerUndoActions ===============================================
 //

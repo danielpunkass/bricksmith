@@ -179,7 +179,7 @@
 	
 	minifigureName = newName;
 	
-	[self->minifigure setModelName:newName];
+	[self->minifigure setModelDisplayName:newName];
 	
 }//end setMinifigureName:
 
@@ -259,7 +259,7 @@
 	LDrawMPDModel	*newMinifigure	= [LDrawMPDModel newModel];
 	LDrawStep		*firstStep		= [[newMinifigure steps] objectAtIndex:0];
 	
-	[newMinifigure setModelName:self->minifigureName];
+	[newMinifigure setModelDisplayName:self->minifigureName];
 	
 	//create the parts based on the current selections
 	LDrawPart	*hat				= [[[hatsController					selectedObjects] objectAtIndex:0] copy];

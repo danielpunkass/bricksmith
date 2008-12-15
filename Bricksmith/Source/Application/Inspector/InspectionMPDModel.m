@@ -118,12 +118,12 @@
 {
 	NSString *newValue	= [sender stringValue];
 	NSString *oldValue	= [[self object] modelName];
+	NSString *realValue	= [LDrawMPDModel ldrawCompliantNameForName:newValue];
 	
-	// If they've tried to delete the stupid extension, add it back in. The spec 
-	// tells us to. #@$!@%!
-	if([LDrawUtilities isLDrawFilenameValid:newValue] == NO)
+	// They may have entered a name the spec claims is invalid. #@$!@%!
+	if([newValue isEqualToString:realValue] == NO)
 	{
-		newValue = [newValue stringByAppendingPathExtension:@"ldr"];
+		newValue = realValue;
 		
 		// Put the extension back in the UI and beep to complain. I'm too lazy 
 		// to write a dialog here. 

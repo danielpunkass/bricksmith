@@ -13,6 +13,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 //Box which represents no bounds. It is defined in such a way that it can 
@@ -39,20 +40,85 @@ const Matrix4 IdentityMatrix4 = {{	{1, 0, 0, 0},
 const Point3 ZeroPoint3 = {0.0, 0.0, 0.0};
 const Point4 ZeroPoint4 = {0.0, 0.0, 0.0, 0.0};
 
+
+//========== FloatsApproximatelyEqual ==========================================
+//
+// Purpose:		Testing floating-point numbers for equality is horribly 
+//				difficult, owing to tiny little rounding errors. This method 
+//				attempts to determine approximate equality. 
+//
+//				It is insufficient to test with some tolerance value (such as 
+//				SMALL_NUMBER), because the minimum difference between two 
+//				floating-point values changes depending on how big the integer 
+//				component is. 
+//
+//				The trick is described here:
+//				http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
+//
+//				Basically, the bits of floating-point values are guaranteed to 
+//				be ordered, so if we compare them as SIGN-MAGNITUDE integers, 
+//				the integer difference represents the true relative difference. 
+//				There are 0xFFFFFFFF possible floating-point values; a 
+//				difference of, say, 2 doesn't amount to much! 
+//
+//				The main issue now is converting from 2's compliment into 
+//				sign-magnitude ints. 
+//
+//==============================================================================
+bool FloatsApproximatelyEqual(float float1, float float2)
+{
+	// Use a union; it's less scary than *(int*)&point1.z;
+	union intFloat
+	{
+		int32_t	intValue;
+		float	floatValue;
+	};
+	
+	union intFloat	value1;
+	union intFloat	value2;
+	bool			closeEnough	= false;
+	
+	// First translate the floats into integers via the union.
+	value1.floatValue = float1;
+	value2.floatValue = float2;
+	
+	// Make value1.intValue lexicographically ordered as a twos-complement int
+	// (Floating-point -0 == 0x80000000; the next number less than -0 is 
+	// 0x80000001, etc.) So we do: value1.intValue = 0x80000000 - value1.intValue;
+    if (value1.intValue < 0)
+        value1.intValue = (1 << (sizeof(float) * 8 - 1)) - value1.intValue;
+	
+    // ...and do the same for value2
+    if (value2.intValue < 0)
+        value2.intValue = (1 << (sizeof(float) * 8 - 1)) - value2.intValue;
+	
+	// Less than 5 integer positions different will be considered equal. This 
+	// number was pulled out of my hat. Each integer difference equals a 
+	// different number depending on the magnitute of the float value. 
+	if(abs(value1.intValue - value2.intValue) < 5)
+		closeEnough = true;
+		
+	return closeEnough;
+
+}//end FloatsApproximatelyEqual
+
+
+#pragma mark -
 #pragma mark 2-D LIBRARY
 #pragma mark -
 
-/*
- * float = det2x2( float a, float b, float c, float d )
- * 
- * calculate the determinant of a 2x2 matrix.
- */
-float det2x2( float a, float b, float c, float d)
+//========== Matrix2x2Determinant ==============================================
+//
+// Purpose:		Calculate the determinant of a 2x2 matrix.
+//
+//==============================================================================
+float Matrix2x2Determinant( float a, float b, float c, float d)
 {
     float ans;
     ans = a * d - b * c;
     return ans;
-}
+	
+}//end Matrix2x2Determinant
 
 
 #pragma mark -
@@ -135,9 +201,14 @@ bool V3EqualPoints(Point3 point1, Point3 point2)
 //==============================================================================
 bool V3PointsWithinTolerance(Point3 point1, Point3 point2)
 {
-	if(		fabs(point1.x - point2.x) <= SMALL_NUMBER
-	   &&	fabs(point1.y - point2.y) <= SMALL_NUMBER
-	   &&	fabs(point1.z - point2.z) <= SMALL_NUMBER )
+	bool test = false;
+	test = FloatsApproximatelyEqual(point1.x, point2.x);
+	test = FloatsApproximatelyEqual(point1.y, point2.y);
+	test = FloatsApproximatelyEqual(point1.z, point2.z);
+	
+	if(		FloatsApproximatelyEqual(point1.x, point2.x)
+	   &&	FloatsApproximatelyEqual(point1.y, point2.y)
+	   &&	FloatsApproximatelyEqual(point1.z, point2.z) )
 		return true;
 	else
 		return false;
@@ -610,9 +681,9 @@ float a1, a2, a3, b1, b2, b3, c1, c2, c3;
 {
     float ans;
 	
-    ans = a1 * det2x2( b2, b3, c2, c3 )
-        - b1 * det2x2( a2, a3, c2, c3 )
-        + c1 * det2x2( a2, a3, b2, b3 );
+    ans = a1 * Matrix2x2Determinant( b2, b3, c2, c3 )
+        - b1 * Matrix2x2Determinant( a2, a3, c2, c3 )
+        + c1 * Matrix2x2Determinant( a2, a3, b2, b3 );
     return ans;
 }
 

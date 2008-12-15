@@ -238,14 +238,6 @@
 	viewingAngle.y = round(viewingAngle.y);
 	viewingAngle.z = round(viewingAngle.z);
 	
-	// Seems some of my -0s were actually bigger than SMALL_NUMBER.
-//	if(fabs(viewingAngle.x) < SMALL_NUMBER)
-//		viewingAngle.x = 0;
-//	if(fabs(viewingAngle.y) < SMALL_NUMBER)
-//		viewingAngle.y = 0;
-//	if(fabs(viewingAngle.z) < SMALL_NUMBER)
-//		viewingAngle.z = 0;
-	
 	// set the values in the UI.
 	[self->rotationXField setDoubleValue:viewingAngle.x];
 	[self->rotationYField setDoubleValue:viewingAngle.y];

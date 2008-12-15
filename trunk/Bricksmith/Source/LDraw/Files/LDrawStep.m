@@ -437,6 +437,8 @@
 //==============================================================================
 - (Tuple3) rotationAngleZYX
 {
+	//---------- Convert XYZ to ZYX --------------------------------------------
+	
 	// Translate our internal XYZ angle to ZYX by creating a rotation matrix and 
 	// decomposing it in a different order. 
 
@@ -447,6 +449,31 @@
 	angleZYX.x	= degrees(angleZYX.x);
 	angleZYX.y	= degrees(angleZYX.y);
 	angleZYX.z	= degrees(angleZYX.z);
+	
+	
+	//---------- Fix weird float values ----------------------------------------
+	
+	// Sometimes these get decomposed with a -180 rotation, which is the same as 
+	// a 180 rotation. Fix it for display purposes. 
+	if(FloatsApproximatelyEqual(angleZYX.x, -180.0))
+		angleZYX.x = 180;
+	
+	if(FloatsApproximatelyEqual(angleZYX.y, -180.0))
+		angleZYX.y = 180;
+	
+	if(FloatsApproximatelyEqual(angleZYX.z, -180.0))
+		angleZYX.z = 180;
+
+	// Sometimes we wind up with a -0 rotation, which ought to be plain old 0. 
+	// Fix it for display purposes. 
+	if(FloatsApproximatelyEqual(angleZYX.x, -0.0))
+		angleZYX.x = 0;
+	
+	if(FloatsApproximatelyEqual(angleZYX.y, -0.0))
+		angleZYX.y = 0;
+	
+	if(FloatsApproximatelyEqual(angleZYX.z, -0.0))
+		angleZYX.z = 0;
 	
 	return angleZYX;
 	
@@ -523,6 +550,17 @@
 	newAngleXYZ.y	= degrees(newAngleXYZ.y);
 	newAngleXYZ.z	= degrees(newAngleXYZ.z);
 	
+	// Sometimes these get decomposed with a -180 rotation, which is the same as 
+	// a 180 rotation. Fix it for display purposes. 
+	if(FloatsApproximatelyEqual(newAngleXYZ.x, -180.0))
+		newAngleXYZ.x = 180;
+	
+	if(FloatsApproximatelyEqual(newAngleXYZ.y, -180.0))
+		newAngleXYZ.y = 180;
+	
+	if(FloatsApproximatelyEqual(newAngleXYZ.z, -180.0))
+		newAngleXYZ.z = 180;
+
 	self->rotationAngle = newAngleXYZ;
 	
 }//end setRotationAngleZYX:

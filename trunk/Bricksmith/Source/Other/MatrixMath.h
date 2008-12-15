@@ -102,8 +102,7 @@ typedef struct
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#define PI				3.141592654
+#define PI				M_PI
 #define SMALL_NUMBER	1.e-6		//"close enough" zero for floating-point. 1e-8 is too small.
 
 extern const Box3					InvalidBox;
@@ -183,8 +182,12 @@ extern const Point4					ZeroPoint4;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-extern float	det2x2( float, float, float, float);
+extern bool		FloatsApproximatelyEqual(float float1, float float2);
 
+// 2-D
+extern float	Matrix2x2Determinant( float, float, float, float);
+
+// 3-D
 extern Vector3	V3Make(float x, float y, float z);
 extern Vector3*	V3Duplicate(Vector3 *a);
 extern Vector3	V3FromV4(Vector4 originalVector);
@@ -214,6 +217,7 @@ extern Matrix4*	V3MatMul(Matrix4 *a, Matrix4 *b, Matrix4 *c);
 extern void		V3Print(Point3 point);
 extern float	det3x3( float, float, float, float, float, float, float, float, float );
 
+// 4-D
 extern Vector4	V4Make(float x, float y, float z, float w);
 extern Vector4	V4FromV3(Vector3 originalVector);
 extern Vector4	V4MulPointByMatrix(Vector4 pin, Matrix4 m);

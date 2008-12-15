@@ -491,13 +491,16 @@
 {
 	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
 	
-	[activeModel setMaximumStepIndexDisplayed:requestedStep];
+	[activeModel setMaximumStepIndexForStepDisplay:requestedStep];
 	
 	// Update UI
 	[self->stepField setIntValue:(requestedStep + 1)]; // make 1-relative
-	[self updateViewingAngleToMatchStep];
-	[[self documentContents] setNeedsDisplay];
-
+	if([activeModel stepDisplay] == YES)
+	{
+		[self updateViewingAngleToMatchStep];
+		[[self documentContents] setNeedsDisplay];
+	}
+	
 }//end setCurrentStep:
 
 
@@ -571,6 +574,7 @@
 	{
 		if(showStepsFlag == YES)
 		{
+			[activeModel setStepDisplay:YES];
 			[self setCurrentStep:0];
 		}
 		else // turn it off now
@@ -589,7 +593,7 @@
 	[self->viewStepsButton setState:(showStepsFlag == YES)];
 	
 	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
-	[self->stepField setIntValue:[activeModel maximumStepIndexDisplayed] + 1];
+	[self->stepField setIntValue:[activeModel maximumStepIndexForStepDisplay] + 1];
 	
 }//end toggleStepDisplay:
 
@@ -1681,7 +1685,7 @@
 - (IBAction) advanceOneStep:(id)sender
 {
 	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	int				currentStep		= [activeModel maximumStepIndexDisplayed];
+	int				currentStep		= [activeModel maximumStepIndexForStepDisplay];
 	int				numberSteps		= [[activeModel steps] count];
 	
 	[self setCurrentStep: (currentStep+1) % numberSteps ];
@@ -1697,7 +1701,7 @@
 - (IBAction) backOneStep:(id)sender
 {
 	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	int				currentStep		= [activeModel maximumStepIndexDisplayed];
+	int				currentStep		= [activeModel maximumStepIndexForStepDisplay];
 	int				numberSteps		= [[activeModel steps] count];
 	
 	// Wrap around?
@@ -2697,9 +2701,10 @@
 	[[LDrawColorPanel sharedColorPanel] updateSelectionWithObjects:selectedObjects];
 	if(selectedModel != nil)
 	{
-		//put the selection on screen
+		// Put the selection on screen (if we need to)
 		[[self documentContents] setActiveModel:selectedModel];
 		[selectedModel makeStepVisible:selectedStep];
+		[self setCurrentStep:[selectedModel maximumStepIndexForStepDisplay]]; // update document UI
 	}
 	[[self documentContents] setNeedsDisplay];
 	
@@ -4066,7 +4071,7 @@
 - (void) updateViewingAngleToMatchStep
 {
 	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
-	int					requestedStep	= [activeModel maximumStepIndexDisplayed];
+	int					requestedStep	= [activeModel maximumStepIndexForStepDisplay];
 	Tuple3				viewingAngle	= [activeModel rotationAngleForStepAtIndex:requestedStep];
 	ViewOrientationT	viewOrientation	= [LDrawUtilities viewOrientationForAngle:viewingAngle];
 	

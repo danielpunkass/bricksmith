@@ -28,6 +28,8 @@
 #define TOOLBAR_ZOOM_IN					@"Zoom In"
 #define TOOLBAR_ZOOM_OUT				@"Zoom Out"
 #define TOOLBAR_ZOOM_SPECIFY			@"Specify Zoom"
+#define TOOLBAR_SHOW_COLORS				@"ShowColors"
+#define TOOLBAR_SHOW_INSPECTOR			@"ShowInspector"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -59,6 +61,8 @@
 - (NSToolbarItem *) makeZoomInItem;
 - (NSToolbarItem *) makeZoomOutItem;
 - (NSToolbarItem *) makeZoomTextFieldItem;
+- (NSToolbarItem *) makeShowColorsItem;
+- (NSToolbarItem *) makeShowInspectorItem;
 
 //Accessors
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;

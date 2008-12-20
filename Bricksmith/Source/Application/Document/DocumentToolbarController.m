@@ -75,6 +75,8 @@
 										TOOLBAR_ZOOM_IN,
 										TOOLBAR_ZOOM_OUT,
 										TOOLBAR_ZOOM_SPECIFY,
+										TOOLBAR_SHOW_COLORS,
+										TOOLBAR_SHOW_INSPECTOR,
 
 										//Cocoa doodads
 										NSToolbarSeparatorItemIdentifier,
@@ -186,7 +188,13 @@
 		newItem = [self makeZoomTextFieldItem];
 	}
 	
-
+	else if([itemIdentifier isEqualToString:TOOLBAR_SHOW_COLORS]) {
+		newItem = [self makeShowColorsItem];
+	}	
+	else if([itemIdentifier isEqualToString:TOOLBAR_SHOW_INSPECTOR]) {
+		newItem = [self makeShowInspectorItem];
+	}
+	
 	return newItem;
 	
 }//end toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:
@@ -484,6 +492,46 @@
 	return [newItem autorelease];
 	
 }//end makeZoomTextFieldItem
+
+//========== makeShowColorsItem =============================================
+//
+// Purpose:		Button that displays the colors panel
+//
+//==============================================================================
+- (NSToolbarItem *) makeShowColorsItem
+{
+	NSToolbarItem *newItem = [[NSToolbarItem alloc]
+									initWithItemIdentifier:TOOLBAR_SHOW_COLORS];
+	
+	[newItem setLabel:NSLocalizedString(@"ShowColors", nil)];
+	[newItem setPaletteLabel:NSLocalizedString(@"ShowColors", nil)];
+	[newItem setImage:[NSImage imageNamed:NSImageNameColorPanel]];
+
+	[newItem setTarget:nil];
+	[newItem setAction:@selector(showColors:)];
+
+	return [newItem autorelease];
+}//end makeShowColorsItem
+
+//========== makeShowInspectorItem =============================================
+//
+// Purpose:		Button that displays the inspector (info) window
+//
+//==============================================================================
+- (NSToolbarItem *) makeShowInspectorItem
+{
+	NSToolbarItem *newItem = [[NSToolbarItem alloc]
+									initWithItemIdentifier:TOOLBAR_SHOW_INSPECTOR];
+	
+	[newItem setLabel:NSLocalizedString(@"ShowInspector", nil)];
+	[newItem setPaletteLabel:NSLocalizedString(@"ShowInspector", nil)];
+	[newItem setImage:[NSImage imageNamed:NSImageNameInfo]];
+
+	[newItem setTarget:nil];
+	[newItem setAction:@selector(showInspector:)];
+
+	return [newItem autorelease];
+}//end makeShowInspectorItem
 
 
 #pragma mark -

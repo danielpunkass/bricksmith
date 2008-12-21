@@ -416,10 +416,16 @@
 {
 	NSToolbarItem *newItem = [[NSToolbarItem alloc]
 							  initWithItemIdentifier:TOOLBAR_SHOW_COLORS];
+	NSImage *image;
+	
+	if(NSImageNameColorPanel != nil)
+		image = [NSImage imageNamed:NSImageNameColorPanel];
+	else
+		image = [NSImage imageNamed:@"Colors.tiff"];
 	
 	[newItem setLabel:NSLocalizedString(@"ShowColors", nil)];
 	[newItem setPaletteLabel:NSLocalizedString(@"ShowColors", nil)];
-	[newItem setImage:[NSImage imageNamed:NSImageNameColorPanel]];
+	[newItem setImage:image];
 	
 	[newItem setTarget:nil];
 	[newItem setAction:@selector(showColors:)];
@@ -438,10 +444,16 @@
 {
 	NSToolbarItem *newItem = [[NSToolbarItem alloc]
 							  initWithItemIdentifier:TOOLBAR_SHOW_INSPECTOR];
+	NSImage *image;
+	
+	if(NSImageNameInfo != nil)
+		image = [NSImage imageNamed:NSImageNameInfo];
+	else
+		image = [NSImage imageNamed:@"Info.tiff"];
 	
 	[newItem setLabel:NSLocalizedString(@"ShowInspector", nil)];
 	[newItem setPaletteLabel:NSLocalizedString(@"ShowInspector", nil)];
-	[newItem setImage:[NSImage imageNamed:NSImageNameInfo]];
+	[newItem setImage:image];
 	
 	[newItem setTarget:nil];
 	[newItem setAction:@selector(showInspector:)];

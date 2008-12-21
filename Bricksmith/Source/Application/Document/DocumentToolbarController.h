@@ -24,12 +24,12 @@
 #define TOOLBAR_ROTATE_NEGATIVE_Y		@"Rotate-Y"
 #define TOOLBAR_ROTATE_POSITIVE_Z		@"Rotate+Z"
 #define TOOLBAR_ROTATE_NEGATIVE_Z		@"Rotate-Z"
+#define TOOLBAR_SHOW_COLORS				@"ShowColors"
+#define TOOLBAR_SHOW_INSPECTOR			@"ShowInspector"
 #define TOOLBAR_SNAP_TO_GRID			@"Snap To Grid"
 #define TOOLBAR_ZOOM_IN					@"Zoom In"
 #define TOOLBAR_ZOOM_OUT				@"Zoom Out"
 #define TOOLBAR_ZOOM_SPECIFY			@"Specify Zoom"
-#define TOOLBAR_SHOW_COLORS				@"ShowColors"
-#define TOOLBAR_SHOW_INSPECTOR			@"ShowInspector"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -56,13 +56,13 @@
 - (NSToolbarItem *) makeRotationMinusYItem;
 - (NSToolbarItem *) makeRotationPlusZItem;
 - (NSToolbarItem *) makeRotationMinusZItem;
+- (NSToolbarItem *) makeShowColorsItem;
+- (NSToolbarItem *) makeShowInspectorItem;
 - (NSToolbarItem *) makePartBrowserItem;
 - (NSToolbarItem *) makeSnapToGridItem;
 - (NSToolbarItem *) makeZoomInItem;
 - (NSToolbarItem *) makeZoomOutItem;
 - (NSToolbarItem *) makeZoomTextFieldItem;
-- (NSToolbarItem *) makeShowColorsItem;
-- (NSToolbarItem *) makeShowInspectorItem;
 
 //Accessors
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;

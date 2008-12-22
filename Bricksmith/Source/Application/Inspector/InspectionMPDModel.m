@@ -116,22 +116,50 @@
 //==============================================================================
 - (IBAction) modelNameFieldChanged:(id)sender
 {
-	NSString *newValue	= [sender stringValue];
-	NSString *oldValue	= [[self object] modelName];
-	NSString *realValue	= [LDrawMPDModel ldrawCompliantNameForName:newValue];
+	NSString *newValue			= [sender stringValue];
+	NSString *oldValue			= [[self object] modelName];
+	NSString *compliantValue	= [LDrawMPDModel ldrawCompliantNameForName:newValue];
+	
+	//---------- Error Checking ------------------------------------------------
 	
 	// They may have entered a name the spec claims is invalid. #@$!@%!
-	if([newValue isEqualToString:realValue] == NO)
+	// But life goes on, we will fix it for them.
+	if([newValue isEqualToString:compliantValue] == NO)
 	{
-		newValue = realValue;
-		
-		// Put the extension back in the UI and beep to complain. I'm too lazy 
-		// to write a dialog here. 
+		// Use the compliant name, show it in the UI and beep to complain. (I'm 
+		// too lazy to write a dialog here.) 
+		newValue = compliantValue;
 		[self->modelNameField setStringValue:newValue];
 		NSBeep();
 	}
 	
-	//If the values really did change, then update.
+	// Duplicate model names are not allowed, because they cause nasty things to 
+	// happen when automatically renaming references to them. 
+	if(		[newValue isEqualToString:oldValue] == NO				// actually changed the name!
+		&&	[[[self object] enclosingFile] modelWithName:newValue] != nil) // is a duplicate!
+	{
+		NSAlert		*alert		= [[NSAlert alloc] init];
+		NSString	*message	= nil;
+		
+		message = [NSString stringWithFormat:NSLocalizedString(@"DuplicateModelnameMessage", nil), newValue];
+		
+		[alert setMessageText:message];
+		[alert setInformativeText:NSLocalizedString(@"DuplicateModelnameInformative", nil)];
+		
+		[alert runModal];
+		
+		// Revert the change; it's not very nice to throw out the user's 
+		// changes, but that's what the Finder does! (And it's easy.)
+		newValue = oldValue;
+		[self->modelNameField setStringValue:newValue];
+		
+		[alert release];
+	}
+	
+	
+	//---------- Apply Change --------------------------------------------------
+	
+	// If the values really *did* change, then update.
 	if([newValue isEqualToString:oldValue] == NO)
 	{
 		[self finishedEditing:sender];

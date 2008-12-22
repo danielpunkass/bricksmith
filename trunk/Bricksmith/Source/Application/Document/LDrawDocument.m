@@ -53,6 +53,7 @@
 #import "PartReport.h"
 #import "PieceCountPanel.h"
 #import "RotationPanel.h"
+#import "StringUtilities.h"
 #import "UserDefaultsCategory.h"
 #import "WindowCategory.h"
 
@@ -3566,30 +3567,53 @@
 #pragma mark UTILITIES
 #pragma mark -
 
-//========== addModelClicked: ==================================================
+//========== addModel: =========================================================
 //
-// Purpose:		Add newModel it to the current file.
+// Purpose:		Add newModel to the current file.
+//
+// Notes:		Duplicate model names are verboten, so if newModel's name 
+//				matches an existing model name, an approriate "copy X" will be 
+//				appended automatically. 
+//
+//				There is a bug here in that if several models having references 
+//				to one another are pasted at once into a file with name 
+//				conflicts, the file reference structure of the pasted models 
+//				will point to the wrong names once this method does its renaming 
+//				magic. To this I respond, "don't do that."
 //
 //==============================================================================
 - (void) addModel:(LDrawMPDModel *)newModel
 {
-	LDrawModel		*selectedModel	= [self selectedModel];
-	NSUndoManager	*undoManager	= [self undoManager];
+	NSString		*proposedModelName	= [newModel modelName];
+	LDrawModel		*selectedModel		= [self selectedModel];
+	NSUndoManager	*undoManager		= [self undoManager];
+	int				indexOfModel		= 0;
+	int				rowForItem			= 0;
 	
+	// Derive a non-duplicating name for this new model
+	while([[self documentContents] modelWithName:proposedModelName] != nil)
+	{
+		proposedModelName = [StringUtilities nextCopyPathForFilePath:proposedModelName];
+	}
+	[newModel setModelName:proposedModelName];
+	
+	
+	// Add directly after the currently-selected model?
 	if(selectedModel != nil)
 	{
-		int indexOfModel = [[self documentContents] indexOfDirective:selectedModel];
+		indexOfModel = [[self documentContents] indexOfDirective:selectedModel];
 		[self addDirective:newModel
 				  toParent:[self documentContents]
 				   atIndex:indexOfModel+1 ];
 	}
+	// Add to the end of the model list.
 	else
 		[self addDirective:newModel
 				  toParent:[self documentContents] ];
 	
 	//Select the new model.
 	[fileContentsOutline expandItem:newModel];
-	int rowForItem = [fileContentsOutline rowForItem:newModel];
+	rowForItem = [fileContentsOutline rowForItem:newModel];
 	[fileContentsOutline selectRowIndexes:[NSIndexSet indexSetWithIndex:rowForItem]
 					 byExtendingSelection:NO];
 	

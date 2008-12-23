@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0B05899C09849F5A0089FD81 /* Crosshair.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B05899B09849F5A0089FD81 /* Crosshair.tiff */; };
+		0B096AE30F00913100D7A642 /* Info.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B096AE20F00913100D7A642 /* Info.tiff */; };
 		0B0DD7C709B5772200F8EBAA /* LDrawUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */; };
 		0B0DD7C809B5772200F8EBAA /* LDrawUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */; };
 		0B14DB940B94D4710002C053 /* GeneralPreferences.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */; };
@@ -33,6 +34,7 @@
 		0B356A9808D371EE00695EEB /* PartReport.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356A9608D371EE00695EEB /* PartReport.m */; };
 		0B356AF008D385B900695EEB /* PieceCountPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356AEE08D385B900695EEB /* PieceCountPanel.m */; };
 		0B356AF108D385B900695EEB /* PieceCountPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B356AEF08D385B900695EEB /* PieceCountPanel.h */; };
+		0B45A9BC0F009165006FF538 /* Colors.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B45A9BB0F009165006FF538 /* Colors.tiff */; };
 		0B491DA407F5555B00AC0C10 /* MatrixMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B491DA207F5555B00AC0C10 /* MatrixMath.h */; };
 		0B491DA507F5555B00AC0C10 /* MatrixMath.c in Sources */ = {isa = PBXBuildFile; fileRef = 0B491DA307F5555B00AC0C10 /* MatrixMath.c */; };
 		0B491FF707F64B5800AC0C10 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B491FF607F64B5800AC0C10 /* OpenGL.framework */; };
@@ -267,6 +269,7 @@
 
 /* Begin PBXFileReference section */
 		0B05899B09849F5A0089FD81 /* Crosshair.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Crosshair.tiff; sourceTree = "<group>"; };
+		0B096AE20F00913100D7A642 /* Info.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Info.tiff; sourceTree = "<group>"; };
 		0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawUtilities.h; sourceTree = "<group>"; };
 		0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawUtilities.m; sourceTree = "<group>"; };
 		0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GeneralPreferences.tiff; sourceTree = "<group>"; };
@@ -294,6 +297,7 @@
 		0B356A9608D371EE00695EEB /* PartReport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartReport.m; sourceTree = "<group>"; };
 		0B356AEE08D385B900695EEB /* PieceCountPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieceCountPanel.m; sourceTree = "<group>"; };
 		0B356AEF08D385B900695EEB /* PieceCountPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PieceCountPanel.h; sourceTree = "<group>"; };
+		0B45A9BB0F009165006FF538 /* Colors.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Colors.tiff; sourceTree = "<group>"; };
 		0B491DA207F5555B00AC0C10 /* MatrixMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixMath.h; sourceTree = "<group>"; };
 		0B491DA307F5555B00AC0C10 /* MatrixMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MatrixMath.c; sourceTree = "<group>"; };
 		0B491FF607F64B5800AC0C10 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -721,8 +725,10 @@
 			isa = PBXGroup;
 			children = (
 				0B9FE57008AD97670046511D /* Arrows */,
+				0B45A9BB0F009165006FF538 /* Colors.tiff */,
 				0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */,
 				0B9FE57D08AD97670046511D /* Grid */,
+				0B096AE20F00913100D7A642 /* Info.tiff */,
 				0B9FE58108AD97670046511D /* LDrawLogo.tiff */,
 				0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */,
 				0B9FE58208AD97670046511D /* Rotation */,
@@ -1183,6 +1189,8 @@
 				0B30E08B0ED90D3000470615 /* Triangle.pdf in Resources */,
 				0B30E0D40EDA746900470615 /* Quadrilateral.pdf in Resources */,
 				0BFD363A0EEA49E100A1AAF5 /* PartBrowser.pdf in Resources */,
+				0B096AE30F00913100D7A642 /* Info.tiff in Resources */,
+				0B45A9BC0F009165006FF538 /* Colors.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

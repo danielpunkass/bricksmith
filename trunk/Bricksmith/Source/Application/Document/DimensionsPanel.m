@@ -187,7 +187,7 @@
 		length	= bounds.max.z - bounds.min.z;
 	}
 
-	//Units Lable?
+	//Units Label?
 	if([[tableColumn identifier] isEqualToString:UNITS_COLUMN])
 	{
 		switch(rowIndex)
@@ -200,7 +200,9 @@
 		}
 	}
 	//Dimension value, then.
-	else {
+	else
+	{
+		// Width, Height, or Length?
 		if([[tableColumn identifier] isEqualToString:WIDTH_COLUMN])
 			value = width;
 		else if([[tableColumn identifier] isEqualToString:LENGTH_COLUMN])
@@ -208,9 +210,9 @@
 		else if([[tableColumn identifier] isEqualToString:HEIGHT_COLUMN])
 			value = height;
 			
-		//Now we have the value in LDraw Units.
-		// Convert to display units.
-		switch(rowIndex){
+		// We have the value in LDraw Units; convert to display units.
+		switch(rowIndex)
+		{
 			//oh dear. Studs are difficult.
 			case STUDS_ROW_INDEX:
 				if([[tableColumn identifier] isEqualToString:HEIGHT_COLUMN])
@@ -222,22 +224,26 @@
 			case INCHES_ROW_INDEX:			value *= studsPerLDU * inchesPerStud;					break;
 			case CENTIMETERS_ROW_INDEX:		value *= studsPerLDU * inchesPerStud * cmPerInch;		break;
 			case LEGONIAN_FEET_ROW_INDEX:	value *= studsPerLDU * inchesPerStud * legoInchPerInch;	break;
+			case LDU_ROW_INDEX:				value *= 1;												break; // nothing to convert for LDU
 		}
-		// nothing to convert for LDU
 		
-		//Now, how are we going to display it?
-		switch(rowIndex){
+		// Format output.
+		switch(rowIndex)
+		{
 			case STUDS_ROW_INDEX:
 				object = [NSNumber numberWithInt:ceil(value)];
 				break;
+			
 			case INCHES_ROW_INDEX:
 				object = [NSNumber numberWithFloat:value];
 				object = [floatFormatter stringForObjectValue:object];
 				break;
+			
 			case CENTIMETERS_ROW_INDEX:
 				object = [NSNumber numberWithFloat:value];
 				object = [floatFormatter stringForObjectValue:object];
 				break;
+			
 			//This one's a doozy--format in feet and inches.
 			case LEGONIAN_FEET_ROW_INDEX:
 				object = [NSString stringWithFormat:	NSLocalizedString(@"FeetAndInchesFormat", nil),
@@ -245,9 +251,9 @@
 														(int) fmod(value, 12)		//inches
 						];
 				break;
+			
 			case LDU_ROW_INDEX:
-				object = [NSNumber numberWithFloat:value];
-				object = [floatFormatter stringForObjectValue:object];
+				object = [NSNumber numberWithInt:ceil(value)];
 				break;
 		}
 		

@@ -56,7 +56,8 @@
 		NSDisableScreenUpdates(); //or DisableScreenUpdates() in Carbon.
 		
 	needsEnableUpdate = YES;
-}
+	
+}//end disableUpdatesUntilFlush
 
 
 //========== flushWindow =======================================================
@@ -74,6 +75,7 @@
 		needsEnableUpdate = NO;
 		NSEnableScreenUpdates(); //or EnableScreenUpdates() in Carbon.
 	}
-}
+}//end flushWindow
+
 
 @end

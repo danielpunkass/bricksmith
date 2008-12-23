@@ -152,13 +152,18 @@ Vector3 V3Make(float x, float y, float z)
 }//end V3Make
 
 
-/* create, initialize, and return a duplicate vector */
+//========== V3Duplicate =======================================================
+//
+// Purpose:		create, initialize, and return a duplicate vector
+//
+//==============================================================================
 Vector3 *V3Duplicate(Vector3 *a)
 {
 	Vector3 *v = NEWTYPE(Vector3);
 	v->x = a->x;  v->y = a->y;  v->z = a->z;
 	return(v);
-}
+	
+}//end V3Duplicate
 
 
 //========== V3FromV4 ==========================================================
@@ -181,7 +186,8 @@ Vector3 V3FromV4(Vector4 originalVector)
 	newVector.z = originalVector.z;
 	
 	return newVector;
-}
+	
+}//end V3FromV4
 
 
 #pragma mark -
@@ -663,7 +669,8 @@ Matrix4 *V3MatMul(Matrix4 *a, Matrix4 *b, Matrix4 *c)
 		}
 	}
 	return(c);
-}
+	
+}//end V3MatMul
 
 
 //========== V3Print ===========================================================
@@ -678,19 +685,16 @@ void V3Print(Point3 point)
 }//end V3Print
 
 
-/*
- * float = det3x3(  a1, a2, a3, b1, b2, b3, c1, c2, c3 )
- * 
- * calculate the determinant of a 3x3 matrix
- * in the form
- *
- *     | a1,  b1,  c1 |
- *     | a2,  b2,  c2 |
- *     | a3,  b3,  c3 |
- */
-
-float det3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3 )
-float a1, a2, a3, b1, b2, b3, c1, c2, c3;
+//========== det3x3 ============================================================
+//
+// Purpose:		Calculate the determinant of a 3x3 matrix in the form 
+//
+//				| a1,  b1,  c1 |
+//				| a2,  b2,  c2 |
+//				| a3,  b3,  c3 |
+//
+//==============================================================================
+float det3x3( float a1, float a2, float a3, float b1, float b2, float b3, float c1, float c2, float c3 )
 {
     float ans;
 	
@@ -698,7 +702,9 @@ float a1, a2, a3, b1, b2, b3, c1, c2, c3;
         - b1 * Matrix2x2Determinant( a2, a3, c2, c3 )
         + c1 * Matrix2x2Determinant( a2, a3, b2, b3 );
     return ans;
-}
+	
+}//end det3x3
+
 
 #pragma mark -
 #pragma mark 4-D LIBRARY
@@ -807,7 +813,8 @@ Matrix4 Matrix4CreateFromGLMatrix4(const GLfloat *glMatrix)
 			newMatrix.element[row][column] = glMatrix[row * 4 + column];
 	
 	return newMatrix;
-}
+	
+}//end Matrix4CreateFromGLMatrix4
 
 
 //========== Matrix4CreateTransformation() =====================================
@@ -1327,7 +1334,8 @@ void Matrix4Adjoint( Matrix4 *in, Matrix4 *out )
     out->element[1][3]  =   det3x3( a1, a2, a3, c1, c2, c3, d1, d2, d3);
     out->element[2][3]  = - det3x3( a1, a2, a3, b1, b2, b3, d1, d2, d3);
     out->element[3][3]  =   det3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
-}
+	
+}//end Matrix4Adjoint
 
 
 //========== Matrix4x4Determinant() ============================================
@@ -1361,8 +1369,10 @@ float Matrix4x4Determinant( Matrix4 *m )
         - b1 * det3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4)
         + c1 * det3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4)
         - d1 * det3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
+		
     return ans;
-}
+	
+}//end Matrix4x4Determinant
 
 
 //========== Matrix4Print() ====================================================
@@ -1383,4 +1393,6 @@ void Matrix4Print(Matrix4 *matrix)
 								matrix->element[counter][3] );
 	}
 	printf("\n");
+	
 }//end Matrix4Print
+

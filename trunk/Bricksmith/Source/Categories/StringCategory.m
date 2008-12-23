@@ -63,7 +63,8 @@
 - (NSComparisonResult)numericCompare:(NSString *)string
 {
 	return [self compare:string options:NSNumericSearch];
-}
+	
+}//end numericCompare:
 
 
 //========== separateByLine ====================================================
@@ -139,6 +140,7 @@
 	return strippedString;
 	
 }//end stringByRemovingWhitespace
+
 
 @end
 

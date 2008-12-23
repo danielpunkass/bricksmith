@@ -28,17 +28,17 @@
 #define LENGTH_COLUMN		@"LengthIdentifier"
 #define HEIGHT_COLUMN		@"HeightIdentifier"
 
+
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-
-//========== dimensionPanelForFile: ============================================
+//---------- dimensionPanelForFile: ----------------------------------[static]--
 //
 // Purpose:		Creates a panel which displays the dimensions for the specified 
 //				file. 
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (DimensionsPanel *) dimensionPanelForFile:(LDrawFile *)fileIn
 {
 	DimensionsPanel *dimensions = nil;
@@ -46,7 +46,8 @@
 	dimensions = [[DimensionsPanel alloc] initWithFile:fileIn];
 	
 	return [dimensions autorelease];
-}
+	
+}//end dimensionPanelForFile:
 
 
 //========== initWithFile: =====================================================
@@ -59,14 +60,15 @@
 //				in the Nib. Tricky, huh?
 //
 //==============================================================================
-- (id) initWithFile:(LDrawFile *)fileIn {
-
+- (id) initWithFile:(LDrawFile *)fileIn
+{
 	self = [super init];
 	
 	[self setFile:fileIn];
 	
 	return self;
-}
+	
+}//end initWithFile:
 
 
 #pragma mark -
@@ -79,19 +81,24 @@
 //				are currently analyzing.
 //
 //==============================================================================
-- (NSString *) activeModelName {
+- (NSString *) activeModelName
+{
 	return self->activeModelName;
-}
+	
+}//end activeModelName
 
 
-//========== container =========================================================
+//========== file ==============================================================
 //
-// Purpose:		Returns the container whose dimensions we are analyzing.
+// Purpose:		Returns the file whose dimensions we are analyzing.
 //
 //==============================================================================
-- (LDrawFile *) file {
+- (LDrawFile *) file
+{
 	return self->file;
-}
+	
+}//end file
+
 
 //========== setActiveModelName: ===============================================
 //
@@ -99,13 +106,15 @@
 //				are currently analyzing and updates the data view.
 //
 //==============================================================================
-- (void) setActiveModelName:(NSString *)newName {
+- (void) setActiveModelName:(NSString *)newName
+{
 	[newName retain];
 	[self->activeModelName release];
 	activeModelName = newName;
 	
 	[dimensionsTable reloadData];
-}
+	
+}//end setActiveModelName:
 
 
 //========== panelNibName ======================================================
@@ -114,23 +123,28 @@
 //				of the Nib where my dialog comes from.
 //
 //==============================================================================
-- (NSString *) panelNibName {
+- (NSString *) panelNibName
+{
 	return @"Dimensions";
-}
+	
+}//end panelNibName
 
 
-//========== setContainer: =====================================================
+//========== setFile: ==========================================================
 //
-// Purpose:		Returns the container whose dimensions we are analyzing.
+// Purpose:		Sets the file whose dimensions we are analyzing.
 //
 //==============================================================================
-- (void) setFile:(LDrawFile *)newFile {
+- (void) setFile:(LDrawFile *)newFile
+{
 	[newFile retain];
 	[self->file release];
 	
 	file = newFile;
 	[self setActiveModelName:[[newFile activeModel] modelName]];
-}
+	
+}//end setFile:
+
 
 #pragma mark -
 #pragma mark TABLE VIEW
@@ -142,9 +156,11 @@
 // Purpose:		End the sheet (we are the sheet!)
 //
 //==============================================================================
-- (int) numberOfRowsInTableView:(NSTableView *)aTableView {
+- (int) numberOfRowsInTableView:(NSTableView *)aTableView
+{
 	return NUMBER_OF_UNITS;
-}
+	
+}//end numberOfRowsInTableView:
 
 
 //**** NSTableDataSource ****
@@ -273,12 +289,14 @@
 // Purpose:		The end is nigh.
 //
 //==============================================================================
-- (void) dealloc {
-	
+- (void) dealloc
+{
 	[file				release];
 	[activeModelName	release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

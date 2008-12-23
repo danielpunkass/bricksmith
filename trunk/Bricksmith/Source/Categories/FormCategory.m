@@ -19,15 +19,18 @@
 //				fields of the form.
 //
 //==============================================================================
-- (Point3) coordinateValue{
-	Point3 representedPoint;
+- (Point3) coordinateValue
+{
+	Point3 representedPoint	= ZeroPoint3;
 	
 	representedPoint.x = [[self cellAtIndex:0] floatValue];
 	representedPoint.y = [[self cellAtIndex:1] floatValue];
 	representedPoint.z = [[self cellAtIndex:2] floatValue];
 	
 	return representedPoint;
-}
+	
+}//end coordinateValue
+
 
 //========== setCoordinateValue: ===============================================
 //
@@ -35,10 +38,13 @@
 //				newPoint.
 //
 //==============================================================================
-- (void) setCoordinateValue:(Point3)newPoint{
+- (void) setCoordinateValue:(Point3)newPoint
+{
 	[[self cellAtIndex:0] setFloatValue:newPoint.x];
 	[[self cellAtIndex:1] setFloatValue:newPoint.y];
 	[[self cellAtIndex:2] setFloatValue:newPoint.z];
-}
+	
+}//end setCoordinateValue:
+
 
 @end

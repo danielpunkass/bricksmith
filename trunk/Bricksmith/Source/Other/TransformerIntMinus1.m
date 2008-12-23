@@ -18,20 +18,23 @@
 // Purpose:		Returns whether this class knows how to un-transform its value.
 //
 //------------------------------------------------------------------------------
-+ (BOOL)allowsReverseTransformation
++ (BOOL) allowsReverseTransformation
 {
 	return NO;
-}
+	
+}//end allowsReverseTransformation
+
 
 //---------- transformedValueClass -----------------------------------[static]--
 //
 // Purpose:		Returns the kind of objects we output.
 //
 //------------------------------------------------------------------------------
-+ (Class)transformedValueClass
++ (Class) transformedValueClass
 {
 	return [NSNumber class];
-}
+	
+}//end transformedValueClass
 
 
 //========== transformedValue: =================================================
@@ -46,5 +49,6 @@
 	return [NSNumber numberWithInt:(intValue - 1)];
 	
 }//end transformedValue:
+
 
 @end

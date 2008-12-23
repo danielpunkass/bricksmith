@@ -21,14 +21,17 @@
 // Purpose:		Load the interface for this inspector.
 //
 //==============================================================================
-- (id) init {
-	
+- (id) init
+{
     self = [super init];
+	
     if ([NSBundle loadNibNamed:@"InspectorLine" owner:self] == NO) {
         NSLog(@"Couldn't load InspectorLine.nib");
     }
     return self;
-}
+	
+}//end init
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -39,8 +42,8 @@
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender{
-
+- (void) commitChanges:(id)sender
+{
 	LDrawLine *representedObject = [self object];
 	
 	Point3 vertex1 = [startPoint coordinateValue];
@@ -50,7 +53,9 @@
 	[representedObject setVertex2:vertex2];
 	
 	[super commitChanges:sender];
-}
+	
+}//end commitChanges:
+
 
 //========== revert ============================================================
 //
@@ -60,8 +65,8 @@
 //				the data in their inspector palettes.
 //
 //==============================================================================
-- (IBAction) revert:(id)sender{
-
+- (IBAction) revert:(id)sender
+{
 	LDrawLine *representedObject = [self object];
 
 	[colorWell setLDrawColor:[representedObject LDrawColor]];
@@ -73,7 +78,9 @@
 	[endPoint	setCoordinateValue:vertex2];
 	
 	[super revert:sender];
-}
+	
+}//end revert:
+
 
 #pragma mark -
 
@@ -84,15 +91,17 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) startPointEndedEditing:(id)sender{
-
+- (IBAction) startPointEndedEditing:(id)sender
+{
 	Point3 formContents	= [startPoint coordinateValue];
 	Point3 vertex1		= [[self object] vertex1];
 	
 	//If the values really did change, then update.
 	if(V3EqualPoints(formContents, vertex1) == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end startPointEndedEditing:
+
 
 //========== endPointEndedEditing: =================//==========================
 //
@@ -101,14 +110,16 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) endPointEndedEditing:(id)sender{
-	
+- (IBAction) endPointEndedEditing:(id)sender
+{
 	Point3 formContents	= [endPoint coordinateValue];
 	Point3 vertex2		= [[self object] vertex2];
 	
 	//If the values really did change, then update.
 	if(V3EqualPoints(formContents, vertex2) == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end endPointEndedEditing:
+
 
 @end

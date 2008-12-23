@@ -18,12 +18,12 @@
 //
 //==============================================================================
 - (void)setColor:(NSColor *)aColor forKey:(NSString *)aKey
-
 {
     NSData	*theData = [NSArchiver archivedDataWithRootObject:aColor];
 	
     [self setObject:theData forKey:aKey];
-}
+	
+}//end setColor:forKey:
 
 
 //========== colorForKey: ======================================================
@@ -41,7 +41,8 @@
         theColor = (NSColor *)[NSUnarchiver unarchiveObjectWithData:theData];
 	
     return theColor;
-}
+	
+}//end colorForKey:
 
 
 @end

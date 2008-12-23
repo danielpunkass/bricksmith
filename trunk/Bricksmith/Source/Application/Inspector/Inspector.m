@@ -28,9 +28,10 @@
 // Purpose:		Ready the inspector palette.
 //
 //==============================================================================
-- init
+- (id) init
 {
-    [super init];
+    self = [super init];
+	
     if ([NSBundle loadNibNamed:@"Inspector" owner:self] == NO) {
         NSLog(@"Can't load Inspector nib file");
     }
@@ -44,7 +45,9 @@
 	[self inspectObject:nil];
 	
     return self;
-}
+	
+}//end init
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -55,7 +58,8 @@
 // Purpose:		Convenience method for -inspectObjects
 //
 //==============================================================================
-- (void) inspectObject:(id)object{
+- (void) inspectObject:(id)object
+{
 	NSArray *objectList;
 	
 	if(object != nil)
@@ -64,7 +68,8 @@
 		objectList = [NSArray array];
 	
 	[self inspectObjects: objectList];
-}
+	
+}//end inspectObject:
 
 
 //========== inspectObjects: ===================================================
@@ -77,11 +82,11 @@
 //				element.
 //
 //==============================================================================
-- (void) inspectObjects:(NSArray *) objects{
-
-	BOOL		 foundInspector = NO;
-	NSString	*errorString;
-	id			 objectToInspect;
+- (void) inspectObjects:(NSArray *) objects
+{
+	BOOL		 foundInspector		= NO;
+	NSString	*errorString		= nil;
+	id			 objectToInspect	= nil;
 	
 	
 	//No matter what, the current inspector is changing.
@@ -114,6 +119,7 @@
 		[inspectorPanel setTitle:emptyInspectorTitle];
 		[errorTextField setStringValue:errorString];
 	}
+	
 }//end inspectObjects:
 
 
@@ -154,22 +160,25 @@
 	}//end inspectable check.
 	
 	return foundInspector;
-}
+	
+}//end loadInspectorForObject:
+
 
 //========== show ==============================================================
 //
 // Purpose:		Open the inspector panel for all the world to see.
 //
 //==============================================================================
-- (void) show:(id) sender{
+- (void) show:(id) sender
+{
 	[inspectorPanel makeKeyAndOrderFront:sender];
-}
+
+}//end show:
 
 
 #pragma mark -
 #pragma mark DELEGATES
 #pragma mark -
-
 
 //**** NSWindow ****
 //========== windowWillReturnUndoManager: ======================================
@@ -182,7 +191,8 @@
 {
 	NSDocument *currentDocument = [[NSDocumentController sharedDocumentController] currentDocument];
 	return [currentDocument undoManager];
-}
+
+}//end windowWillReturnUndoManager:
 
 
 #pragma mark -
@@ -194,13 +204,16 @@
 // Purpose:		The Class Vanishes.
 //
 //==============================================================================
-- (void) dealloc {
+- (void) dealloc
+{
 	[inspectorPanel			release];
 	[emptyInspectorTitle	release];
 	[emptyInspectorView		release];
 	[currentInspector		release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

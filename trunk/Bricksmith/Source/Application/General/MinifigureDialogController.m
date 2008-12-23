@@ -46,6 +46,7 @@
 	
 }//end awakeFromNib
 
+
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
@@ -91,7 +92,6 @@
 #pragma mark -
 //this is all to appease bindings. Hey, at least I wrote the code with grep!
 
-
 //========== minifigure ========================================================
 //
 // Purpose:		Returns the minifigure we generated!
@@ -100,7 +100,8 @@
 - (LDrawMPDModel *) minifigure
 {
 	return minifigure;
-}
+	
+}//end minifigure
 
 
 //========== setMinifigure: ====================================================
@@ -148,6 +149,7 @@
 //==============================================================================
 - (void) setHeadElevation:(float)newElevation		{headElevation = newElevation;		}
 
+
 //========== setAngleOf<PartX>: ================================================
 //
 // Purpose:		Set the angle of the given part.
@@ -167,6 +169,7 @@
 - (void) setAngleOfLeftLeg:(float)angle				{angleOfLeftLeg				= angle; }
 - (void) setAngleOfLeftLegAccessory:(float)angle	{angleOfLeftLegAccessory	= angle; }
 
+
 //========== setMinifigureName: ================================================
 //
 // Purpose:		Sets the name which will be given to the new minifigure model.
@@ -182,6 +185,7 @@
 	[self->minifigure setModelDisplayName:newName];
 	
 }//end setMinifigureName:
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -205,7 +209,8 @@
 	//Run the dialog.
 	returnCode = [NSApp runModalForWindow:minifigureGeneratorPanel];
 	return returnCode;
-}
+	
+}//end runModal
 
 
 //========== okButtonClicked ===================================================
@@ -246,7 +251,8 @@
 - (IBAction) colorWellChanged:(id)sender
 {
 	[self generateMinifigure:sender];
-}
+	
+}//end colorWellChanged:
 
 
 //========== generateMinifigure ================================================
@@ -536,6 +542,7 @@
 	[rightLegAccessory	release];
 
 }//end generateMinifigure
+
 
 #pragma mark -
 #pragma mark DELEGATES
@@ -831,6 +838,7 @@
 	
 }//end selectPartWithName:inController:
 
+
 //========== savePartControllerSelection:underKey: =============================
 //
 // Purpose:		Parts are identified in user defaults by their reference name, 
@@ -867,5 +875,6 @@
 	[super dealloc];
 	
 }//end dealloc
+
 
 @end

@@ -28,11 +28,12 @@
 
 @implementation LDrawConditionalLine
 
+
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== conditionalLineWithDirectiveText: =================================
+//---------- conditionalLineWithDirectiveText: -----------------------[static]--
 //
 // Purpose:		Given a line from an LDraw file, parse a conditional line primitive.
 //
@@ -40,17 +41,20 @@
 //
 //				5 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 
 //
-//==============================================================================
-+ (LDrawConditionalLine *) conditionalLineWithDirectiveText:(NSString *)directive{
+//------------------------------------------------------------------------------
++ (LDrawConditionalLine *) conditionalLineWithDirectiveText:(NSString *)directive
+{
 	return [LDrawConditionalLine directiveWithString:directive];
-}
+	
+}//end conditionalLineWithDirectiveText:
 
-//========== directiveWithString: ==============================================
+
+//---------- directiveWithString: ------------------------------------[static]--
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile{
 	
 	LDrawConditionalLine	*parsedConditionalLine = nil;
@@ -138,6 +142,7 @@
 	}
 	
 	return parsedConditionalLine;
+	
 }//end directiveWithString
 
 
@@ -148,7 +153,7 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (id)initWithCoder:(NSCoder *)decoder
+- (id) initWithCoder:(NSCoder *)decoder
 {
 	const uint8_t *temporary = NULL; //pointer to a temporary buffer returned by the decoder.
 	
@@ -162,7 +167,8 @@
 	memcpy(&conditionalVertex2, temporary, sizeof(Point3));
 	
 	return self;
-}
+	
+}//end initWithCoder:
 
 
 //========== encodeWithCoder: ==================================================
@@ -172,14 +178,14 @@
 //				read and write LDraw objects as NSData.
 //
 //==============================================================================
-- (void)encodeWithCoder:(NSCoder *)encoder
+- (void) encodeWithCoder:(NSCoder *)encoder
 {
 	[super encodeWithCoder:encoder];
 	
 	[encoder encodeBytes:(void *)&conditionalVertex1 length:sizeof(Point3) forKey:@"conditionalVertex1"];
 	[encoder encodeBytes:(void *)&conditionalVertex2 length:sizeof(Point3) forKey:@"conditionalVertex2"];
 	
-}
+}//end encodeWithCoder:
 
 
 //========== copyWithZone: =====================================================
@@ -187,15 +193,16 @@
 // Purpose:		Returns a duplicate of this file.
 //
 //==============================================================================
-- (id) copyWithZone:(NSZone *)zone {
-	
+- (id) copyWithZone:(NSZone *)zone
+{
 	LDrawConditionalLine *copied = (LDrawConditionalLine *)[super copyWithZone:zone];
 	
 	[copied setConditionalVertex1:[self conditionalVertex1]];
 	[copied setConditionalVertex2:[self conditionalVertex2]];
 	
 	return copied;
-}
+	
+}//end copyWithZone:
 
 
 #pragma mark -
@@ -211,10 +218,11 @@
 - (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
 {
 	//do nothing.
-}
+	
+}//end draw:optionsMask:
 
 
-//========== drawElement =======================================================
+//========== drawElement:withColor: ============================================
 //
 // Purpose:		Draws the graphic of the element represented. This call is a 
 //				subroutine of -draw: in LDrawDrawableElement.
@@ -225,7 +233,8 @@
 - (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
 {
 	[super drawElement:optionsMask withColor:drawingColor];
-}
+	
+}//end drawElement:withColor:
 
 
 //========== write =============================================================
@@ -235,7 +244,8 @@
 //				5 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 
 //
 //==============================================================================
-- (NSString *) write{
+- (NSString *) write
+{
 	return [NSString stringWithFormat:
 				@"5 %3d %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f",
 				color,
@@ -269,10 +279,11 @@
 //				which can be presented to the user.
 //
 //==============================================================================
-- (NSString *)browsingDescription
+- (NSString *) browsingDescription
 {
 	return NSLocalizedString(@"ConditionalLine", nil);
-}
+	
+}//end browsingDescription
 
 
 //========== iconName ==========================================================
@@ -281,9 +292,11 @@
 //				object, or nil if there is no icon.
 //
 //==============================================================================
-- (NSString *) iconName{
+- (NSString *) iconName
+{
 	return @"ConditionalLine";
-}
+	
+}//end iconName
 
 
 //========== inspectorClassName ================================================
@@ -291,9 +304,11 @@
 // Purpose:		Returns the name of the class used to inspect this one.
 //
 //==============================================================================
-- (NSString *) inspectorClassName{
+- (NSString *) inspectorClassName
+{
 	return @"InspectionConditionalLine";
-}
+	
+}//end inspectorClassName
 
 
 #pragma mark -
@@ -305,37 +320,47 @@
 // Purpose:		Returns the triangle's first vertex.
 //
 //==============================================================================
-- (Point3) conditionalVertex1{
+- (Point3) conditionalVertex1
+{
 	return conditionalVertex1;
-}
+	
+}//end conditionalVertex1
+
 
 //========== conditionalVertex2 ================================================
 //
 // Purpose:		
 //
 //==============================================================================
-- (Point3) conditionalVertex2{
+- (Point3) conditionalVertex2
+{
 	return conditionalVertex2;
-}
+	
+}//end conditionalVertex2
 
-//========== setconditionalVertex1: =======================================================
+
+//========== setconditionalVertex1: ============================================
 //
 // Purpose:		
 //
 //==============================================================================
--(void) setConditionalVertex1:(Point3)newVertex{
+-(void) setConditionalVertex1:(Point3)newVertex
+{
 	conditionalVertex1 = newVertex;
-}//end setconditionalVertex1
+	
+}//end setconditionalVertex1:
 
 
-//========== setconditionalVertex2: =======================================================
+//========== setconditionalVertex2: ============================================
 //
 // Purpose:		
 //
 //==============================================================================
--(void) setConditionalVertex2:(Point3)newVertex{
+-(void) setConditionalVertex2:(Point3)newVertex
+{
 	conditionalVertex2 = newVertex;
-}//end setconditionalVertex2
+	
+}//end setconditionalVertex2:
 
 
 #pragma mark -
@@ -358,7 +383,8 @@
 	conditionalVertex2.y += moveVector.y;
 	conditionalVertex2.z += moveVector.z;
 	
-}
+}//end moveBy:
+
 
 #pragma mark -
 #pragma mark UTILITIES
@@ -370,15 +396,16 @@
 //				not to any superclass.
 //
 //==============================================================================
-- (void) registerUndoActions:(NSUndoManager *)undoManager {
-
+- (void) registerUndoActions:(NSUndoManager *)undoManager
+{
 	[super registerUndoActions:undoManager];
 	
 	[[undoManager prepareWithInvocationTarget:self] setConditionalVertex2:[self conditionalVertex2]];
 	[[undoManager prepareWithInvocationTarget:self] setConditionalVertex1:[self conditionalVertex1]];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAttributesConditionalLine", nil)];
-}
+	
+}//end registerUndoActions:
 
 
 @end

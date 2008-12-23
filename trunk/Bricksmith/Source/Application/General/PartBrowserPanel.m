@@ -30,6 +30,7 @@ static PartBrowserPanel *sharedPartBrowserPanel = nil;
 
 }//end awakeFromNib
 
+
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
@@ -74,7 +75,6 @@ static PartBrowserPanel *sharedPartBrowserPanel = nil;
 #pragma mark ACCESSORS
 #pragma mark -
 
-
 //========== partBrowser =======================================================
 //
 // Purpose:		Returns the Part Browser for the panel. It contains handy 
@@ -115,10 +115,18 @@ static PartBrowserPanel *sharedPartBrowserPanel = nil;
 }//end windowWillClose:
 
 
+//========== splitView:constrainMinCoordinate:ofSubviewAt: =====================
+//
+// Purpose:		Don't allow the view portions to shrink too much.
+//
+//==============================================================================
 - (float)splitView:(NSSplitView *)sender constrainMinCoordinate:(float)proposedMin ofSubviewAt:(int)offset
 {
 	return 96;
-}
+	
+}//end splitView:constrainMinCoordinate:ofSubviewAt:
+
+
 #pragma mark -
 #pragma mark DESTRUCTOR
 #pragma mark -
@@ -133,7 +141,8 @@ static PartBrowserPanel *sharedPartBrowserPanel = nil;
 	[partsBrowser	release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
 
 
 @end

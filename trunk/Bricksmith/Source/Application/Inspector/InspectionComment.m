@@ -20,14 +20,18 @@
 // Purpose:		Load the interface for this inspector.
 //
 //==============================================================================
-- (id) init {
-	
+- (id) init
+{
     self = [super init];
+	
     if ([NSBundle loadNibNamed:@"InspectorComment" owner:self] == NO) {
         NSLog(@"Couldn't load InspectorComment.nib");
     }
+	
     return self;
-}
+	
+}//end init
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -38,8 +42,8 @@
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender{
-
+- (void) commitChanges:(id)sender
+{
 	LDrawComment *representedObject = [self object];
 	
 	NSString *newCommand = [commandField stringValue];
@@ -47,7 +51,9 @@
 	[representedObject setStringValue:newCommand];
 	
 	[super commitChanges:sender];
-}
+	
+}//end commitChanges:
+
 
 //========== revert ============================================================
 //
@@ -57,14 +63,16 @@
 //				the data in their inspector palettes.
 //
 //==============================================================================
-- (IBAction) revert:(id)sender{
-
+- (IBAction) revert:(id)sender
+{
 	LDrawComment *representedObject = [self object];
 
 	[commandField setStringValue:[representedObject stringValue]];
 	
 	[super revert:sender];
-}
+	
+}//end revert:
+
 
 #pragma mark -
 
@@ -81,6 +89,8 @@
 	//If the values really did change, then update.
 	if([newComment isEqualToString:oldComment] == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end commandFieldChanged:
+
 
 @end

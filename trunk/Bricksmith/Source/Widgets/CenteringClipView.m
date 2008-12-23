@@ -127,7 +127,9 @@
 {
 	[super setFrame:frameRect];
 	[self centerDocumentView];
-}
+	
+}//end setFrame:
+
 
 //========== setFrameOrigin: ===================================================
 //==============================================================================
@@ -135,7 +137,9 @@
 {
 	[super setFrameOrigin:newOrigin];
 	[self centerDocumentView];
-}
+	
+}//end setFrameOrigin:
+
 
 //========== setFrameSize: =====================================================
 //==============================================================================
@@ -143,7 +147,9 @@
 {
 	[super setFrameSize:newSize];
 	[self centerDocumentView];
-}
+	
+}//end setFrameSize:
+
 
 //========== setFrameRotation: =================================================
 //==============================================================================
@@ -151,6 +157,8 @@
 {
 	[super setFrameRotation:angle];
 	[self centerDocumentView];
-}
+	
+}//end setFrameRotation:
+
 
 @end

@@ -652,7 +652,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	//
 	// General
 	//
-	[initialDefaults setObject:[NSNumber numberWithInt:PartBrowserShowAsDrawer]			forKey:PART_BROWSER_STYLE_KEY];
+	[initialDefaults setObject:[NSNumber numberWithInt:PartBrowserShowAsPanel]			forKey:PART_BROWSER_STYLE_KEY];
 	[initialDefaults setObject:[NSNumber numberWithInt:MouseDraggingBeginImmediately]	forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
 
 	//

@@ -17,29 +17,29 @@
 
 RotationPanel *sharedRotationPanel = nil;
 
-//========== initialize ========================================================
+//---------- initialize ----------------------------------------------[static]--
 //
 // Purpose:		Called when the class is first instantiated; register bindings 
 //				stuff here.
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (void) initialize
 {
 	[self setKeys:[NSArray arrayWithObjects:@"rotationMode", nil]
 			triggerChangeNotificationsForDependentKey:@"enableFixedPointCoordinates"];
 		
-
 }//end initialize
+
 
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== rotationPanel =====================================================
+//---------- rotationPanel -------------------------------------------[static]--
 //
 // Purpose:		Returns a rotation panel to open.
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (id) rotationPanel
 {
 	if(sharedRotationPanel == nil)
@@ -48,6 +48,7 @@ RotationPanel *sharedRotationPanel = nil;
 	return sharedRotationPanel;
 	
 }//end rotationPanel
+
 
 #pragma mark -
 #pragma mark ACCESSORS
@@ -58,9 +59,11 @@ RotationPanel *sharedRotationPanel = nil;
 // Purpose:		Identifies to our superclass the nib to load.
 //
 //==============================================================================
-- (NSString *) panelNibName {
+- (NSString *) panelNibName
+{
 	return @"RotationPanel";
-}
+
+}//end panelNibName
 
 
 //========== enableFixedPointCoordinates =======================================
@@ -84,7 +87,9 @@ RotationPanel *sharedRotationPanel = nil;
 - (Tuple3) angles
 {
 	return V3Make(angleX, angleY, angleZ);
-}
+
+}//end angles
+
 
 //========== fixedPoint ========================================================
 //
@@ -97,7 +102,8 @@ RotationPanel *sharedRotationPanel = nil;
 - (Point3) fixedPoint
 {
 	return V3Make(fixedPointX, fixedPointY, fixedPointZ);
-}
+
+}//end fixedPoint
 
 
 //========== rotationMode ======================================================
@@ -110,6 +116,7 @@ RotationPanel *sharedRotationPanel = nil;
 	return self->rotationMode;
 	
 }//end rotationMode
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -124,7 +131,8 @@ RotationPanel *sharedRotationPanel = nil;
 - (IBAction) rotateButtonClicked:(id)sender
 {
 	[NSApp sendAction:@selector(panelRotateParts:) to:nil from:self];
-}
+
+}//end rotateButtonClicked:
 
 
 #pragma mark -
@@ -144,6 +152,8 @@ RotationPanel *sharedRotationPanel = nil;
 	[formatterPoints	release];
 	
 	[super dealloc];
-}
+
+}//end dealloc
+
 
 @end

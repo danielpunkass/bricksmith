@@ -20,11 +20,11 @@ MovePanel *sharedMovePanel = nil;
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== movePanel =========================================================
+//---------- movePanel -----------------------------------------------[static]--
 //
 // Purpose:		Returns a move panel to open.
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (id) movePanel
 {
 	if(sharedMovePanel == nil)
@@ -33,6 +33,7 @@ MovePanel *sharedMovePanel = nil;
 	return sharedMovePanel;
 	
 }//end movePanel
+
 
 #pragma mark -
 #pragma mark ACCESSORS
@@ -43,9 +44,11 @@ MovePanel *sharedMovePanel = nil;
 // Purpose:		Identifies to our superclass the nib to load.
 //
 //==============================================================================
-- (NSString *) panelNibName {
+- (NSString *) panelNibName
+{
 	return @"MovePanel";
-}
+	
+}//end panelNibName
 
 
 //========== movementVector ====================================================
@@ -56,7 +59,9 @@ MovePanel *sharedMovePanel = nil;
 - (Vector3) movementVector
 {
 	return V3Make(movementX, movementY, movementZ);
-}
+	
+}//end movementVector
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -71,7 +76,8 @@ MovePanel *sharedMovePanel = nil;
 - (IBAction) moveButtonClicked:(id)sender
 {
 	[NSApp sendAction:@selector(panelMoveParts:) to:nil from:self];
-}
+	
+}//end moveButtonClicked:
 
 
 #pragma mark -
@@ -88,6 +94,8 @@ MovePanel *sharedMovePanel = nil;
 	[formatterPoints release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

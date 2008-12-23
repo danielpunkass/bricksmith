@@ -22,9 +22,9 @@
 //				inspector.
 //
 //==============================================================================
-- (id) init {
-	
-	[super init];
+- (id) init
+{
+	self = [super init];
 	
 	//Subclasses need to do something like this:
 //	if(window == nil){
@@ -35,7 +35,9 @@
 //	}
 //	
 	return self;
-}
+	
+}//end init
+
 
 #pragma mark -
 #pragma mark ACCESSORS
@@ -46,9 +48,11 @@
 // Purpose:		Returns the object this inspector is editing.
 //
 //==============================================================================
-- (id) object{
+- (id) object
+{
 	return editingObject;
-}
+	
+}//end object
 
 
 //========== setObject =========================================================
@@ -57,8 +61,8 @@
 //				class.
 //
 //==============================================================================
-- (void) setObject:(id)newObject{
-	
+- (void) setObject:(id)newObject
+{
 	//De-register any possible notification observer for the previous editing 
 	// object. In normal circumstances, there never is a previous object, so 
 	// this method is pointless. It is only here as a safeguard.
@@ -81,7 +85,8 @@
 			   selector:@selector(directiveDidChange:)
 				   name:LDrawDirectiveDidChangeNotification
 				 object:newObject ];
-}
+				 
+}//end setObject:
 
 
 //========== window ============================================================
@@ -92,9 +97,11 @@
 //				shared inspector panel.
 //
 //==============================================================================
-- (NSWindow *) window{
+- (NSWindow *) window
+{
 	return window;
-}
+	
+}//end window
 
 
 #pragma mark -
@@ -115,7 +122,8 @@
 - (void) commitChanges:(id)sender
 {
 	//Subclasses should implement this method to update their editing objects.
-}
+
+}//end commitChanges:
 
 
 //========== finishedEditing: ==================================================
@@ -148,7 +156,9 @@
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawDirectiveDidChangeNotification
 						  object:[self object]];
-}
+
+}//end finishedEditing:
+
 
 //========== revert ============================================================
 //
@@ -158,9 +168,11 @@
 //				the data in their inspector palettes.
 //
 //==============================================================================
-- (IBAction) revert:(id)sender{
+- (IBAction) revert:(id)sender
+{
 	//does nothing, yet.
-}
+	
+}//end revert:
 
 
 #pragma mark -
@@ -173,11 +185,13 @@
 //				some external action (like undo/redo).
 //
 //==============================================================================
-- (void) directiveDidChange:(NSNotification *)notification{
-	
+- (void) directiveDidChange:(NSNotification *)notification
+{
 	//Update our state so we are not stale.
 	[self revert:self];
-}
+	
+}//end directiveDidChange:
+
 
 #pragma mark -
 #pragma mark DESTRUCTOR
@@ -188,8 +202,8 @@
 // Purpose:		We're booking a one-way cruise on Charon's ferry.
 //
 //==============================================================================
-- (void) dealloc {
-	
+- (void) dealloc
+{
 	//Cancel notification registration
 	[[NSNotificationCenter defaultCenter] removeObserver:self ];
 	
@@ -198,6 +212,8 @@
 	[editingObject	release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

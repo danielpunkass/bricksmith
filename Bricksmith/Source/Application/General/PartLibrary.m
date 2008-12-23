@@ -31,13 +31,16 @@
 // Purpose:		Creates a part library and loads all the parts.
 //
 //------------------------------------------------------------------------------
-+ (PartLibrary *) partLibrary{
++ (PartLibrary *) partLibrary
+{
 	PartLibrary *newLibrary = [[PartLibrary alloc] init];
 	
 	[newLibrary loadPartCatalog];
 	
 	return [newLibrary autorelease];
-}
+	
+}//end partLibrary
+
 
 //========== init ==============================================================
 //
@@ -54,7 +57,9 @@
 	[self setPartCatalog:[NSDictionary dictionary]];
 	
 	return self;
-}
+	
+}//end init
+
 
 //========== loadPartCatalog ===================================================
 //
@@ -62,8 +67,8 @@
 //				success.
 //
 //==============================================================================
-- (BOOL) loadPartCatalog {
-
+- (BOOL) loadPartCatalog
+{
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	NSFileManager	*fileManager	= [NSFileManager defaultManager];
 	
@@ -88,7 +93,9 @@
 	
 	
 	return partsListExists;
-}
+	
+}//end loadPartCatalog
+
 
 #pragma mark -
 #pragma mark ACCESSORS
@@ -119,6 +126,7 @@
 - (NSDictionary *) partCatalog
 {
 	return partCatalog;
+	
 }//end partCatalog
 
 
@@ -362,6 +370,7 @@
 	}
 	
 	return model;
+	
 }//end modelForPart:
 
 
@@ -389,8 +398,8 @@
 //				nil if the part is not defined in the LDraw folder.
 //
 //==============================================================================
-- (NSString *) pathForPartName:(NSString *)partName {
-	
+- (NSString *) pathForPartName:(NSString *)partName
+{
 	NSMutableString	*fixedPartName		= [NSMutableString stringWithString:partName];
 	[fixedPartName replaceOccurrencesOfString:@"\\" //DOS path separator (doubled for escape-sequence)
 								   withString:@"/"
@@ -430,7 +439,8 @@
 		partPath = unofficialPrimitivesPath;
 	
 	return partPath;
-}
+	
+}//end pathForPartName:
 
 
 //========== modelFromNeighboringFileForPart: ==================================
@@ -753,7 +763,7 @@
 //				it to -descriptionForPart instead.
 //
 //==============================================================================
-- (NSString *)descriptionForPartName:(NSString *)name
+- (NSString *) descriptionForPartName:(NSString *)name
 {
 	//Look up the verbose part description in the scanned part catalog.
 	NSDictionary	*catalog			= [self partCatalog];
@@ -765,7 +775,8 @@
 		partDescription = name;
 	
 	return partDescription;
-}
+	
+}//end descriptionForPartName:
 
 
 //========== descriptionForFilePath: ===========================================
@@ -867,7 +878,9 @@
 	}
 	
 	return folderIsValid;
-}
+	
+}//end validateLDrawFolder:
+
 
 //========== validateLDrawFolderWithMessage: ===================================
 //
@@ -906,11 +919,14 @@
 // Purpose:		We have turned a corner on the Circle of Life.
 //
 //==============================================================================
-- (void) dealloc{
+- (void) dealloc
+{
 	[partCatalog release];
 	[loadedFiles release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

@@ -26,29 +26,31 @@
 // Purpose:		Readies things that need to be readied. 
 //
 //==============================================================================
-- (void) awakeFromNib {
-	LDrawColorCell *colorCell = [[LDrawColorCell alloc] init];
-	NSTableColumn *colorColumn = [pieceCountTable tableColumnWithIdentifier:LDRAW_COLOR_CODE];
+- (void) awakeFromNib
+{
+	LDrawColorCell	*colorCell = [[LDrawColorCell alloc] init];
+	NSTableColumn	*colorColumn = [pieceCountTable tableColumnWithIdentifier:LDRAW_COLOR_CODE];
+	
 	[colorColumn setDataCell:colorCell];
 	
 	[partPreview setAcceptsFirstResponder:NO];
 	
 	//Remember, this method is called twice for an LDrawColorPanel; the first time 
 	// is for the File's Owner, which is promptly overwritten.
-}
+	
+}//end awakeFromNib
 
 
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-
-//========== pieceCountPanelForFile: ===========================================
+//---------- pieceCountPanelForFile: ---------------------------------[static]--
 //
 // Purpose:		Creates a panel which displays the dimensions for the specified 
 //				file. 
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (PieceCountPanel *) pieceCountPanelForFile:(LDrawFile *)fileIn
 {
 	PieceCountPanel *panel = nil;
@@ -56,7 +58,8 @@
 	panel = [[PieceCountPanel alloc] initWithFile:fileIn];
 	
 	return [panel autorelease];
-}
+	
+}//end pieceCountPanelForFile:
 
 
 //========== initWithFile: =====================================================
@@ -69,14 +72,15 @@
 //				in the Nib. Tricky, huh?
 //
 //==============================================================================
-- (id) initWithFile:(LDrawFile *)fileIn {
-
+- (id) initWithFile:(LDrawFile *)fileIn
+{
 	self = [super init];
 	
 	[self setFile:fileIn];
 	
 	return self;
-}
+	
+}//end initWithFile:
 
 
 #pragma mark -
@@ -89,9 +93,11 @@
 //				are currently analyzing.
 //
 //==============================================================================
-- (NSString *) activeModelName {
+- (NSString *) activeModelName
+{
 	return self->activeModelName;
-}
+	
+}//end activeModelName
 
 
 //========== container =========================================================
@@ -99,9 +105,11 @@
 // Purpose:		Returns the container whose dimensions we are analyzing.
 //
 //==============================================================================
-- (LDrawFile *) file {
+- (LDrawFile *) file
+{
 	return self->file;
-}
+	
+}//end file
 
 
 //========== panelNibName ======================================================
@@ -110,9 +118,11 @@
 //				Called by our superclass.
 //
 //==============================================================================
-- (NSString *) panelNibName {
+- (NSString *) panelNibName
+{
 	return @"PieceCountPanel";
-}
+	
+}//end panelNibName
 
 
 //========== partReport: =======================================================
@@ -121,9 +131,11 @@
 //				are currently analyzing and updates the data view.
 //
 //==============================================================================
-- (PartReport *) partReport {
+- (PartReport *) partReport
+{
 	return self->partReport;
-}
+	
+}//end partReport
 
 
 //========== setActiveModelName: ===============================================
@@ -157,13 +169,15 @@
 // Purpose:		Sets the file we are reporting on.
 //
 //==============================================================================
-- (void) setFile:(LDrawFile *)newFile {
+- (void) setFile:(LDrawFile *)newFile
+{
 	[newFile retain];
 	[self->file release];
 	
 	file = newFile;
 	[self setActiveModelName:[[newFile activeModel] modelName]];
-}
+	
+}//end setFile:
 
 
 //========== setPartReport: ====================================================
@@ -188,7 +202,8 @@
 	[self setTableDataSource:flattened];
 	
 	[pieceCountTable reloadData];
-}
+	
+}//end setPartReport:
 
 
 //========== setTableDataSource: ===============================================
@@ -257,6 +272,7 @@
 
 }//end exportButtonClicked:
 
+
 #pragma mark -
 #pragma mark TABLE VIEW
 #pragma mark -
@@ -270,7 +286,8 @@
 - (int) numberOfRowsInTableView:(NSTableView *)aTableView
 {
 	return [flattenedReport count];
-}
+	
+}//end numberOfRowsInTableView:
 
 
 //**** NSTableDataSource ****
@@ -319,7 +336,8 @@
 	
 	[flattenedReport sortUsingDescriptors:newDescriptors];
 	[tableView reloadData];
-}
+	
+}//end tableView:sortDescriptorsDidChange:
 
 
 //**** NSTableDataSource ****
@@ -331,7 +349,8 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
 	[self syncSelectionAndPartDisplayed];
-}
+	
+}//end tableViewSelectionDidChange:
 
 
 #pragma mark -
@@ -384,6 +403,8 @@
 	[flattenedReport	release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

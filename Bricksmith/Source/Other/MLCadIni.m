@@ -336,6 +336,7 @@ static MLCadIni *sharedIniFile = nil;
 	//		-- this value is derived from a little trig on the torso surface.
 	else
 		return 9.791;
+		
 }//end armAngleForTorsoName:
 
 
@@ -354,7 +355,9 @@ static MLCadIni *sharedIniFile = nil;
 {
 	[partList removeAllObjects];
 	[partList addObjectsFromArray:parts];
-}
+	
+}//end setParts:intoMinifigurePartList:
+
 
 #pragma mark -
 #pragma mark PARSING
@@ -428,6 +431,7 @@ static MLCadIni *sharedIniFile = nil;
 	}
 	
 }//end parseFromPath:
+
 
 #pragma mark -
 
@@ -636,5 +640,6 @@ static MLCadIni *sharedIniFile = nil;
 	return actualPath;
 	
 }//end preferredPath
+
 
 @end

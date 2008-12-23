@@ -144,7 +144,8 @@
 	}
 	
 	return classForType;
-}
+	
+}//end classForLineType:
 
 
 //---------- dragImageWithOffset: ------------------------------------[static]--

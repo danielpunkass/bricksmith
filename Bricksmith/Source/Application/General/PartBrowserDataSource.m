@@ -124,7 +124,8 @@
 	tableDataSource	= [[NSMutableArray array] retain];
 	
 	return self;
-}
+	
+}//end init
 
 
 #pragma mark -
@@ -162,7 +163,7 @@
 //==============================================================================
 - (void) setPartCatalog:(NSDictionary *)newCatalog
 {
-	partCatalog = newCatalog;
+	self->partCatalog = newCatalog;
 	
 	//Get all the categories.
 	// We use the dictionary keys found in the part catalog.
@@ -184,7 +185,8 @@
 	//And set the current category to show everything
 	[self setCategory:allCategoriesItem];
 	
-}
+}//end setPartCatalog:
+
 
 //========== setCategory: ======================================================
 //
@@ -231,7 +233,8 @@
 		[self setTableDataSource:[NSMutableArray array]];
 	
 	return success;
-}
+	
+}//end setCategory:
 
 
 //========== setCategoryList: ==================================================
@@ -320,7 +323,8 @@
 	
 	if(success == YES)
 		[userDefaults setObject:newCategory forKey:PART_BROWSER_PREVIOUS_CATEGORY];
-}
+
+}//end categoryComboBoxChanged:
 
 
 //========== doubleClickedInPartTable: =========================================
@@ -331,7 +335,9 @@
 - (void) doubleClickedInPartTable:(id)sender
 {
 	[self addPartClicked:sender];
-}
+	
+}//end doubleClickedInPartTable:
+
 
 //========== searchFieldChanged: ===============================================
 //
@@ -435,6 +441,7 @@
 - (int)numberOfRowsInTableView:(NSTableView *)tableView
 {
 	return [tableDataSource count];
+	
 }//end numberOfRowsInTableView
 
 
@@ -473,7 +480,8 @@
 	NSArray *newDescriptors = [tableView sortDescriptors];
 	[tableDataSource sortUsingDescriptors:newDescriptors];
 	[tableView reloadData];
-}
+	
+}//end tableView:sortDescriptorsDidChange:
 
 
 #pragma mark -
@@ -504,6 +512,7 @@
 		
 }//end tableView:writeRowsWithIndexes:toPasteboard:
 
+
 #pragma mark -
 #pragma mark DELEGATES
 #pragma mark -
@@ -525,6 +534,7 @@
 	return success;
 	
 }//end LDrawGLView:writeDirectivesToPasteboard:asCopy:
+
 
 #pragma mark -
 #pragma mark NSTableView
@@ -553,7 +563,6 @@
 #pragma mark NOTIFICATIONS
 #pragma mark -
 
-
 //========== sharedPartCatalogDidChange: =======================================
 //
 // Purpose:		The application has loaded a new part catalog from the LDraw 
@@ -563,7 +572,9 @@
 - (void) sharedPartCatalogDidChange:(NSNotification *)notification
 {
 	NSDictionary *newCatalog = [notification object];
+	
 	[self setPartCatalog:newCatalog];
+	
 }//end sharedPartCatalogDidChange:
 
 
@@ -709,7 +720,8 @@
 // Purpose:		It's AppKit, in the Library, with the Lead Pipe!!!
 //
 //==============================================================================
-- (void) dealloc {
+- (void) dealloc
+{
 	//Remove notifications
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
@@ -718,6 +730,8 @@
 	[tableDataSource release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

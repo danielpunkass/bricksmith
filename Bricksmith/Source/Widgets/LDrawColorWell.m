@@ -90,7 +90,8 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 -(LDrawColorT) LDrawColor
 {
 	return colorCode;
-}
+	
+}//end LDrawColor
 
 
 //========== setLDrawColor: ====================================================
@@ -130,7 +131,7 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 // Purpose:		Paints the represented color inside the button.
 //
 //==============================================================================
-- (void)drawRect:(NSRect)aRect
+- (void) drawRect:(NSRect)aRect
 {
 	[super drawRect:aRect];
 	
@@ -139,7 +140,8 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 	[self->nsColor set];
 	NSRectFill(colorRect);
 	
-}
+}//end drawRect:
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -226,6 +228,7 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 	return handledAction;
 
 }//end sendAction:to:
+
 
 #pragma mark -
 #pragma mark DESTRUCTOR

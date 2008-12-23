@@ -25,14 +25,18 @@
 // Purpose:		Load the interface for this inspector.
 //
 //==============================================================================
-- (id) init {
-	
+- (id) init
+{
     self = [super init];
+	
     if ([NSBundle loadNibNamed:@"InspectorPart" owner:self] == NO) {
         NSLog(@"Couldn't load InspectorPart.nib");
     }
+	
     return self;
-}
+	
+}//end init
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -120,7 +124,9 @@
 	
 
 	[super revert:sender];
-}
+	
+}//end revert:
+
 
 //========== setRotationAngles =================================================
 //
@@ -155,6 +161,7 @@
 		
 	}
 }//end setRotationAngles
+
 
 #pragma mark -
 
@@ -212,6 +219,7 @@
 		[rotationYField setFloatValue:0.0];
 		[rotationZField setFloatValue:0.0];
 	}
+	
 }//end applyRotationClicked:
 
 
@@ -232,6 +240,7 @@
 	{
 		[self finishedEditing:sender];
 	}
+	
 }//end locationEndedEditing:
 
 
@@ -242,7 +251,8 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) partNameEndedEditing:(id)sender {
+- (IBAction) partNameEndedEditing:(id)sender
+{
 	NSString *newName = [partNameField stringValue];
 	NSString *oldName = [[self object] displayName];
 	
@@ -250,7 +260,8 @@
 		[self finishedEditing:sender];
 		[self revert:sender];
 	}
-}
+	
+}//end partNameEndedEditing:
 
 
 //========== rotationTypeChanged: ==============================================
@@ -258,11 +269,12 @@
 // Purpose:		The pop-up menu specifying the rotation type has changed.
 //
 //==============================================================================
-- (IBAction) rotationTypeChanged:(id)sender {
+- (IBAction) rotationTypeChanged:(id)sender
+{
 	
 	[self setRotationAngles];
 		
-}
+}//end rotationTypeChanged:
 
 
 //========== scalingEndedEditing: ==============================================
@@ -315,6 +327,7 @@
 		
 }//end shearEndedEditing:
 
+
 #pragma mark -
 #pragma mark DESTRUCTOR
 #pragma mark -
@@ -324,14 +337,16 @@
 // Purpose:		Abandon all hope ye who enter here.
 //
 //==============================================================================
-- (void) dealloc {
-	
+- (void) dealloc
+{
 	//Top level nib objects:
 	[formatterBasic release];
 	[formatterAngle release];
 	[formatterScale release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

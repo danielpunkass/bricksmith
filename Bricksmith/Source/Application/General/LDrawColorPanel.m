@@ -506,10 +506,17 @@ LDrawColorPanel *sharedColorPanel = nil;
 }//end windowWillReturnUndoManager:
 
 
+//========== applicationWillTerminate: =========================================
+//
+// Purpose:		It seems we have some memory to mange. 
+//
+//==============================================================================
 - (void) applicationWillTerminate:(NSNotification *)notification
 {
 	[self release];
-}
+	
+}//end applicationWillTerminate:
+
 
 #pragma mark -
 #pragma mark DESTRUCTOR

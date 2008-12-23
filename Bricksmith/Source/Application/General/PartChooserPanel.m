@@ -19,14 +19,16 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== partChooserPanel ==================================================
+//---------- partChooserPanel ----------------------------------------[static]--
 //
 // Purpose:		Returns a brand new part chooser ready to run.
 //
-//==============================================================================
-+ (PartChooserPanel *) partChooserPanel {
+//------------------------------------------------------------------------------
++ (PartChooserPanel *) partChooserPanel
+{
 	return [[[PartChooserPanel alloc] init] autorelease];
-}
+	
+}//end partChooserPanel
 
 
 //========== init ==============================================================
@@ -64,7 +66,8 @@
 - (NSString *) selectedPartName
 {
 	return [partsBrowser selectedPartName];
-}
+	
+}//end selectedPartName
 
 
 #pragma mark -
@@ -111,8 +114,9 @@
 //==============================================================================
 - (IBAction) insertPartClicked:(id)sender
 {
-	[NSApp stopModalWithCode:NSOKButton];	
-}
+	[NSApp stopModalWithCode:NSOKButton];
+	
+}//end insertPartClicked:
 
 
 //========== cancelClicked: ====================================================
@@ -122,8 +126,9 @@
 //==============================================================================
 - (IBAction) cancelClicked:(id)sender
 {
-	[NSApp stopModalWithCode:NSCancelButton];	
-}
+	[NSApp stopModalWithCode:NSCancelButton];
+	
+}//end cancelClicked:
 
 
 #pragma mark -
@@ -141,7 +146,8 @@
 	[partsBrowser	release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
 
 
 @end

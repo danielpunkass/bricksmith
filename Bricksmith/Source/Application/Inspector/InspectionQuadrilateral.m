@@ -16,7 +16,12 @@
 
 @implementation QuadrilateralView
 
-- (void)drawRect:(NSRect)rect
+//========== drawRect: =========================================================
+//
+// Purpose:		Draw a rectangle outline.
+//
+//==============================================================================
+- (void) drawRect:(NSRect)rect
 {
 	NSBezierPath	*trianglePath	= [NSBezierPath bezierPath];
 	NSRect			frame			= NSInsetRect([self bounds], 2, 2);
@@ -30,7 +35,9 @@
 	[[NSColor grayColor] set];
 	[trianglePath setLineWidth:1.5];
 	[trianglePath stroke];
-}
+	
+}//end drawRect:
+
 
 @end
 
@@ -42,14 +49,18 @@
 // Purpose:		Load the interface for this inspector.
 //
 //==============================================================================
-- (id) init {
-	
+- (id) init
+{
     self = [super init];
+	
     if ([NSBundle loadNibNamed:@"InspectorQuadrilateral" owner:self] == NO) {
         NSLog(@"Couldn't load InspectorQuadrilateral.nib");
     }
+	
     return self;
-}
+	
+}//end init
+
 
 #pragma mark -
 #pragma mark ACTIONS
@@ -60,8 +71,8 @@
 // Purpose:		Called in response to the conclusion of editing in the palette.
 //
 //==============================================================================
-- (void) commitChanges:(id)sender{
-
+- (void) commitChanges:(id)sender
+{
 	LDrawQuadrilateral *representedObject = [self object];
 	
 	Point3 vertex1 = [vertex1Form coordinateValue];
@@ -75,7 +86,9 @@
 	[representedObject setVertex4:vertex4];
 	
 	[super commitChanges:sender];
-}
+	
+}//end commitChanges:
+
 
 //========== revert ============================================================
 //
@@ -85,8 +98,8 @@
 //				the data in their inspector palettes.
 //
 //==============================================================================
-- (IBAction) revert:(id)sender{
-
+- (IBAction) revert:(id)sender
+{
 	LDrawQuadrilateral *representedObject = [self object];
 
 	[colorWell setLDrawColor:[representedObject LDrawColor]];
@@ -102,7 +115,9 @@
 	[vertex4Form setCoordinateValue:vertex4];
 	
 	[super revert:sender];
-}
+	
+}//end revert:
+
 
 #pragma mark -
 
@@ -113,15 +128,17 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) vertex1EndedEditing:(id)sender{
-
+- (IBAction) vertex1EndedEditing:(id)sender
+{
 	Point3 formContents	= [vertex1Form coordinateValue];
 	Point3 vertex1		= [[self object] vertex1];
 	
 	//If the values really did change, then update.
 	if(V3EqualPoints(formContents, vertex1) == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end vertex1EndedEditing:
+
 
 //========== vertex2EndedEditing: ==============================================
 //
@@ -130,15 +147,17 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) vertex2EndedEditing:(id)sender{
-	
+- (IBAction) vertex2EndedEditing:(id)sender
+{
 	Point3 formContents	= [vertex2Form coordinateValue];
 	Point3 vertex2		= [[self object] vertex2];
 	
 	//If the values really did change, then update.
 	if(V3EqualPoints(formContents, vertex2) == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end vertex2EndedEditing:
+
 
 //========== vertex3EndedEditing: ==============================================
 //
@@ -147,15 +166,17 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) vertex3EndedEditing:(id)sender{
-	
+- (IBAction) vertex3EndedEditing:(id)sender
+{
 	Point3 formContents	= [vertex3Form coordinateValue];
 	Point3 vertex3		= [[self object] vertex3];
 	
 	//If the values really did change, then update.
 	if(V3EqualPoints(formContents, vertex3) == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end vertex3EndedEditing:
+
 
 //========== vertex4EndedEditing: ==============================================
 //
@@ -164,14 +185,16 @@
 //				update the object.
 //
 //==============================================================================
-- (IBAction) vertex4EndedEditing:(id)sender{
-	
+- (IBAction) vertex4EndedEditing:(id)sender
+{
 	Point3 formContents	= [vertex4Form coordinateValue];
 	Point3 vertex4		= [[self object] vertex4];
 	
 	//If the values really did change, then update.
 	if(V3EqualPoints(formContents, vertex4) == NO)
 		[self finishedEditing:sender];
-}
+		
+}//end vertex4EndedEditing:
+
 
 @end

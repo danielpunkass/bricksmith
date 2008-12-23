@@ -24,7 +24,8 @@
 		return NSDragOperationCopy;
 	else
 		return [super draggingSourceOperationMaskForLocal:isLocal];
-}
+		
+}//end draggingSourceOperationMaskForLocal:
 
 
 //========== selectObjects: ====================================================

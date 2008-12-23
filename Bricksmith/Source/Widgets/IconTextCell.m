@@ -25,7 +25,7 @@
 //==============================================================================
 - (id) init
 {
-	[super init];
+	self = [super init];
 	
 	image = nil;
 	imagePadding = 3.0;
@@ -42,7 +42,7 @@
 //==============================================================================
 - (id)initWithCoder:(NSCoder *)decoder
 {
-	[super initWithCoder:decoder];
+	self = [super initWithCoder:decoder];
 	
 	image = nil;
 	imagePadding = 3.0;
@@ -229,10 +229,11 @@
 // Purpose:		Returns the image displayed along with the text in this cell.
 //
 //==============================================================================
-- (NSImage *)image
+- (NSImage *)  image
 {
 	return image;
-}
+	
+}//end image
 
 
 //========== setImage: =========================================================
@@ -257,7 +258,8 @@
 - (float) imagePadding
 {
 	return imagePadding;
-}
+	
+}//end imagePadding
 
 
 //========== setImagePadding: ==================================================
@@ -269,8 +271,8 @@
 - (void) setImagePadding:(float)newAmount
 {
 	imagePadding = newAmount;
-}
-
+	
+}//end setImagePadding:
 
 
 #pragma mark -

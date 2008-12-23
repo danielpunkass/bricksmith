@@ -108,6 +108,8 @@
 	[self->nsColor	release];
 	
 	[super dealloc];
-}
+	
+}//end dealloc
+
 
 @end

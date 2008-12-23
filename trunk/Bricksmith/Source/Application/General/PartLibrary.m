@@ -605,7 +605,7 @@
 	
 	NSString			*currentPath		= nil;
 	NSString			*category			= nil;
-	NSString			*partName			= nil;
+	NSString			*partDescription	= nil;
 	NSString			*partNumber			= nil;
 	
 	NSMutableDictionary	*categoryRecord		= nil;
@@ -622,54 +622,52 @@
 	for(counter = 0; counter < numberOfParts; counter++) 
 	{
 		currentPath = [NSString stringWithFormat:@"%@/%@", folderPath, [partNames objectAtIndex:counter]];
-		if([readableFileTypes containsObject:[currentPath pathExtension]] == YES){
+		
+		if([readableFileTypes containsObject:[currentPath pathExtension]] == YES)
+		{
+			partDescription		= [self descriptionForFilePath:currentPath];
 			
-			partName		= [self descriptionForFilePath:currentPath];
-			if(categoryOverride == nil)
-				category	= [self categoryForDescription:partName];
-			else
-				category	= categoryOverride;
-			
-			//Get the name of the part.
-			// Also, we need a standard way to reference it. So we convert the 
-			// string to lower-case. Note that parts in subfolders of LDraw/parts 
-			// must have a name prefix of their subpath, e.g., "s\partname.dat" 
-			// for a part in the LDraw/parts/s folder.
-			partNumber		= [[currentPath lastPathComponent] lowercaseString];
-			if(namePrefix != nil)
-				partNumber = [namePrefix stringByAppendingString:partNumber];
-			
-			
-			categoryRecord = [NSDictionary dictionaryWithObjectsAndKeys:
-				partNumber,		PART_NUMBER_KEY,
-				partName,		PART_NAME_KEY,
-				nil ];
-			
-		//	partListRecord = [NSDictionary dictionaryWithObjectsAndKeys:
-		//		partNumber,		PART_NUMBER_KEY,
-		//		partName,		PART_NAME_KEY,
-		//	//	archivedModel,	PART_ARCHIVED_DATA_KEY, //this totally failed. The data is *huge*; the library wound up being > 40 MB!
-		//		nil ];
-			
-			
-			
-			//File the part by category
-			currentCategory = [categories objectForKey:category];
-			if(currentCategory == nil){
-				//We haven't encountered this category yet. Initialize it now.
-				currentCategory = [NSMutableArray array];
-				[categories setObject:currentCategory
-							   forKey:category ];
-			}
-			[currentCategory addObject:categoryRecord];
-			
-			
-			//Also file this part under its number.
-			[partNumberList setObject:categoryRecord
-							   forKey:partNumber ];
-			
+			// Make sure the part file was valid!
+			if(partDescription != nil)
+			{
+				if(categoryOverride == nil)
+					category	= [self categoryForDescription:partDescription];
+				else
+					category	= categoryOverride;
+				
+				//Get the name of the part.
+				// Also, we need a standard way to reference it. So we convert the 
+				// string to lower-case. Note that parts in subfolders of LDraw/parts 
+				// must have a name prefix of their subpath, e.g., "s\partname.dat" 
+				// for a part in the LDraw/parts/s folder.
+				partNumber		= [[currentPath lastPathComponent] lowercaseString];
+				if(namePrefix != nil)
+					partNumber = [namePrefix stringByAppendingString:partNumber];
+				
+				
+				categoryRecord = [NSDictionary dictionaryWithObjectsAndKeys:
+					partNumber,			PART_NUMBER_KEY,
+					partDescription,	PART_NAME_KEY,
+					nil ];
+				
+				//File the part by category
+				currentCategory = [categories objectForKey:category];
+				if(currentCategory == nil)
+				{
+					//We haven't encountered this category yet. Initialize it now.
+					currentCategory = [NSMutableArray array];
+					[categories setObject:currentCategory
+								   forKey:category ];
+				}
+				[currentCategory addObject:categoryRecord];
+				
+				
+				//Also file this part under its number.
+				[partNumberList setObject:categoryRecord
+								   forKey:partNumber ];
+				
 //				NSLog(@"processed %@", [partNames objectAtIndex:counter]);
-			
+			}
 		}
 		[progressPanel increment];
 	}//end loop through files
@@ -789,36 +787,38 @@
 //				This part is thus in the category "Brick", and has the  
 //				description "Brick  2 x  4".
 //
+// Returns:		nil if the file is not valid.
+//
 //==============================================================================
 - (NSString *) descriptionForFilePath:(NSString *)filepath
 {
 	NSString		*fileContents		= [NSString stringWithContentsOfFile:filepath];
-	NSString		*partDescription	= @"";
+	NSString		*partDescription	= nil;
 	NSCharacterSet	*whitespace			= [NSCharacterSet whitespaceAndNewlineCharacterSet];
 	
-	if(fileContents != nil){//there really was a file there.
+	// Read the first line of the file. Make sure the file is parsable.
+	if(		fileContents != nil
+	   &&	[fileContents length] > 0 )
+	{
 		unsigned		 newlineIndex	= 0; //index of the first newline character in the file.
 		NSString		*firstLine		= nil;
+		NSString		*lineCode		= nil;
 		
-		//Read the first line. LDraw files are in DOS format. Oh the agony.
-		// But Cocoa is nice to us.
+		// LDraw uses DOS lineendings
 		[fileContents getLineStart: NULL //I don't care
 							   end: NULL //I don't want the terminator included.
 					   contentsEnd: &newlineIndex
 						  forRange: NSMakeRange(0,1) ];
 						  
-		firstLine = [fileContents substringToIndex:newlineIndex];
-		
-		NSString *lineCode = [LDrawUtilities readNextField:firstLine
-												 remainder:&partDescription ];
+		firstLine	= [fileContents substringToIndex:newlineIndex];
+		lineCode	= [LDrawUtilities readNextField:firstLine
+									      remainder:&partDescription ];
 
 		//Check to see if this is a valid LDraw header.
-		if([lineCode isEqualToString:@"0"] == YES) {
+		if([lineCode isEqualToString:@"0"] == YES)
+		{
 			partDescription = [partDescription stringByTrimmingCharactersInSet:whitespace];
 		}
-		else
-			partDescription = @"";
-		
 	}
 	
 	return partDescription;

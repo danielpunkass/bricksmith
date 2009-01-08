@@ -414,14 +414,23 @@
 //==============================================================================
 - (NSToolbarItem *) makeShowColorsItem
 {
-	NSToolbarItem *newItem = [[NSToolbarItem alloc]
-							  initWithItemIdentifier:TOOLBAR_SHOW_COLORS];
-	NSImage *image;
+	NSToolbarItem	*newItem			= [[NSToolbarItem alloc]
+													initWithItemIdentifier:TOOLBAR_SHOW_COLORS];
+	NSImage			*image			= nil;
+	SInt32			systemVersion	= 0;
 	
-	if(NSImageNameColorPanel != nil)
+	// System-provided images only available in Leopard.
+	Gestalt(gestaltSystemVersion, &systemVersion);
+	
+	if(systemVersion >= 0x1050)
+	{
 		image = [NSImage imageNamed:NSImageNameColorPanel];
+	}
 	else
+	{
+		// use fallback image
 		image = [NSImage imageNamed:@"Colors.tiff"];
+	}
 	
 	[newItem setLabel:NSLocalizedString(@"ShowColors", nil)];
 	[newItem setPaletteLabel:NSLocalizedString(@"ShowColors", nil)];
@@ -442,15 +451,24 @@
 //==============================================================================
 - (NSToolbarItem *) makeShowInspectorItem
 {
-	NSToolbarItem *newItem = [[NSToolbarItem alloc]
-							  initWithItemIdentifier:TOOLBAR_SHOW_INSPECTOR];
-	NSImage *image;
+	NSToolbarItem	*newItem			= [[NSToolbarItem alloc]
+														initWithItemIdentifier:TOOLBAR_SHOW_INSPECTOR];
+	NSImage			*image			= nil;
+	SInt32			systemVersion	= 0;
 	
-	if(NSImageNameInfo != nil)
+	// System-provided images only available in Leopard.
+	Gestalt(gestaltSystemVersion, &systemVersion);
+	
+	if(systemVersion >= 0x1050)
+	{
 		image = [NSImage imageNamed:NSImageNameInfo];
+	}
 	else
+	{
+		// use fallback image
 		image = [NSImage imageNamed:@"Info.tiff"];
-	
+	}
+
 	[newItem setLabel:NSLocalizedString(@"ShowInspector", nil)];
 	[newItem setPaletteLabel:NSLocalizedString(@"ShowInspector", nil)];
 	[newItem setImage:image];

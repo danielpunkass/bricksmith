@@ -178,6 +178,15 @@
 	[horizontalSplitView		restoreConfiguration];
 	[verticalDetailSplitView	restoreConfiguration];
 	
+	// I'm using a thin divider on Leopard, but that isn't available on Tiger. 
+	// The result on Tiger is a view which is too wide, so I shrink it here. 
+	NSRect newFrame = [horizontalSplitView frame];
+	newFrame.size.width =		NSWidth([[window contentView] frame])
+							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
+							-	[fileContentsSplitView dividerThickness];
+	[horizontalSplitView		setFrame:newFrame];
+	[horizontalSplitView		adjustSubviews];
+	
 	// update scope step display controls
 	[self setStepDisplay:NO];
 	

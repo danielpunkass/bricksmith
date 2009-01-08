@@ -907,8 +907,10 @@
 				0B6F498C07D19440007B1075 /* Widgets */,
 				0B2AB7BB07C7E8BE00085145 /* LDraw */,
 			);
+			indentWidth = 4;
 			name = Classes;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		2A37F4AFFDCFA73011CA2CEA /* Other */ = {
 			isa = PBXGroup;

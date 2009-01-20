@@ -655,6 +655,9 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:[NSNumber numberWithInt:PartBrowserShowAsPanel]			forKey:PART_BROWSER_STYLE_KEY];
 	[initialDefaults setObject:[NSNumber numberWithInt:MouseDraggingBeginImmediately]	forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
 
+	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerClosedState]	forKey:PART_BROWSER_DRAWER_STATE];
+	[initialDefaults setObject:(id)kCFBooleanTrue							forKey:PART_BROWSER_PANEL_SHOW_AT_LAUNCH];
+	
 	//
 	// Syntax Colors
 	//
@@ -678,20 +681,18 @@ PreferencesDialogController *preferencesDialog = nil;
 	//
 	// Initial Window State
 	//
-	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerOpenState]	forKey:PART_BROWSER_DRAWER_STATE];
-	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerOpenState]	forKey:FILE_CONTENTS_DRAWER_STATE];
 	
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientation3D]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicsView"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientation3D]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicsView"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModePerspective]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicsView"]];
 	
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView1"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView1"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView1"]];
 	
 	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView2"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView2"]];
 
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationTop]				forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView3"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationTop]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView3"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView3"]];
 	
 	//

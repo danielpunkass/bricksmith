@@ -31,7 +31,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #define DOCUMENT_WINDOW_SIZE						@"Document Window Size"
-#define FILE_CONTENTS_DRAWER_STATE					@"File Contents Drawer State"
+#define FILE_CONTENTS_DRAWER_STATE					@"File Contents Drawer State" //obsolete
 #define GRID_SPACING_COARSE							@"Grid Spacing: Coarse"
 #define GRID_SPACING_FINE							@"Grid Spacing: Fine"
 #define GRID_SPACING_MEDIUM							@"Grid Spacing: Medium"

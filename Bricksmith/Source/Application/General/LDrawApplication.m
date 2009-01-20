@@ -381,8 +381,11 @@
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 	BOOL				 showPartBrowser	= [userDefaults boolForKey:PART_BROWSER_PANEL_SHOW_AT_LAUNCH];
 	
-	if(showPartBrowser == YES)
+	if(		showPartBrowser == YES
+	   &&	[userDefaults integerForKey:PART_BROWSER_STYLE_KEY] == PartBrowserShowAsPanel)
+	{
 		[[PartBrowserPanel sharedPartBrowserPanel] makeKeyAndOrderFront:self];
+	}
 	
 }//end applicationDidFinishLaunching:
 

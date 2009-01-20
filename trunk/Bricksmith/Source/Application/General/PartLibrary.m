@@ -820,6 +820,10 @@
 			partDescription = [partDescription stringByTrimmingCharactersInSet:whitespace];
 		}
 	}
+	else
+	{
+		NSLog(@"%@ is not a valid file", filepath);
+	}
 	
 	return partDescription;
 	

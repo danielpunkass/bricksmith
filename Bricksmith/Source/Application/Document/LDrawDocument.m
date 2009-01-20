@@ -178,25 +178,9 @@
 	[horizontalSplitView		restoreConfiguration];
 	[verticalDetailSplitView	restoreConfiguration];
 	
-	// I'm using a thin divider on Leopard, but that isn't available on Tiger. 
-	// The result on Tiger is a view which is too wide, so I shrink it here. 
-	NSRect newFrame = [horizontalSplitView frame];
-	newFrame.size.width =		NSWidth([[window contentView] frame])
-							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
-							-	[fileContentsSplitView dividerThickness];
-	[horizontalSplitView		setFrame:newFrame];
-	[horizontalSplitView		adjustSubviews];
-	
 	// update scope step display controls
 	[self setStepDisplay:NO];
 	
-	// Tiger does not have the system-provided template images we use on 
-	// Leopard. Fall back on some internal images. 
-	if([self->stepNavigator imageForSegment:0] == nil || [[[self->stepNavigator imageForSegment:0] representations] count] == 0)
-		[self->stepNavigator setImage:[NSImage imageNamed:@"GoBack"] forSegment:0];
-	if([self->stepNavigator imageForSegment:1] == nil || [[[self->stepNavigator imageForSegment:1] representations] count] == 0)
-		[self->stepNavigator setImage:[NSImage imageNamed:@"GoForward"] forSegment:1];
-
 	//Display our model.
 	[self loadDataIntoDocumentUI];
 	
@@ -216,6 +200,41 @@
 						   selector:@selector(activeModelChanged:)
 							   name:LDrawFileActiveModelDidChangeNotification
 							 object:[self documentContents] ];
+	
+	
+	//---------- Cleanup for legacy systems ------------------------------------
+	// Ewww!
+	
+	SInt32			systemVersion	= 0;
+	
+	Gestalt(gestaltSystemVersion, &systemVersion);
+	
+	if(systemVersion < 0x1050)
+	{
+		// Scope-bar-style Round Rect appearance does not draw correctly on Tiger.
+		[self->submodelPopUpMenu setBordered:NO];
+		
+		// Tiger segmented controls don't support styles, so it will 
+		// automatically appear in the push-button style. That makes it too 
+		// tall, so we use the small control size in this case. 
+		[[self->stepNavigator cell] setControlSize:NSSmallControlSize];
+	}
+
+	// Tiger does not have the system-provided template images we use on 
+	// Leopard. Fall back on some internal images. 
+	if([self->stepNavigator imageForSegment:0] == nil || [[[self->stepNavigator imageForSegment:0] representations] count] == 0)
+		[self->stepNavigator setImage:[NSImage imageNamed:@"GoBack"] forSegment:0];
+	if([self->stepNavigator imageForSegment:1] == nil || [[[self->stepNavigator imageForSegment:1] representations] count] == 0)
+		[self->stepNavigator setImage:[NSImage imageNamed:@"GoForward"] forSegment:1];
+
+	// I'm using a thin divider on Leopard, but that isn't available on Tiger. 
+	// The result on Tiger is a view which is too wide, so I shrink it here. 
+	NSRect newFrame = [horizontalSplitView frame];
+	newFrame.size.width =		NSWidth([[window contentView] frame])
+							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
+							-	[fileContentsSplitView dividerThickness];
+	[horizontalSplitView		setFrame:newFrame];
+	[horizontalSplitView		adjustSubviews];
 	
 }//end windowControllerDidLoadNib:
 

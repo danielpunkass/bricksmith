@@ -686,7 +686,7 @@
 //				description "Brick  2 x  4".
 //
 //==============================================================================
-- (NSString *)categoryForDescription:(NSString *)modelDescription 
+- (NSString *)categoryForDescription:(NSString *)modelDescription
 {
 	NSString	*category	= nil;
 	NSRange		 firstSpace;			//range of the category string in the first line.
@@ -698,9 +698,21 @@
 	else
 		category = [NSString stringWithString:modelDescription];
 	
-	//Clean category name of any weird notational marks
-	if([category hasPrefix:@"_"] || [category hasPrefix:@"~"])
+	
+	// Deal with any weird notational marks
+	
+	// Alias parts begin with an underscore. These things are so annoying I'm 
+	// going to dump them in a pseudo category. This is kind of a hack, but at 
+	// least it's a prettifying one. 
+	if([category hasPrefix:@"_"])
+	{
+		category = NSLocalizedString(@"AliasCategory", nil);
+	}
+	// Moved parts always begin with ~Moved, which is ugly. We'll strip the '~'.
+	else if([category hasPrefix:@"~"])
+	{
 		category = [category substringFromIndex:1];
+	}
 	
 	return category;
 	

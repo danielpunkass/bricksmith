@@ -112,27 +112,25 @@
 	NSNotificationCenter	*notificationCenter	= [NSNotificationCenter defaultCenter];
 	NSUserDefaults			*userDefaults		= [NSUserDefaults standardUserDefaults];
 	NSWindow				*window				= [aController window];
+	NSToolbar				*toolbar			= nil;
+	NSString				*savedSizeString	= nil;
 	int						 drawerState		= 0;
 
     [super windowControllerDidLoadNib:aController];
 	
 	
 	// Create the toolbar.
-	NSToolbar *toolbar = [[[NSToolbar alloc] initWithIdentifier:@"LDrawDocumentToolbar"] autorelease];
+	toolbar = [[[NSToolbar alloc] initWithIdentifier:@"LDrawDocumentToolbar"] autorelease];
 	[toolbar setAutosavesConfiguration:YES];
 	[toolbar setAllowsUserCustomization:YES];
 	[toolbar setDelegate:self->toolbarController];
 	[window setToolbar:toolbar];
 	
-	[fileContentsOutline setDoubleAction:@selector(showInspector:)];
-	[fileContentsOutline setVerticalMotionCanBeginDrag:YES];
-	[fileContentsOutline registerForDraggedTypes:[NSArray arrayWithObject:LDrawDirectivePboardType]];
-	
 	
 	// Set our size to whatever it was last time. (We don't do the whole frame 
 	// because we want the origin to be nicely staggered as documents open; that 
 	// normally happens automatically.)
-	NSString *savedSizeString = [userDefaults objectForKey:DOCUMENT_WINDOW_SIZE];
+	savedSizeString = [userDefaults objectForKey:DOCUMENT_WINDOW_SIZE];
 	if(savedSizeString != nil)
 	{
 		NSSize	size	= NSSizeFromString(savedSizeString);
@@ -142,8 +140,18 @@
 	
 	//Set up the window state based on what is found in preferences.
 	drawerState = [userDefaults integerForKey:PART_BROWSER_DRAWER_STATE];
-	if(drawerState == NSDrawerOpenState)
+	if(		drawerState == NSDrawerOpenState
+	   &&	[userDefaults boolForKey:PART_BROWSER_STYLE_KEY] == PartBrowserShowAsDrawer)
+	{
 		[partBrowserDrawer open];
+	}
+	
+	
+	// File Contents Outline setup
+	[fileContentsOutline setDoubleAction:@selector(showInspector:)];
+	[fileContentsOutline setVerticalMotionCanBeginDrag:YES];
+	[fileContentsOutline registerForDraggedTypes:[NSArray arrayWithObject:LDrawDirectivePboardType]];
+	
 	
 	//Restore the state of our 3D viewers.
 	[fileGraphicView	setAutosaveName:@"fileGraphicView"];

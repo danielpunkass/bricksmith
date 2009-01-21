@@ -46,6 +46,18 @@
 	[nudgeZToolView			removeFromSuperview];
 	[zoomToolTextField		removeFromSuperview];
 	
+	// Tiger won't draw images in center unless label is nil.
+	SInt32			systemVersion	= 0;
+	
+	Gestalt(gestaltSystemVersion, &systemVersion);
+	
+	if(systemVersion < 0x1050)
+	{
+		[self->gridSegmentedControl setLabel:nil forSegment:0];
+		[self->gridSegmentedControl setLabel:nil forSegment:1];
+		[self->gridSegmentedControl setLabel:nil forSegment:2];
+	}
+
 }//end awakeFromNib
 
 #pragma mark -

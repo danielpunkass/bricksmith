@@ -12,8 +12,8 @@
 #import "LDrawDirective.h"
 #import "LDrawModel.h"
 
-@interface LDrawMPDModel : LDrawModel <NSCoding> {
-	
+@interface LDrawMPDModel : LDrawModel <NSCoding>
+{
 	//MPD submodels have a name to identify them.
 	// it gets written out as 0 FILE modelName at the beginning.
 	NSString		*modelName;
@@ -28,6 +28,7 @@
 - (NSString *) writeModel;
 
 // Accessors
+- (NSString *) modelDisplayName;
 - (NSString *)modelName;
 - (void) setModelDisplayName:(NSString *)newDisplayName;
 - (void) setModelName:(NSString *)newModelName;

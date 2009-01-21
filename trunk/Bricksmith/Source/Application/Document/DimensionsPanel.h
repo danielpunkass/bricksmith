@@ -12,10 +12,12 @@
 #import "DialogPanel.h"
 
 @class LDrawFile;
+@class LDrawMPDModel;
 
-@interface DimensionsPanel : DialogPanel{
-	LDrawFile	*file;
-	NSString	*activeModelName;
+@interface DimensionsPanel : DialogPanel
+{
+	LDrawFile		*file;
+	LDrawMPDModel	*activeModel;
 	
 	IBOutlet NSTableView		*dimensionsTable;
 }
@@ -25,9 +27,9 @@
 - (id) initWithFile:(LDrawFile *)file;
 
 //Accessors
-- (NSString *) activeModelName;
+- (LDrawMPDModel *) activeModel;
 - (LDrawFile *) file;
-- (void) setActiveModelName:(NSString *)newName;
+- (void) setActiveModel:(LDrawMPDModel *)newModel;
 - (void) setFile:(LDrawFile *)newFile;
 
 @end

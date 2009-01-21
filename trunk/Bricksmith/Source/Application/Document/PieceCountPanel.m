@@ -87,17 +87,17 @@
 #pragma mark ACCESSORS
 #pragma mark -
 
-//========== activeModelName ===================================================
+//========== activeModel =======================================================
 //
 // Purpose:		Returns the name of the submodel in the file whose dimensions we 
 //				are currently analyzing.
 //
 //==============================================================================
-- (NSString *) activeModelName
+- (LDrawMPDModel *) activeModel
 {
-	return self->activeModelName;
+	return self->activeModel;
 	
-}//end activeModelName
+}//end activeModel
 
 
 //========== container =========================================================
@@ -138,30 +138,30 @@
 }//end partReport
 
 
-//========== setActiveModelName: ===============================================
+#pragma mark -
+
+//========== setActiveModel: ===================================================
 //
 // Purpose:		Sets the name of the submodel in the file whose dimensions we 
 //				are currently analyzing, and also updates the data view.
 //
 //==============================================================================
-- (void) setActiveModelName:(NSString *)newName
+- (void) setActiveModel:(LDrawMPDModel *)newModel
 {
-	LDrawMPDModel	*activeModel	= nil;
 	PartReport		*modelReport	= nil;
 	
 	//Update the model name.
-	[newName retain];
-	[self->activeModelName release];
-	activeModelName = newName;
+	[newModel retain];
+	[self->activeModel release];
+	self->activeModel = newModel;
 	
 	//Get the report for the new model.
-	activeModel = [self->file modelWithName:newName];
-	modelReport = [PartReport partReportForContainer:activeModel];
+	modelReport = [PartReport partReportForContainer:self->activeModel];
 	[modelReport getPieceCountReport];
 	
 	[self setPartReport:modelReport];
 	
-}//end setActiveModelName:
+}//end setActiveModel:
 
 
 //========== setFile: ==========================================================
@@ -175,7 +175,7 @@
 	[self->file release];
 	
 	file = newFile;
-	[self setActiveModelName:[[newFile activeModel] modelName]];
+	[self setActiveModel:[newFile activeModel]];
 	
 }//end setFile:
 
@@ -398,7 +398,7 @@
 - (void) dealloc
 {
 	[file				release];
-	[activeModelName	release];
+	[activeModel		release];
 	[partReport			release];
 	[flattenedReport	release];
 	

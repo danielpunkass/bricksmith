@@ -75,17 +75,17 @@
 #pragma mark ACCESSORS
 #pragma mark -
 
-//========== activeModelName ===================================================
+//========== activeModel =======================================================
 //
 // Purpose:		Returns the name of the submodel in the file whose dimensions we 
 //				are currently analyzing.
 //
 //==============================================================================
-- (NSString *) activeModelName
+- (LDrawMPDModel *) activeModel
 {
-	return self->activeModelName;
+	return self->activeModel;
 	
-}//end activeModelName
+}//end activeModel
 
 
 //========== file ==============================================================
@@ -98,23 +98,6 @@
 	return self->file;
 	
 }//end file
-
-
-//========== setActiveModelName: ===============================================
-//
-// Purpose:		Sets the name of the submodel in the file whose dimensions we 
-//				are currently analyzing and updates the data view.
-//
-//==============================================================================
-- (void) setActiveModelName:(NSString *)newName
-{
-	[newName retain];
-	[self->activeModelName release];
-	activeModelName = newName;
-	
-	[dimensionsTable reloadData];
-	
-}//end setActiveModelName:
 
 
 //========== panelNibName ======================================================
@@ -130,6 +113,25 @@
 }//end panelNibName
 
 
+#pragma mark -
+
+//========== setActiveModel: ===================================================
+//
+// Purpose:		Sets the name of the submodel in the file whose dimensions we 
+//				are currently analyzing and updates the data view.
+//
+//==============================================================================
+- (void) setActiveModel:(LDrawMPDModel *)newModel
+{
+	[newModel retain];
+	[self->activeModel release];
+	self->activeModel = newModel;
+	
+	[dimensionsTable reloadData];
+	
+}//end setActiveModel:
+
+
 //========== setFile: ==========================================================
 //
 // Purpose:		Sets the file whose dimensions we are analyzing.
@@ -141,7 +143,7 @@
 	[self->file release];
 	
 	file = newFile;
-	[self setActiveModelName:[[newFile activeModel] modelName]];
+	[self setActiveModel:[newFile activeModel]];
 	
 }//end setFile:
 
@@ -178,7 +180,7 @@
 						  row:(int)rowIndex
 {
 	id		object	= nil;
-	Box3	bounds	= [[self->file modelWithName:self->activeModelName] boundingBox3];
+	Box3	bounds	= [self->activeModel boundingBox3];
 	float	width	= 0;
 	float	height	= 0;
 	float	length	= 0;
@@ -291,8 +293,8 @@
 //==============================================================================
 - (void) dealloc
 {
-	[file				release];
-	[activeModelName	release];
+	[file			release];
+	[activeModel	release];
 	
 	[super dealloc];
 	

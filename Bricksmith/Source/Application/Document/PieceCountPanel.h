@@ -13,12 +13,13 @@
 
 @class LDrawFile;
 @class LDrawGLView;
+@class LDrawMPDModel;
 @class PartReport;
 
 @interface PieceCountPanel : DialogPanel
 {
 	LDrawFile		*file;
-	NSString		*activeModelName;
+	LDrawMPDModel	*activeModel;
 	PartReport		*partReport;
 	NSMutableArray	*flattenedReport;
 	
@@ -31,10 +32,11 @@
 - (id) initWithFile:(LDrawFile *)file;
 
 //Accessors
-- (NSString *) activeModelName;
+- (LDrawMPDModel *) activeModel;
 - (LDrawFile *) file;
 - (PartReport *) partReport;
-- (void) setActiveModelName:(NSString *)newName;
+
+- (void) setActiveModel:(LDrawMPDModel *)newModel;
 - (void) setFile:(LDrawFile *)newFile;
 - (void) setPartReport:(PartReport *)newPartReport;
 - (void) setTableDataSource:(NSMutableArray *) newReport;

@@ -268,9 +268,7 @@
 //==============================================================================
 - (NSString *) browsingDescription
 {
-	// Chop off that hideous un-Maclike .ldr extension that the LDraw File 
-	// Specification forces us to add. 
-	return [[self modelName] stringByDeletingPathExtension];
+	return [self modelDisplayName];
 	
 }//end browsingDescription
 
@@ -290,6 +288,21 @@
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
+
+//========== browsingDescription ===============================================
+//
+// Purpose:		Returns a representation of the directive as a short string 
+//				which can be presented to the user.
+//
+//==============================================================================
+- (NSString *) modelDisplayName
+{
+	// Chop off that hideous un-Maclike .ldr extension that the LDraw File 
+	// Specification forces us to add. 
+	return [[self modelName] stringByDeletingPathExtension];
+	
+}//end modelDisplayName
+
 
 //========== modelName =========================================================
 //

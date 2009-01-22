@@ -529,6 +529,35 @@
 
 #pragma mark -
 
+
+//========== setActiveModel: ===================================================
+//
+// Purpose:		Changes the current active (displayed) submodel, preserving as 
+//				much of the viewing state as is appropriate. 
+//
+// Notes:		You should call this rather than setting the active model 
+//				directly on the LDrawFile. 
+//
+//==============================================================================
+- (void) setActiveModel:(LDrawMPDModel *)newActiveModel
+{
+	LDrawMPDModel	*oldActiveModel		= [[self documentContents] activeModel];
+	BOOL			stepDisplayMode		= [oldActiveModel stepDisplay];
+	
+	// Allow the old model to draw in its entirety if it is referenced by the 
+	// new model. 
+	[oldActiveModel setStepDisplay:NO];
+	
+	// Set the new model and make sure its step display state matches the 
+	// previous step display state. 
+	[[self documentContents] setActiveModel:newActiveModel];
+	[self setStepDisplay:stepDisplayMode];;
+	
+	//A notification will be generated that updates the models menu.
+	
+}//end setActiveModel:
+
+
 //========== setCurrentStep: ===================================================
 //
 // Purpose:		Sets the current maximum step displayed in step display mode and 
@@ -1871,7 +1900,7 @@
 	LDrawMPDModel	*newModel		= [LDrawMPDModel newModel];
 
 	[self addModel:newModel];
-	[[self documentContents] setActiveModel:newModel];
+	[self setActiveModel:newModel];
 	[[self documentContents] setNeedsDisplay];
 	
 }//end modelSelected
@@ -2099,11 +2128,10 @@
 //==============================================================================
 - (void) modelSelected:(id)sender
 {
-	LDrawMPDModel *newActiveModel = [sender representedObject];
-	[[self documentContents] setActiveModel:newActiveModel];
-	
-	//A notification will be generated that updates the models menu.
-	
+	LDrawMPDModel	*newActiveModel		= [sender representedObject];
+
+	[self setActiveModel:newActiveModel];
+		
 }//end modelSelected
 
 
@@ -2766,7 +2794,7 @@
 	if(selectedModel != nil)
 	{
 		// Put the selection on screen (if we need to)
-		[[self documentContents] setActiveModel:selectedModel];
+		[self setActiveModel:selectedModel];
 		[selectedModel makeStepVisible:selectedStep];
 		[self setCurrentStep:[selectedModel maximumStepIndexForStepDisplay]]; // update document UI
 	}

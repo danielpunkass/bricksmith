@@ -95,6 +95,7 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (NSDrawer *) partBrowserDrawer;
 - (Tuple3) viewingAngle;
 
+- (void) setActiveModel:(LDrawMPDModel *)newActiveModel;
 - (void) setCurrentStep:(int)requestedStep;
 - (void) setDocumentContents:(LDrawFile *)newContents;
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;

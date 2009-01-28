@@ -1402,14 +1402,15 @@
 //				standard copy/paste pasteboard.
 //
 //==============================================================================
-- (IBAction) paste:(id)sender {
-	
+- (IBAction) paste:(id)sender
+{
 	NSPasteboard	*pasteboard			= [NSPasteboard generalPasteboard];
 	NSUndoManager	*undoManager		= [self undoManager];
 	
-	[self pasteFromPasteboard:pasteboard];
+	[self pasteFromPasteboard:pasteboard preventNameCollisions:YES];
 	
 	[undoManager setActionName:NSLocalizedString(@"", nil)];
+	
 }//end paste:
 
 
@@ -1493,9 +1494,8 @@
 	NSArray			*selectedObjects	= [self selectedObjects];
 	NSUndoManager	*undoManager		= [self undoManager];
 	
-	[self writeDirectives:selectedObjects
-			 toPasteboard:pasteboard];
-	[self pasteFromPasteboard:pasteboard];
+	[self writeDirectives:selectedObjects toPasteboard:pasteboard];
+	[self pasteFromPasteboard:pasteboard preventNameCollisions:YES];
 
 	[undoManager setActionName:NSLocalizedString(@"UndoDuplicate", nil)];
 	
@@ -1899,7 +1899,7 @@
 {
 	LDrawMPDModel	*newModel		= [LDrawMPDModel newModel];
 
-	[self addModel:newModel];
+	[self addModel:newModel preventNameCollisions:YES];
 	[self setActiveModel:newModel];
 	[[self documentContents] setNeedsDisplay];
 	
@@ -2113,7 +2113,7 @@
 	
 	result = [minifigDialog runModal];
 	if(result == NSOKButton)
-		[self addModel:[minifigDialog minifigure]];
+		[self addModel:[minifigDialog minifigure] preventNameCollisions:YES];
 	
 }//end addMinifigure:
 
@@ -2631,15 +2631,16 @@
 	if(newParent == nil)
 		newParent = [self documentContents];
 	
-	LDrawDirective		*selectionTarget	= nil;
-	NSArray				*newSiblings		= [newParent subdirectives];
-	NSPasteboard		*pasteboard			= [info draggingPasteboard];
-	NSUndoManager		*undoManager		= [self undoManager];
-	NSOutlineView		*sourceView			= [info draggingSource];
-	int					 selectionIndex		= 0;
-	NSMutableArray		*doomedObjects		= [NSMutableArray array];
-	NSArray				*pastedObjects		= nil;
-	int					 counter			= 0;
+	LDrawDirective  *selectionTarget        = nil;
+	NSArray         *newSiblings            = [newParent subdirectives];
+	NSPasteboard    *pasteboard             = [info draggingPasteboard];
+	NSUndoManager   *undoManager            = [self undoManager];
+	NSOutlineView   *sourceView             = [info draggingSource];
+	int             selectionIndex          = 0;
+	NSMutableArray  *doomedObjects          = [NSMutableArray array];
+	NSArray         *pastedObjects          = nil;
+	BOOL            renameDuplicateModels   = YES;
+	int             counter                 = 0;
 	
 	//Due to an unfortunate lack of foresight in the design, the main pasting 
 	// code determines the paste location by looking at the current selection.
@@ -2659,11 +2660,15 @@
 	// asking to select the LDrawFile itself, which is impossible. So we 
 	// deselect all; that conveys the concept implicitly. 
 	selectionIndex = [outlineView rowForItem:selectionTarget];
-	if(selectionIndex < 0) //selectionTarget not displayed in outline. That means the root object--the File.
+	if(selectionIndex < 0)
+	{	//selectionTarget not displayed in outline. That means the root object--the File.
 		[outlineView deselectAll:self];
+	}
 	else
+	{
 		[outlineView selectRowIndexes:[NSIndexSet indexSetWithIndex:selectionIndex]
 				 byExtendingSelection:NO ];
+	}
 	
 	//The standard pasting code will now automatically insert the dragged 
 	// objects *directly below* the selection--effectively doing the drag.
@@ -2672,7 +2677,7 @@
 	if(sourceView == outlineView)
 	{
 		//We dragged within the same table. That means we expect the original 
-		// objects dragged to "mave" to the new position. Well, we can't 
+		// objects dragged to "move" to the new position. Well, we can't 
 		// actually *move* them, since our drag is implemented as a copy-and-paste.
 		// However, we can simply delete the original objects, which will 
 		// look the same anyway.
@@ -2691,6 +2696,9 @@
 			objectToDelete = [outlineView itemAtRow:doomedIndex];
 			[doomedObjects addObject:objectToDelete];
 		}
+		
+		// When rearranging models within a file, don't do "copy X" renaming.
+		renameDuplicateModels = NO;
 	}
 	
 	
@@ -2705,7 +2713,8 @@
 	// are in a pickle. So we set up the insertionMode flag to change the 
 	// behavior of the -addDirective:toParent: method just for this drag. 
 	self->insertionMode = insertAtBeginning;
-	pastedObjects = [self pasteFromPasteboard:pasteboard];
+	pastedObjects = [self pasteFromPasteboard:pasteboard
+						preventNameCollisions:renameDuplicateModels];
 	self->insertionMode = insertAtEnd; //revert back to normal behavior.
 	
 	
@@ -2868,7 +2877,7 @@
 	else
 	{
 		[self writeDirectives:directives toPasteboard:pasteboard];
-		[self pasteFromPasteboard:pasteboard];
+		[self pasteFromPasteboard:pasteboard preventNameCollisions:YES];
 		[undoManager setActionName:NSLocalizedString(@"UndoDrop", nil)];
 	}
 	
@@ -3651,9 +3660,9 @@
 //
 // Purpose:		Add newModel to the current file.
 //
-// Notes:		Duplicate model names are verboten, so if newModel's name 
-//				matches an existing model name, an approriate "copy X" will be 
-//				appended automatically. 
+// Notes:		Duplicate model names are verboten if renameModels is true, so 
+//				if newModel's name matches an existing model name, an approriate 
+//				"copy X" will be appended automatically. 
 //
 //				There is a bug here in that if several models having references 
 //				to one another are pasted at once into a file with name 
@@ -3662,7 +3671,7 @@
 //				magic. To this I respond, "don't do that."
 //
 //==============================================================================
-- (void) addModel:(LDrawMPDModel *)newModel
+- (void) addModel:(LDrawMPDModel *)newModel preventNameCollisions:(BOOL)renameModels
 {
 	NSString		*proposedModelName	= [newModel modelName];
 	LDrawModel		*selectedModel		= [self selectedModel];
@@ -3671,11 +3680,14 @@
 	int				rowForItem			= 0;
 	
 	// Derive a non-duplicating name for this new model
-	while([[self documentContents] modelWithName:proposedModelName] != nil)
+	if(renameModels == YES)
 	{
-		proposedModelName = [StringUtilities nextCopyPathForFilePath:proposedModelName];
+		while([[self documentContents] modelWithName:proposedModelName] != nil)
+		{
+			proposedModelName = [StringUtilities nextCopyPathForFilePath:proposedModelName];
+		}
+		[newModel setModelName:proposedModelName];
 	}
-	[newModel setModelName:proposedModelName];
 	
 	
 	// Add directly after the currently-selected model?
@@ -4304,8 +4316,12 @@
 //
 // Returns:		The objects added, or nil if nothing was on the pasteboard.
 //
+// Parameters:	pasteboard		- where the archived directives live
+//				renameModels	- add "copy X" suffixes to pasted models as needed. 
+//
 //==============================================================================
 - (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard
+			preventNameCollisions:(BOOL)renameModels
 {
 	NSArray			*objects		= nil;
 	id				 currentObject	= nil; //some kind of unarchived LDrawDirective
@@ -4325,7 +4341,7 @@
 			
 			//Now pop the data into our file.
 			if([currentObject isKindOfClass:[LDrawModel class]])
-				[self addModel:currentObject];
+				[self addModel:currentObject preventNameCollisions:renameModels];
 			else if([currentObject isKindOfClass:[LDrawStep class]])
 				[self addStep:currentObject];
 			else

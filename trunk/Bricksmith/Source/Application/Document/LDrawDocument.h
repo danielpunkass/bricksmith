@@ -191,7 +191,7 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (void) clearModelMenus;
 
 //Utilites
-- (void) addModel:(LDrawMPDModel *)newModel;
+- (void) addModel:(LDrawMPDModel *)newModel preventNameCollisions:(BOOL)flag;
 - (void) addStep:(LDrawStep *)newStep;
 - (void) addPartNamed:(NSString *)partName;
 - (void) addStepComponent:(LDrawDirective *)newDirective;
@@ -208,6 +208,6 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (void) updateInspector;
 - (void) updateViewingAngleToMatchStep;
 - (void) writeDirectives:(NSArray *)directives toPasteboard:(NSPasteboard *)pasteboard;
-- (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard;
+- (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard preventNameCollisions:(BOOL)renameModels;
 
 @end

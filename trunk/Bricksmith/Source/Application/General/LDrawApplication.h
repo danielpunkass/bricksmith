@@ -15,6 +15,7 @@
 
 @class Inspector;
 @class PartLibrary;
+@class PartLibraryController;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,9 +25,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawApplication : NSObject
 {
-	PartLibrary		*partLibrary; //centralized location for part information.
-	Inspector		*inspector; //system for graphically inspecting classes.
-	NSOpenGLContext	*sharedGLContext; //OpenGL variables like display list numbers are shared through this.
+	PartLibraryController	*partLibraryController;	// centralized location for part information.
+	Inspector				*inspector;				// system for graphically inspecting classes.
+	NSOpenGLContext			*sharedGLContext;		// OpenGL variables like display list numbers are shared through this.
 }
 
 //Actions
@@ -42,8 +43,9 @@
 + (Inspector *) sharedInspector;
 + (NSOpenGLContext *) sharedOpenGLContext;
 + (PartLibrary *) sharedPartLibrary;
++ (PartLibraryController *) sharedPartLibraryController;
 - (Inspector *) inspector;
-- (PartLibrary *) partLibrary;
+- (PartLibraryController *) partLibraryController;
 - (NSOpenGLContext *) openGLContext;
 
 //Utilities

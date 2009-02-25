@@ -83,7 +83,7 @@
 	
 	//---------- Set Data ------------------------------------------------------
 	
-	[self setPartCatalog:[[LDrawApplication sharedPartLibrary] partCatalog]];
+	[self setPartLibrary:[LDrawApplication sharedPartLibrary]];
 	[self setCategory:startingCategory];
 	
 	[partsTable scrollRowToVisible:startingRow];
@@ -98,7 +98,7 @@
 	[[NSNotificationCenter defaultCenter]
 			addObserver: self
 			   selector: @selector(sharedPartCatalogDidChange:)
-				   name: LDrawPartCatalogDidChangeNotification
+				   name: LDrawPartLibraryDidChangeNotification
 				 object: nil ];
 	
 	
@@ -161,21 +161,24 @@
 //				set up the data sources to reflect it.
 //
 //==============================================================================
-- (void) setPartCatalog:(NSDictionary *)newCatalog
+- (void) setPartLibrary:(PartLibrary *)partLibraryIn
 {
-	self->partCatalog = newCatalog;
+	NSArray         *categories         = nil;
+	NSString        *allCategoriesItem  = nil;
+	NSMutableArray  *fullCategoryList   = [NSMutableArray array];
 	
-	//Get all the categories.
-	// We use the dictionary keys found in the part catalog.
-	NSArray *categories = [[newCatalog objectForKey:PARTS_CATALOG_KEY] allKeys];
-	//Sort the categories; they are just plain strings.
+	// Assign ivar
+	self->partLibrary = partLibraryIn;
+	
+	
+	// Get all the categories and sort them.
+	categories = [partLibrary categories];
 	categories = [categories sortedArrayUsingSelector:@selector(compare:)];
 	
-	NSString *allCategoriesItem = NSLocalizedString(@"All Categories", nil);
+	allCategoriesItem = NSLocalizedString(@"All Categories", nil);
 	
 	//Assemble the complete category list, which also includes an item for 
 	// displaying every category.
-	NSMutableArray *fullCategoryList = [NSMutableArray array];
 	[fullCategoryList addObject:allCategoriesItem];
 	[fullCategoryList addObjectsFromArray:categories]; //add all the actual categories
 	
@@ -197,40 +200,61 @@
 //==============================================================================
 - (BOOL) setCategory:(NSString *)newCategory
 {
-	NSString		*allCategoriesString = NSLocalizedString(@"All Categories", nil);
-	NSMutableArray	*partsInCategory	= nil;
-	BOOL			 success			= NO;
+	NSString        *allCategoriesString    = NSLocalizedString(@"All Categories", nil);
+	NSArray         *partsInCategory        = nil;
+	NSMutableArray	*allPartRecords			= [NSMutableArray array];
+	NSDictionary	*partRecord				= nil;
+	NSString		*partNumber				= nil;
+	NSString		*partDescription		= nil;
+	NSMutableArray  *filteredParts          = nil;
+	NSUInteger		counter					= 0;
+	BOOL            success                 = NO;
 	
-	//Get the appropriate category list.
-	if([newCategory isEqualToString:allCategoriesString]){
-		//Retrieve all parts. We can do this by getting the entire (unsorted) 
+	// Get the appropriate category list.
+	if([newCategory isEqualToString:allCategoriesString])
+	{
+		// Retrieve all parts. We can do this by getting the entire (unsorted) 
 		// contents of PARTS_LIST_KEY in the partCatalog, which is actually 
 		// a dictionary of all parts.
-		partsInCategory = [NSMutableArray arrayWithArray:
-				[[partCatalog objectForKey:PARTS_LIST_KEY] allValues] ];
+		partsInCategory = [self->partLibrary allParts];
 		success = YES;
 		
 	}
-	else{
-		//Retrieve the dictionary for the category:
-		NSArray *category = [[partCatalog objectForKey:PARTS_CATALOG_KEY] objectForKey:newCategory];
-		if(category != nil){
-			partsInCategory = [NSMutableArray arrayWithArray:category];
-			success = YES;
+	else
+	{
+		// Get the part list for the category:
+		partsInCategory = [self->partLibrary partsInCategory:newCategory];
+		success = (partsInCategory != nil);
+	}
+	
+	if(success == YES)
+	{
+		// Build the (sortable) list of part records.
+		for(counter = 0; counter < [partsInCategory count]; counter++)
+		{
+			partNumber      = [partsInCategory objectAtIndex:counter];
+			partDescription = [self->partLibrary descriptionForPartName:partNumber];
+			
+			partRecord      = [NSDictionary dictionaryWithObjectsAndKeys:
+									partNumber,			PART_NUMBER_KEY,
+									partDescription,	PART_NAME_KEY,
+									nil ];
+									
+			[allPartRecords addObject:partRecord];					
 		}
 		
-	}
+		//Apply the search.
+		filteredParts = [self filterPartRecords:allPartRecords
+						   bySearchString:[self->searchField stringValue]];
 	
-	//Apply the search.
-	partsInCategory = [self filterParts:partsInCategory
-						 bySearchString:[self->searchField stringValue]];
-	
-	if(success == YES){
-		[self setTableDataSource:partsInCategory];
+		// Update data
+		[self setTableDataSource:filteredParts];
 		[categoryComboBox setStringValue:newCategory];		
 	}
-	else //not a valid category typed; display no list.
+	else
+	{	// The user entered an invalid category; display no list.
 		[self setTableDataSource:[NSMutableArray array]];
+	}
 	
 	return success;
 	
@@ -571,9 +595,9 @@
 //==============================================================================
 - (void) sharedPartCatalogDidChange:(NSNotification *)notification
 {
-	NSDictionary *newCatalog = [notification object];
+	PartLibrary *newLibrary = [notification object];
 	
-	[self setPartCatalog:newCatalog];
+	[self setPartLibrary:newLibrary];
 	
 }//end sharedPartCatalogDidChange:
 
@@ -582,7 +606,7 @@
 #pragma mark UTILITIES
 #pragma mark -
 
-//========== filterParts:bySearchString: =======================================
+//========== filterPartRecords:bySearchString: =================================
 //
 // Purpose:		Searches partRecords for all records containing searchString; 
 //				returns the matching records. The search will be conducted on 
@@ -603,8 +627,8 @@
 //				cheeseball approach.  
 //
 //==============================================================================
-- (NSMutableArray *) filterParts:(NSArray *)partRecords
-				  bySearchString:(NSString *)searchString
+- (NSMutableArray *) filterPartRecords:(NSArray *)partRecords
+						bySearchString:(NSString *)searchString
 {
 	NSDictionary	*record					= nil;
 	int				 counter				= 0;
@@ -644,7 +668,7 @@
 	
 	return matchingParts;
 	
-}//end filterParts:bySearchString:
+}//end filterPartRecords:bySearchString:
 
 
 //========== syncSelectionAndPartDisplayed =====================================
@@ -656,11 +680,10 @@
 - (void) syncSelectionAndPartDisplayed
 {
 	NSString	*selectedPartName	= [self selectedPartName];
-	PartLibrary	*partLibrary		= [LDrawApplication sharedPartLibrary];
 	id			 modelToView		= nil;
 	
 	if(selectedPartName != nil) {
-		modelToView = [partLibrary modelForName:selectedPartName];
+		modelToView = [self->partLibrary modelForName:selectedPartName];
 	}
 	[partPreview setLDrawDirective:modelToView];
 	

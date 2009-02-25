@@ -277,7 +277,7 @@
 
 //The part catalog was regenerated from disk.
 // Object is the new catalog. No userInfo.
-#define LDrawPartCatalogDidChangeNotification			@"LDrawPartCatalogDidChangeNotification"
+#define LDrawPartLibraryDidChangeNotification			@"LDrawPartLibraryDidChangeNotification"
 
 //Part Browser should be shown a different way.
 // Object is NSNumber of new style. No userInfo.

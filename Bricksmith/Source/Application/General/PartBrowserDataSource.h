@@ -11,22 +11,29 @@
 
 #import "LDrawGLView.h"
 
-@interface PartBrowserDataSource : NSObject {
-	
+@class PartLibrary;
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// class PartBrowserDataSource
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface PartBrowserDataSource : NSObject
+{
 	IBOutlet NSComboBox		*categoryComboBox;
 	IBOutlet NSSearchField	*searchField;
 	IBOutlet NSTableView	*partsTable;
 	IBOutlet LDrawGLView	*partPreview;
 
-	NSDictionary	*partCatalog; //weak reference to the shared part catalog.
-	NSArray			*categoryList;
-	NSMutableArray	*tableDataSource;
+	PartLibrary     *partLibrary; //weak reference to the shared part catalog.
+	NSArray         *categoryList;
+	NSMutableArray  *tableDataSource;
 
 }
 
 //Accessors
 - (NSString *) selectedPartName;
-- (void) setPartCatalog:(NSDictionary *)newCatalog;
+- (void) setPartLibrary:(PartLibrary *)partLibraryIn;
 - (BOOL) setCategory:(NSString *)newCategory;
 - (void) setCategoryList:(NSArray *)categoryList;
 - (void) setTableDataSource:(NSMutableArray *) partsInCategory;
@@ -41,7 +48,7 @@
 - (void) sharedPartCatalogDidChange:(NSNotification *)notification;
 
 //Utilities
-- (NSMutableArray *) filterParts:(NSArray *)partRecords bySearchString:(NSString *)searchString;
+- (NSMutableArray *) filterPartRecords:(NSArray *)partRecords bySearchString:(NSString *)searchString;
 - (void) syncSelectionAndPartDisplayed;
 - (BOOL) writeSelectedPartToPasteboard:(NSPasteboard *)pasteboard;
 

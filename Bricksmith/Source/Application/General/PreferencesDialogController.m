@@ -14,6 +14,7 @@
 #import "LDrawApplication.h"
 #import "LDrawGLView.h"			//for ViewOrientationT
 #import "PartLibrary.h"
+#import "PartLibraryController.h"
 #import "UserDefaultsCategory.h"
 #import "WindowCategory.h"
 #import <AMSProgressBar/AMSProgressBar.h>
@@ -341,11 +342,11 @@ PreferencesDialogController *preferencesDialog = nil;
 //				Is it fast? No. Is it easy to code? Yes.
 //
 //==============================================================================
-- (IBAction)reloadParts:(id)sender
+- (IBAction) reloadParts:(id)sender
 {
-	PartLibrary			*partLibrary		= [LDrawApplication sharedPartLibrary];
+	PartLibraryController   *libraryController	= [LDrawApplication sharedPartLibraryController];
 	
-	[partLibrary reloadParts:sender];
+	[libraryController reloadPartCatalog];
 	
 }//end reloadParts:
 
@@ -796,8 +797,8 @@ PreferencesDialogController *preferencesDialog = nil;
 //==============================================================================
 - (void) changeLDrawFolderPath:(NSString *) folderPath
 {
-	PartLibrary		*partLibrary	= [LDrawApplication sharedPartLibrary];
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	PartLibraryController   *libraryController  = [LDrawApplication sharedPartLibraryController];
+	NSUserDefaults          *userDefaults       = [NSUserDefaults standardUserDefaults];
 	
 	//Record this new folder in preferences whether it's right or not. We'll let 
 	// them sink their own ship here.
@@ -805,7 +806,8 @@ PreferencesDialogController *preferencesDialog = nil;
 					 forKey:LDRAW_PATH_KEY];
 	[LDrawPathTextField setStringValue:folderPath];
 	
-	if([partLibrary validateLDrawFolderWithMessage:folderPath] == YES){
+	if([libraryController validateLDrawFolderWithMessage:folderPath] == YES)
+	{
 		[self reloadParts:self];
 	}
 	//else we displayed an error message already.

@@ -20,6 +20,7 @@
 #import "MacLDraw.h"
 #import "PartBrowserPanel.h"
 #import "PartLibrary.h"
+#import "PartLibraryController.h"
 #import "PreferencesDialogController.h"
 #import "ToolPalette.h"
 #import "TransformerIntMinus1.h"
@@ -100,7 +101,7 @@
 }//end sharedOpenGLContext
 
 
-//========== sharedPartLibrary =================================================
+//---------- sharedPartLibrary ---------------------------------------[static]--
 //
 // Purpose:		Returns the part libary, which contains the part catalog, which 
 //				is read in from the file LDRAW_PATH_KEY/PART_CATALOG_NAME when 
@@ -111,13 +112,33 @@
 // Note:		This method is static, so we don't have to keep passing pointers 
 //				to this class around.
 //
-//==============================================================================
+//------------------------------------------------------------------------------
 + (PartLibrary *) sharedPartLibrary
+{
+	PartLibraryController   *libraryController  = [self sharedPartLibraryController];
+	PartLibrary             *library            = [libraryController partLibrary];
+
+	return library;
+	
+}//end sharedPartLibrary
+
+
+//---------- sharedPartLibraryController -----------------------------[static]--
+//
+// Purpose:		Returns the object which manages the part libary.
+//
+// Note:		This method is static, so we don't have to keep passing pointers 
+//				to this class around.
+//
+//------------------------------------------------------------------------------
++ (PartLibraryController *) sharedPartLibraryController
 {
 	//Rather than making the part library a global variable, I decided to make 
 	// it an instance variable of the Application Controller class, of which 
 	// there is only one instance. This class is the application delegate too.
-	return [[NSApp delegate] partLibrary];
+	PartLibraryController *libraryController = [[NSApp delegate] partLibraryController];
+	
+	return libraryController;
 	
 }//end sharedPartLibrary
 
@@ -135,17 +156,18 @@
 }//end inspector
 
 
-//========== partLibrary =======================================================
+//========== partLibraryController =============================================
 //
-// Purpose:		Returns the local instance of the part library, which should be 
-//				the only copy of it in the program.
+// Purpose:		Returns the local instance of the part library controller, which 
+//				should be the only copy of it in the program. You can access the 
+//				part library itself through this object. 
 //
 //==============================================================================
-- (PartLibrary *) partLibrary
+- (PartLibraryController *) partLibraryController
 {
-	return partLibrary;
+	return partLibraryController;
 	
-}//end partLibrary
+}//end partLibraryController
 
 
 //========== sharedOpenGLContext ===============================================
@@ -331,25 +353,25 @@
 															0 };
 	NSOpenGLPixelFormat				*pixelFormat		= nil;
 	
+	pixelFormat				= [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelAttributes];
 	
 	//Make sure the standard preferences exist so they will be available 
 	// throughout the application.
 	[PreferencesDialogController ensureDefaults];
 	
 	//Create shared objects.
-	inspector = [Inspector new];
-	partLibrary = [PartLibrary new]; // creates a new part library which hasn't loaded the parts.
+	self->inspector               = [Inspector new];
+	self->partLibraryController   = [[PartLibraryController alloc] init];
+	self->sharedGLContext	= [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
 	[ToolPalette sharedToolPalette];
 	
-	pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelAttributes];
-	sharedGLContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
 	[sharedGLContext makeCurrentContext];
 	
 	//Try to define an LDraw path before the application even finishes starting.
 	[self findLDrawPath];
 
 	//Load the parts into the library; see if they loaded properly.
-	if([partLibrary loadPartCatalog] == NO)
+	if([partLibraryController loadPartCatalog] == NO)
 	{
 		//No path has been chosen yet.
 		// We must choose one now.
@@ -543,7 +565,7 @@
 	for(counter = 0; counter < [potentialPaths count] && foundAPath == NO; counter++)
 	{
 		ldrawPath = [potentialPaths objectAtIndex:counter];
-		foundAPath = [partLibrary validateLDrawFolder:ldrawPath];
+		foundAPath = [[self->partLibraryController partLibrary] validateLDrawFolder:ldrawPath];
 	}
 
 	//We found one.
@@ -556,7 +578,9 @@
 		//If they *thought* they had a selection then display a message 
 		// telling them their selection is no good.
 		if([preferencePath length] >= 0)
-			[self->partLibrary validateLDrawFolderWithMessage:preferencePath];
+		{
+			[self->partLibraryController validateLDrawFolderWithMessage:preferencePath];
+		}
 		ldrawPath = nil;
 	}
 	
@@ -576,9 +600,9 @@
 //==============================================================================
 - (void) dealloc
 {
-	[partLibrary		release];
-	[inspector			release];
-	[sharedGLContext	release];
+	[partLibraryController	release];
+	[inspector				release];
+	[sharedGLContext		release];
 
 	[super dealloc];
 	

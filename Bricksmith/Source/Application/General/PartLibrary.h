@@ -9,28 +9,36 @@
 //  Copyright 2005. All rights reserved.
 //==============================================================================
 #import <Cocoa/Cocoa.h>
-@class AMSProgressPanel;
-@class LDrawModel;
-@class LDrawPart;
 
 #import "ColorLibrary.h"
 
-@interface PartLibrary : NSObject {
+@class LDrawModel;
+@class LDrawPart;
+@protocol PartLibraryReloadPartsDelegate;
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// class PartLibrary
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface PartLibrary : NSObject
+{
 	NSDictionary		*partCatalog;
 	NSMutableDictionary	*loadedFiles; //list of LDrawFiles which have been read off disk.
 	NSMutableDictionary	*fileDisplayLists; //access stored display lists by part name, then color.
 }
 
 //Initialization
-- (BOOL) loadPartCatalog;
 
 //Accessors
-- (NSDictionary *) partCatalog;
+- (NSArray *) allParts;
+- (NSArray *) categories;
+- (NSArray *) partsInCategory:(NSString *)category;
 - (void) setPartCatalog:(NSDictionary *)newCatalog;
 
 //Actions
-- (void)reloadParts:(id)sender;
+- (BOOL) load;
+- (BOOL) reloadPartsWithDelegate:(id <PartLibraryReloadPartsDelegate>)delegate;
 
 //Finding Parts
 - (LDrawModel *) modelForName:(NSString *) partName;
@@ -44,7 +52,7 @@
 				toCatalog:(NSMutableDictionary *)catalog
 			underCategory:(NSString *)category
 			   namePrefix:(NSString *)namePrefix
-			progressPanel:(AMSProgressPanel	*)progressPanel;
+				 delegate:(id <PartLibraryReloadPartsDelegate>)delegate;
 - (NSString *)categoryForDescription:(NSString *)modelDescription;
 - (NSString *)categoryForPart:(LDrawPart *)part;
 - (NSString *)descriptionForPart:(LDrawPart *)part;
@@ -52,6 +60,19 @@
 - (NSString *) descriptionForFilePath:(NSString *)filepath;
 - (LDrawModel *) readModelAtPath:(NSString *)partPath partName:(NSString *)partName;
 - (BOOL) validateLDrawFolder:(NSString *) folderPath;
-- (BOOL) validateLDrawFolderWithMessage:(NSString *) folderPath;
+
+@end
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// delegate PartLibraryReloadPartsDelegate
+// (all methods are required)
+//
+////////////////////////////////////////////////////////////////////////////////
+@protocol PartLibraryReloadPartsDelegate
+
+- (void) partLibrary:(PartLibrary *)partLibrary maximumPartCountToLoad:(NSUInteger)maxPartCount;
+- (void) partLibraryIncrementLoadProgressCount:(PartLibrary *)partLibrary;
 
 @end

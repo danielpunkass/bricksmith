@@ -16,7 +16,6 @@
 //==============================================================================
 #import "PartLibrary.h"
 
-#import <AMSProgressBar/AMSProgressBar.h>
 #import "LDrawApplication.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
@@ -25,22 +24,6 @@
 #import "MacLDraw.h"
 
 @implementation PartLibrary
-
-//---------- partLibrary ---------------------------------------------[static]--
-//
-// Purpose:		Creates a part library and loads all the parts.
-//
-//------------------------------------------------------------------------------
-+ (PartLibrary *) partLibrary
-{
-	PartLibrary *newLibrary = [[PartLibrary alloc] init];
-	
-	[newLibrary loadPartCatalog];
-	
-	return [newLibrary autorelease];
-	
-}//end partLibrary
-
 
 //========== init ==============================================================
 //
@@ -61,73 +44,55 @@
 }//end init
 
 
-//========== loadPartCatalog ===================================================
-//
-// Purpose:		Reads the part catalog out of the LDraw folder. Returns YES upon 
-//				success.
-//
-//==============================================================================
-- (BOOL) loadPartCatalog
-{
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	NSFileManager	*fileManager	= [NSFileManager defaultManager];
-	
-	NSString		*ldrawPath		= [userDefaults stringForKey:LDRAW_PATH_KEY];
-	NSString		*pathToPartList	= nil;
-	BOOL			 partsListExists= NO;
-	
-	if(ldrawPath != nil){
-		pathToPartList = [ldrawPath stringByAppendingPathComponent:PART_CATALOG_NAME];
-		if([fileManager fileExistsAtPath:pathToPartList])
-			partsListExists = YES;
-	}
-	
-	if(partsListExists == YES){
-		[self setPartCatalog:[NSDictionary dictionaryWithContentsOfFile:pathToPartList]];
-	}
-	else {
-		[self reloadParts:self];
-		if([fileManager fileExistsAtPath:pathToPartList])
-			partsListExists = YES;
-	}
-	
-	
-	return partsListExists;
-	
-}//end loadPartCatalog
-
-
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
 
-//========== partCatalog =======================================================
+//========== allParts ==========================================================
 //
-// Purpose:		Returns the local instance of the part catalog, which should be 
-//				the only copy of it in the program.
-//
-//				The Part Catalog is structured as follows:
-//
-//				partCatalog
-//				|
-//				|--> PARTS_CATALOG_KEY <NSArray>
-//				|		|
-//				|		|--> Category Name is Key (e.g., "Brick") <NSArray>
-//				|				|
-//				|				|--> PART_NUMBER_KEY <NSString> (e.g., "3001.dat")
-//				|				|--> PART_NAME_KEY <NSString> (e.g., "Brick 2 x 4")
-//				|
-//				|--> PARTS_LIST_KEY
-//						|
-//						|--> PART_NUMBER_KEY
-//						|--> PART_NAME_KEY
+// Purpose:		Returns all the part numbers in the library.
 //
 //==============================================================================
-- (NSDictionary *) partCatalog
+- (NSArray *) allParts
 {
-	return partCatalog;
+	// all the reference numbers for parts.
+	return [[self->partCatalog objectForKey:PARTS_LIST_KEY] allKeys];
 	
-}//end partCatalog
+}//end allParts
+
+
+//========== categories ========================================================
+//
+// Purpose:		Returns all the categories in the library, sorted in no 
+//				particular order. 
+//
+//==============================================================================
+- (NSArray *) categories
+{
+	return [[self->partCatalog objectForKey:PARTS_CATALOG_KEY] allKeys];
+	
+}//end categories
+
+
+//========== partsInCategory: ==================================================
+//
+// Purpose:		Returns all the parts in the given category. Returns nil if the 
+//				category doesn't exist. 
+//
+//==============================================================================
+- (NSArray *) partsInCategory:(NSString *)categoryName
+{
+	NSArray *category   = [[partCatalog objectForKey:PARTS_CATALOG_KEY] objectForKey:categoryName];
+	NSArray *parts      = nil;
+	
+	if(category != nil)
+	{
+		parts = [category valueForKey:PART_NUMBER_KEY];
+	}
+	
+	return parts;
+
+}//end partsInCategory:
 
 
 //========== setPartCatalog ====================================================
@@ -135,6 +100,29 @@
 // Purpose:		Saves the local instance of the part catalog, which should be 
 //				the only copy of it in the program. Use +setSharedPartCatalog to 
 //				update it outside this class.
+//
+// Notes:		The Part Catalog is structured as follows:
+//
+//				partCatalog
+//				|
+//				|--> PARTS_CATALOG_KEY <NSDictionary>
+//				|		|
+//				|		Keys  are category names, e.g., "Brick"
+//				|		<NSArray>
+//				|			|
+//				|			<NSDictionary>
+//				|				|--> PART_NUMBER_KEY <NSString> (e.g., "3001.dat")
+//				|				|--> PART_NAME_KEY <NSString> (e.g., "Brick 2 x 4")
+//				|
+//				|--> PARTS_LIST_KEY <NSDictionary>
+//						|
+//						Keys are part reference numbers, e.g., "3001.dat"
+//						<NSDictionary>
+//							|--> PART_NUMBER_KEY
+//							|--> PART_NAME_KEY
+//
+//				This data structure is PRIVATE. There is no get accessor. Query 
+//				this object for its part lists and build your own records.
 //
 //==============================================================================
 - (void) setPartCatalog:(NSDictionary *)newCatalog
@@ -146,8 +134,8 @@
 	
 	//Inform any open parts browsers of the change.
 	[[NSNotificationCenter defaultCenter] 
-			postNotificationName: LDrawPartCatalogDidChangeNotification
-						  object: partCatalog ];
+			postNotificationName: LDrawPartLibraryDidChangeNotification
+						  object: self ];
 	
 }//end setPartCatalog
 
@@ -155,6 +143,47 @@
 #pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
+
+//========== load ==============================================================
+//
+// Purpose:		Loads the catalog from the part list stashed in the LDraw 
+//				folder. 
+//
+// Returns:		NO if no part list exists. (You need to call -reloadParts: in 
+//				PartLibraryController then.) 
+//
+//==============================================================================
+- (BOOL) load
+{
+	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+	NSFileManager   *fileManager    = [NSFileManager defaultManager];
+	
+	NSString        *ldrawPath      = [userDefaults stringForKey:LDRAW_PATH_KEY];
+	NSString        *pathToPartList = nil;
+	BOOL            partsListExists = NO;
+	NSDictionary	*newCatalog		= nil;
+	
+	// Do we have an LDraw folder?
+	if(ldrawPath != nil)
+	{
+		pathToPartList = [ldrawPath stringByAppendingPathComponent:PART_CATALOG_NAME];
+		
+		if([fileManager fileExistsAtPath:pathToPartList])
+			partsListExists = YES;
+	}
+	
+	// Do we have a part list already? 
+	if(partsListExists == YES)
+	{
+		newCatalog = [NSDictionary dictionaryWithContentsOfFile:pathToPartList];
+		
+		[self setPartCatalog:newCatalog];
+	}
+	
+	return partsListExists;
+
+}//end load
+
 
 //========== reloadParts: ======================================================
 //
@@ -186,7 +215,7 @@
 //				format, i.e., "s\file.dat" or "48\file.dat".
 //
 //==============================================================================
-- (void)reloadParts:(id)sender
+- (BOOL) reloadPartsWithDelegate:(id <PartLibraryReloadPartsDelegate>)delegate
 {
 	NSFileManager		*fileManager		= [NSFileManager defaultManager];
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
@@ -196,38 +225,33 @@
 	
 	//make sure the LDraw folder is still valid; otherwise, why bother doing anything?
 	if([self validateLDrawFolder:ldrawPath] == NO)
-		return;
+		return NO;
 	
 	//assemble all the pathnames to be searched.
-	NSString			*primitivesPath		= [NSString stringWithFormat:@"%@/%@", ldrawPath, PRIMITIVES_DIRECTORY_NAME];
-	NSString			*primitives48Path	= [NSString stringWithFormat:@"%@/%@", primitivesPath, PRIMITIVES_48_DIRECTORY_NAME];
-	NSString			*partsPath			= [NSString stringWithFormat:@"%@/%@", ldrawPath, PARTS_DIRECTORY_NAME];
-	NSString			*subpartsPath		= [NSString stringWithFormat:@"%@/%@", partsPath, SUBPARTS_DIRECTORY_NAME];
-
+	NSString            *primitivesPath             = [ldrawPath				stringByAppendingPathComponent:PRIMITIVES_DIRECTORY_NAME];
+	NSString            *primitives48Path           = [primitivesPath			stringByAppendingPathComponent:PRIMITIVES_48_DIRECTORY_NAME];
+	NSString            *partsPath                  = [ldrawPath				stringByAppendingPathComponent:PARTS_DIRECTORY_NAME];
+	NSString            *subpartsPath               = [partsPath				stringByAppendingPathComponent:SUBPARTS_DIRECTORY_NAME];
+	
 	//search unofficial directories as well.
-	NSString			*unofficialPrimitivesPath	= [NSString stringWithFormat:@"%@/%@", unofficialPath, PRIMITIVES_DIRECTORY_NAME];
-	NSString			*unofficialPrimitives48Path	= [NSString stringWithFormat:@"%@/%@", unofficialPrimitivesPath, PRIMITIVES_48_DIRECTORY_NAME];
-	NSString			*unofficialPartsPath		= [NSString stringWithFormat:@"%@/%@", unofficialPath, PARTS_DIRECTORY_NAME];
-	NSString			*unofficialSubpartsPath		= [NSString stringWithFormat:@"%@/%@", unofficialPartsPath, SUBPARTS_DIRECTORY_NAME];
+	NSString            *unofficialPrimitivesPath   = [unofficialPath			stringByAppendingPathComponent:PRIMITIVES_DIRECTORY_NAME];
+	NSString            *unofficialPrimitives48Path = [unofficialPrimitivesPath	stringByAppendingPathComponent:PRIMITIVES_48_DIRECTORY_NAME];
+	NSString            *unofficialPartsPath        = [unofficialPath			stringByAppendingPathComponent:PARTS_DIRECTORY_NAME];
+	NSString            *unofficialSubpartsPath     = [unofficialPartsPath		stringByAppendingPathComponent:SUBPARTS_DIRECTORY_NAME];
 	
-	NSString			*partCatalogPath	= [NSString stringWithFormat:@"%@/%@", ldrawPath, PART_CATALOG_NAME];
-	NSMutableDictionary	*newPartCatalog		= [NSMutableDictionary dictionary];
+	NSString            *partCatalogPath            = [ldrawPath				stringByAppendingPathComponent:PART_CATALOG_NAME];
+	NSMutableDictionary *newPartCatalog             = [NSMutableDictionary dictionary];
 	
-	AMSProgressPanel	*progressPanel		= [AMSProgressPanel progressPanel];
-	
-	//Start the progress bar so that we know what's happening.
-	// (My method here for determining the maximum value is *hardly* efficient!)
-	[progressPanel setMaxValue:	[[fileManager directoryContentsAtPath:primitivesPath] count] + 
-								[[fileManager directoryContentsAtPath:primitives48Path] count] + 
-								[[fileManager directoryContentsAtPath:partsPath] count] + 
-								[[fileManager directoryContentsAtPath:subpartsPath] count] +
-								[[fileManager directoryContentsAtPath:unofficialPrimitivesPath] count] +
-								[[fileManager directoryContentsAtPath:unofficialPrimitives48Path] count] +
-								[[fileManager directoryContentsAtPath:unofficialPartsPath] count] +
-								[[fileManager directoryContentsAtPath:unofficialSubpartsPath] count]
-	];
-	[progressPanel setMessage:@"Loading Parts"];
-	[progressPanel showProgressPanel];
+	// Start the progress bar so that we know what's happening.
+	NSUInteger			partCount					=		[[fileManager directoryContentsAtPath:primitivesPath] count]
+														+	[[fileManager directoryContentsAtPath:primitives48Path] count]
+														+	[[fileManager directoryContentsAtPath:partsPath] count]
+														+	[[fileManager directoryContentsAtPath:subpartsPath] count]
+														+	[[fileManager directoryContentsAtPath:unofficialPrimitivesPath] count]
+														+	[[fileManager directoryContentsAtPath:unofficialPrimitives48Path] count]
+														+	[[fileManager directoryContentsAtPath:unofficialPartsPath] count]
+														+	[[fileManager directoryContentsAtPath:unofficialSubpartsPath] count];
+	[delegate partLibrary:self maximumPartCountToLoad:partCount];
 	
 	
 	//Create the new part catalog. We will then fill it with folder contents.
@@ -240,25 +264,25 @@
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil) //override all internal categories
 				namePrefix:nil
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	[self addPartsInFolder:primitives48Path
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil) //override all internal categories
 				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME]
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	[self addPartsInFolder:partsPath
 				 toCatalog:newPartCatalog
 			 underCategory:nil //pick up category names defined by parts
 				namePrefix:nil
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	[self addPartsInFolder:subpartsPath
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Subparts", nil)
 				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME] //prefix subpart numbers with the DOS path "s\"; that's just how it is. Yuck!
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	
 	//Scan unofficial part folders.
@@ -266,34 +290,32 @@
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil) //groups unofficial primitives with official primitives
 			    namePrefix:nil //a directory deeper, but no DOS path separators to manage
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	[self addPartsInFolder:unofficialPrimitives48Path
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil)
 				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME]
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	[self addPartsInFolder:unofficialPartsPath
 				 toCatalog:newPartCatalog
 			 underCategory:nil
 				namePrefix:nil
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	[self addPartsInFolder:unofficialSubpartsPath
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Subparts", nil) //groups unofficial subparts with official subparts
 				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME]
-			 progressPanel:progressPanel ];
+				  delegate:delegate ];
 	
 	//Save the part catalog out for future reference.
 	[newPartCatalog writeToFile:partCatalogPath atomically:YES];
-	
-	//Save the universal instance so we don't have to get it off disk constantly.
 	[self setPartCatalog:newPartCatalog];
 	
-	
-	[progressPanel close];
+	// We succeeded in loading the parts!
+	return YES;
 	
 }//end reloadParts:
 
@@ -591,7 +613,7 @@
 				toCatalog:(NSMutableDictionary *)catalog
 			underCategory:(NSString *)categoryOverride
 			   namePrefix:(NSString *)namePrefix
-			progressPanel:(AMSProgressPanel	*)progressPanel
+				 delegate:(id <PartLibraryReloadPartsDelegate>)delegate
 {
 	NSFileManager		*fileManager		= [NSFileManager defaultManager];
 // Not working for some reason. Why?
@@ -621,7 +643,7 @@
 	// information for every part therein.	
 	for(counter = 0; counter < numberOfParts; counter++) 
 	{
-		currentPath = [NSString stringWithFormat:@"%@/%@", folderPath, [partNames objectAtIndex:counter]];
+		currentPath = [folderPath stringByAppendingPathComponent:[partNames objectAtIndex:counter]];
 		
 		if([readableFileTypes containsObject:[currentPath pathExtension]] == YES)
 		{
@@ -669,7 +691,8 @@
 //				NSLog(@"processed %@", [partNames objectAtIndex:counter]);
 			}
 		}
-		[progressPanel increment];
+		[delegate partLibraryIncrementLoadProgressCount:self];
+		
 	}//end loop through files
 	
 }//end addPartsInFolder:toCatalog:underCategory:
@@ -740,10 +763,9 @@
 - (NSString *) descriptionForPart:(LDrawPart *)part
 {
 	//Look up the verbose part description in the scanned part catalog.
-	NSDictionary	*catalog			= [self partCatalog];
-	NSDictionary	*partList			= [catalog		objectForKey:PARTS_LIST_KEY];
-	NSDictionary	*partRecord			= [partList		objectForKey:[part referenceName]];
-	NSString		*partDescription	= [partRecord objectForKey:PART_NAME_KEY];
+	NSDictionary	*partList			= [self->partCatalog	objectForKey:PARTS_LIST_KEY];
+	NSDictionary	*partRecord			= [partList				objectForKey:[part referenceName]];
+	NSString		*partDescription	= [partRecord			objectForKey:PART_NAME_KEY];
 	
 	// Maybe it's an MPD reference?
 	if(partDescription == nil)
@@ -776,10 +798,9 @@
 - (NSString *) descriptionForPartName:(NSString *)name
 {
 	//Look up the verbose part description in the scanned part catalog.
-	NSDictionary	*catalog			= [self partCatalog];
-	NSDictionary	*partList			= [catalog		objectForKey:PARTS_LIST_KEY];
-	NSDictionary	*partRecord			= [partList		objectForKey:name];
-	NSString		*partDescription	= [partRecord objectForKey:PART_NAME_KEY];
+	NSDictionary	*partList			= [self->partCatalog	objectForKey:PARTS_LIST_KEY];
+	NSDictionary	*partRecord			= [partList				objectForKey:name];
+	NSString		*partDescription	= [partRecord			objectForKey:PART_NAME_KEY];
 	//If the part isn't known, all we can really do is just display the number.
 	if(partDescription == nil)
 		partDescription = name;
@@ -896,34 +917,6 @@
 	return folderIsValid;
 	
 }//end validateLDrawFolder:
-
-
-//========== validateLDrawFolderWithMessage: ===================================
-//
-// Purpose:		Checks to see that the folder at path is indeed a valid LDraw 
-//				folder and contains the vital Parts and P directories.
-//
-//==============================================================================
-- (BOOL) validateLDrawFolderWithMessage:(NSString *) folderPath
-{
-	BOOL folderIsValid = [self validateLDrawFolder:folderPath];
-	
-	if(folderIsValid == NO)
-	{
-		NSAlert *error = [[NSAlert alloc] init];
-		[error setAlertStyle:NSCriticalAlertStyle];
-		[error addButtonWithTitle:NSLocalizedString(@"OKButtonName", nil)];
-		
-		
-		[error setMessageText:NSLocalizedString(@"LDrawFolderChooserErrorMessage", nil)];
-		[error setInformativeText:NSLocalizedString(@"LDrawFolderChooserErrorInformative", nil)];
-		
-		[error runModal];
-	}
-	
-	return folderIsValid;
-	
-}//end validateLDrawFolder
 
 
 #pragma mark -

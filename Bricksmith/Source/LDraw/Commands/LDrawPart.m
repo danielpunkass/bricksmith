@@ -480,18 +480,22 @@
 	Point4		 rotatedMin		= {0};
 	Point4		 rotatedMax		= {0};
 	
-	//We need to have an actual model here. Blithely calling boundingBox3 will 
+	// We need to have an actual model here. Blithely calling boundingBox3 will 
 	// result in most of our Box3 structure being garbage data!
 	if(modelToDraw != nil)
 	{
 		bounds		= [modelToDraw boundingBox3];
-		originalMin	= V4FromV3( bounds.min );
-		originalMax	= V4FromV3( bounds.max );
 		
-		rotatedMin	= V4MulPointByMatrix(originalMin, transformation);
-		rotatedMax	= V4MulPointByMatrix(originalMax, transformation);
-		
-		bounds		= V3BoundsFromPoints( V3FromV4(rotatedMin), V3FromV4(rotatedMax) );
+		if(V3EqualBoxes(bounds, InvalidBox) == NO)
+		{
+			originalMin	= V4FromV3( bounds.min );
+			originalMax	= V4FromV3( bounds.max );
+			
+			rotatedMin	= V4MulPointByMatrix(originalMin, transformation);
+			rotatedMax	= V4MulPointByMatrix(originalMax, transformation);
+			
+			bounds		= V3BoundsFromPoints( V3FromV4(rotatedMin), V3FromV4(rotatedMax) );
+		}
 	}
 	
 	return bounds;

@@ -31,6 +31,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #define DOCUMENT_WINDOW_SIZE						@"Document Window Size"
+#define FAVORITE_PARTS_KEY							@"FavoriteParts"
 #define FILE_CONTENTS_DRAWER_STATE					@"File Contents Drawer State" //obsolete
 #define GRID_SPACING_COARSE							@"Grid Spacing: Coarse"
 #define GRID_SPACING_FINE							@"Grid Spacing: Fine"
@@ -302,56 +303,60 @@
 
 typedef enum MenuTags
 {
-	//Application Menu
-	applicationMenuTag			= 0,
+	// Application Menu
+	applicationMenuTag				= 0,
 	
-	//File Menu
-	fileMenuTag					= 1,
+	// File Menu
+	fileMenuTag						= 1,
 	
-	//Edit Menu
-	editMenuTag					= 2,
-	cutMenuTag					= 202,
-	copyMenuTag					= 203,
-	pasteMenuTag				= 204,
-	deleteMenuTag				= 205,
-	selectAllMenuTag			= 206,
-	duplicateMenuTag			= 207,
-	rotatePositiveXTag			= 220,
-	rotateNegativeXTag			= 221,
-	rotatePositiveYTag			= 222,
-	rotateNegativeYTag			= 223,
-	rotatePositiveZTag			= 224,
-	rotateNegativeZTag			= 225,
+	// Edit Menu
+	editMenuTag						= 2,
+	cutMenuTag						= 202,
+	copyMenuTag						= 203,
+	pasteMenuTag					= 204,
+	deleteMenuTag					= 205,
+	selectAllMenuTag				= 206,
+	duplicateMenuTag				= 207,
+	rotatePositiveXTag				= 220,
+	rotateNegativeXTag				= 221,
+	rotatePositiveYTag				= 222,
+	rotateNegativeYTag				= 223,
+	rotatePositiveZTag				= 224,
+	rotateNegativeZTag				= 225,
 	
-	//Tools Menu
-	toolsMenuTag				= 3,
-	fileContentsMenuTag			= 302,
-	gridFineMenuTag				= 305,
-	gridMediumMenuTag			= 306,
-	gridCoarseMenuTag			= 307,
+	// Tools Menu
+	toolsMenuTag					= 3,
+	fileContentsMenuTag				= 302,
+	gridFineMenuTag					= 305,
+	gridMediumMenuTag				= 306,
+	gridCoarseMenuTag				= 307,
 	
-	//Views Menu
-	viewsMenuTag				= 4,
-	stepDisplayMenuTag			= 404,
-	nextStepMenuTag				= 405,
-	previousStepMenuTag			= 406,
-	orientationMenuTag			= 407,
+	// Views Menu
+	viewsMenuTag					= 4,
+	stepDisplayMenuTag				= 404,
+	nextStepMenuTag					= 405,
+	previousStepMenuTag				= 406,
+	orientationMenuTag				= 407,
 	
-	//Piece Menu
-	pieceMenuTag				= 5,
-	hidePieceMenuTag			= 501,
-	showPieceMenuTag			= 502,
-	snapToGridMenuTag			= 503,
+	// Piece Menu
+	pieceMenuTag					= 5,
+	hidePieceMenuTag				= 501,
+	showPieceMenuTag				= 502,
+	snapToGridMenuTag				= 503,
 	
-	//Models Menu
-	modelsMenuTag				= 6,
-	addModelMenuTag				= 601,
-	modelsSeparatorMenuTag		= 602,
-	insertReferenceMenuTag		= 603,
-	submodelReferenceMenuTag	= 604, //used for all items in the Insert Reference menu.
+	// Models Menu
+	modelsMenuTag					= 6,
+	addModelMenuTag					= 601,
+	modelsSeparatorMenuTag			= 602,
+	insertReferenceMenuTag			= 603,
+	submodelReferenceMenuTag		= 604, //used for all items in the Insert Reference menu.
 	
-	//Window Menu
-	windowMenuTag				= 7
+	// Window Menu
+	windowMenuTag					= 7,
+	
+	// Contextual Menus
+	partBrowserAddFavoriteTag		= 4001,
+	partBrowserRemoveFavoriteTag	= 4002
 	
 } menuTagsT;
 

@@ -24,30 +24,37 @@
 @interface PartLibrary : NSObject
 {
 	NSDictionary		*partCatalog;
-	NSMutableDictionary	*loadedFiles; //list of LDrawFiles which have been read off disk.
-	NSMutableDictionary	*fileDisplayLists; //access stored display lists by part name, then color.
+	NSMutableArray		*favorites;			// parts names in the "Favorites" pseduocategory
+	NSMutableDictionary	*loadedFiles;		// list of LDrawFiles which have been read off disk.
+	NSMutableDictionary	*fileDisplayLists;	// access stored display lists by part name, then color.
 }
 
-//Initialization
+// Initialization
 
-//Accessors
-- (NSArray *) allParts;
+// Accessors
+- (NSArray *) allPartNames;
 - (NSArray *) categories;
-- (NSArray *) partsInCategory:(NSString *)category;
+- (NSArray *) favoritePartNames;
+- (NSArray *) partNamesInCategory:(NSString *)category;
 - (void) setPartCatalog:(NSDictionary *)newCatalog;
 
-//Actions
+// Actions
 - (BOOL) load;
 - (BOOL) reloadPartsWithDelegate:(id <PartLibraryReloadPartsDelegate>)delegate;
 
-//Finding Parts
+// Favorites
+- (void) addPartNameToFavorites:(NSString *)partName;
+- (void) removePartNameFromFavorites:(NSString *)partName;
+- (void) saveFavoritesToUserDefaults;
+
+// Finding Parts
 - (LDrawModel *) modelForName:(NSString *) partName;
 - (LDrawModel *) modelForPart:(LDrawPart *) part;
 - (NSString *) pathForPartName:(NSString *)partName;
 - (LDrawModel *) modelFromNeighboringFileForPart:(LDrawPart *)part;
 - (GLuint) retainDisplayListForPart:(LDrawPart *)part color:(GLfloat *)color;
 
-//Utilites
+// Utilites
 - (void) addPartsInFolder:(NSString *)folderPath
 				toCatalog:(NSMutableDictionary *)catalog
 			underCategory:(NSString *)category

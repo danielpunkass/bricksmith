@@ -699,8 +699,9 @@ PreferencesDialogController *preferencesDialog = nil;
 	//
 	// Part Browser
 	//
-	[initialDefaults setObject:NSLocalizedString(@"All Categories", nil)	forKey:PART_BROWSER_PREVIOUS_CATEGORY];
+	[initialDefaults setObject:NSLocalizedString(@"AllCategories", nil)	forKey:PART_BROWSER_PREVIOUS_CATEGORY];
 	[initialDefaults setObject:[NSNumber numberWithInt:0]					forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
+	[initialDefaults setObject:[NSArray array]								forKey:FAVORITE_PARTS_KEY];
 	
 	//
 	// Tool Palette

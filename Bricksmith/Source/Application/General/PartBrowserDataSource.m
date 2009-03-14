@@ -5,7 +5,10 @@
 // Purpose:		Provides a standarized data source for part browser interface.
 //
 //				A part browser consists of a table which displays part numbers 
-//				and descriptions, and a combo box to choose part categories.
+//				and descriptions, and a combo box to choose part categories. If 
+//				you wish to make a part browser, you must lay out the UI in a 
+//				manner appropriate to its setting, and then connect all the 
+//				outlets specified by this class. 
 //
 // Usage:		An instance of this class should exist in each Nib file which 
 //				contains a part browser, and the browser widgets and actions 
@@ -46,66 +49,91 @@
 	NSMenuItem		*recentsItem		= nil;
 	NSMenuItem		*noRecentsItem		= nil;
 	
-	
-	//---------- Widget Setup --------------------------------------------------
-	
-	[self->partsTable setTarget:self];
-	[self->partsTable setDoubleAction:@selector(doubleClickedInPartTable:)];
-	
-	[self->partPreview setAcceptsFirstResponder:NO];
-	[self->partPreview setDelegate:self];
-	
-	//Configure the search field's menu
-	noRecentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
-											   action:NULL
-										keyEquivalent:@"" ];
-	[noRecentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
-	[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
-	
-	recentsItem = [[NSMenuItem alloc] initWithTitle:@"recent items placeholder"
-											 action:NULL
-									  keyEquivalent:@"" ];
-	[recentsItem setTag:NSSearchFieldRecentsMenuItemTag];
-	[searchMenuTemplate insertItem:recentsItem atIndex:1];
-	
-	[[self->searchField cell] setSearchMenuTemplate:searchMenuTemplate];
-	
-	// If there is no sort order yet, define one.
-	if([[self->partsTable sortDescriptors] count] == 0)
+	// Loading main nib (the one in which this helper controller was allocated)
+	// By the time this is called, our accessory nib has already been loaded in 
+	// -init.
+	if(self->partsTable != nil)
 	{
-		NSTableColumn		*descriptionColumn	= [self->partsTable tableColumnWithIdentifier:PART_NAME_KEY];
-		NSSortDescriptor	*sortDescriptor		= [descriptionColumn sortDescriptorPrototype];
+		//---------- Widget Setup ----------------------------------------------
 		
-		if(sortDescriptor != nil)
-			[self->partsTable setSortDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+		[self->partsTable setTarget:self];
+		[self->partsTable setDoubleAction:@selector(doubleClickedInPartTable:)];
+		
+		[self->partPreview setAcceptsFirstResponder:NO];
+		[self->partPreview setDelegate:self];
+		
+		[self->zoomInButton setTarget:self->partPreview];
+		[self->zoomInButton setAction:@selector(zoomIn:)];
+		[self->zoomInButton setToolTip:NSLocalizedString(@"ZoomInTooltip", nil)];
+		
+		[self->zoomOutButton setTarget:self->partPreview];
+		[self->zoomOutButton setAction:@selector(zoomOut:)];
+		[self->zoomOutButton setToolTip:NSLocalizedString(@"ZoomOutTooltip", nil)];
+
+		[self->addRemoveFavoriteButton setTarget:self];
+		[self->addRemoveFavoriteButton setToolTip:NSLocalizedString(@"AddRemoveFavoritesTooltip", nil)];
+		
+		[self->insertButton setTarget:self];
+		[self->insertButton setAction:@selector(addPartClicked:)];
+		
+		//Configure the search field's menu
+		noRecentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
+												   action:NULL
+											keyEquivalent:@"" ];
+		[noRecentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
+		[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
+		
+		recentsItem = [[NSMenuItem alloc] initWithTitle:@"recent items placeholder"
+												 action:NULL
+										  keyEquivalent:@"" ];
+		[recentsItem setTag:NSSearchFieldRecentsMenuItemTag];
+		[searchMenuTemplate insertItem:recentsItem atIndex:1];
+		
+		[[self->searchField cell] setSearchMenuTemplate:searchMenuTemplate];
+		
+		// If there is no sort order yet, define one.
+		if([[self->partsTable sortDescriptors] count] == 0)
+		{
+			NSTableColumn		*descriptionColumn	= [self->partsTable tableColumnWithIdentifier:PART_NAME_KEY];
+			NSSortDescriptor	*sortDescriptor		= [descriptionColumn sortDescriptorPrototype];
+			
+			if(sortDescriptor != nil)
+				[self->partsTable setSortDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+		}
+		
+		[self->partsTable setMenu:self->contextualMenu];
+		
+		
+		//---------- Set Data --------------------------------------------------
+		
+		[self setPartLibrary:[LDrawApplication sharedPartLibrary]];
+		[self setCategory:startingCategory];
+		
+		[partsTable scrollRowToVisible:startingRow];
+		[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:startingRow]
+				byExtendingSelection:NO];
+		[self syncSelectionAndPartDisplayed];
+		
+		
+		//---------- Notifications ---------------------------------------------
+		
+		//We also want to know if the part catalog changes while the program is running.
+		[[NSNotificationCenter defaultCenter]
+				addObserver: self
+				   selector: @selector(sharedPartCatalogDidChange:)
+					   name: LDrawPartLibraryDidChangeNotification
+					 object: nil ];
+		
+		
+		//---------- Free Memory -----------------------------------------------
+		[searchMenuTemplate	release];
+		[recentsItem		release];
+		[noRecentsItem		release];
 	}
-	
-	
-	//---------- Set Data ------------------------------------------------------
-	
-	[self setPartLibrary:[LDrawApplication sharedPartLibrary]];
-	[self setCategory:startingCategory];
-	
-	[partsTable scrollRowToVisible:startingRow];
-	[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:startingRow]
-			byExtendingSelection:NO];
-	[self syncSelectionAndPartDisplayed];
-	
-	
-	//---------- Notifications -------------------------------------------------
-	
-	//We also want to know if the part catalog changes while the program is running.
-	[[NSNotificationCenter defaultCenter]
-			addObserver: self
-			   selector: @selector(sharedPartCatalogDidChange:)
-				   name: LDrawPartLibraryDidChangeNotification
-				 object: nil ];
-	
-	
-	//---------- Free Memory ---------------------------------------------------
-	[searchMenuTemplate	release];
-	[recentsItem		release];
-	[noRecentsItem		release];
+	// Loading "PartBrowserAccessories.nib"
+	else
+	{
+	}
 
 }//end awakeFromNib
 
@@ -119,7 +147,10 @@
 {
 	self = [super init];
 	
-	//Not displaying anything yet.
+	// Load the accessories from our private nib file.
+	[NSBundle loadNibNamed:@"PartBrowserAccessories" owner:self];
+	
+	// Not displaying anything yet.
 	categoryList	= [[NSArray array] retain];
 	tableDataSource	= [[NSMutableArray array] retain];
 	
@@ -165,6 +196,7 @@
 {
 	NSArray         *categories         = nil;
 	NSString        *allCategoriesItem  = nil;
+	NSString		*favoritesItem		= nil;
 	NSMutableArray  *fullCategoryList   = [NSMutableArray array];
 	
 	// Assign ivar
@@ -175,11 +207,13 @@
 	categories = [partLibrary categories];
 	categories = [categories sortedArrayUsingSelector:@selector(compare:)];
 	
-	allCategoriesItem = NSLocalizedString(@"All Categories", nil);
+	allCategoriesItem	= NSLocalizedString(@"AllCategories", nil);
+	favoritesItem		= NSLocalizedString(@"FavoritesCategory", nil);
 	
 	//Assemble the complete category list, which also includes an item for 
 	// displaying every category.
 	[fullCategoryList addObject:allCategoriesItem];
+	[fullCategoryList addObject:favoritesItem];
 	[fullCategoryList addObjectsFromArray:categories]; //add all the actual categories
 	
 	//and now we have a complete list.
@@ -200,14 +234,15 @@
 //==============================================================================
 - (BOOL) setCategory:(NSString *)newCategory
 {
-	NSString        *allCategoriesString    = NSLocalizedString(@"All Categories", nil);
+	NSString        *allCategoriesString    = NSLocalizedString(@"AllCategories", nil);
+	NSString        *favoritesString        = NSLocalizedString(@"Favorites", nil);
 	NSArray         *partsInCategory        = nil;
-	NSMutableArray	*allPartRecords			= [NSMutableArray array];
-	NSDictionary	*partRecord				= nil;
-	NSString		*partNumber				= nil;
-	NSString		*partDescription		= nil;
+	NSMutableArray  *allPartRecords         = [NSMutableArray array];
+	NSDictionary    *partRecord             = nil;
+	NSString        *partNumber             = nil;
+	NSString        *partDescription        = nil;
 	NSMutableArray  *filteredParts          = nil;
-	NSUInteger		counter					= 0;
+	NSUInteger      counter                 = 0;
 	BOOL            success                 = NO;
 	
 	// Get the appropriate category list.
@@ -216,14 +251,19 @@
 		// Retrieve all parts. We can do this by getting the entire (unsorted) 
 		// contents of PARTS_LIST_KEY in the partCatalog, which is actually 
 		// a dictionary of all parts.
-		partsInCategory = [self->partLibrary allParts];
+		partsInCategory = [self->partLibrary allPartNames];
 		success = YES;
 		
+	}
+	else if([newCategory isEqualToString:favoritesString])
+	{
+		partsInCategory = [self->partLibrary favoritePartNames];
+		success = YES;
 	}
 	else
 	{
 		// Get the part list for the category:
-		partsInCategory = [self->partLibrary partsInCategory:newCategory];
+		partsInCategory = [self->partLibrary partNamesInCategory:newCategory];
 		success = (partsInCategory != nil);
 	}
 	
@@ -255,6 +295,8 @@
 	{	// The user entered an invalid category; display no list.
 		[self setTableDataSource:[NSMutableArray array]];
 	}
+	
+	[self setConstraints];
 	
 	return success;
 	
@@ -327,6 +369,23 @@
 }//end addPartClicked:
 
 
+//========== addFavoriteClicked: ===============================================
+//
+// Purpose:		Adds the currently-selected part to the library's list of 
+//				"favorite" parts. It seems users like to have a list like this. 
+//
+//==============================================================================
+- (IBAction) addFavoriteClicked:(id)sender
+{
+	NSString *selectedPartName = [self selectedPartName];
+	
+	[self->partLibrary addPartNameToFavorites:selectedPartName];
+	
+	[self setConstraints];
+
+}//end addFavoriteClicked:
+
+
 //========== categoryComboBoxChanged: ==========================================
 //
 // Purpose:		A new category has been selected.
@@ -363,6 +422,23 @@
 }//end doubleClickedInPartTable:
 
 
+//========== removeFavoriteClicked: ============================================
+//
+// Purpose:		Removes the currently-selected part from the library's 
+//				"favorites" list, if it happens to be in it. 
+//
+//==============================================================================
+- (IBAction) removeFavoriteClicked:(id)sender
+{
+	NSString *selectedPartName = [self selectedPartName];
+	
+	[self->partLibrary removePartNameFromFavorites:selectedPartName];
+	
+	[self setConstraints];
+	
+}//end removeFavoriteClicked:
+
+
 //========== searchFieldChanged: ===============================================
 //
 // Purpose:		The search string has been changed. We do a search on the entire 
@@ -372,8 +448,9 @@
 - (IBAction) searchFieldChanged:(id)sender
 {
 	// Setting the category will filter the results.
-	[self setCategory:NSLocalizedString(@"All Categories", nil)];
+	[self setCategory:NSLocalizedString(@"AllCategories", nil)];
 	[self syncSelectionAndPartDisplayed];
+	[self setConstraints];
 
 }//end searchFieldChanged:
 
@@ -576,10 +653,14 @@
 	
 	//Redisplay preview.
 	[self syncSelectionAndPartDisplayed];
+	[self setConstraints];
 	
 	//save for posterity.
 	if(newRow != -1)
+	{
 		[userDefaults setInteger:newRow forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
+	}
+	
 }//end tableViewSelectionDidChange
 
 
@@ -595,9 +676,18 @@
 //==============================================================================
 - (void) sharedPartCatalogDidChange:(NSNotification *)notification
 {
-	PartLibrary *newLibrary = [notification object];
+	PartLibrary *newLibrary         = [notification object];
+	NSString    *currentCategory    = [self->categoryComboBox stringValue];
+	int         selectedRow         = [self->partsTable selectedRow];
 	
 	[self setPartLibrary:newLibrary];
+	
+	// Restore the original selection (setting the part library wipes it out)
+	[self setCategory:currentCategory];
+	[partsTable scrollRowToVisible:selectedRow];
+	[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:selectedRow]
+			byExtendingSelection:NO];
+	[self syncSelectionAndPartDisplayed];
 	
 }//end sharedPartCatalogDidChange:
 
@@ -669,6 +759,58 @@
 	return matchingParts;
 	
 }//end filterPartRecords:bySearchString:
+
+
+//========== setConstraints ====================================================
+//
+// Purpose:		Sets the enabled or disabled state of controls in the part 
+//				browser. 
+//
+//==============================================================================
+- (void) setConstraints
+{
+	NSString    *selectedPart       = [self selectedPartName];
+	NSArray     *favorites          = [self->partLibrary favoritePartNames];
+	BOOL        partIsInFavorites   = NO;
+	
+	if(		selectedPart != nil
+	   &&	[favorites containsObject:selectedPart] )
+	{
+		partIsInFavorites = YES;
+	}
+	
+	
+	//---------- Set constraints -----------------------------------------------
+	
+	[self->insertButton				setEnabled:(selectedPart != nil)];
+	[self->addRemoveFavoriteButton	setEnabled:(selectedPart != nil)];
+	
+	// Add/Remove button image/action
+	if(partIsInFavorites == YES)
+	{
+		[self->addRemoveFavoriteButton	setAction:@selector(removeFavoriteClicked:)];
+		[self->addRemoveFavoriteButton	setImage:[NSImage imageNamed:@"FavoriteRemove"]];
+	}
+	else
+	{
+		[self->addRemoveFavoriteButton	setAction:@selector(addFavoriteClicked:)];
+		[self->addRemoveFavoriteButton	setImage:[NSImage imageNamed:@"FavoriteAdd"]];
+	}
+	
+	// Leopard only: hide inapplicable menu items.
+	if([NSMenuItem instancesRespondToSelector:@selector(setHidden:)] == YES)
+	{
+		[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setHidden:(partIsInFavorites == YES)];
+		[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setHidden:(partIsInFavorites == NO)];
+	}
+	else
+	{
+		// On Tiger, it's too much work to "hide" items. So just disable them.
+		[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setEnabled:(partIsInFavorites == NO)];
+		[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setEnabled:(partIsInFavorites == YES)];
+	}
+	
+}//end setConstraints
 
 
 //========== syncSelectionAndPartDisplayed =====================================
@@ -749,8 +891,9 @@
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
 	//Release data
-	[categoryList release];
-	[tableDataSource release];
+	[categoryList		release];
+	[tableDataSource	release];
+	[contextualMenu		release];
 	
 	[super dealloc];
 	

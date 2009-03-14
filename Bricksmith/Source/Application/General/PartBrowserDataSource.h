@@ -24,6 +24,11 @@
 	IBOutlet NSSearchField	*searchField;
 	IBOutlet NSTableView	*partsTable;
 	IBOutlet LDrawGLView	*partPreview;
+	IBOutlet NSButton		*zoomInButton;
+	IBOutlet NSButton		*zoomOutButton;
+	IBOutlet NSButton		*addRemoveFavoriteButton;
+	IBOutlet NSButton		*insertButton;
+	IBOutlet NSMenu			*contextualMenu;
 
 	PartLibrary     *partLibrary; //weak reference to the shared part catalog.
 	NSArray         *categoryList;
@@ -40,8 +45,10 @@
 
 //Actions
 - (IBAction) addPartClicked:(id)sender;
+- (IBAction) addFavoriteClicked:(id)sender;
 - (IBAction) categoryComboBoxChanged:(id)sender;
 - (void) doubleClickedInPartTable:(id)sender;
+- (IBAction) removeFavoriteClicked:(id)sender;
 - (IBAction) searchFieldChanged:(id)sender;
 
 //Notifications
@@ -49,6 +56,7 @@
 
 //Utilities
 - (NSMutableArray *) filterPartRecords:(NSArray *)partRecords bySearchString:(NSString *)searchString;
+- (void) setConstraints;
 - (void) syncSelectionAndPartDisplayed;
 - (BOOL) writeSelectedPartToPasteboard:(NSPasteboard *)pasteboard;
 

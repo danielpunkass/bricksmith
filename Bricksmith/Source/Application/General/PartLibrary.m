@@ -37,6 +37,8 @@
 	loadedFiles			= [[NSMutableDictionary dictionaryWithCapacity:400] retain];
 	fileDisplayLists	= [[NSMutableDictionary dictionaryWithCapacity:400] retain];
 	
+	favorites			= [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
+	
 	[self setPartCatalog:[NSDictionary dictionary]];
 	
 	return self;
@@ -48,17 +50,17 @@
 #pragma mark ACCESSORS
 #pragma mark -
 
-//========== allParts ==========================================================
+//========== allPartNames ======================================================
 //
 // Purpose:		Returns all the part numbers in the library.
 //
 //==============================================================================
-- (NSArray *) allParts
+- (NSArray *) allPartNames
 {
 	// all the reference numbers for parts.
 	return [[self->partCatalog objectForKey:PARTS_LIST_KEY] allKeys];
 	
-}//end allParts
+}//end allPartNames
 
 
 //========== categories ========================================================
@@ -74,13 +76,26 @@
 }//end categories
 
 
-//========== partsInCategory: ==================================================
+//========== favoritePartNames =================================================
+//
+// Purpose:		Returns all the part names the user has bookmarked as his 
+//				favorites. 
+//
+//==============================================================================
+- (NSArray *) favoritePartNames
+{
+	return self->favorites;
+	
+}//end favoritePartNames
+
+
+//========== partNamesInCategory: ==============================================
 //
 // Purpose:		Returns all the parts in the given category. Returns nil if the 
 //				category doesn't exist. 
 //
 //==============================================================================
-- (NSArray *) partsInCategory:(NSString *)categoryName
+- (NSArray *) partNamesInCategory:(NSString *)categoryName
 {
 	NSArray *category   = [[partCatalog objectForKey:PARTS_CATALOG_KEY] objectForKey:categoryName];
 	NSArray *parts      = nil;
@@ -92,7 +107,7 @@
 	
 	return parts;
 
-}//end partsInCategory:
+}//end partNamesInCategory:
 
 
 //========== setPartCatalog ====================================================
@@ -318,6 +333,60 @@
 	return YES;
 	
 }//end reloadParts:
+
+
+#pragma mark -
+#pragma mark FAVORITES
+#pragma mark -
+
+//========== addPartNameToFavorites: ===========================================
+//
+// Purpose:		Adds the given part name to the "Favorites" category.
+//
+//==============================================================================
+- (void) addPartNameToFavorites:(NSString *)partName
+{
+	[self->favorites addObject:partName];
+	[self saveFavoritesToUserDefaults];
+	
+	//Inform any open parts browsers of the change.
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName: LDrawPartLibraryDidChangeNotification
+						  object: self ];
+	
+}//end addPartNameToFavorites:
+
+
+//========== removePartNameFromFavorites: ======================================
+//
+// Purpose:		Removes the given part name to the "Favorites" category.
+//
+//==============================================================================
+- (void) removePartNameFromFavorites:(NSString *)partName
+{
+	[self->favorites removeObject:partName];
+	[self saveFavoritesToUserDefaults];
+	
+	//Inform any open parts browsers of the change.
+	[[NSNotificationCenter defaultCenter] 
+			postNotificationName: LDrawPartLibraryDidChangeNotification
+						  object: self ];
+	
+}//end removePartNameFromFavorites:
+
+
+//========== saveFavoritesToUserDefaults =======================================
+//
+// Purpose:		Writes the favorite parts list to preferences.
+//
+//==============================================================================
+- (void) saveFavoritesToUserDefaults
+{
+	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+	
+	[userDefaults setObject:(self->favorites) forKey:FAVORITE_PARTS_KEY];
+	
+}//end saveFavoritesToUserDefaults
 
 
 #pragma mark -
@@ -930,8 +999,9 @@
 //==============================================================================
 - (void) dealloc
 {
-	[partCatalog release];
-	[loadedFiles release];
+	[partCatalog	release];
+	[favorites		release];
+	[loadedFiles	release];
 	
 	[super dealloc];
 	

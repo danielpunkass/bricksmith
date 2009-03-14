@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>IBFramework Version</key>
-	<string>672</string>
+	<string>677</string>
 	<key>IBLastKnownRelativeProjectPath</key>
 	<string>../../Bricksmith.xcodeproj</string>
 	<key>IBOldestOS</key>
 	<integer>4</integer>
 	<key>IBOpenObjects</key>
 	<array>
-		<integer>682</integer>
+		<integer>24</integer>
 	</array>
 	<key>IBSystem Version</key>
 	<string>9G55</string>

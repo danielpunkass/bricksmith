@@ -173,11 +173,15 @@
 		<dict>
 			<key>ACTIONS</key>
 			<dict>
+				<key>addFavoriteClicked</key>
+				<string>id</string>
 				<key>addPartClicked</key>
 				<string>id</string>
 				<key>categoryComboBoxChanged</key>
 				<string>id</string>
 				<key>doubleClickedInPartTable</key>
+				<string>id</string>
+				<key>removeFavoriteClicked</key>
 				<string>id</string>
 				<key>searchFieldChanged</key>
 				<string>id</string>
@@ -188,14 +192,24 @@
 			<string>ObjC</string>
 			<key>OUTLETS</key>
 			<dict>
+				<key>addRemoveFavoriteButton</key>
+				<string>NSButton</string>
 				<key>categoryComboBox</key>
 				<string>NSComboBox</string>
+				<key>contextualMenu</key>
+				<string>NSMenu</string>
+				<key>insertButton</key>
+				<string>NSButton</string>
 				<key>partPreview</key>
 				<string>LDrawGLView</string>
 				<key>partsTable</key>
 				<string>NSTableView</string>
 				<key>searchField</key>
 				<string>NSSearchField</string>
+				<key>zoomInButton</key>
+				<string>NSButton</string>
+				<key>zoomOutButton</key>
+				<string>NSButton</string>
 			</dict>
 			<key>SUPERCLASS</key>
 			<string>NSObject</string>

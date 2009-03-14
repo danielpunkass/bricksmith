@@ -10,8 +10,9 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
+#import "ExtendedTableView.h"
 
-@interface PartBrowserTableView : NSTableView
+@interface PartBrowserTableView : ExtendedTableView
 {
 
 }

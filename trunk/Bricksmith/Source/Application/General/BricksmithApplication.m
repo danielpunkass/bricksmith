@@ -49,6 +49,16 @@
 							postNotificationName:LDrawKeyboardDidChangeNotification
 										  object:theEvent ];
 	}
+	// Tablet Proximity usually gets routed to a black hole in the responder 
+	// chain. Make this global like it should be. Cocoa kindly sends us 
+	// tablet-prox messages when the application activates, so we'll 
+	// actually be correct as we track this now. 
+	else if( [theEvent type] == NSTabletProximity )
+	{
+		[[NSNotificationCenter defaultCenter]
+							postNotificationName:LDrawPointingDeviceDidChangeNotification
+										  object:theEvent ];
+	}
 	
 	
 	// Deliver all events except for Command-space. That has special meaning to 

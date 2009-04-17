@@ -1158,6 +1158,11 @@
 			cursor = [[[NSCursor alloc] initWithImage:cursorImage
 											  hotSpot:NSMakePoint(7, 10)] autorelease];
 			break;
+			
+		case EraserTool:
+			//just use the standard arrow cursor.
+			cursor = [NSCursor arrowCursor];
+			break;
 	}
 	
 	//update the cursor based on the tool mode.
@@ -1418,8 +1423,19 @@
 	[self resetCursor];
 	
 	if(toolMode == SmoothZoomTool)
+	{
 		[self mouseCenterClick:theEvent];
+	}	
+	else if( toolMode == EraserTool )
+	{
+		[self mousePartSelection:theEvent];
 		
+		// Request delete using the standard responder message. Hopefully 
+		// someone out there will listen. 
+		[NSApp sendAction:@selector(delete:)
+					   to:nil
+					 from:self];
+	}	
 	else if(toolMode == RotateSelectTool)
 	{
 		switch(draggingBehavior)
@@ -1541,10 +1557,11 @@
 		if(self->isTrackingDrag == NO && self->didPartSelection == NO)
 			[self mousePartSelection:theEvent];
 	}
-	
 	else if(	toolMode == ZoomInTool
 			||	toolMode == ZoomOutTool )
+	{
 		[self mouseZoomClick:theEvent];
+	}
 	
 	//Redraw from our dragging operations, if necessary.
 	if(	self->isTrackingDrag == YES && rotationDrawMode == LDrawGLDrawExtremelyFast )

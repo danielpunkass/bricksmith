@@ -73,6 +73,11 @@ ToolPalette *sharedToolPalette = nil;
 							 object:nil ];
 	
 	[notificationCenter addObserver:self
+						   selector:@selector(pointingDeviceDidChange:)
+							   name:LDrawPointingDeviceDidChangeNotification
+							 object:nil ];
+	
+	[notificationCenter addObserver:self
 						   selector:@selector(applicationDidBecomeActive:)
 							   name:NSApplicationDidBecomeActiveNotification
 							 object:nil ];
@@ -295,6 +300,47 @@ ToolPalette *sharedToolPalette = nil;
 }//end mouseButton3DidChange:
 
 
+//========== pointingDeviceDidChange: ==========================================
+//
+// Purpose:		The pointing device being used on a connected pen tablet (such 
+//				as those made by Wacom) has changed. We are keenly interested in 
+//				erasers. 
+//
+// Notes:		Cocoa's tablet proximity event delivery system leaves much to be 
+//				desired. Proximity events (such as when the eraser tip comes 
+//				near the tablet surface) and delivered through the responder 
+//				chain, which means they usually wind up being routed to some 
+//				unsuspecting view that neither knows what to do with the 
+//				information nor cares. 
+//
+//				But tablet proximity events are only delivered when the tool 
+//				enters or leaves proximity; who knows what the tool might do in 
+//				the meantime. That means proximity events really have global 
+//				significance, to the current application and all others running. 
+//				Cocoa does the exact opposite of what we want. Consequently, we 
+//				have to rely on high-level event interception to get this bit of 
+//				info! 
+//
+//==============================================================================
+- (void) pointingDeviceDidChange:(NSNotification *)notification
+{
+	NSEvent		*theEvent	= [notification object];
+	
+	if([theEvent isEnteringProximity] == YES)
+	{
+		self->tabletPointingDevice = [theEvent pointingDeviceType];
+	}
+	else
+	{
+		// Leaving proximity, so no device.
+		self->tabletPointingDevice = NSUnknownPointingDevice;
+	}
+	
+	[self resolveCurrentToolMode];
+
+}//end mouseButton3DidChange:
+
+
 //========== applicationDidBecomeActive: =======================================
 //
 // Purpose:		The application has just been brought to the foreground. Clear 
@@ -405,13 +451,11 @@ ToolPalette *sharedToolPalette = nil;
 	{
 		newToolMode = SpinTool;
 	}
-	//Multiple selection
-//	else if( (self->currentKeyModifiers & NSShiftKeyMask) != 0 )
-//	{
-//		newToolMode = AddToSelectionTool;
-//		//no special cursor for this, yet.
-//	}
-	
+	// Eraser tool
+	else if( self->tabletPointingDevice == NSEraserPointingDevice)
+	{
+		newToolMode = EraserTool;
+	}	
 	//Rotate/select (no hot key; normal behavior)
 	else
 	{
@@ -446,7 +490,8 @@ ToolPalette *sharedToolPalette = nil;
 	switch(toolMode)
 	{
 		case RotateSelectTool:
-			//this is the default tool; no keys required.
+		case EraserTool:
+			// no keys required for basic mouse tools
 			characters = @"";
 			*modifiersOut = kNilOptions;
 			break;
@@ -481,7 +526,6 @@ ToolPalette *sharedToolPalette = nil;
 			characters = @"";
 			*modifiersOut = (NSCommandKeyMask);
 			break;
-			
 	}
 	
 	return characters;

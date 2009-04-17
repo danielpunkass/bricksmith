@@ -276,6 +276,10 @@
 // Object is an NSNumber containing the new ToolModeT.
 #define LDrawMouseToolDidChangeNotification				@"LDrawMouseToolDidChangeNotification"
 
+//tablet pointing device changed.
+// Object is an NSEvent: NSTabletProximity.
+#define LDrawPointingDeviceDidChangeNotification		@"LDrawPointingDeviceDidChangeNotification"
+
 //The part catalog was regenerated from disk.
 // Object is the new catalog. No userInfo.
 #define LDrawPartLibraryDidChangeNotification			@"LDrawPartLibraryDidChangeNotification"

@@ -26,7 +26,8 @@ typedef enum
 	SmoothZoomTool				= 3,	// zoom in and out based on drag direction
 	ZoomInTool					= 4,	// click to zoom in
 	ZoomOutTool					= 5,	// click to zoom out
-	SpinTool					= 6		// spin the model in space
+	SpinTool					= 6,	// spin the model in space
+	EraserTool					= 7		// delete clicked parts (for pen tablet erasers)
 
 } ToolModeT;
 
@@ -46,6 +47,7 @@ typedef enum
 	NSString				*currentKeyCharacters;	//identifies the current keys down, independent of modifiers (empty string if no keys down)
 	unsigned int			 currentKeyModifiers;	//identifiers the current modifiers down (including device-dependent)
 	BOOL					 mouseButton3IsDown;
+	NSPointingDeviceType	 tabletPointingDevice;	// current pen-tablet device currently in proximity
 
 	//Nib connections
 	IBOutlet NSPanel		*palettePanel;

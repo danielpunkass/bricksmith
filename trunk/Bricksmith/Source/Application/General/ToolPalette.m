@@ -154,6 +154,29 @@ ToolPalette *sharedToolPalette = nil;
 }//end toolMode
 
 
+//========== setToolMode: ======================================================
+//
+// Purpose:		Changes the current tool mode. Ordinarily, you shouldn't have to 
+//				call this; instead, let the automatic event resolution determine 
+//				the correct mode. 
+//
+//==============================================================================
+- (void) setToolMode:(ToolModeT)newToolMode
+{
+	if(self->effectiveToolMode != newToolMode)
+	{
+		self->effectiveToolMode = newToolMode;
+		[self->toolButtons selectCellWithTag:newToolMode];
+		
+		//inform observers.
+		[[NSNotificationCenter defaultCenter]
+				postNotificationName:LDrawMouseToolDidChangeNotification
+							  object:[NSNumber numberWithInt:effectiveToolMode] ];
+	}
+
+}//end setToolMode:
+
+
 #pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
@@ -189,7 +212,7 @@ ToolPalette *sharedToolPalette = nil;
 	self->baseToolMode = newMode;
 	
 	//update the new effective tool mode with this base and any current keys.
-	[self findCurrentToolMode];
+	[self resolveCurrentToolMode];
 	
 }//end toolButtonClicked:
 
@@ -246,9 +269,30 @@ ToolPalette *sharedToolPalette = nil;
 			break;
 	}
 	
-	[self findCurrentToolMode];
+	[self resolveCurrentToolMode];
 	
 }//end keyboardDidChange:
+
+
+//========== mouseButton3DidChange: ============================================
+//
+// Purpose:		Mouse Button 3 is observed by LDrawGLView to do spin model. But 
+//				it needs to be registered in our omniscient state tracker here. 
+//
+// Notes:		This isn't a notification because this event response is so 
+//				targeted--only mouse button 3 in LDrawGLViews counts.
+//
+//==============================================================================
+- (void) mouseButton3DidChange:(NSEvent *)theEvent
+{
+	if([theEvent type] == NSOtherMouseDown)
+		self->mouseButton3IsDown = YES;
+	else
+		self->mouseButton3IsDown = NO;
+		
+	[self resolveCurrentToolMode];
+
+}//end mouseButton3DidChange:
 
 
 //========== applicationDidBecomeActive: =======================================
@@ -268,7 +312,7 @@ ToolPalette *sharedToolPalette = nil;
 	self->currentKeyCharacters	= @"";
 	self->currentKeyModifiers	= 0;
 	
-	[self findCurrentToolMode];
+	[self resolveCurrentToolMode];
 	
 }//end applicationDidBecomeActive:
 
@@ -307,7 +351,7 @@ ToolPalette *sharedToolPalette = nil;
 //				effective tool mode based on it.
 //
 //==============================================================================
-- (void) findCurrentToolMode
+- (void) resolveCurrentToolMode
 {
 	ToolModeT		 newToolMode;
 	
@@ -356,7 +400,8 @@ ToolPalette *sharedToolPalette = nil;
 	// Spin model
 	else if( [ToolPalette toolMode:SpinTool
 				 matchesCharacters:effectiveCharacters
-						 modifiers:effectiveModifiers] == YES)
+						 modifiers:effectiveModifiers] == YES
+			|| mouseButton3IsDown == YES )
 	{
 		newToolMode = SpinTool;
 	}
@@ -374,17 +419,7 @@ ToolPalette *sharedToolPalette = nil;
 	}
 	
 	//Update the tool mode!
-	if(self->effectiveToolMode != newToolMode)
-	{
-		self->effectiveToolMode = newToolMode;
-		[self->toolButtons selectCellWithTag:newToolMode];
-		
-		//inform observers.
-		[[NSNotificationCenter defaultCenter]
-				postNotificationName:LDrawMouseToolDidChangeNotification
-							  object:[NSNumber numberWithInt:effectiveToolMode] ];
-	}
-	
+	[self setToolMode:newToolMode];
 	
 }//end findCurrentToolMode
 

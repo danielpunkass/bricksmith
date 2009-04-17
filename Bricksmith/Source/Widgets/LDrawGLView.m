@@ -1470,19 +1470,21 @@
 
 	self->isTrackingDrag = YES;
 	[self resetCursor];
-
 	
 	//What to do?
 	
 	if(toolMode == PanScrollTool)
+	{
 		[self panDragged:theEvent];
-	
-	if(toolMode == SpinTool)
+	}
+	else if(toolMode == SpinTool)
+	{
 		[self rotationDragged:theEvent];
-	
+	}
 	else if(toolMode == SmoothZoomTool)
+	{
 		[self zoomDragged:theEvent];
-	
+	}
 	else if(toolMode == RotateSelectTool)
 	{
 		switch(draggingBehavior)
@@ -1578,6 +1580,69 @@
 		return nil;
 		
 }//end menuForEvent:
+
+
+//========== otherMouseDown: ===================================================
+//
+// Purpose:		A mouse button other than left or right was clicked. My, the 
+//				things Mighty Mice make possible. 
+//
+//				We use the middle mouse button as a more convenient way to 
+//				activate the spin tool. 
+//
+//==============================================================================
+- (void) otherMouseDown:(NSEvent *)theEvent
+{
+	// button 3
+	if([theEvent buttonNumber] == 2)
+	{
+		// The Tool Palette is responsible for assessing the current mode based 
+		// on event state. 
+		[[ToolPalette sharedToolPalette] mouseButton3DidChange:theEvent];
+		
+		[self mouseDown:theEvent];
+	}
+	
+}//end otherMouseDown:
+
+
+//========== otherMouseDragged: ================================================
+//
+// Purpose:		A mouse button other than left or right was dragged. My, the 
+//				things Mighty Mice make possible.
+//
+//==============================================================================
+- (void) otherMouseDragged:(NSEvent *)theEvent
+{
+	// button 3
+	if([theEvent buttonNumber] == 2)
+	{
+		// our mouseDragged method will do the right thing based on tool mode
+		[self mouseDragged:theEvent];
+	}
+
+}//end otherMouseDragged:
+
+
+//========== otherMouseUp: =====================================================
+//
+// Purpose:		Third or higher mouse button released.
+//
+//==============================================================================
+- (void) otherMouseUp:(NSEvent *)theEvent
+{
+	// button 3
+	if([theEvent buttonNumber] == 2)
+	{
+		// reset normal state while the tool mode is still SpinTool
+		[self mouseUp:theEvent];
+		
+		// The Tool Palette is responsible for assessing the current mode based on 
+		// event state. 
+		[[ToolPalette sharedToolPalette] mouseButton3DidChange:theEvent];
+	}
+
+}//end otherMouseUp:
 
 
 #pragma mark - Dragging

@@ -45,6 +45,7 @@ typedef enum
 	//Event Tracking
 	NSString				*currentKeyCharacters;	//identifies the current keys down, independent of modifiers (empty string if no keys down)
 	unsigned int			 currentKeyModifiers;	//identifiers the current modifiers down (including device-dependent)
+	BOOL					 mouseButton3IsDown;
 
 	//Nib connections
 	IBOutlet NSPanel		*palettePanel;
@@ -59,13 +60,17 @@ typedef enum
 //Accessors
 + (ToolModeT) toolMode;
 - (ToolModeT) toolMode;
+- (void) setToolMode:(ToolModeT)newToolMode;
 
 //Actions
 - (void) showToolPalette:(id)sender;
 - (IBAction) toolButtonClicked:(id)sender;
 
+// Event notifiers
+- (void) mouseButton3DidChange:(NSEvent *)theEvent;
+
 //Utilities
-- (void) findCurrentToolMode;
+- (void) resolveCurrentToolMode;
 + (NSString *) keysForToolMode:(ToolModeT)toolMode modifiers:(unsigned int*)modifiersOut;
 + (BOOL) toolMode:(ToolModeT)toolMode matchesCharacters:(NSString *)characters modifiers:(unsigned int)modifiers;
 

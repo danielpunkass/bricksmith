@@ -88,11 +88,6 @@
 							   name:LDrawViewBackgroundColorDidChangeNotification
 							 object:nil ];
 	
-	// Drag and Drop support. We only accept drags if we have a document to add 
-	// them to. 
-	if(self->document != nil)
-		[self registerForDraggedTypes:[NSArray arrayWithObject:LDrawDraggingPboardType]];
-	
 	//Machinery needed to draw Quartz overtop OpenGL. Sadly, it caused our view 
 	// to become transparent when minimizing to the dock. In the end, I didn't 
 	// need it anyway.
@@ -311,6 +306,7 @@
 			// We may need to simplify large models if we are spinning the model 
 			// or doing part drag-and-drop. 
 			considerFastDraw =		self->isTrackingDrag == YES
+								||	self->isGesturing == YES
 								||	(	[self->fileBeingDrawn respondsToSelector:@selector(draggingDirectives)]
 									 &&	[(id)self->fileBeingDrawn draggingDirectives] != nil
 									);
@@ -723,10 +719,10 @@
 //
 // Purpose:		Sets the object that acts as the delegate for the receiver. 
 //
-// Notes:		This object acts in tandem two different "delegate" concepts: 
-//				the delegate and the document. The delegate is responsible for 
-//				more high-level, general activity, as described in the 
-//				LDrawGLViewDelegate category. The document is an actual 
+// Notes:		This object acts in tandem with two different "delegate" 
+//				concepts: the delegate and the document. The delegate is 
+//				responsible for more high-level, general activity, as described 
+//				in the LDrawGLViewDelegate category. The document is an actual 
 //				LDrawDocument, used for the nitty-gritty manipulation of the 
 //				model this view supports. 
 //
@@ -737,6 +733,39 @@
 	self->delegate = object;
 	
 }//end setDelegate:
+
+
+//========== setDocument: ======================================================
+//
+// Purpose:		Enables certain editing capabilities via a highly-incestuous 
+//				interface which should be decoupled. 
+//
+//==============================================================================
+- (void) setDocument:(LDrawDocument *)newDocument
+{
+	self->document = newDocument;
+	
+	// Drag and Drop support. We only accept drags if we have a document to add 
+	// them to. 
+	if(self->document != nil)
+		[self registerForDraggedTypes:[NSArray arrayWithObject:LDrawDraggingPboardType]];
+	else
+		[self unregisterDraggedTypes];
+	
+}//end setDocument:
+
+
+//========== setBackAction: ====================================================
+//
+// Purpose:		Sets the method called on the target when a backward swipe is 
+//				received. 
+//
+//==============================================================================
+- (void) setBackAction:(SEL)newAction
+{
+	self->backAction = newAction;
+	
+}//end setBackAction:
 
 
 //========== setDragEndedInOurDocument: ========================================
@@ -763,6 +792,19 @@
 	self->dragEndedInOurDocument = flag;
 	
 }//end setDragEndedInOurDocument:
+
+
+//========== setForwardAction: =================================================
+//
+// Purpose:		Sets the method called on the target when a forward swipe is 
+//				received. 
+//
+//==============================================================================
+- (void) setForwardAction:(SEL)newAction
+{
+	self->forwardAction = newAction;
+	
+}//end setForwardAction:
 
 
 //========== setLDrawColor: ====================================================
@@ -873,6 +915,19 @@
 } //end setProjectionMode:
 
 
+//========== setTarget: ========================================================
+//
+// Purpose:		Sets the object which is the receiver of this view's action 
+//				methods. 
+//
+//==============================================================================
+- (void) setTarget:(id)newTarget
+{
+	self->target = newTarget;
+	
+}//end setTarget:
+
+
 //========== setViewingAngle: ==================================================
 //
 // Purpose:		Sets the modelview rotation, in degrees. The angle is applied in 
@@ -945,7 +1000,8 @@
 //				the new magnification. Does absolutely nothing if this view 
 //				isn't contained within a scroll view.
 //
-// Parameters:	newPercentage: new zoom; pass 100 for 100%, etc.
+// Parameters:	newPercentage: new zoom; pass 100 for 100%, etc. Automatically 
+//				constrained to a minimum of 1%. 
 //
 //==============================================================================
 - (void) setZoomPercentage:(float) newPercentage
@@ -958,19 +1014,24 @@
 		NSRect		 clipFrame		= [clipView frame];
 		NSRect		 clipBounds		= [clipView bounds];
 		NSPoint		 originalCenter	= [self centerPoint];
+		float		scaleFactor		= 0;
 		
-		newPercentage /= 100; //convert to a scale factor
-		
-		//Change the magnification level of the clip view, which has the effect 
-		// of zooming us in and out.
-		clipBounds.size.width	= NSWidth(clipFrame)  / newPercentage;
-		clipBounds.size.height	= NSHeight(clipFrame) / newPercentage;
-		[clipView setBounds:clipBounds]; //BREAKS AUTORESIZING. What to do?
-		
-		//Preserve the original view centerpoint. Note that the visible 
-		// area has changed because we changed our zoom level.
-		[self scrollCenterToPoint:originalCenter];
-		[self resetFrameSize]; //ensures the canvas fills the whole scroll view
+		// Don't go below a certain zoom
+		if(newPercentage >= 1)
+		{
+			scaleFactor = newPercentage / 100;
+			
+			// Change the magnification level of the clip view, which has the 
+			// effect of zooming us in and out. 
+			clipBounds.size.width	= NSWidth(clipFrame)  / scaleFactor;
+			clipBounds.size.height	= NSHeight(clipFrame) / scaleFactor;
+			[clipView setBounds:clipBounds]; //BREAKS AUTORESIZING. What to do?
+			
+			//Preserve the original view centerpoint. Note that the visible 
+			// area has changed because we changed our zoom level.
+			[self scrollCenterToPoint:originalCenter];
+			[self resetFrameSize]; //ensures the canvas fills the whole scroll view
+		}
 	}
 
 }//end setZoomPercentage
@@ -1478,7 +1539,7 @@
 // Purpose:		The user has dragged the mouse after clicking it.
 //
 //==============================================================================
-- (void)mouseDragged:(NSEvent *)theEvent
+- (void) mouseDragged:(NSEvent *)theEvent
 {
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 	MouseDragBehaviorT	 draggingBehavior	= [userDefaults integerForKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
@@ -2062,6 +2123,112 @@
 	self->canBeginDragAndDrop	= YES;
 	
 }//end clickAndHoldTimerFired:
+
+
+#pragma mark -
+#pragma mark Gestures
+
+//========== beginGestureWithEvent: ============================================
+//
+// Purpose:		A multitouch trackpad gesture has begun. (Scrolling counts.)
+//
+//==============================================================================
+- (void) beginGestureWithEvent:(NSEvent *)event
+{
+	self->isGesturing = YES;
+	
+}//end beginGestureWithEvent:
+
+
+//========== endGestureWithEvent: ==============================================
+//
+// Purpose:		A multitouch trackpad gesture has ended.
+//
+//==============================================================================
+- (void) endGestureWithEvent:(NSEvent *)event
+{
+	self->isGesturing = NO;
+	
+}//end endGestureWithEvent:
+
+
+//========== magnifyWithEvent: =================================================
+//
+// Purpose:		User is doing the pinch (zoom) trackpad gesture.
+//
+//==============================================================================
+- (void) magnifyWithEvent:(NSEvent *)event
+{
+	CGFloat magnification   = [event magnification]; // 1 = increase 100%; -1 = decrease 100%
+	CGFloat zoomChange      = magnification * 100;
+	float   currentZoom     = [self zoomPercentage];
+	
+	//Negative means down
+	[self setZoomPercentage:currentZoom + zoomChange];
+	
+}//end magnifyWithEvent:
+
+
+//========== rotateWithEvent: ==================================================
+//
+// Purpose:		User is doing the twist (rotate) trackpad gesture.
+//
+//				I have decided to interpret this as spinning the "baseplate" 
+//				plane of the model (that is, spinning around -y). 
+//
+//==============================================================================
+- (void) rotateWithEvent:(NSEvent *)event
+{
+	CGFloat	angle = [event rotation]; // degrees counterclockwise
+	
+	CGLLockContext([[self openGLContext] CGLContextObj]);
+	{
+		[[self openGLContext] makeCurrentContext];
+		
+		if(self->viewOrientation != ViewOrientation3D)
+		{
+			[self setProjectionMode:ProjectionModePerspective];
+			self->viewOrientation = ViewOrientation3D;
+		}
+		
+		// Rotate.
+		glMatrixMode(GL_MODELVIEW);
+		glRotatef( angle, 0, -1, 0);
+		
+		[self setNeedsDisplay: YES];
+		
+	}
+	CGLUnlockContext([[self openGLContext] CGLContextObj]);
+	
+}//end rotateWithEvent:
+
+
+//========== swipeWithEvent: ===================================================
+//
+// Purpose:		User is doing the three-finger swipe (forward and back) trackpad 
+//				gesture. 
+//
+//==============================================================================
+- (void) swipeWithEvent:(NSEvent *)event
+{
+	CGFloat horizontalDirection = [event deltaX];
+	
+	if(horizontalDirection == 0)
+	{
+		// vertical swipe; we don't recognize them.
+	}
+	else if(horizontalDirection < 0)
+	{
+		// back
+		[NSApp sendAction:self->backAction to:self->target];
+	}
+	else
+	{
+		// forward
+		[NSApp sendAction:self->forwardAction to:self->target];
+	}
+	
+}//end swipeWithEvent:
 
 
 #pragma mark -

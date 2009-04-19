@@ -67,34 +67,38 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawGLView : NSOpenGLView <LDrawColorable>
 {
-	id					 delegate;
-	IBOutlet LDrawDocument	*document;			// optional weak link. Enables editing capabilities.
+	IBOutlet LDrawDocument  *document;			// optional weak link. Enables editing capabilities.
+	IBOutlet id             delegate;
+	id                      target;
+	SEL                     forwardAction;
+	SEL                     backAction;
 	
-	BOOL				 acceptsFirstResponder;	// YES if we can become key
-	NSString			*autosaveName;
-	LDrawDirective		*fileBeingDrawn;		// Should only be an LDrawFile or LDrawModel.
-												// if you want to do anything else, you must 
-												// tweak the selection code in LDrawDrawableElement
-												// and here in -mouseUp: to handle such cases.
+	BOOL                    acceptsFirstResponder;	// YES if we can become key
+	NSString                *autosaveName;
+	LDrawDirective          *fileBeingDrawn;		// Should only be an LDrawFile or LDrawModel.
+													// if you want to do anything else, you must 
+													// tweak the selection code in LDrawDrawableElement
+													// and here in -mouseUp: to handle such cases.
 	
 	// Drawing Environment
-	unsigned			 numberDrawRequests;	// how many threaded draws are piling up in the queue.
-	GLfloat				 cameraDistance;
-	LDrawColorT			 color;					// default color to draw parts if none is specified
-	GLfloat				 glBackgroundColor[4];
-	GLfloat				 glColor[4];			// OpenGL equivalent of the LDrawColor.
-	ProjectionModeT		 projectionMode;
-	RotationDrawModeT	 rotationDrawMode;		// drawing detail while rotating.
-	ViewOrientationT	 viewOrientation;		// our orientation
+	unsigned                numberDrawRequests;		// how many threaded draws are piling up in the queue.
+	GLfloat                 cameraDistance;
+	LDrawColorT             color;					// default color to draw parts if none is specified
+	GLfloat                 glBackgroundColor[4];
+	GLfloat                 glColor[4];				// OpenGL equivalent of the LDrawColor.
+	ProjectionModeT         projectionMode;
+	RotationDrawModeT       rotationDrawMode;		// drawing detail while rotating.
+	ViewOrientationT        viewOrientation;		// our orientation
 	
 	// Event Tracking
-	BOOL				 isTrackingDrag;		// true if the last mousedown was followed by a drag, and we're tracking it (drag-and-drop doesn't count)
-	NSTimer				*mouseDownTimer;		// countdown to beginning drag-and-drop
-	BOOL				 canBeginDragAndDrop;	// the next mouse-dragged will initiate a drag-and-drop.
-	BOOL				 didPartSelection;		// tried part selection during this click
-	BOOL				 dragEndedInOurDocument;// YES if the drag we initiated ended in the document we display
-	Vector3				 draggingOffset;		// displacement between part 0's position and the initial click point of the drag
-	Point3				 initialDragLocation;	// point in model where part was positioned at draggingEntered
+	BOOL                    isGesturing;			// true if performing a multitouch trackpad gesture.
+	BOOL                    isTrackingDrag;			// true if the last mousedown was followed by a drag, and we're tracking it (drag-and-drop doesn't count)
+	NSTimer                 *mouseDownTimer;		// countdown to beginning drag-and-drop
+	BOOL                    canBeginDragAndDrop;	// the next mouse-dragged will initiate a drag-and-drop.
+	BOOL                    didPartSelection;		// tried part selection during this click
+	BOOL                    dragEndedInOurDocument;	// YES if the drag we initiated ended in the document we display
+	Vector3                 draggingOffset;			// displacement between part 0's position and the initial click point of the drag
+	Point3                  initialDragLocation;	// point in model where part was positioned at draggingEntered
 }
 
 // Drawing
@@ -114,10 +118,14 @@ typedef enum
 
 - (void) setAcceptsFirstResponder:(BOOL)flag;
 - (void) setAutosaveName:(NSString *)newName;
+- (void) setBackAction:(SEL)newAction;
 - (void) setDelegate:(id)object;
+- (void) setDocument:(LDrawDocument *)newDocument;
+- (void) setForwardAction:(SEL)newAction;
 - (void) setLDrawColor:(LDrawColorT)newColor;
 - (void) setLDrawDirective:(LDrawDirective *) newFile;
 - (void) setProjectionMode:(ProjectionModeT) newProjectionMode;
+- (void) setTarget:(id)target;
 - (void) setViewingAngle:(Tuple3)newAngle;
 - (void) setViewOrientation:(ViewOrientationT) newAngle;
 - (void) setZoomPercentage:(float) newPercentage;
@@ -165,8 +173,8 @@ typedef enum
 - (void) getModelAxesForViewX:(Vector3 *)outModelX Y:(Vector3 *)outModelY Z:(Vector3 *)outModelZ;
 - (Point3) modelPointForPoint:(NSPoint)viewPoint depthReferencePoint:(Point3)depthPoint;
 
-
 @end
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -183,7 +191,7 @@ typedef enum
 
 - (TransformComponents) LDrawGLViewPreferredPartTransform:(LDrawGLView *)glView;
 
-//Delegate method is called when the user has changed the selection of parts 
+// Delegate method is called when the user has changed the selection of parts 
 // by clicking in the view. This does not actually do any selecting; that is 
 // left entirely to the delegate. Some may rightly question the design of this 
 // system.
@@ -192,3 +200,18 @@ typedef enum
    byExtendingSelection:(BOOL) shouldExtend;
 
 @end
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+//		Currently-private API
+//		which might just be released in an upcoming OS...
+//
+////////////////////////////////////////////////////////////////////////////////
+#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_5
+@interface NSEvent (GestureMethods)
+- (CGFloat) magnification;
+@end
+#else
+	#warning This can be removed now.
+#endif

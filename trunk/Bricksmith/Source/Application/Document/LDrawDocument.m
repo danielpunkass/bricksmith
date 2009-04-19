@@ -172,6 +172,11 @@
 	[fileDetailView1	setZoomPercentage:75];
 	[fileDetailView2	setZoomPercentage:75];
 	[fileDetailView3	setZoomPercentage:75];
+	
+	[self connectLDrawGLView:fileGraphicView];
+	[self connectLDrawGLView:fileDetailView1];
+	[self connectLDrawGLView:fileDetailView2];
+	[self connectLDrawGLView:fileDetailView3];
 
 	[[self foremostWindow] makeFirstResponder:fileGraphicView]; //so we can move it immediately.
 
@@ -3899,6 +3904,23 @@
 	return canDelete;
 	
 }//end canDeleteDirective:displayErrors:
+
+
+//========== connectLDrawGLView:(LDrawGLView*) =================================
+//
+// Purpose:		Associates the given LDrawGLView with this document.
+//
+//==============================================================================
+- (void) connectLDrawGLView:(LDrawGLView *)glView
+{
+	[glView setDelegate:self];
+	[glView setDocument:self];
+
+	[glView setTarget:self];
+	[glView setForwardAction:@selector(advanceOneStep:)];
+	[glView setBackAction:@selector(backOneStep:)];
+	
+}//end connectLDrawGLView:
 
 
 //========== elementsAreSelectedOfVisibility: ==================================

@@ -197,6 +197,7 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 - (void) addStepComponent:(LDrawDirective *)newDirective;
 
 - (BOOL) canDeleteDirective:(LDrawDirective *)directive displayErrors:(BOOL)errorFlag;
+- (void) connectLDrawGLView:(LDrawGLView *)glView;
 - (BOOL) elementsAreSelectedOfVisibility:(BOOL)visibleFlag;
 - (NSAttributedString *) formatDirective:(LDrawDirective *)item withStringRepresentation:(NSString *)representation;
 - (void) loadDataIntoDocumentUI;

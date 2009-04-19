@@ -6,6 +6,14 @@
 	<array>
 		<dict>
 			<key>CLASS</key>
+			<string>ExtendedTableView</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSTableView</string>
+		</dict>
+		<dict>
+			<key>CLASS</key>
 			<string>LDrawFileOutlineView</string>
 			<key>LANGUAGE</key>
 			<string>ObjC</string>
@@ -18,7 +26,7 @@
 			<key>LANGUAGE</key>
 			<string>ObjC</string>
 			<key>SUPERCLASS</key>
-			<string>NSTableView</string>
+			<string>ExtendedTableView</string>
 		</dict>
 		<dict>
 			<key>CLASS</key>
@@ -236,6 +244,8 @@
 				<string>id</string>
 				<key>document</key>
 				<string>LDrawDocument</string>
+				<key>target</key>
+				<string>id</string>
 			</dict>
 			<key>SUPERCLASS</key>
 			<string>NSOpenGLView</string>

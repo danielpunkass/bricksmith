@@ -12,6 +12,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "ColorLibrary.h"
+#import "LDrawUtilities.h"
 #import "MatrixMath.h"
 #import "RotationPanel.h"
 
@@ -34,14 +35,6 @@ typedef enum insertionMode {
 	insertAtEnd,
 	insertAtBeginning
 } insertionModeT;
-
-// How much parts move when you nudge them
-// in the viewer.
-typedef enum gridSpacingMode { //Keep these 0,1,2,...
-	gridModeFine	= 0,	//the segmented control depends on them being such
-	gridModeMedium	= 1,	// (not necessary in Tiger, but we want other cats at the party.)
-	gridModeCoarse	= 2
-} gridSpacingModeT;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +83,6 @@ typedef enum gridSpacingMode { //Keep these 0,1,2,...
 //Accessors
 - (LDrawFile *) documentContents;
 - (NSWindow *)foremostWindow;
-- (float) gridSpacing;
 - (gridSpacingModeT) gridSpacingMode;
 - (NSDrawer *) partBrowserDrawer;
 - (Tuple3) viewingAngle;

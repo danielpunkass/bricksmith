@@ -11,12 +11,13 @@
 #import <OpenGL/OpenGL.h>
 
 #import "ColorLibrary.h"
+#import "LDrawUtilities.h"
 #import "MatrixMath.h"
 #import "ToolPalette.h"
 
 //Forward declarations
 @class LDrawDirective;
-@class LDrawDocument;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -46,20 +47,6 @@ typedef enum
 } RotationDrawModeT;
 
 
-// Viewing Angle
-typedef enum
-{
-	ViewOrientation3D			= 0,
-	ViewOrientationFront		= 1,
-	ViewOrientationBack			= 2,
-	ViewOrientationLeft			= 3,
-	ViewOrientationRight		= 4,
-	ViewOrientationTop			= 5,
-	ViewOrientationBottom		= 6
-	
-} ViewOrientationT;
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 //		LDrawGLView
@@ -67,11 +54,11 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawGLView : NSOpenGLView <LDrawColorable>
 {
-	IBOutlet LDrawDocument  *document;			// optional weak link. Enables editing capabilities.
 	IBOutlet id             delegate;
 	id                      target;
-	SEL                     forwardAction;
 	SEL                     backAction;
+	SEL                     forwardAction;
+	SEL						nudgeAction;
 	
 	BOOL                    acceptsFirstResponder;	// YES if we can become key
 	NSString                *autosaveName;
@@ -86,6 +73,7 @@ typedef enum
 	LDrawColorT             color;					// default color to draw parts if none is specified
 	GLfloat                 glBackgroundColor[4];
 	GLfloat                 glColor[4];				// OpenGL equivalent of the LDrawColor.
+	gridSpacingModeT		gridMode;
 	ProjectionModeT         projectionMode;
 	RotationDrawModeT       rotationDrawMode;		// drawing detail while rotating.
 	ViewOrientationT        viewOrientation;		// our orientation
@@ -99,6 +87,7 @@ typedef enum
 	BOOL                    dragEndedInOurDocument;	// YES if the drag we initiated ended in the document we display
 	Vector3                 draggingOffset;			// displacement between part 0's position and the initial click point of the drag
 	Point3                  initialDragLocation;	// point in model where part was positioned at draggingEntered
+	Vector3					nudgeVector;			// direction of nudge action (valid only in nudgeAction callback)
 }
 
 // Drawing
@@ -109,9 +98,11 @@ typedef enum
 // Accessors
 - (LDrawColorT) LDrawColor;
 - (NSPoint) centerPoint;
-- (LDrawDocument *) document;
 - (Matrix4) getInverseMatrix;
 - (Matrix4) getMatrix;
+- (LDrawDirective *) LDrawDirective;
+- (Vector3) nudgeVector;
+- (ProjectionModeT) projectionMode;
 - (Tuple3) viewingAngle;
 - (ViewOrientationT) viewOrientation;
 - (float) zoomPercentage;
@@ -120,10 +111,11 @@ typedef enum
 - (void) setAutosaveName:(NSString *)newName;
 - (void) setBackAction:(SEL)newAction;
 - (void) setDelegate:(id)object;
-- (void) setDocument:(LDrawDocument *)newDocument;
 - (void) setForwardAction:(SEL)newAction;
+- (void) setGridSpacingMode:(gridSpacingModeT)newMode;
 - (void) setLDrawColor:(LDrawColorT)newColor;
 - (void) setLDrawDirective:(LDrawDirective *) newFile;
+- (void) setNudgeAction:(SEL)newAction;
 - (void) setProjectionMode:(ProjectionModeT) newProjectionMode;
 - (void) setTarget:(id)target;
 - (void) setViewingAngle:(Tuple3)newAngle;

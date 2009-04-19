@@ -512,18 +512,6 @@
 }//end centerPoint
 
 
-//========== document ==========================================================
-//
-// Purpose:		Returns the document this view works in tandem with.
-//
-//==============================================================================
-- (LDrawDocument *) document
-{
-	return self->document;
-	
-}//end document
-
-
 //========== getInverseMatrix ==================================================
 //
 // Purpose:		Returns the inverse of the current modelview matrix. You can 
@@ -596,6 +584,34 @@
 	return self->color;
 	
 }//end color
+
+
+//========== LDrawDirective ====================================================
+//
+// Purpose:		Returns the file or model being drawn by this view.
+//
+//==============================================================================
+- (LDrawDirective *) LDrawDirective
+{
+	return self->fileBeingDrawn;
+	
+}//end LDrawDirective
+
+
+//========== nudgeVector =======================================================
+//
+// Purpose:		Returns the direction of a keyboard part nudge. The target of 
+//				our nudgeAction queries this method to find how to nudge the 
+//				selection. 
+//
+// Notes:		This value is only valid during the nudgeAction callback.
+//
+//==============================================================================
+- (Vector3) nudgeVector
+{
+	return self->nudgeVector;
+	
+}//end nudgeVector
 
 
 //========== projectionMode ====================================================
@@ -732,27 +748,14 @@
 	// weak link.
 	self->delegate = object;
 	
-}//end setDelegate:
-
-
-//========== setDocument: ======================================================
-//
-// Purpose:		Enables certain editing capabilities via a highly-incestuous 
-//				interface which should be decoupled. 
-//
-//==============================================================================
-- (void) setDocument:(LDrawDocument *)newDocument
-{
-	self->document = newDocument;
-	
 	// Drag and Drop support. We only accept drags if we have a document to add 
 	// them to. 
-	if(self->document != nil)
+	if([self->delegate respondsToSelector:@selector(LDrawGLView:acceptDrop:directives:)])
 		[self registerForDraggedTypes:[NSArray arrayWithObject:LDrawDraggingPboardType]];
 	else
 		[self unregisterDraggedTypes];
 	
-}//end setDocument:
+}//end setDelegate:
 
 
 //========== setBackAction: ====================================================
@@ -805,6 +808,19 @@
 	self->forwardAction = newAction;
 	
 }//end setForwardAction:
+
+
+//========== setGridSpacingMode: ===============================================
+//
+// Purpose:		Sets the current granularity of the positioning grid being used 
+//				in this document. 
+//
+//==============================================================================
+- (void) setGridSpacingMode:(gridSpacingModeT)newMode
+{
+	self->gridMode = newMode;
+	
+}//end setGridSpacingMode:
 
 
 //========== setLDrawColor: ====================================================
@@ -887,6 +903,21 @@
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	
 }//end setLDrawDirective:
+
+
+//========== setNudgeAction: ===================================================
+//
+// Purpose:		Sets the action sent when the GLView wants to nudge a part.
+//
+//				You get the nudge vector by calling -nudgeVector within the body 
+//				of the action method. 
+//
+//==============================================================================
+- (void) setNudgeAction:(SEL)newAction
+{
+	self->nudgeAction = newAction;
+	
+}//end setNudgeAction:
 
 
 //========== setProjectionMode: ================================================
@@ -1453,8 +1484,9 @@
 			// charge of manipulating the data.
 			if(isNudge == YES)
 			{
-				if(document != nil)
-					[document nudgeSelectionBy:actualNudge]; 
+				self->nudgeVector = actualNudge;
+				[NSApp sendAction:self->nudgeAction to:self->target from:self];
+				self->nudgeVector = ZeroPoint3;
 			}
 		}
 	}
@@ -2220,12 +2252,12 @@
 	else if(horizontalDirection < 0)
 	{
 		// back
-		[NSApp sendAction:self->backAction to:self->target];
+		[NSApp sendAction:self->backAction to:self->target from:self];
 	}
 	else
 	{
 		// forward
-		[NSApp sendAction:self->forwardAction to:self->target];
+		[NSApp sendAction:self->forwardAction to:self->target from:self];
 	}
 	
 }//end swipeWithEvent:
@@ -2432,8 +2464,9 @@
 //==============================================================================
 - (BOOL) performDragOperation:(id <NSDraggingInfo>)sender
 {
-	NSArray			*directives		= nil;
-	LDrawDocument	*senderDocument	= nil;
+	NSArray         *directives         = nil;
+	LDrawGLView		*senderView			= nil;
+	LDrawDirective  *senderDirective    = nil;
 	
 	if([self->fileBeingDrawn respondsToSelector:@selector(draggingDirectives)])
 	{
@@ -2443,11 +2476,13 @@
 		   [self->delegate LDrawGLView:self acceptDrop:sender directives:directives];
 	}
 	
-	if([[sender draggingSource] respondsToSelector:@selector(document)])
+	if([[sender draggingSource] respondsToSelector:@selector(LDrawDirective)])
 	{
-		senderDocument = [[sender draggingSource] document];
-		if(senderDocument == self->document)
-			[[sender draggingSource] setDragEndedInOurDocument:YES];
+		senderView      = [sender draggingSource];
+		senderDirective = [senderView LDrawDirective];
+		
+		if(senderDirective == [self LDrawDirective])
+			[senderView setDragEndedInOurDocument:YES];
 	}
 	
 	return YES;
@@ -2547,7 +2582,7 @@
 	Point3					 constrainedPosition	= ZeroPoint3;
 	Vector3					 displacement			= ZeroPoint3;
 	Vector3					 cumulativeDisplacement	= ZeroPoint3;
-	float					 gridSpacing			= [self->document gridSpacing];
+	float					 gridSpacing			= [LDrawUtilities gridSpacingForMode:self->gridMode];
 	int						 counter				= 0;
 	BOOL					 moved					= NO;
 	

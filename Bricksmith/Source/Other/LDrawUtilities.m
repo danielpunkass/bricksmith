@@ -193,6 +193,40 @@
 }//end dragImageWithOffset:
 
 
+//---------- gridSpacingForMode: -------------------------------------[static]--
+//
+// Purpose:		Translates the given grid spacing granularity into an actual 
+//				number of LDraw units, according to the user's preferences. 
+//
+// Notes:		This value represents distances "along the studs"--that is, 
+//			    horizontal along the brick. Vertical distances may be adjusted. 
+//
+//------------------------------------------------------------------------------
++ (float) gridSpacingForMode:(gridSpacingModeT)gridMode
+{
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	float			 gridSpacing	= 0.0;
+	
+	switch(gridMode)
+	{
+		case gridModeFine:
+			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_FINE];
+			break;
+			
+		case gridModeMedium:
+			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_MEDIUM];
+			break;
+			
+		case gridModeCoarse:
+			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_COARSE];
+			break;
+	}
+	
+	return gridSpacing;
+	
+}//end gridSpacingForMode:
+
+
 //---------- isLDrawFilenameValid: -----------------------------------[static]--
 //
 // Purpose:		The LDraw File Specification defines what makes a valid LDraw 

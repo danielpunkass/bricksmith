@@ -457,39 +457,6 @@
 }//end foremostWindow
 
 
-//========== gridSpacing =======================================================
-//
-// Purpose:		Resolves the current grid spacing into an actual value.
-//
-// Notes:		This value represents distances "along the studs"--that is, 
-//			    horizontal along the brick. Vertical distances may be adjusted. 
-//
-//==============================================================================
-- (float) gridSpacing
-{
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	float			 gridSpacing	= 0.0;
-
-	switch(self->gridMode)
-	{
-		case gridModeFine:
-			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_FINE];
-			break;
-			
-		case gridModeMedium:
-			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_MEDIUM];
-			break;
-			
-		case gridModeCoarse:
-			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_COARSE];
-			break;
-	}
-	
-	return gridSpacing;
-	
-}//end gridSpacing
-
-
 //========== gridSpacingMode ===================================================
 //
 // Purpose:		Returns the current granularity of the positioning grid being 
@@ -616,15 +583,31 @@
 
 //========== setGridSpacingMode: ===============================================
 //
-// Purpose:		Returns the current granularity of the positioning grid being 
-//				used in this document.
+// Purpose:		Sets the current granularity of the positioning grid being used 
+//				in this document. 
 //
 //==============================================================================
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode
 {
 	self->gridMode = newMode;
 	
+	// Update bits of UI
 	[self->toolbarController setGridSpacingMode:newMode];
+	
+	[fileGraphicView setGridSpacingMode:newMode];
+	[fileDetailView1 setGridSpacingMode:newMode];
+	[fileDetailView2 setGridSpacingMode:newMode];
+	[fileDetailView3 setGridSpacingMode:newMode];
+	
+//	NSUInteger  columnCounter   = 0;
+//	NSUInteger  rowCounter      = 0;
+//	NSArray		*rowViews		= nil;
+//	for(columnCounter = 0; columnCounter < [[self->horizontalSplitView subviews] count]; counter++)
+//	{
+//		rowViews = [[self->horizontalSplitView subviews] objectAtIndex:columnCounter];
+//		
+//		for(rowCounter = 0; rowCounter < [rowViews 
+//	}
 	
 }//end setGridSpacingMode:
 
@@ -730,7 +713,7 @@
 	NSArray					*selectedObjects	= [self selectedObjects];
 	LDrawDrawableElement	*firstNudgable		= nil;
 	id						 currentObject		= nil;
-	float					 nudgeMagnitude		= [self gridSpacing];
+	float					 nudgeMagnitude		= [LDrawUtilities gridSpacingForMode:self->gridMode];
 	int						 counter			= 0;
 	
 	//normalize just in case someone didn't get the message!
@@ -1001,6 +984,21 @@
 	[[self foremostWindow] makeKeyAndOrderFront:sender];
 	
 }//end insertLDrawPart:
+
+
+//========== nudge: ============================================================
+//
+// Purpose:		Called by LDrawGLView when it wants to nudge the selection.
+//
+//==============================================================================
+- (void) nudge:(id)sender
+{
+	LDrawGLView *glView     = sender;
+	Vector3     nudgeVector = [glView nudgeVector];
+	
+	[self nudgeSelectionBy:nudgeVector];
+	
+}//end nudge:
 
 
 //========== panelMoveParts: ===================================================
@@ -2857,8 +2855,8 @@
 	//
 	// Exception: If we have no current selection, it means this was a copy 
 	//			  drag. Just paste instead of updating.
-	if(		[[info draggingSource] respondsToSelector:@selector(document)]
-	   &&	[[info draggingSource] document] == self
+	if(		[[info draggingSource] respondsToSelector:@selector(LDrawDirective)]
+	   &&	[[info draggingSource] LDrawDirective] == [self documentContents]
 	   &&	selectionCount > 0 )
 	{
 		for(counter = 0; counter < selectionCount; counter++)
@@ -3914,11 +3912,13 @@
 - (void) connectLDrawGLView:(LDrawGLView *)glView
 {
 	[glView setDelegate:self];
-	[glView setDocument:self];
 
 	[glView setTarget:self];
 	[glView setForwardAction:@selector(advanceOneStep:)];
 	[glView setBackAction:@selector(backOneStep:)];
+	[glView setNudgeAction:@selector(nudge:)];
+	
+	[glView setGridSpacingMode:[self gridSpacingMode]];
 	
 }//end connectLDrawGLView:
 

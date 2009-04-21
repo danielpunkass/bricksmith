@@ -2181,6 +2181,8 @@
 {
 	self->isGesturing = NO;
 	
+	[self setNeedsDisplay:YES];
+	
 }//end endGestureWithEvent:
 
 
@@ -2251,13 +2253,16 @@
 	}
 	else if(horizontalDirection < 0)
 	{
-		// back
-		[NSApp sendAction:self->backAction to:self->target from:self];
+		// forward
+		// On the MacBook Air (1st generation), -1 means forward. That seems 
+		// wrong and contradictory to a certain release note *ahem*; I guess I'm 
+		// going with actual behavior right now. 
+		[NSApp sendAction:self->forwardAction to:self->target from:self];
 	}
 	else
 	{
-		// forward
-		[NSApp sendAction:self->forwardAction to:self->target from:self];
+		// back
+		[NSApp sendAction:self->backAction to:self->target from:self];
 	}
 	
 }//end swipeWithEvent:

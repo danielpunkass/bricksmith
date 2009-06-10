@@ -2165,7 +2165,7 @@
 // Purpose:		A multitouch trackpad gesture has begun. (Scrolling counts.)
 //
 //==============================================================================
-- (void) beginGestureWithEvent:(NSEvent *)event
+- (void) beginGestureWithEvent:(NSEvent *)theEvent
 {
 	self->isGesturing = YES;
 	
@@ -2177,11 +2177,12 @@
 // Purpose:		A multitouch trackpad gesture has ended.
 //
 //==============================================================================
-- (void) endGestureWithEvent:(NSEvent *)event
+- (void) endGestureWithEvent:(NSEvent *)theEvent
 {
 	self->isGesturing = NO;
 	
-	[self setNeedsDisplay:YES];
+	if(self->rotationDrawMode == LDrawGLDrawExtremelyFast)
+		[self setNeedsDisplay:YES];
 	
 }//end endGestureWithEvent:
 
@@ -2191,9 +2192,9 @@
 // Purpose:		User is doing the pinch (zoom) trackpad gesture.
 //
 //==============================================================================
-- (void) magnifyWithEvent:(NSEvent *)event
+- (void) magnifyWithEvent:(NSEvent *)theEvent
 {
-	CGFloat magnification   = [event magnification]; // 1 = increase 100%; -1 = decrease 100%
+	CGFloat magnification   = [theEvent magnification]; // 1 = increase 100%; -1 = decrease 100%
 	CGFloat zoomChange      = magnification * 100;
 	float   currentZoom     = [self zoomPercentage];
 	
@@ -2211,9 +2212,9 @@
 //				plane of the model (that is, spinning around -y). 
 //
 //==============================================================================
-- (void) rotateWithEvent:(NSEvent *)event
+- (void) rotateWithEvent:(NSEvent *)theEvent
 {
-	CGFloat	angle = [event rotation]; // degrees counterclockwise
+	CGFloat	angle = [theEvent rotation]; // degrees counterclockwise
 	
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
@@ -2243,9 +2244,9 @@
 //				gesture. 
 //
 //==============================================================================
-- (void) swipeWithEvent:(NSEvent *)event
+- (void) swipeWithEvent:(NSEvent *)theEvent
 {
-	CGFloat horizontalDirection = [event deltaX];
+	CGFloat horizontalDirection = [theEvent deltaX];
 	
 	if(horizontalDirection == 0)
 	{

@@ -72,6 +72,25 @@
 #pragma mark ACCESSORS
 #pragma mark -
 
+//---------- openGLPixelFormat ---------------------------------------[static]--
+//
+// Purpose:		Returns the pixel format used in Bricksmith OpenGL views.
+//
+//------------------------------------------------------------------------------
++ (NSOpenGLPixelFormat *) openGLPixelFormat
+{
+	NSOpenGLPixelFormat				*pixelFormat		= nil;
+	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= { NSOpenGLPFADoubleBuffer,
+															NSOpenGLPFADepthSize,		32,
+															NSOpenGLPFASampleBuffers,	1, // enable line antialiasing
+															NSOpenGLPFASamples,			3, // antialiasing beauty
+															0};
+
+	pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelAttributes];
+	return [pixelFormat autorelease];
+}
+
+
 //---------- sharedInspector -----------------------------------------[static]--
 //
 // Purpose:		Returns the inspector object, which is created when the 
@@ -344,25 +363,18 @@
 //				(i.e., opening files) but after the application is set up.
 //
 //==============================================================================
-- (void)applicationWillFinishLaunching:(NSNotification *)aNotification
+- (void) applicationWillFinishLaunching:(NSNotification *)aNotification
 {
-	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= { NSOpenGLPFADoubleBuffer,
-															NSOpenGLPFADepthSize,		32,
-															NSOpenGLPFASampleBuffers,	1,
-															NSOpenGLPFASamples,			2,
-															0 };
-	NSOpenGLPixelFormat				*pixelFormat		= nil;
-	
-	pixelFormat				= [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelAttributes];
+	NSOpenGLPixelFormat	*pixelFormat	= [LDrawApplication openGLPixelFormat];
 	
 	//Make sure the standard preferences exist so they will be available 
 	// throughout the application.
 	[PreferencesDialogController ensureDefaults];
 	
 	//Create shared objects.
-	self->inspector               = [Inspector new];
-	self->partLibraryController   = [[PartLibraryController alloc] init];
-	self->sharedGLContext	= [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+	self->inspector					= [Inspector new];
+	self->partLibraryController		= [[PartLibraryController alloc] init];
+	self->sharedGLContext			= [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
 	[ToolPalette sharedToolPalette];
 	
 	[sharedGLContext makeCurrentContext];
@@ -386,8 +398,6 @@
 											 selector:@selector(partBrowserStyleDidChange:)
 												 name:LDrawPartBrowserStyleDidChangeNotification
 											   object:nil ];
-	
-	[pixelFormat release];
 	
 }//end applicationWillFinishLaunching:
 

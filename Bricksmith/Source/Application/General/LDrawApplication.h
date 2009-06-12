@@ -40,6 +40,7 @@
 - (IBAction) showMouseTools:(id)sender;
 
 //Accessors
++ (NSOpenGLPixelFormat *) openGLPixelFormat;
 + (Inspector *) sharedInspector;
 + (NSOpenGLContext *) sharedOpenGLContext;
 + (PartLibrary *) sharedPartLibrary;

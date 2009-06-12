@@ -117,13 +117,8 @@
 //==============================================================================
 - (id) initWithCoder: (NSCoder *) coder
 {	
-	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= { NSOpenGLPFADoubleBuffer,
-															NSOpenGLPFADepthSize,		32,
-															NSOpenGLPFASampleBuffers,	1, // enable line antialiasing
-															NSOpenGLPFASamples,			3, // antialiasing beauty
-															0};
 	NSOpenGLContext					*context			= nil;
-	NSOpenGLPixelFormat				*pixelFormat		= nil;
+	NSOpenGLPixelFormat				*pixelFormat		= [LDrawApplication openGLPixelFormat];
 	GLint							 swapInterval		= 1;
 	
 	self = [super initWithCoder: coder];
@@ -146,8 +141,6 @@
 	
 	//Set up our OpenGL context. We need to base it on a shared context so that 
 	// display-list names can be shared globally throughout the application.
-	pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes: pixelAttributes];
-	
 	context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat
 										 shareContext:[LDrawApplication sharedOpenGLContext]];
 	[self setOpenGLContext:context];
@@ -158,8 +151,6 @@
 	[[self openGLContext] setValues: &swapInterval // prevent "tearing"
 					   forParameter: NSOpenGLCPSwapInterval ];
 			
-	[pixelFormat release];
-	
 	return self;
 	
 }//end initWithCoder:

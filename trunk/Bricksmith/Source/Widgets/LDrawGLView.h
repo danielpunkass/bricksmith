@@ -67,8 +67,13 @@ typedef enum
 													// tweak the selection code in LDrawDrawableElement
 													// and here in -mouseUp: to handle such cases.
 	
-	// Drawing Environment
+	// Threading
+	NSConditionLock			*canDrawLock;			// when condition is YES, render thread will wake up and draw.
+	BOOL					keepDrawThreadAlive;	// when it has no items in it, the thread will die
 	unsigned                numberDrawRequests;		// how many threaded draws are piling up in the queue.
+	BOOL					hasThread;
+	
+	// Drawing Environment
 	GLfloat                 cameraDistance;
 	LDrawColorT             color;					// default color to draw parts if none is specified
 	GLfloat                 glBackgroundColor[4];
@@ -91,7 +96,7 @@ typedef enum
 }
 
 // Drawing
-- (void) drawThreaded:(id)sender;
+- (void) draw;
 - (void) drawFocusRing;
 - (void) strokeInsideRect:(NSRect)rect thickness:(float)borderWidth;
 

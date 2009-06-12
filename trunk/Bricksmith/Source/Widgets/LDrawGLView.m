@@ -133,6 +133,10 @@
 	
 	[self setAcceptsFirstResponder:YES];
 	[self setLDrawColor:LDrawCurrentColor];
+	
+	canDrawLock				= [[NSConditionLock alloc] initWithCondition:NO];
+	keepDrawThreadAlive		= YES;
+	
 	cameraDistance			= -10000;
 	isTrackingDrag			= NO;
 	projectionMode			= ProjectionModePerspective;
@@ -149,7 +153,7 @@
 	[self setOpenGLContext:context];
 //	[context setView:self]; //documentation says to do this, but it generates an error. Weird.
 	[[self openGLContext] makeCurrentContext];
-		
+	
 	[self setPixelFormat:pixelFormat];
 	[[self openGLContext] setValues: &swapInterval // prevent "tearing"
 					   forParameter: NSOpenGLCPSwapInterval ];
@@ -263,24 +267,65 @@
 	// drawing code is in a thread-accessible method.
 	
 	//threading isn't working out well at all. So I have a threading preference, 
-	// which will be OFF by default in version 1.4 at least.
+	// which will be OFF by default.
 	if([userDefaults boolForKey:@"UseThreads"] == YES)
-		[NSThread detachNewThreadSelector:@selector(drawThreaded:) toTarget:self withObject:nil];
+	{
+		// signal the render thread to wake up
+		[self->canDrawLock lockWhenCondition:NO];
+		[self->canDrawLock unlockWithCondition:YES];
+	}
 	else
-		[self drawThreaded:nil];
+	{
+		// draw directly
+		[self draw];
+	}
 		
 }//end drawRect:
 
 
-//========== drawThreaded: =====================================================
+//========== threadDrawLoop ====================================================
 //
-// Purpose:		My great attempt at organized chaos. This draw routine may be 
-//				safely called off a thread!
+// Purpose:		This is the body function for highly-experimental multithreaded 
+//				drawing.
+//
+// Notes:		As of Bricksmith 2.1, this still doesn't work, even after years 
+//				of trying to get it to. It really seems like Mac OS X is at 
+//				fault.
 //
 //==============================================================================
-- (void) drawThreaded:(id)sender
+- (void) threadDrawLoop:(id)sender
 {
-	NSAutoreleasePool	*pool				= [[NSAutoreleasePool alloc] init];
+	BOOL threadCanContinue = YES;
+	
+	while(threadCanContinue == YES)
+	{
+		[self->canDrawLock lockWhenCondition:YES];
+		{
+			NSAutoreleasePool	*pool	= [[NSAutoreleasePool alloc] init];
+			
+			[self draw];
+			
+			// the keepAlive flag is protected by our canDrawLock mutex.
+			threadCanContinue = self->keepDrawThreadAlive;
+			
+			[pool release];
+		}
+		[self->canDrawLock unlockWithCondition:NO];
+	}
+	
+}//end threadDrawLoop:
+
+
+//========== draw ==============================================================
+//
+// Purpose:		Draw the LDraw content of the view.
+//
+// Notes:		This method is, in theory at least, as thread-safe as Apple's 
+//				OpenGL implementation is. Which is to say, not very much.
+//
+//==============================================================================
+- (void) draw
+{
 	NSDate				*startTime			= nil;
 	unsigned			 options			= DRAW_NO_OPTIONS;
 	NSTimeInterval		 drawTime			= 0;
@@ -298,6 +343,7 @@
 		startTime	= [NSDate date];
 	
 		[[self openGLContext] makeCurrentContext];
+		
 		//any previous draw requests have now executed and let go of the mutex.
 		// if we are the LAST draw in the queue, we draw. Otherwise, we drop 
 		// ourselves, and defer to the last guy.
@@ -362,9 +408,7 @@
 		self->numberDrawRequests -= 1;
 	}
 	
-	[pool release];
-	
-}//end drawRect:
+}//end draw
 
 
 //========== drawFocusRing =====================================================
@@ -2769,6 +2813,40 @@
 	
 }//end update
 
+
+//========== viewDidMoveToWindow ===============================================
+//
+// Purpose:		The view is either being added to a window (on creation) or 
+//				removed from one (on destruction).
+//
+//==============================================================================
+- (void) viewDidMoveToWindow
+{
+	// Kill of any existing render thread. This is especially important for 
+	// deallocation, since the thread holds a retain on us.
+	if(hasThread == YES)
+	{
+		[self->canDrawLock lock];
+		self->keepDrawThreadAlive = NO;
+		[self->canDrawLock unlockWithCondition:YES]; // thread guard loop will die as soon as this is hit.
+		
+		self->hasThread = NO;
+	}
+	
+	// Create a new render thread if we are moving to an actual window
+	// (otherwise, we're probably being deallocated).
+	if([self window] != nil)
+	{
+		[self->canDrawLock lockWhenCondition:NO]; // wait for other thread to finish
+		self->keepDrawThreadAlive = YES;
+		[self->canDrawLock unlockWithCondition:NO];
+		[NSThread detachNewThreadSelector:@selector(threadDrawLoop:) toTarget:self withObject:nil];
+		hasThread = YES;
+	}
+	
+}//end viewDidMoveToWindow
+
+
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
@@ -3542,6 +3620,7 @@
 	
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	
+	[canDrawLock	release];
 	[autosaveName	release];
 	[fileBeingDrawn	release];
 

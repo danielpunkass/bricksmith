@@ -74,7 +74,7 @@ typedef enum
 	BOOL					hasThread;
 	
 	// Drawing Environment
-	GLfloat                 cameraDistance;
+	GLfloat                 cameraDistance;			// location of camera on the z-axis; distance from (0,0,0);
 	LDrawColorT             color;					// default color to draw parts if none is specified
 	GLfloat                 glBackgroundColor[4];
 	GLfloat                 glColor[4];				// OpenGL equivalent of the LDrawColor.
@@ -161,14 +161,20 @@ typedef enum
 - (LDrawDirective *) getDirectiveFromHitCode:(GLuint)name;
 - (void) resetFrameSize;
 - (void) restoreConfiguration;
-- (void) makeProjection;
 - (void) saveConfiguration;
 - (void) scrollCenterToPoint:(NSPoint)newCenter;
 - (void) takeBackgroundColorFromUserDefaults;
 
 // - Geometry
+- (float) fieldDepth;
 - (void) getModelAxesForViewX:(Vector3 *)outModelX Y:(Vector3 *)outModelY Z:(Vector3 *)outModelZ;
+- (void) makeProjection;
 - (Point3) modelPointForPoint:(NSPoint)viewPoint depthReferencePoint:(Point3)depthPoint;
+- (NSRect) nearOrthoClippingRectFromVisibleRect:(NSRect)visibleRect;
+- (NSRect) nearFrustumClippingRectFromVisibleRect:(NSRect)visibleRect;
+- (NSRect) nearOrthoClippingRectFromNearFrustumClippingRect:(NSRect)visibilityPlane;
+- (NSRect) visibleRectFromNearOrthoClippingRect:(NSRect)visibilityPlane;
+- (NSRect) visibleRectFromNearFrustumClippingRect:(NSRect)visibilityPlane;
 
 @end
 

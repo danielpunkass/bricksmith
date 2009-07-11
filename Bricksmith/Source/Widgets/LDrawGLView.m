@@ -368,7 +368,7 @@
 			
 			if([[self window] firstResponder] == self)
 				[self drawFocusRing];
-			
+				
 			//glFlush(); //implicit in -flushBuffer
 			[[self openGLContext] flushBuffer];
 		
@@ -2041,11 +2041,90 @@
 //
 //==============================================================================
 - (void) mouseCenterClick:(NSEvent*)theEvent
-{	
-	NSPoint newCenter = [self convertPoint:[theEvent locationInWindow]
-								  fromView:nil ];
+{
+	NSPoint	clickedViewPoint	= [self convertPoint:[theEvent locationInWindow]
+											fromView:nil ];
+
+	// In orthographic projection, each world point always ends up in the same 
+	// place on the document plane no matter where the scrollers are. So we can 
+	// take a shortcut. 
+	if(self->projectionMode == ProjectionModeOrthographic)
+	{
+		NSPoint newCenter = clickedViewPoint;
+
+		[self scrollCenterToPoint:newCenter];
+	}
+	else
+	{
+		// Perspective distortion makes this more complicated. The camera is in 
+		// a fixed position, but the frustum changes with the scrollbars. 
+		// We need to calculate the world point we just clicked on, then derive 
+		// a new frustum projection centered on that point. 
+		NSArray                 *fastDrawParts      = nil;
+		NSArray                 *fineDrawParts      = nil;
+		LDrawDrawableElement    *clickedDirective   = nil;
+		Point3                  clickedPointInModel = ZeroPoint3;
+		Point3                  cameraPoint         = V3Make(0, 0, self->cameraDistance);
+		NSPoint                 newCenter           = NSZeroPoint;
+		float                   nearClippingZ       = 0;
+		float                   zEval               = 0;
+		Matrix4                 modelViewMatrix     = [self getMatrix];
+		Point4                  transformedPoint    = ZeroPoint4;
+		NSRect                  newVisibleRect      = NSZeroRect;
+		NSRect                  currentClippingRect = [self nearFrustumClippingRectFromVisibleRect:[self visibleRect]];
+		NSRect                  newClippingRect     = NSZeroRect;
+			
+		//first do hit-testing on nothing but the bounding boxes; that is very fast 
+		// and likely eliminates a lot of parts.
+		fastDrawParts	= [self getDirectivesUnderMouse:theEvent
+										amongDirectives:[NSArray arrayWithObject:self->fileBeingDrawn]
+											   fastDraw:YES];
+		
+		//now do a full draw for testing on the most likely candidates
+		fineDrawParts	= [self getDirectivesUnderMouse:theEvent
+									    amongDirectives:fastDrawParts
+											   fastDraw:NO];
+		
+		if([fineDrawParts count] > 0)
+		{
+			clickedDirective    = [fineDrawParts objectAtIndex:0];
+			clickedPointInModel = [self modelPointForPoint:clickedViewPoint
+									   depthReferencePoint:[clickedDirective position]];
+									   
+			// For the camera calculation, we need effective world coordinates, 
+			// not model coordinates. 
+			transformedPoint = V4MulPointByMatrix(V4FromV3(clickedPointInModel), modelViewMatrix);
+			
+			// Transforming causes an undesired shift on z. I'm not 
+			// mathematically sure why yet, but it is lethal and must be undone. 
+			// I think it has something to do with LDraw's flipped coordinate 
+			// system and the camera location therein... 
+			transformedPoint.z *= -1;
+			
+			// Intersect the 3D line between the camera and the clicked point 
+			// with the near clipping plane. 
+			nearClippingZ   = - [self fieldDepth] / 2;
+			zEval           = (nearClippingZ - cameraPoint.z) / (transformedPoint.z - cameraPoint.z);
+			newCenter.x     = zEval * (transformedPoint.x - cameraPoint.x) + cameraPoint.x;
+			newCenter.y     = zEval * (transformedPoint.y - cameraPoint.y) + cameraPoint.y;
+			
+			// Calculate a NEW frustum clipping rect centered on the clicked 
+			// point's projection onto the near clipping plane. 
+			newClippingRect.size        = currentClippingRect.size;
+			newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
+			newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
+			
+			// Reverse-derive the correct Cocoa view visible rect which will 
+			// result in the desired clipping rect to be used. 
+			newVisibleRect = [self visibleRectFromNearFrustumClippingRect:newClippingRect];
+			
+			// Scroll to it. -makeProjection will now derive the exact desired 
+			// frustum which will cause the clicked point to appear in the 
+			// center. 
+			[self scrollRectToVisible:newVisibleRect];
+		}
+	}
 	
-	[self scrollCenterToPoint:newCenter];
 }//end mouseCenterClick:
 
 
@@ -3022,7 +3101,6 @@
 		{
 			//Names start in the fourth entry of the hit.
 			currentName = nameBuffer[hitRecordBaseIndex + 3 + counter];
-			
 		}
 		currentDirective = [self getDirectiveFromHitCode:currentName];
 		
@@ -3187,7 +3265,8 @@
 	}
 	
 	[self setNeedsDisplay:YES];
-}//end 
+	
+}//end resetFrameSize
 
 
 //========== restoreConfiguration ==============================================
@@ -3201,105 +3280,15 @@
 {
 	if(self->autosaveName != nil)
 	{
-		
 		NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
 		NSString		*viewingAngleKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_ANGLE, self->autosaveName];
 		NSString		*projectionModeKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_PROJECTION, self->autosaveName];
 		
-		[self   setViewOrientation:[userDefaults integerForKey:viewingAngleKey] ];
+		[self setViewOrientation:[userDefaults integerForKey:viewingAngleKey] ];
 		[self setProjectionMode:[userDefaults integerForKey:projectionModeKey] ];
 	}
 	
 }//end restoreConfiguration
-
-
-//========== makeProjection ====================================================
-//
-// Purpose:		Loads the viewing projection appropriate for our canvas size.
-//
-//==============================================================================
-- (void) makeProjection
-{
-	NSRect	visibleRect		= [self visibleRect];
-	NSRect	frame			= [self frame];
-	float	fieldDepth		= 0;
-	NSRect	visibilityPlane	= NSZeroRect;
-	
-	//ULTRA-IMPORTANT NOTE: this method assumes that you have already made our 
-	// openGLContext the current context
-	
-	CGLLockContext([[self openGLContext] CGLContextObj]);
-	{
-		// Start from scratch
-		glMatrixMode(GL_PROJECTION); //we are changing the projection, NOT the model!
-		glLoadIdentity();
-		
-		//This is effectively equivalent to infinite field depth
-		fieldDepth = MAX(NSHeight(frame), NSWidth(frame));
-		
-			// Once upon a time, I had a feature called "infinite field depth," 
-			// as opposed to a depth that would clip the model. Eventually I 
-			// concluded this was a bad idea. But for future reference, the 
-			// maximum fieldDepth is about 1e6 (50,000 studs, >1300 ft; probably 
-			// enough!); viewing goes haywire with bigger numbers. 
-		
-		float y = NSMinY(visibleRect);
-		if([self isFlipped] == YES)
-			y = NSHeight(frame) - y - NSHeight(visibleRect);
-		
-		//The projection plane is stated in model coordinates.
-		visibilityPlane.origin.x	= NSMinX(visibleRect) - NSWidth(frame)/2;
-		visibilityPlane.origin.y	= y - NSHeight(frame)/2;
-		visibilityPlane.size.width	= NSWidth(visibleRect);
-		visibilityPlane.size.height	= NSHeight(visibleRect);
-		
-		if(self->projectionMode == ProjectionModePerspective)
-		{
-			// We want perspective and ortho views to show objects at the origin 
-			// as the same size. Since perspective viewing is defined by a 
-			// frustum (truncated pyramid), we have to shrink the visibily 
-			// plane--which is located on the near clipping plane--in such a way 
-			// that the slice of the frustum at the origin will have the 
-			// dimensions of the desired visibility plane. (Remember, slices 
-			// grow *bigger* as they go deeper into the view. Since the origin 
-			// is deeper, that means we need a near visibility plane that is 
-			// *smaller* than the desired size at the origin.)  
-			//
-			// Find the scaling percentage betwen the frustum slice through 
-			// (0,0,0) and the slice that defines the near clipping plane. 
-			float visibleProportion = (fabs(self->cameraDistance) - fieldDepth)
-														/
-											fabs(self->cameraDistance);
-			
-			//scale down the visibility plane, centering it in the full-size one.
-			visibilityPlane.origin.x += NSWidth(visibilityPlane)  * (1 - visibleProportion) / 2;
-			visibilityPlane.origin.y += NSHeight(visibilityPlane) * (1 - visibleProportion) / 2;
-			visibilityPlane.size.width	*= visibleProportion;
-			visibilityPlane.size.height	*= visibleProportion;
-			
-			glFrustum(NSMinX(visibilityPlane),	//left
-					  NSMaxX(visibilityPlane),	//right
-					  NSMinY(visibilityPlane),	//bottom
-					  NSMaxY(visibilityPlane),	//top
-					  fabs(cameraDistance) - fieldDepth,	//near (closer points are clipped); distance from CAMERA LOCATION
-					  fabs(cameraDistance) + fieldDepth		//far (points beyond this are clipped); distance from CAMERA LOCATION
-					 );
-		}
-		else
-		{
-			glOrtho(NSMinX(visibilityPlane),	//left
-					NSMaxX(visibilityPlane),	//right
-					NSMinY(visibilityPlane),	//bottom
-					NSMaxY(visibilityPlane),	//top
-					fabs(cameraDistance) - fieldDepth,		//near (points beyond these are clipped)
-					fabs(cameraDistance) + fieldDepth );	//far
-		}
-		
-		
-	}
-	CGLUnlockContext([[self openGLContext] CGLContextObj]);
-	
-}//end makeProjection
 
 
 //========== saveConfiguration =================================================
@@ -3338,8 +3327,8 @@
 	NSRect	visibleRect		= [self visibleRect];
 	NSPoint	scrollOrigin	= NSMakePoint( newCenter.x - NSWidth(visibleRect)/2,
 										   newCenter.y - NSHeight(visibleRect)/2);
-	
 	[self scrollPoint:scrollOrigin];
+	
 }//end scrollCenterToPoint:
 
 
@@ -3388,6 +3377,31 @@
 
 #pragma mark -
 #pragma mark Geometry
+
+//========== fieldDepth ========================================================
+//
+// Purpose:		Returns the distance between the near and far clipping planes.
+//
+// Notes:		Once upon a time, I had a feature called "infinite field depth," 
+//				as opposed to a depth that would clip the model. Eventually I 
+//				concluded this was a bad idea. But for future reference, the 
+//				maximum fieldDepth is about 1e6 (50,000 studs, >1300 ft; 
+//				probably enough!); viewing goes haywire with bigger numbers. 
+//
+//==============================================================================
+- (float) fieldDepth
+{
+	NSRect	frame			= [self frame];
+	float	fieldDepth		= 0;
+	
+	// This is effectively equivalent to infinite field depth
+	fieldDepth = MAX(NSHeight(frame), NSWidth(frame));
+	fieldDepth *= 2;
+	
+	return fieldDepth;
+	
+}//end fieldDepth
+
 
 //========== getModelAxesForViewX:Y:Z: =========================================
 //
@@ -3594,6 +3608,199 @@
 	return modelPoint;
 	
 }//end modelPointForPoint:depthReferencePoint:
+
+
+//========== makeProjection ====================================================
+//
+// Purpose:		Loads the viewing projection appropriate for our canvas size.
+//
+//==============================================================================
+- (void) makeProjection
+{
+	NSRect	visibleRect		= [self visibleRect];
+	float	fieldDepth		= [self fieldDepth];
+	NSRect	visibilityPlane	= NSZeroRect;
+	
+	//ULTRA-IMPORTANT NOTE: this method assumes that you have already made our 
+	// openGLContext the current context
+	
+	CGLLockContext([[self openGLContext] CGLContextObj]);
+	{
+		// Start from scratch
+		glMatrixMode(GL_PROJECTION); //we are changing the projection, NOT the model!
+		glLoadIdentity();
+		
+		if(self->projectionMode == ProjectionModePerspective)
+		{
+			visibilityPlane = [self nearFrustumClippingRectFromVisibleRect:visibleRect];
+			
+			glFrustum(NSMinX(visibilityPlane),	// left
+					  NSMaxX(visibilityPlane),	// right
+					  NSMinY(visibilityPlane),	// bottom
+					  NSMaxY(visibilityPlane),	// top
+					  fabs(cameraDistance) - fieldDepth/2,	// near (closer points are clipped); distance from CAMERA LOCATION
+					  fabs(cameraDistance) + fieldDepth/2	// far (points beyond this are clipped); distance from CAMERA LOCATION
+					 );
+		}
+		else
+		{
+			visibilityPlane = [self nearOrthoClippingRectFromVisibleRect:visibleRect];
+			
+			glOrtho(NSMinX(visibilityPlane),	// left
+					NSMaxX(visibilityPlane),	// right
+					NSMinY(visibilityPlane),	// bottom
+					NSMaxY(visibilityPlane),	// top
+					fabs(cameraDistance) - fieldDepth/2,	// near (points beyond these are clipped)
+					fabs(cameraDistance) + fieldDepth/2 );	// far
+		}
+	}
+	CGLUnlockContext([[self openGLContext] CGLContextObj]);
+	
+}//end makeProjection
+
+
+//========== nearOrthoClippingRectFromVisibleRect: ============================
+//
+// Purpose:		Returns the rect of the near clipping plane which should be used 
+//				for an orthographic projection. The coordinates are in model 
+//				coordinates, located on the plane at
+//					z = - [self fieldDepth] / 2.
+//
+//==============================================================================
+- (NSRect) nearOrthoClippingRectFromVisibleRect:(NSRect)visibleRect
+{
+	NSRect	frame			= [self frame];
+	NSRect	visibilityPlane	= NSZeroRect;
+
+	float y = NSMinY(visibleRect);
+	if([self isFlipped] == YES)
+		y = NSHeight(frame) - y - NSHeight(visibleRect);
+	
+	//The projection plane is stated in model coordinates.
+	visibilityPlane.origin.x	= NSMinX(visibleRect) - NSWidth(frame)/2;
+	visibilityPlane.origin.y	= y - NSHeight(frame)/2;
+	visibilityPlane.size.width	= NSWidth(visibleRect);
+	visibilityPlane.size.height	= NSHeight(visibleRect);
+	
+	return visibilityPlane;
+	
+}//end nearOrthoClippingRectFromVisibleRect:
+
+
+//========== nearFrustumClippingRectFromVisibleRect: ==========================
+//
+// Purpose:		Returns the rect of the near clipping plane which should be used 
+//				for an perspective projection. The coordinates are in model 
+//				coordinates, located on the plane at
+//					z = - [self fieldDepth] / 2.
+//
+// Notes:		We want perspective and ortho views to show objects at the 
+//				 origin as the same size. Since perspective viewing is defined 
+//				 by a frustum (truncated pyramid), we have to shrink the 
+//				 visibily plane--which is located on the near clipping plane--in 
+//				 such a way that the slice of the frustum at the origin will 
+//				 have the dimensions of the desired visibility plane. (Remember, 
+//				 slices grow *bigger* as they go deeper into the view. Since the 
+//				 origin is deeper, that means we need a near visibility plane 
+//				 that is *smaller* than the desired size at the origin.) 
+//
+//==============================================================================
+- (NSRect) nearFrustumClippingRectFromVisibleRect:(NSRect)visibleRect
+{
+	NSRect  orthoVisibilityPlane    = [self nearOrthoClippingRectFromVisibleRect:visibleRect];
+	NSRect  visibilityPlane         = orthoVisibilityPlane;
+	float   fieldDepth              = [self fieldDepth];
+	
+	// Find the scaling percentage betwen the frustum slice through 
+	// (0,0,0) and the slice that defines the near clipping plane. 
+	float visibleProportion = (fabs(self->cameraDistance) - fieldDepth/2)
+												/
+									fabs(self->cameraDistance);
+	
+	//scale down the visibility plane, centering it in the full-size one.
+	visibilityPlane.origin.x    = NSMinX(orthoVisibilityPlane) + NSWidth(orthoVisibilityPlane)  * (1 - visibleProportion) / 2;
+	visibilityPlane.origin.y    = NSMinY(orthoVisibilityPlane) + NSHeight(orthoVisibilityPlane) * (1 - visibleProportion) / 2;
+	visibilityPlane.size.width  = NSWidth(orthoVisibilityPlane)  * visibleProportion;
+	visibilityPlane.size.height = NSHeight(orthoVisibilityPlane) * visibleProportion;
+	
+	return visibilityPlane;
+	
+}//end nearFrustumClippingRectFromVisibleRect:
+
+
+//========== nearOrthoClippingRectFromNearFrustumClippingRect: =================
+//
+// Purpose:		Returns the near clipping rectangle which would be used if the 
+//				given perspective view were converted to an orthographic 
+//				projection. 
+//
+//==============================================================================
+- (NSRect) nearOrthoClippingRectFromNearFrustumClippingRect:(NSRect)visibilityPlane
+{
+	NSRect  orthoVisibilityPlane    = NSZeroRect;
+	float   fieldDepth              = [self fieldDepth];
+	
+	// Find the scaling percentage betwen the frustum slice through 
+	// (0,0,0) and the slice that defines the near clipping plane. 
+	float visibleProportion = (fabs(self->cameraDistance) - fieldDepth/2)
+												/
+									fabs(self->cameraDistance);
+	
+	// Enlarge the ortho plane 
+	orthoVisibilityPlane.size.width     = visibilityPlane.size.width  / visibleProportion;
+	orthoVisibilityPlane.size.height    = visibilityPlane.size.height / visibleProportion;
+	
+	// Move origin according to enlargement
+	orthoVisibilityPlane.origin.x       = NSMinX(visibilityPlane) - NSWidth(orthoVisibilityPlane)  * (1 - visibleProportion) / 2;
+	orthoVisibilityPlane.origin.y       = NSMinY(visibilityPlane) - NSHeight(orthoVisibilityPlane) * (1 - visibleProportion) / 2;
+
+	return orthoVisibilityPlane;
+	
+}//end nearOrthoClippingRectFromNearFrustumClippingRect:
+
+
+//========== visibleRectFromNearOrthoClippingRect: =============================
+//
+// Purpose:		Returns the Cocoa view visible rectangle which would result in 
+//				the given orthographic clipping rect. 
+//
+//==============================================================================
+- (NSRect) visibleRectFromNearOrthoClippingRect:(NSRect)visibilityPlane
+{
+	NSRect	visibleRect		= NSZeroRect;
+	NSRect	frame			= [self frame];
+	
+	// Convert from model coordinates back to Cocoa view coordinates.
+	
+	visibleRect.origin.x    = visibilityPlane.origin.x + NSWidth(frame)/2;
+	visibleRect.origin.y    = visibilityPlane.origin.y + NSHeight(frame)/2;
+	visibleRect.size        = visibilityPlane.size;
+	
+	if([self isFlipped] == YES)
+		visibleRect.origin.y = NSHeight(frame) - NSHeight(visibilityPlane) - NSMinY(visibleRect);
+	
+	return visibleRect;
+	
+}//end visibleRectFromNearOrthoClippingRect:
+
+
+//========== visibleRectFromNearFrustumClippingRect: ===========================
+//
+// Purpose:		Returns the Cocoa view visible rectangle which would result in 
+//				the given frustum clipping rect. 
+//
+//==============================================================================
+- (NSRect) visibleRectFromNearFrustumClippingRect:(NSRect)visibilityPlane
+{
+	NSRect  orthoClippingRect   = NSZeroRect;
+	NSRect  visibleRect         = NSZeroRect;
+	
+	orthoClippingRect   = [self nearOrthoClippingRectFromNearFrustumClippingRect:visibilityPlane];
+	visibleRect         = [self visibleRectFromNearOrthoClippingRect:orthoClippingRect];
+	
+	return visibleRect;
+	
+}//end visibleRectFromNearFrustumClippingRect:
 
 
 #pragma mark -

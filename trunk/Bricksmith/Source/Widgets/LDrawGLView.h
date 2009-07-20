@@ -169,6 +169,7 @@ typedef enum
 - (float) fieldDepth;
 - (void) getModelAxesForViewX:(Vector3 *)outModelX Y:(Vector3 *)outModelY Z:(Vector3 *)outModelZ;
 - (void) makeProjection;
+- (Point3) modelPointForPoint:(NSPoint)viewPoint;
 - (Point3) modelPointForPoint:(NSPoint)viewPoint depthReferencePoint:(Point3)depthPoint;
 - (NSRect) nearOrthoClippingRectFromVisibleRect:(NSRect)visibleRect;
 - (NSRect) nearFrustumClippingRectFromVisibleRect:(NSRect)visibleRect;

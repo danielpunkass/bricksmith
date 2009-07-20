@@ -2042,7 +2042,7 @@
 //==============================================================================
 - (void) mouseCenterClick:(NSEvent*)theEvent
 {
-	NSPoint	clickedViewPoint	= [self convertPoint:[theEvent locationInWindow]
+	NSPoint	viewClickedPoint	= [self convertPoint:[theEvent locationInWindow]
 											fromView:nil ];
 
 	// In orthographic projection, each world point always ends up in the same 
@@ -2050,7 +2050,7 @@
 	// take a shortcut. 
 	if(self->projectionMode == ProjectionModeOrthographic)
 	{
-		NSPoint newCenter = clickedViewPoint;
+		NSPoint newCenter = viewClickedPoint;
 
 		[self scrollCenterToPoint:newCenter];
 	}
@@ -2060,69 +2060,54 @@
 		// a fixed position, but the frustum changes with the scrollbars. 
 		// We need to calculate the world point we just clicked on, then derive 
 		// a new frustum projection centered on that point. 
-		NSArray                 *fastDrawParts      = nil;
-		NSArray                 *fineDrawParts      = nil;
-		LDrawDrawableElement    *clickedDirective   = nil;
-		Point3                  clickedPointInModel = ZeroPoint3;
-		Point3                  cameraPoint         = V3Make(0, 0, self->cameraDistance);
-		NSPoint                 newCenter           = NSZeroPoint;
-		float                   nearClippingZ       = 0;
-		float                   zEval               = 0;
-		Matrix4                 modelViewMatrix     = [self getMatrix];
-		Point4                  transformedPoint    = ZeroPoint4;
-		NSRect                  newVisibleRect      = NSZeroRect;
-		NSRect                  currentClippingRect = [self nearFrustumClippingRectFromVisibleRect:[self visibleRect]];
-		NSRect                  newClippingRect     = NSZeroRect;
-			
-		//first do hit-testing on nothing but the bounding boxes; that is very fast 
-		// and likely eliminates a lot of parts.
-		fastDrawParts	= [self getDirectivesUnderMouse:theEvent
-										amongDirectives:[NSArray arrayWithObject:self->fileBeingDrawn]
-											   fastDraw:YES];
+		NSPoint windowClickedPoint  = [theEvent locationInWindow]; //window coordinates
+		Point3  clickedPointInModel = ZeroPoint3;
+		Point3  cameraPoint         = V3Make(0, 0, self->cameraDistance);
+		NSPoint newCenter           = NSZeroPoint;
+		float   nearClippingZ       = 0;
+		float   zEval               = 0;
+		Matrix4 modelViewMatrix     = [self getMatrix];
+		Point4  transformedPoint    = ZeroPoint4;
+		NSRect  newVisibleRect      = NSZeroRect;
+		NSRect  currentClippingRect = [self nearFrustumClippingRectFromVisibleRect:[self visibleRect]];
+		NSRect  newClippingRect     = NSZeroRect;
 		
-		//now do a full draw for testing on the most likely candidates
-		fineDrawParts	= [self getDirectivesUnderMouse:theEvent
-									    amongDirectives:fastDrawParts
-											   fastDraw:NO];
+		// Find the point we clicked on. It would be more accurate to use 
+		// -getDirectivesUnderMouse:::, but it has to actually draw parts, which 
+		// can be slow. 
+		clickedPointInModel = [self modelPointForPoint:[self convertPoint:windowClickedPoint fromView:nil]];
 		
-		if([fineDrawParts count] > 0)
-		{
-			clickedDirective    = [fineDrawParts objectAtIndex:0];
-			clickedPointInModel = [self modelPointForPoint:clickedViewPoint
-									   depthReferencePoint:[clickedDirective position]];
-									   
-			// For the camera calculation, we need effective world coordinates, 
-			// not model coordinates. 
-			transformedPoint = V4MulPointByMatrix(V4FromV3(clickedPointInModel), modelViewMatrix);
-			
-			// Transforming causes an undesired shift on z. I'm not 
-			// mathematically sure why yet, but it is lethal and must be undone. 
-			// I think it has something to do with LDraw's flipped coordinate 
-			// system and the camera location therein... 
-			transformedPoint.z *= -1;
-			
-			// Intersect the 3D line between the camera and the clicked point 
-			// with the near clipping plane. 
-			nearClippingZ   = - [self fieldDepth] / 2;
-			zEval           = (nearClippingZ - cameraPoint.z) / (transformedPoint.z - cameraPoint.z);
-			newCenter.x     = zEval * (transformedPoint.x - cameraPoint.x) + cameraPoint.x;
-			newCenter.y     = zEval * (transformedPoint.y - cameraPoint.y) + cameraPoint.y;
-			
-			// Calculate a NEW frustum clipping rect centered on the clicked 
-			// point's projection onto the near clipping plane. 
-			newClippingRect.size        = currentClippingRect.size;
-			newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
-			newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
-			
-			// Reverse-derive the correct Cocoa view visible rect which will 
-			// result in the desired clipping rect to be used. 
-			newVisibleRect = [self visibleRectFromNearFrustumClippingRect:newClippingRect];
-			
-			// Scroll to it. -makeProjection will now derive the exact desired 
-			// frustum which will cause the clicked point to appear in the 
-			// center. 
-			[self scrollRectToVisible:newVisibleRect];
-		}
+		// For the camera calculation, we need effective world coordinates, 
+		// not model coordinates. 
+		transformedPoint = V4MulPointByMatrix(V4FromV3(clickedPointInModel), modelViewMatrix);
+		
+		// Transforming causes an undesired shift on z. I'm not 
+		// mathematically sure why yet, but it is lethal and must be undone. 
+		// I think it has something to do with LDraw's flipped coordinate 
+		// system and the camera location therein... 
+		transformedPoint.z *= -1;
+		
+		// Intersect the 3D line between the camera and the clicked point 
+		// with the near clipping plane. 
+		nearClippingZ   = - [self fieldDepth] / 2;
+		zEval           = (nearClippingZ - cameraPoint.z) / (transformedPoint.z - cameraPoint.z);
+		newCenter.x     = zEval * (transformedPoint.x - cameraPoint.x) + cameraPoint.x;
+		newCenter.y     = zEval * (transformedPoint.y - cameraPoint.y) + cameraPoint.y;
+		
+		// Calculate a NEW frustum clipping rect centered on the clicked 
+		// point's projection onto the near clipping plane. 
+		newClippingRect.size        = currentClippingRect.size;
+		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
+		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
+		
+		// Reverse-derive the correct Cocoa view visible rect which will 
+		// result in the desired clipping rect to be used. 
+		newVisibleRect = [self visibleRectFromNearFrustumClippingRect:newClippingRect];
+		
+		// Scroll to it. -makeProjection will now derive the exact desired 
+		// frustum which will cause the clicked point to appear in the 
+		// center. 
+		[self scrollRectToVisible:newVisibleRect];
 	}
 	
 }//end mouseCenterClick:
@@ -3471,10 +3456,93 @@
 }//end getModelAxesForViewX:Y:Z:
 
 
+//========== modelPointForPoint: ===============================================
+//
+// Purpose:		Unprojects the given point (in view coordinates) back into a 
+//			    point in the model which projects there, using existing data in 
+//				the depth buffer to infer the location on the z axis. 
+//
+// Notes:		The depth buffer is not super-accurate, but it's passably 
+//				close. But most importantly, it could be faster to read the 
+//				depth buffer than to redraw parts of the model under a pick 
+//				matrix. 
+//
+//==============================================================================
+- (Point3) modelPointForPoint:(NSPoint)viewPoint
+{
+	GLfloat             depth                   = 0.0; 
+	NSPoint             windowPoint             = [self convertPoint:viewPoint toView:nil];
+	NSRect              windowVisibleRect       = [self convertRect:[self visibleRect] toView:nil]; //window coordinates.
+	TransformComponents partTransform           = IdentityComponents;
+	NSPoint				contextPoint			= NSZeroPoint;
+	GLdouble            modelViewGLMatrix	[16];
+	GLdouble            projectionGLMatrix	[16];
+	GLint               viewport			[4];
+	GLdouble            glModelPoint		[3];
+	Point3              modelPoint              = ZeroPoint3;
+	
+	// convert to viewport coordinates
+	contextPoint.x  = windowPoint.x - NSMinX(windowVisibleRect);
+	contextPoint.y  = windowPoint.y - NSMinY(windowVisibleRect);
+
+	CGLLockContext([[self openGLContext] CGLContextObj]);
+	{
+		[[self openGLContext] makeCurrentContext];
+		
+		// Find the location in the depth buffer. This tells us the percentage of 
+		// depth of the nearest pixel to the viewer.
+		glReadPixels(contextPoint.x, contextPoint.y,
+					 1, 1,  	// width, height
+					 GL_DEPTH_COMPONENT,
+					 GL_FLOAT, &depth);
+		
+		if(depth == 1.0)
+		{
+			// Error!
+			// Maximum depth readings essentially tell us that no pixels were drawn 
+			// at this point. So we have to make up a best guess now. This guess 
+			// will very likely be wrong, but there is little else which can be 
+			// done. 
+			
+			if([self->delegate respondsToSelector:@selector(LDrawGLViewPreferredPartTransform:)])
+			{
+				partTransform = [self->delegate LDrawGLViewPreferredPartTransform:self];
+			}
+
+			modelPoint = [self modelPointForPoint:viewPoint
+							  depthReferencePoint:partTransform.translate];
+		}
+		else
+		{
+			// Convert back to a point in the model.
+			glGetDoublev(GL_PROJECTION_MATRIX, projectionGLMatrix);
+			glGetDoublev(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
+			glGetIntegerv(GL_VIEWPORT, viewport);
+			
+			gluUnProject(contextPoint.x, contextPoint.y,
+						 depth, //z
+						 modelViewGLMatrix,
+						 projectionGLMatrix,
+						 viewport,
+						 &glModelPoint[0],
+						 &glModelPoint[1],
+						 &glModelPoint[2] );
+			
+			modelPoint = V3Make(glModelPoint[0], glModelPoint[1], glModelPoint[2]);
+		}
+	}
+	CGLUnlockContext([[self openGLContext] CGLContextObj]);
+	
+	return modelPoint;
+	
+}//end modelPointForPoint:
+
+
 //========== modelPointForPoint:depthReferencePoint: ===========================
 //
 // Purpose:		Unprojects the given point (in view coordinates) back into a 
-//			    point in the model which projects there. 
+//			    point in the model which projects there, calculating the 
+//				location on the z axis using the given depth reference point. 
 //
 // Notes:		Any point on the screen represents the projected location of an 
 //			    infinite number of model points, extending on a line from the 
@@ -3506,7 +3574,7 @@
 	GLdouble	glNearModelPoint	[3];
 	GLdouble	glFarModelPoint		[3];
 	Point3		modelPoint				= ZeroPoint3;
-	NSRect		contextRectInWindow		= [self convertRect:[self visibleRect] toView:nil];
+	NSRect		windowVisibleRect		= [self convertRect:[self visibleRect] toView:nil];
 	NSPoint		windowPoint				= [self convertPoint:viewPoint toView:nil];
 	NSPoint		contextPoint			= NSZeroPoint;
 	Vector3		modelZ;
@@ -3526,8 +3594,8 @@
 		// worrying about view scaling. 
 		
 		// need to get viewPoint in terms of the viewport!
-		contextPoint.x = windowPoint.x - NSMinX(contextRectInWindow);
-		contextPoint.y = windowPoint.y - NSMinY(contextRectInWindow);
+		contextPoint.x = windowPoint.x - NSMinX(windowVisibleRect);
+		contextPoint.y = windowPoint.y - NSMinY(windowVisibleRect);
 		
 		glGetDoublev(GL_PROJECTION_MATRIX, projectionGLMatrix);
 		glGetDoublev(GL_MODELVIEW_MATRIX, modelViewGLMatrix);

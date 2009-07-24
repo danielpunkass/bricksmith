@@ -31,6 +31,12 @@
 		0B2DD14B0CD810DC0093E8E5 /* PartBrowserTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */; };
 		0B2DD14E0CD810F20093E8E5 /* BezierPathCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2DD14C0CD810F20093E8E5 /* BezierPathCategory.h */; };
 		0B2DD14F0CD810F20093E8E5 /* BezierPathCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2DD14D0CD810F20093E8E5 /* BezierPathCategory.m */; };
+		0B2FADD310196C2E007BA948 /* DonationDialogController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2FADD110196C2E007BA948 /* DonationDialogController.h */; };
+		0B2FADD410196C2E007BA948 /* DonationDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2FADD210196C2E007BA948 /* DonationDialogController.m */; };
+		0B2FADD810196D39007BA948 /* Donation.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B2FADD610196D39007BA948 /* Donation.xib */; };
+		0B2FAE2F10196F8C007BA948 /* BackgroundColorView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2FAE2D10196F8C007BA948 /* BackgroundColorView.h */; };
+		0B2FAE3010196F8C007BA948 /* BackgroundColorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2FAE2E10196F8C007BA948 /* BackgroundColorView.m */; };
+		0B2FAE60101972DF007BA948 /* Bum.ldr in Resources */ = {isa = PBXBuildFile; fileRef = 0B2FAE5F101972DF007BA948 /* Bum.ldr */; };
 		0B30E08B0ED90D3000470615 /* Triangle.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B30E08A0ED90D3000470615 /* Triangle.pdf */; };
 		0B30E0D40EDA746900470615 /* Quadrilateral.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B30E0D30EDA746900470615 /* Quadrilateral.pdf */; };
 		0B34306708B2E93D00A06A40 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0B34306508B2E93D00A06A40 /* Localizable.strings */; };
@@ -301,6 +307,12 @@
 		0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserTableView.m; sourceTree = "<group>"; };
 		0B2DD14C0CD810F20093E8E5 /* BezierPathCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BezierPathCategory.h; sourceTree = "<group>"; };
 		0B2DD14D0CD810F20093E8E5 /* BezierPathCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BezierPathCategory.m; sourceTree = "<group>"; };
+		0B2FADD110196C2E007BA948 /* DonationDialogController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DonationDialogController.h; sourceTree = "<group>"; };
+		0B2FADD210196C2E007BA948 /* DonationDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DonationDialogController.m; sourceTree = "<group>"; };
+		0B2FADD710196D39007BA948 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Resources/English.lproj/Donation.xib; sourceTree = "<group>"; };
+		0B2FAE2D10196F8C007BA948 /* BackgroundColorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundColorView.h; sourceTree = "<group>"; };
+		0B2FAE2E10196F8C007BA948 /* BackgroundColorView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundColorView.m; sourceTree = "<group>"; };
+		0B2FAE5F101972DF007BA948 /* Bum.ldr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Bum.ldr; sourceTree = "<group>"; };
 		0B30E08A0ED90D3000470615 /* Triangle.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Triangle.pdf; sourceTree = "<group>"; };
 		0B30E0D30EDA746900470615 /* Quadrilateral.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Quadrilateral.pdf; sourceTree = "<group>"; };
 		0B34306608B2E93D00A06A40 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = Localizable.strings; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -666,6 +678,8 @@
 			children = (
 				0B74F28F0D0BB5BB00ED8419 /* CenteringClipView.h */,
 				0B74F2900D0BB5BB00ED8419 /* CenteringClipView.m */,
+				0B2FAE2D10196F8C007BA948 /* BackgroundColorView.h */,
+				0B2FAE2E10196F8C007BA948 /* BackgroundColorView.m */,
 				0B8EBE6B093C100100D87E0C /* DialogPanel.h */,
 				0B8EBE6C093C100100D87E0C /* DialogPanel.m */,
 				0B8EBE6D093C100100D87E0C /* ExtendedSplitView.h */,
@@ -700,6 +714,7 @@
 			children = (
 				0B8EBD4209383CBB00D87E0C /* ColorPanel.nib */,
 				0B8EBD4409383CBB00D87E0C /* Dimensions.nib */,
+				0B2FADD610196D39007BA948 /* Donation.xib */,
 				0B8EBD4609383CBB00D87E0C /* Inspector.nib */,
 				0B8EBD4809383CBB00D87E0C /* InspectorComment.nib */,
 				0B8EBD4A09383CBB00D87E0C /* InspectorConditionalLine.nib */,
@@ -854,6 +869,8 @@
 				0B25F03F093D5F960099D85E /* BricksmithApplication.m */,
 				0B7588D60D8DC4DD00357703 /* ColorLibrary.h */,
 				0B7588D70D8DC4DD00357703 /* ColorLibrary.m */,
+				0B2FADD110196C2E007BA948 /* DonationDialogController.h */,
+				0B2FADD210196C2E007BA948 /* DonationDialogController.m */,
 				0BF729AC08AD849300E3DA53 /* LDrawApplication.h */,
 				0BF729AD08AD849300E3DA53 /* LDrawApplication.m */,
 				0BF729AE08AD849300E3DA53 /* LDrawColorPanel.h */,
@@ -959,6 +976,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				0B2FAE5F101972DF007BA948 /* Bum.ldr */,
 				0B9907620DD7EDBB003F6B13 /* ldconfig.ldr */,
 				2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */,
 				0BC6AACC0987296700505A88 /* Help */,
@@ -1069,6 +1087,8 @@
 				0BA24BEA0EFF2A6500BF9915 /* StringUtilities.h in Headers */,
 				0B4F5E110F31632C00355631 /* PartLibraryController.h in Headers */,
 				0B06F7170F633FD2004E7DD7 /* ExtendedTableView.h in Headers */,
+				0B2FADD310196C2E007BA948 /* DonationDialogController.h in Headers */,
+				0B2FAE2F10196F8C007BA948 /* BackgroundColorView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1219,6 +1239,8 @@
 				0B06F6200F5BB425004E7DD7 /* FavoriteAdd.pdf in Resources */,
 				0B06F6240F5D0588004E7DD7 /* FavoriteRemove.pdf in Resources */,
 				0B06F6890F60F534004E7DD7 /* PartBrowserAccessories.xib in Resources */,
+				0B2FADD810196D39007BA948 /* Donation.xib in Resources */,
+				0B2FAE60101972DF007BA948 /* Bum.ldr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1299,6 +1321,8 @@
 				0BA24BEB0EFF2A6500BF9915 /* StringUtilities.m in Sources */,
 				0B4F5E120F31632C00355631 /* PartLibraryController.m in Sources */,
 				0B06F7180F633FD2004E7DD7 /* ExtendedTableView.m in Sources */,
+				0B2FADD410196C2E007BA948 /* DonationDialogController.m in Sources */,
+				0B2FAE3010196F8C007BA948 /* BackgroundColorView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1327,6 +1351,15 @@
 				0B2700BF098200CC0058A7BE /* English */,
 			);
 			name = ToolPalette.nib;
+			sourceTree = "<group>";
+		};
+		0B2FADD610196D39007BA948 /* Donation.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0B2FADD710196D39007BA948 /* English */,
+			);
+			name = Donation.xib;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		0B34306508B2E93D00A06A40 /* Localizable.strings */ = {

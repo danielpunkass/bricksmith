@@ -14,6 +14,7 @@
 //==============================================================================
 #import "LDrawApplication.h"
 
+#import "DonationDialogController.h"
 #import "Inspector.h"
 #import "LDrawColorPanel.h"
 #import "LDrawDocument.h"
@@ -24,6 +25,7 @@
 #import "PreferencesDialogController.h"
 #import "ToolPalette.h"
 #import "TransformerIntMinus1.h"
+
 
 @implementation LDrawApplication
 
@@ -455,6 +457,27 @@
 	[userDefaults synchronize];
 	
 }//end applicationWillTerminate:
+
+
+//========== applicationShouldTerminate: =======================================
+//
+// Purpose:		We might have to gently remind the user that he ought to support 
+//				this great project, um, monetarily. 
+//
+//==============================================================================
+- (NSApplicationTerminateReply) applicationShouldTerminate:(NSApplication *)sender
+{
+	DonationDialogController	*donation = [[DonationDialogController alloc] init];
+	
+	if([donation shouldShowDialog] == YES)
+	{
+		[donation runModal];
+	}
+	
+	return NSTerminateNow;
+	
+}//end applicationShouldTerminate:
+
 
 #pragma mark -
 #pragma mark NOTIFICATIONS

@@ -31,6 +31,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #define DOCUMENT_WINDOW_SIZE						@"Document Window Size"
+#define DONATION_SCREEN_SUPPRESS_THIS_VERSION		@"DonationRequestSuppressThisVersion"
+#define DONATION_SCREEN_LAST_VERSION_DISPLAYED		@"DonationRequestLastVersion"
 #define FAVORITE_PARTS_KEY							@"FavoriteParts"
 #define FILE_CONTENTS_DRAWER_STATE					@"File Contents Drawer State" //obsolete
 #define GRID_SPACING_COARSE							@"Grid Spacing: Coarse"

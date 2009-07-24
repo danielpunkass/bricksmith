@@ -221,6 +221,21 @@
 }//end doPreferences:
 
 
+//========== doDonate: =========================================================
+//
+// Purpose:		Takes the user to a webpage where they can give me money!
+//				(Here's hoping.)
+//
+//==============================================================================
+- (IBAction) doDonate:(id)sender
+{
+	NSURL *donationURL = [NSURL URLWithString:@"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6985549"];
+
+	[[NSWorkspace sharedWorkspace] openURL:donationURL];
+	
+}//end doDonate:
+
+
 #pragma mark -
 #pragma mark Tools Menu
 

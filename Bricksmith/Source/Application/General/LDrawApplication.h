@@ -32,6 +32,7 @@
 
 //Actions
 - (IBAction) doPreferences:(id)sender;
+- (IBAction) doDonate:(id)sender;
 - (IBAction) doHelp:(id)sender;
 - (IBAction) doKeyboardShortcutHelp:(id)sender;
 - (IBAction) doGettingNewPartsHelp:(id)sender;

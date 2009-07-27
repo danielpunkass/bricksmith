@@ -699,9 +699,9 @@ PreferencesDialogController *preferencesDialog = nil;
 	//
 	// Part Browser
 	//
-	[initialDefaults setObject:NSLocalizedString(@"AllCategories", nil)	forKey:PART_BROWSER_PREVIOUS_CATEGORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]					forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
-	[initialDefaults setObject:[NSArray array]								forKey:FAVORITE_PARTS_KEY];
+	[initialDefaults setObject:NSLocalizedString(@"Brick", nil)			forKey:PART_BROWSER_PREVIOUS_CATEGORY];
+	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
+	[initialDefaults setObject:[NSArray array]							forKey:FAVORITE_PARTS_KEY];
 	
 	//
 	// Tool Palette
@@ -778,7 +778,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:[NSNumber numberWithFloat:4.0]			forKey:MINIFIGURE_HEAD_ELEVATION];
 	
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
+	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
 	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" MinifigureGeneratorView"]];
 	[initialDefaults setObject:(id)kCFBooleanFalse									forKey:@"UseThreads"];
 	

@@ -542,6 +542,67 @@
 #pragma mark UTILITIES
 #pragma mark -
 
+//========== HSVACompare: ======================================================
+//
+// Purpose:		Orders colors according to their Hue, Saturation, and 
+//				Brightness. 
+//
+//==============================================================================
+- (NSComparisonResult) HSVACompare:(LDrawColor *)otherColor
+{
+	NSColor             *ourNSColor     = nil;
+	NSColor             *otherNSColor   = nil;
+	NSComparisonResult  result          = NSOrderedSame;
+	
+	ourNSColor      = [NSColor colorWithCalibratedRed:self->colorRGBA[0]
+												green:self->colorRGBA[1]
+												 blue:self->colorRGBA[2]
+												alpha:self->colorRGBA[3] ];
+	
+	otherNSColor    = [NSColor colorWithCalibratedRed:otherColor->colorRGBA[0]
+												green:otherColor->colorRGBA[1]
+												 blue:otherColor->colorRGBA[2]
+												alpha:otherColor->colorRGBA[3] ];
+	
+	// Hue
+	if( [ourNSColor hueComponent] > [otherNSColor hueComponent] )
+		result = NSOrderedDescending;
+	else if( [ourNSColor hueComponent] < [otherNSColor hueComponent] )
+		result = NSOrderedAscending;
+	else
+	{
+		// Saturation
+		if( [ourNSColor saturationComponent] > [otherNSColor saturationComponent] )
+			result = NSOrderedDescending;
+		else if( [ourNSColor saturationComponent] < [otherNSColor saturationComponent] )
+			result = NSOrderedAscending;
+		else
+		{
+			// Brightness
+			if( [ourNSColor brightnessComponent] > [otherNSColor brightnessComponent] )
+				result = NSOrderedDescending;
+			else if( [ourNSColor brightnessComponent] < [otherNSColor brightnessComponent] )
+				result = NSOrderedAscending;
+			else
+			{
+				// Alpha
+				if( [ourNSColor alphaComponent] > [otherNSColor alphaComponent] )
+					result = NSOrderedDescending;
+				else if( [ourNSColor alphaComponent] < [otherNSColor alphaComponent] )
+					result = NSOrderedAscending;
+				else
+				{
+					result = NSOrderedSame;
+				}
+			}
+		}
+	}
+	
+	return result;
+	
+}//end HSVACompare:
+
+
 //========== hexStringForRGB: ==================================================
 //
 // Purpose:		Returns a hex string for the given RGB components, formatted in 

@@ -71,6 +71,7 @@ typedef enum LDrawColorMaterial
 - (void) setName:(NSString *)newName;
 
 // Utilities
+- (NSComparisonResult) HSVACompare:(LDrawColor *)otherColor;
 - (NSString *) hexStringForRGB:(float *)components;
 - (BOOL) scanHexString:(NSScanner *)hexScanner intoRGB:(float *)components;
 

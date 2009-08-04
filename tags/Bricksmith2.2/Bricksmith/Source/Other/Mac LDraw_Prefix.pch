@@ -1,0 +1,11 @@
+//
+// Prefix header for all source files of the 'Bricksmith' target in the 'Bricksmith' project
+//
+
+//Bricksmith is a Cocoa project. Whereever Cocoa can be used, it will be.
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
+
+//Carbon should be used very, *very* little, but it may be handy.
+#import <Carbon/Carbon.h>

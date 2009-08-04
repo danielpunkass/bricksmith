@@ -1,0 +1,20 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {okButtonClicked = id; }; 
+            CLASS = DialogPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {dialogPanel = DialogPanel; objectController = NSObjectController; }; 
+            SUPERCLASS = NSPanel; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {rotateButtonClicked = id; }; 
+            CLASS = RotationPanel; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {formatterAngles = NSFormatter; formatterPoints = NSFormatter; }; 
+            SUPERCLASS = DialogPanel; 
+        }
+    ); 
+    IBVersion = 1; 
+}

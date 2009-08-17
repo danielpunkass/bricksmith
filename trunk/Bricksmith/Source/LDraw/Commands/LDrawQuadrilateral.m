@@ -361,19 +361,11 @@
 //==============================================================================
 - (Box3) boundingBox3
 {
-	Box3 bounds12, bounds34, bounds;
+	Box3 bounds	= InvalidBox;
 	
-	bounds12 = V3BoundsFromPoints(vertex1, vertex2);
-	bounds34 = V3BoundsFromPoints(vertex3, vertex4);
-	
-	//Combine and we have the result. This is yucky.
-	bounds.min.x = MIN(bounds12.min.x, bounds34.min.x);
-	bounds.min.y = MIN(bounds12.min.y, bounds34.min.y);
-	bounds.min.z = MIN(bounds12.min.z, bounds34.min.z);
-	
-	bounds.max.x = MAX(bounds12.max.x, bounds34.max.x);
-	bounds.max.y = MAX(bounds12.max.y, bounds34.max.y);
-	bounds.max.z = MAX(bounds12.max.z, bounds34.max.z);
+	bounds = V3BoundsFromPoints(vertex1, vertex2);
+	bounds = V3UnionBoxAndPoint(bounds, vertex3);
+	bounds = V3UnionBoxAndPoint(bounds, vertex4);
 	
 	return bounds;
 	

@@ -3,7 +3,7 @@
 // File:		DonationDialogController.m
 //
 // Purpose:		Shamelessly plead for money. You can make it go away for a 
-//				while, but not forever. 
+//				while, but not forever. Mwuhahahaha.
 //
 // Modified:	07/23/2009 Allen Smith. Creation Date.
 //
@@ -40,9 +40,9 @@
 	
 	[self->bumModelView		setLDrawDirective:bumModel];
 	[self->bumModelView		setAcceptsFirstResponder:NO];
-	[self->bumModelView		setZoomPercentage:150];
-//	[self->bumModelView		setViewingAngle:V3Make(27, 22, 11)];
-	[self->bumModelView		scrollCenterToPoint:NSMakePoint(NSMidX([self->bumModelView frame]), NSMidY([self->bumModelView frame]) - 30)];
+	
+	[self->bumModelView		reshape]; // must get projection set up to call zoomToFit:
+	[self->bumModelView		zoomToFit:nil];
 	
 }//end awakeFromNib
 
@@ -86,6 +86,7 @@
 	// Set dialog values
 	[self->suppressionCheckbox setState:NSOffState];
 	
+
 	// Show window
 	[[self window] center];
 	[[self window] makeKeyAndOrderFront:self];

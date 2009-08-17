@@ -260,6 +260,7 @@
 	LDrawModel *modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
 	
 	glPushMatrix();
+	{
 		glMultMatrixf(glTransformation);
 		if((optionsMask & DRAW_BOUNDS_ONLY) == 0)
 		{
@@ -277,8 +278,10 @@
 		else
 		{
 			glColor4fv(drawingColor);
+//			glColor4f(drawingColor[0], drawingColor[1], drawingColor[2], 0.25); // debug bounding boxes
 			[self drawBounds];
 		}
+	}
 	glPopMatrix();
 
 }//end drawElement:parentColor:
@@ -559,6 +562,29 @@
 	
 }//end position
 
+/*
+To work, this needs to multiply the modelViewGLMatrix by the part transform.
+
+//========== projectedBoundingBoxWithModelView:projection:view: ================
+//
+// Purpose:		Returns the 2D projection (ignore the z) of the object's bounds.
+//
+//==============================================================================
+- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
+								projection:(const GLdouble *)projectionGLMatrix
+									  view:(const GLint *)viewport
+{
+	LDrawModel  *modelToDraw    = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	Box3        projectedBounds = InvalidBox;
+	
+	projectedBounds = [modelToDraw projectedBoundingBoxWithModelView:modelViewGLMatrix
+														  projection:projectionGLMatrix
+																view:viewport];
+	
+	return projectedBounds;
+	
+}//end projectedBoundingBoxWithModelView:projection:view:
+*/
 
 //========== referenceName =====================================================
 //

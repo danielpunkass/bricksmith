@@ -482,6 +482,54 @@ Point3 V3Midpoint(Point3 point1, Point3 point2)
 }//end V3Midpoint
 
 
+//========== V3IsolateGreatestComponent ========================================
+//
+// Purpose:		Leaves unchanged the component of vector which has the greatest 
+//				absolute value, but zeroes the other components. 
+//				Example: <4, -7, 1> -> <0, -7, 0>.
+//				This is useful for figuring out the direction of input.
+//
+//==============================================================================
+Vector3 V3IsolateGreatestComponent(Vector3 vector)
+{
+	if(fabs(vector.x) > fabs(vector.y) )
+	{
+		vector.y = 0;
+		
+		if(fabs(vector.x) > fabs(vector.z) )
+			vector.z = 0;
+		else
+			vector.x = 0;
+	}
+	else
+	{
+		vector.x = 0;
+		
+		if(fabs(vector.y) > fabs(vector.z) )
+			vector.z = 0;
+		else
+			vector.y = 0;
+	}
+	
+	return vector;
+	
+}//end V3IsolateGreatestComponent
+
+
+//========== V3Print ===========================================================
+//
+// Purpose:		Prints the given 3D point.
+//
+//==============================================================================
+void V3Print(Point3 point)
+{
+	printf("(%12.6f, %12.6f, %12.6f)\n", point.x, point.y, point.z);
+	
+}//end V3Print
+
+
+#pragma mark -
+
 //========== V3BoundsFromPoints ================================================
 //
 // Purpose:		Sorts the points into their minimum and maximum.
@@ -502,6 +550,20 @@ Box3 V3BoundsFromPoints(Point3 point1, Point3 point2)
 	return bounds;
 	
 }//end V3BoundsFromPoints
+
+
+//========== V3CenterOfBox =====================================================
+//
+// Purpose:		Returns the center of the box.
+//
+//==============================================================================
+Point3 V3CenterOfBox(Box3 box)
+{
+	Point3 center = V3Midpoint(box.min, box.max);
+	
+	return center;
+	
+}//end V3CenterOfBox
 
 
 //========== V3EqualBoxes ======================================================
@@ -548,39 +610,31 @@ Box3 V3UnionBox(Box3 aBox, Box3 bBox)
 }//end V3UnionBox
 
 
-//========== V3IsolateGreatestComponent ========================================
+
+//========== V3UnionBoxAndPoint ================================================
 //
-// Purpose:		Leaves unchanged the component of vector which has the greatest 
-//				absolute value, but zeroes the other components. 
-//				Example: <4, -7, 1> -> <0, -7, 0>.
-//				This is useful for figuring out the direction of input.
+// Purpose:		Returns the smallest box that completely encloses both box and 
+//				point. 
 //
 //==============================================================================
-Vector3 V3IsolateGreatestComponent(Vector3 vector)
+Box3 V3UnionBoxAndPoint(Box3 box, Point3 point)
 {
-	if(fabs(vector.x) > fabs(vector.y) )
-	{
-		vector.y = 0;
-		
-		if(fabs(vector.x) > fabs(vector.z) )
-			vector.z = 0;
-		else
-			vector.x = 0;
-	}
-	else
-	{
-		vector.x = 0;
-		
-		if(fabs(vector.y) > fabs(vector.z) )
-			vector.z = 0;
-		else
-			vector.y = 0;
-	}
+	Box3	bounds				= InvalidBox;
 	
-	return vector;
+	bounds.min.x = MIN(box.min.x, point.x);
+	bounds.min.y = MIN(box.min.y, point.y);
+	bounds.min.z = MIN(box.min.z, point.z);
 	
-}//end V3IsolateGreatestComponent
+	bounds.max.x = MAX(box.max.x, point.x);
+	bounds.max.y = MAX(box.max.y, point.y);
+	bounds.max.z = MAX(box.max.z, point.z);
+	
+	return bounds;
 
+}//end V3UnionBoxAndPoint
+
+
+#pragma mark -
 
 //========== V3MulPointByMatrix ================================================
 //
@@ -671,18 +725,6 @@ Matrix4 *V3MatMul(Matrix4 *a, Matrix4 *b, Matrix4 *c)
 	return(c);
 	
 }//end V3MatMul
-
-
-//========== V3Print ===========================================================
-//
-// Purpose:		Prints the given 3D point.
-//
-//==============================================================================
-void V3Print(Point3 point)
-{
-	printf("(%12.6f, %12.6f, %12.6f)\n", point.x, point.y, point.z);
-	
-}//end V3Print
 
 
 //========== det3x3 ============================================================

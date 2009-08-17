@@ -22,6 +22,9 @@
 //Accessors
 - (NSArray *) allEnclosedElements;
 - (Box3) boundingBox3;
+- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
+								projection:(const GLdouble *)projectionGLMatrix
+									  view:(const GLint *)viewport;
 - (int) indexOfDirective:(LDrawDirective *)directive;
 - (NSArray *) subdirectives;
 

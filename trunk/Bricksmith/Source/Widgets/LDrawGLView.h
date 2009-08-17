@@ -131,6 +131,7 @@ typedef enum
 - (IBAction) viewOrientationSelected:(id)sender;
 - (IBAction) zoomIn:(id)sender;
 - (IBAction) zoomOut:(id)sender;
+- (IBAction) zoomToFit:(id)sender;
 
 // Events
 - (void) resetCursor;
@@ -162,6 +163,7 @@ typedef enum
 - (void) resetFrameSize;
 - (void) restoreConfiguration;
 - (void) saveConfiguration;
+- (void) scrollCenterToModelPoint:(Point3)modelPoint;
 - (void) scrollCenterToPoint:(NSPoint)newCenter;
 - (void) takeBackgroundColorFromUserDefaults;
 

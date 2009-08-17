@@ -337,13 +337,7 @@
 	bounds = V3BoundsFromPoints(vertex1, vertex2);
 
 	//Now toss the third vertex into the mix.
-	bounds.min.x = MIN(bounds.min.x, vertex3.x);
-	bounds.min.y = MIN(bounds.min.y, vertex3.y);
-	bounds.min.z = MIN(bounds.min.z, vertex3.z);
-	
-	bounds.max.x = MAX(bounds.max.x, vertex3.x);
-	bounds.max.y = MAX(bounds.max.y, vertex3.y);
-	bounds.max.z = MAX(bounds.max.z, vertex3.z);
+	bounds = V3UnionBoxAndPoint(bounds, vertex3);
 	
 	return bounds;
 	

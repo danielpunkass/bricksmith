@@ -150,6 +150,39 @@
 }//end boundingBox3
 
 
+//========== projectedBoundingBoxWithModelView:projection:view: ================
+//
+// Purpose:		Returns the 2D projection (you should ignore the z) of the 
+//				object's bounds. 
+//
+//==============================================================================
+- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
+								projection:(const GLdouble *)projectionGLMatrix
+									  view:(const GLint *)viewport
+{
+	Box3	bounds				= InvalidBox;
+	Box3	partBounds			= InvalidBox;
+	id		currentDirective	= nil;
+	int		numberOfDirectives	= [self->containedObjects count];
+	int		counter				= 0;
+	
+	for(counter = 0; counter < numberOfDirectives; counter++)
+	{
+		currentDirective = [self->containedObjects objectAtIndex:counter];
+		if([currentDirective respondsToSelector:@selector(projectedBoundingBoxWithModelView:projection:view:)])
+		{
+			partBounds  = [currentDirective projectedBoundingBoxWithModelView:modelViewGLMatrix
+																   projection:projectionGLMatrix
+																		 view:viewport];
+			bounds      = V3UnionBox(bounds, partBounds);
+		}
+	}
+	
+	return bounds;
+	
+}//end projectedBoundingBoxWithModelView:projection:view:
+
+
 //========== indexOfDirective: =================================================
 //
 // Purpose:		Adds directive into the collection at position index.

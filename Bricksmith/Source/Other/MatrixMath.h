@@ -207,14 +207,18 @@ extern Vector3	V3Mul(Vector3 a, Vector3 b);
 extern float	V3DistanceBetween2Points(Point3 a, Point3 b);
 extern Vector3	V3Cross(Vector3 a, Vector3 b);
 extern Point3	V3Midpoint(Point3 point1, Point3 point2);
+extern Vector3	V3IsolateGreatestComponent(Vector3 vector);
+extern void		V3Print(Point3 point);
+
 extern Box3		V3BoundsFromPoints(Point3 point1, Point3 point2);
+extern Point3	V3CenterOfBox(Box3 box);
 extern int		V3EqualBoxes(Box3 box1, Box3 box2);
 extern Box3		V3UnionBox(Box3 aBox, Box3 bBox);
-extern Vector3	V3IsolateGreatestComponent(Vector3 vector);
+extern Box3		V3UnionBoxAndPoint(Box3 box, Point3 point);
+
 extern Point3	V3MulPointByMatrix(Point3 pin, Matrix3 m);
 extern Vector3	V3MulPointByProjMatrix(Point3 pin, Matrix4 m);
 extern Matrix4*	V3MatMul(Matrix4 *a, Matrix4 *b, Matrix4 *c);
-extern void		V3Print(Point3 point);
 extern float	det3x3( float, float, float, float, float, float, float, float, float );
 
 // 4-D

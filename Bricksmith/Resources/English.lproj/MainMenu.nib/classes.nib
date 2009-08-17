@@ -246,6 +246,8 @@
 				<string>id</string>
 				<key>zoomOut</key>
 				<string>id</string>
+				<key>zoomToFit</key>
+				<string>id</string>
 			</dict>
 			<key>CLASS</key>
 			<string>FirstResponder</string>
@@ -314,6 +316,8 @@
 				<key>zoomIn</key>
 				<string>id</string>
 				<key>zoomOut</key>
+				<string>id</string>
+				<key>zoomToFit</key>
 				<string>id</string>
 			</dict>
 			<key>CLASS</key>

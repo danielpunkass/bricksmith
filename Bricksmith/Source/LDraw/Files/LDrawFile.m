@@ -599,6 +599,23 @@
 }//end boundingBox3
 
 
+//========== projectedBoundingBoxWithModelView:projection:view: ================
+//
+// Purpose:		Returns the 2D projection (you should ignore the z) of the 
+//				object's bounds. 
+//
+//==============================================================================
+- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
+								projection:(const GLdouble *)projectionGLMatrix
+									  view:(const GLint *)viewport
+{
+	return [[self activeModel] projectedBoundingBoxWithModelView:modelViewGLMatrix
+													  projection:projectionGLMatrix
+															view:viewport];
+	
+}//end projectedBoundingBoxWithModelView:projection:view:
+
+
 //========== optimize ==========================================================
 //
 // Purpose:		Arranges the directives in such a way that the file will be 

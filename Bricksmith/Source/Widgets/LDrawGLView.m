@@ -136,8 +136,6 @@
 	isTrackingDrag			= NO;
 	projectionMode			= ProjectionModePerspective;
 	rotationDrawMode		= LDrawGLDrawNormal;
-	viewOrientation			= ViewOrientation3D;
-	
 	
 	//Set up our OpenGL context. We need to base it on a shared context so that 
 	// display-list names can be shared globally throughout the application.
@@ -151,6 +149,8 @@
 	[[self openGLContext] setValues: &swapInterval // prevent "tearing"
 					   forParameter: NSOpenGLCPSwapInterval ];
 			
+	[self setViewOrientation:ViewOrientation3D];
+	
 	return self;
 	
 }//end initWithCoder:
@@ -1140,7 +1140,8 @@
 	float newZoom		= currentZoom * 2;
 	
 	[self setZoomPercentage:newZoom];
-}//end 
+	
+}//end zoomIn:
 
 
 //========== zoomOut: ==========================================================
@@ -1156,6 +1157,98 @@
 	[self setZoomPercentage:newZoom];
 	
 }//end zoomOut:
+
+
+//========== zoomToFit: ========================================================
+//
+// Purpose:		Enlarge or shrink the zoom and scroll the model such that its 
+//				image perfectly fills the visible area of the view 
+//
+//==============================================================================
+- (IBAction) zoomToFit:(id)sender
+{
+	NSRect      visibleRect             = [self visibleRect];
+	NSRect      windowVisibleRect       = [self convertRect:visibleRect toView:nil];
+	NSSize		maxContentSize			= [[self enclosingScrollView] contentSize];
+	Box3        bounds                  = InvalidBox;
+	Point3      center                  = ZeroPoint3;
+	GLdouble    modelViewGLMatrix	[16];
+	GLdouble    projectionGLMatrix	[16];
+	GLint       viewport			[4];
+	Box3        projectedBounds         = InvalidBox;
+	NSRect      projectionRect          = NSZeroRect;
+	NSSize      zoomScale2D             = NSZeroSize;
+	float       zoomScaleFactor         = 0.0;
+	
+	CGLLockContext([[self openGLContext] CGLContextObj]);
+	{
+		[[self openGLContext] makeCurrentContext];
+		
+		// Get bounds
+		if([self->fileBeingDrawn respondsToSelector:@selector(boundingBox3)] )
+		{
+			bounds = [(id)self->fileBeingDrawn boundingBox3];
+			if(V3EqualBoxes(bounds, InvalidBox) == NO)
+			{		
+				// Project the bounds onto the 2D "canvas"
+				glGetDoublev(GL_PROJECTION_MATRIX, projectionGLMatrix);
+				glGetDoublev(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
+				glGetIntegerv(GL_VIEWPORT, viewport);
+				
+				projectedBounds = [(id)self->fileBeingDrawn
+										   projectedBoundingBoxWithModelView:modelViewGLMatrix
+																  projection:projectionGLMatrix
+																		view:viewport];
+				projectionRect  = NSMakeRect(projectedBounds.min.x, projectedBounds.min.y,   // origin
+											 projectedBounds.max.x - projectedBounds.min.x,  // width
+											 projectedBounds.max.y - projectedBounds.min.y); // height
+											
+				
+				//---------- Find zoom scale -----------------------------------
+				// Completely fill the viewport with the image
+				
+				zoomScale2D.width   = maxContentSize.width  / NSWidth(projectionRect);
+				zoomScale2D.height  = maxContentSize.height / NSHeight(projectionRect);
+				
+				zoomScaleFactor		= MIN(zoomScale2D.width, zoomScale2D.height);
+				
+				
+				//---------- Find visual center point --------------------------
+				// One might think this would be V3CenterOfBox(bounds). But it's 
+				// not. It seems perspective distortion can cause the visual 
+				// center of the model to be someplace else. 
+				
+				NSRect  windowProjectionRect    = NSZeroRect;
+				NSPoint graphicalCenter_window  = NSZeroPoint;
+				NSPoint graphicalCenter_view    = NSZeroPoint;
+				Point3  graphicalCenter_model   = ZeroPoint3;
+				
+				// Convert projection rect (currently in viewport coordinates) 
+				// to window coordinates--it's kinda hard to go directly to view 
+				// coordinates. 
+				windowProjectionRect            = projectionRect;
+				windowProjectionRect.origin.x   += NSMinX(windowVisibleRect);
+				windowProjectionRect.origin.y   += NSMinY(windowVisibleRect);
+				
+				// Find the center point, then convert it to view coordinates.
+				graphicalCenter_window.x    = NSMidX(windowProjectionRect);
+				graphicalCenter_window.y    = NSMidY(windowProjectionRect);
+				graphicalCenter_view        = [self convertPoint:graphicalCenter_window fromView:nil];
+				graphicalCenter_model       = [self modelPointForPoint:graphicalCenter_view
+												   depthReferencePoint:center];
+				
+				
+				//---------- Zoom to Fit! --------------------------------------
+				
+				[self setZoomPercentage:([self zoomPercentage] * zoomScaleFactor)];
+				[self scrollCenterToModelPoint:graphicalCenter_model];
+			}
+		}
+	}
+	CGLUnlockContext([[self openGLContext] CGLContextObj]);
+	
+}//end zoomToFit:
+
 
 
 #pragma mark -
@@ -2042,17 +2135,15 @@
 //==============================================================================
 - (void) mouseCenterClick:(NSEvent*)theEvent
 {
-	NSPoint	viewClickedPoint	= [self convertPoint:[theEvent locationInWindow]
-											fromView:nil ];
+	NSPoint windowClickedPoint  = [theEvent locationInWindow]; //window coordinates
+	NSPoint	viewClickedPoint	= [self convertPoint:windowClickedPoint fromView:nil ];
 
 	// In orthographic projection, each world point always ends up in the same 
 	// place on the document plane no matter where the scrollers are. So we can 
 	// take a shortcut. 
 	if(self->projectionMode == ProjectionModeOrthographic)
 	{
-		NSPoint newCenter = viewClickedPoint;
-
-		[self scrollCenterToPoint:newCenter];
+		[self scrollCenterToPoint:viewClickedPoint];
 	}
 	else
 	{
@@ -2060,54 +2151,14 @@
 		// a fixed position, but the frustum changes with the scrollbars. 
 		// We need to calculate the world point we just clicked on, then derive 
 		// a new frustum projection centered on that point. 
-		NSPoint windowClickedPoint  = [theEvent locationInWindow]; //window coordinates
 		Point3  clickedPointInModel = ZeroPoint3;
-		Point3  cameraPoint         = V3Make(0, 0, self->cameraDistance);
-		NSPoint newCenter           = NSZeroPoint;
-		float   nearClippingZ       = 0;
-		float   zEval               = 0;
-		Matrix4 modelViewMatrix     = [self getMatrix];
-		Point4  transformedPoint    = ZeroPoint4;
-		NSRect  newVisibleRect      = NSZeroRect;
-		NSRect  currentClippingRect = [self nearFrustumClippingRectFromVisibleRect:[self visibleRect]];
-		NSRect  newClippingRect     = NSZeroRect;
 		
 		// Find the point we clicked on. It would be more accurate to use 
 		// -getDirectivesUnderMouse:::, but it has to actually draw parts, which 
 		// can be slow. 
-		clickedPointInModel = [self modelPointForPoint:[self convertPoint:windowClickedPoint fromView:nil]];
+		clickedPointInModel = [self modelPointForPoint:viewClickedPoint];
 		
-		// For the camera calculation, we need effective world coordinates, 
-		// not model coordinates. 
-		transformedPoint = V4MulPointByMatrix(V4FromV3(clickedPointInModel), modelViewMatrix);
-		
-		// Transforming causes an undesired shift on z. I'm not 
-		// mathematically sure why yet, but it is lethal and must be undone. 
-		// I think it has something to do with LDraw's flipped coordinate 
-		// system and the camera location therein... 
-		transformedPoint.z *= -1;
-		
-		// Intersect the 3D line between the camera and the clicked point 
-		// with the near clipping plane. 
-		nearClippingZ   = - [self fieldDepth] / 2;
-		zEval           = (nearClippingZ - cameraPoint.z) / (transformedPoint.z - cameraPoint.z);
-		newCenter.x     = zEval * (transformedPoint.x - cameraPoint.x) + cameraPoint.x;
-		newCenter.y     = zEval * (transformedPoint.y - cameraPoint.y) + cameraPoint.y;
-		
-		// Calculate a NEW frustum clipping rect centered on the clicked 
-		// point's projection onto the near clipping plane. 
-		newClippingRect.size        = currentClippingRect.size;
-		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
-		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
-		
-		// Reverse-derive the correct Cocoa view visible rect which will 
-		// result in the desired clipping rect to be used. 
-		newVisibleRect = [self visibleRectFromNearFrustumClippingRect:newClippingRect];
-		
-		// Scroll to it. -makeProjection will now derive the exact desired 
-		// frustum which will cause the clicked point to appear in the 
-		// center. 
-		[self scrollRectToVisible:newVisibleRect];
+		[self scrollCenterToModelPoint:clickedPointInModel];
 	}
 	
 }//end mouseCenterClick:
@@ -3159,92 +3210,88 @@
 //==============================================================================
 - (void) resetFrameSize
 {
-	if([self->fileBeingDrawn respondsToSelector:@selector(boundingBox3)] )
+	// We do not want to apply this resizing to a raw GL view.
+	// It only makes sense for those in a scroll view. (The Part Browsers have 
+	// been moved to scrollviews now too in order to allow zooming.) 
+	if(		[self->fileBeingDrawn respondsToSelector:@selector(boundingBox3)] 
+	   &&	[self enclosingScrollView] != nil )
 	{
 		CGLLockContext([[self openGLContext] CGLContextObj]);
 		{
-			//We do not want to apply this resizing to a raw GL view.
-			// It only makes sense for those in a scroll view. (The Part Browsers 
-			// have been moved to scrollviews now too in order to allow zooming.)
-			if([self enclosingScrollView] != nil)
+			// Determine whether the canvas size needs to change.
+			Point3	origin			= {0,0,0};
+			NSPoint	centerPoint		= [self centerPoint];
+			Box3	newBounds		= [(id)fileBeingDrawn boundingBox3]; //cast to silence warning.
+			
+			if(V3EqualBoxes(newBounds, InvalidBox) == NO)
 			{
-				//Determine whether the canvas size needs to change.
-				Point3	origin			= {0,0,0};
-				NSPoint	centerPoint		= [self centerPoint];
-				Box3	newBounds		= InvalidBox; //cast to silence warning.
+				//
+				// Find bounds size, based on model dimensions.
+				//
 				
-				newBounds = [(id)fileBeingDrawn boundingBox3]; //cast to silence warning.
+				float	distance1		= V3DistanceBetween2Points(origin, newBounds.min );
+				float	distance2		= V3DistanceBetween2Points(origin, newBounds.max );
+				float	newSize			= MAX(distance1, distance2) + 40; //40 is just to provide a margin.
+				NSSize	contentSize		= [[self enclosingScrollView] contentSize];
+				GLfloat	currentMatrix[16];
 				
-				if(V3EqualBoxes(newBounds, InvalidBox) == NO)
-				{
-					//
-					// Find bounds size, based on model dimensions.
-					//
-					
-					float	distance1		= V3DistanceBetween2Points(origin, newBounds.min );
-					float	distance2		= V3DistanceBetween2Points(origin, newBounds.max );
-					float	newSize			= MAX(distance1, distance2) + 40; //40 is just to provide a margin.
-					NSSize	contentSize		= [[self enclosingScrollView] contentSize];
-					GLfloat	currentMatrix[16];
-					
-					contentSize = [self convertSize:contentSize fromView:[self enclosingScrollView]];
-					
-					//We have the canvas resizing set to a fairly large granularity, so 
-					// doesn't constantly change on people.
-					newSize = ceil(newSize / 384) * 384;
-					
-					//
-					// Reposition the Camera
-					//
-					
-					[[self openGLContext] makeCurrentContext];
-					
-					//As the size of the model changes, we must move the camera in and out 
-					// so as to view the entire model in the right perspective. Moving the 
-					// camera is equivalent to translating the modelview matrix. (That's what 
-					// gluLookAt does.) 
-					// Note:	glTranslatef() doesn't work here. If M is the current matrix, 
-					//			and T is the translation, it performs M = M x T. But we need 
-					//			M = T x M, because OpenGL uses transposed matrices.
-					//			Solution: set matrix manually. Is there a better one?
-					glMatrixMode(GL_MODELVIEW);
-					glGetFloatv(GL_MODELVIEW_MATRIX, currentMatrix);
-					
-					//As cameraDistance approaches infinity, the view approximates an 
-					// orthographic projection. We want a fairly large number here to 
-					// produce a small, only slightly-noticable perspective.
-					self->cameraDistance = - (newSize) * CAMERA_DISTANCE_FACTOR;
-					currentMatrix[12] = 0; //reset the camera location. Positions 12-14 of 
-					currentMatrix[13] = 0; // the matrix hold the translation values.
-					currentMatrix[14] = cameraDistance;
-					glLoadMatrixf(currentMatrix); // It's easiest to set them directly.
+				contentSize = [self convertSize:contentSize fromView:[self enclosingScrollView]];
+				
+				// The canvas resizing is set to a fairly large granularity so 
+				// it doesn't constantly change on people. 
+				newSize = ceil(newSize / 384) * 384;
+				
+				//
+				// Reposition the Camera
+				//
+				
+				[[self openGLContext] makeCurrentContext];
+				
+				// As the size of the model changes, we must move the camera in 
+				// and out so as to view the entire model in the right 
+				// perspective. Moving the camera is equivalent to translating 
+				// the modelview matrix. (That's what gluLookAt does.) 
+				// Note:	glTranslatef() doesn't work here. If M is the current matrix, 
+				//			and T is the translation, it performs M = M x T. But we need 
+				//			M = T x M, because OpenGL uses transposed matrices.
+				//			Solution: set matrix manually. Is there a better one?
+				glMatrixMode(GL_MODELVIEW);
+				glGetFloatv(GL_MODELVIEW_MATRIX, currentMatrix);
 
-					//
-					// Resize the Frame
-					//
-					
-					NSSize	oldFrameSize	= [self frame].size;
-	//				NSSize	newFrameSize	= NSMakeSize( newSize*2, newSize*2 );
-					//Make the frame either just a little bit bigger than the size 
-					// of the model, or the same as the scroll view, whichever is larger.
+				// As cameraDistance approaches infinity, the view approximates 
+				// an orthographic projection. We want a fairly large number 
+				// here to produce a small, only slightly-noticable perspective. 
+				self->cameraDistance = - (newSize) * CAMERA_DISTANCE_FACTOR;
+				currentMatrix[12] = 0; //reset the camera location. Positions 12-14 of 
+				currentMatrix[13] = 0; // the matrix hold the translation values.
+				currentMatrix[14] = cameraDistance;
+				glLoadMatrixf(currentMatrix); // It's easiest to set them directly.
+
+				//
+				// Resize the Frame
+				//
+				
+				NSSize	oldFrameSize	= [self frame].size;
+//				NSSize	newFrameSize	= NSMakeSize( newSize*2, newSize*2 );
+				//Make the frame either just a little bit bigger than the size 
+				// of the model, or the same as the scroll view, whichever is larger.
 //					NSSize	newFrameSize	= NSMakeSize( MAX(newSize*2, contentSize.width),
 //														  MAX(newSize*2, contentSize.height) );
-					NSSize	newFrameSize	= NSMakeSize( newSize*2, newSize*2 );
-					
-					//The canvas size changes will effectively be distributed equally on 
-					// all sides, because the model is always drawn in the center of the 
-					// canvas. So, our effective viewing center will only change by half 
-					// the size difference.
-					centerPoint.x += (newFrameSize.width  - oldFrameSize.width)/2;
-					centerPoint.y += (newFrameSize.height - oldFrameSize.height)/2;
-					
-					[self setFrameSize:newFrameSize];
-					[self scrollCenterToPoint:centerPoint]; //must preserve this; otherwise, viewing is funky.
-					
-					//NSLog(@"minimum (%f, %f, %f); maximum (%f, %f, %f)", newBounds.min.x, newBounds.min.y, newBounds.min.z, newBounds.max.x, newBounds.max.y, newBounds.max.z);
-					
-				}//end valid bounds check
-			}//end boundable check
+				NSSize	newFrameSize	= NSMakeSize( newSize*2, newSize*2 );
+				
+				//The canvas size changes will effectively be distributed equally on 
+				// all sides, because the model is always drawn in the center of the 
+				// canvas. So, our effective viewing center will only change by half 
+				// the size difference.
+				centerPoint.x += (newFrameSize.width  - oldFrameSize.width)/2;
+				centerPoint.y += (newFrameSize.height - oldFrameSize.height)/2;
+				
+				[self setFrameSize:newFrameSize];
+				[self scrollCenterToPoint:centerPoint]; //must preserve this; otherwise, viewing is funky.
+				
+				//NSLog(@"minimum (%f, %f, %f); maximum (%f, %f, %f)", newBounds.min.x, newBounds.min.y, newBounds.min.z, newBounds.max.x, newBounds.max.y, newBounds.max.z);
+				
+			}//end valid bounds check
 		}
 		CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	}
@@ -3298,6 +3345,85 @@
 	}
 
 }//end saveConfiguration
+
+
+//========== scrollCenterToModelPoint: =========================================
+//
+// Purpose:		Scrolls the receiver (if it is inside a scroll view) so that 
+//				newCenter is at the center of the viewing area. newCenter is 
+//				given in LDraw model coordinates.
+//
+//==============================================================================
+- (void) scrollCenterToModelPoint:(Point3)modelPoint
+{
+	Point3  cameraPoint         = V3Make(0, 0, self->cameraDistance);
+	NSPoint newCenter           = NSZeroPoint;
+	float   nearClippingZ       = 0;
+	float   zEval               = 0;
+	Matrix4 modelViewMatrix     = [self getMatrix];
+	Point4  transformedPoint    = ZeroPoint4;
+	NSRect  newVisibleRect      = NSZeroRect;
+	NSRect  currentClippingRect = NSZeroRect;
+	NSRect  newClippingRect     = NSZeroRect;
+	
+	// For the camera calculation, we need effective world coordinates, not 
+	// model coordinates. 
+	transformedPoint = V4MulPointByMatrix(V4FromV3(modelPoint), modelViewMatrix);
+	
+	// Perspective distortion makes this more complicated. The camera is in a 
+	// fixed position, but the frustum changes with the scrollbars. We need to 
+	// calculate the world point we just clicked on, then derive a new frustum 
+	// projection centered on that point. 
+	if(self->projectionMode == ProjectionModePerspective)
+	{
+		currentClippingRect = [self nearFrustumClippingRectFromVisibleRect:[self visibleRect]];
+		
+		// Transforming causes an undesired shift on z. I'm not mathematically 
+		// sure why yet, but it is lethal and must be undone. I think it has 
+		// something to do with LDraw's flipped coordinate system and the camera 
+		// location therein... 
+		transformedPoint.z *= -1;
+		
+		// Intersect the 3D line between the camera and the clicked point with 
+		// the near clipping plane. 
+		nearClippingZ   = - [self fieldDepth] / 2;
+		zEval           = (nearClippingZ - cameraPoint.z) / (transformedPoint.z - cameraPoint.z);
+		newCenter.x     = zEval * (transformedPoint.x - cameraPoint.x) + cameraPoint.x;
+		newCenter.y     = zEval * (transformedPoint.y - cameraPoint.y) + cameraPoint.y;
+		
+		// Calculate a NEW frustum clipping rect centered on the clicked point's 
+		// projection onto the near clipping plane. 
+		newClippingRect.size        = currentClippingRect.size;
+		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
+		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
+		
+		// Reverse-derive the correct Cocoa view visible rect which will result 
+		// in the desired clipping rect to be used. 
+		newVisibleRect = [self visibleRectFromNearFrustumClippingRect:newClippingRect];
+	}
+	else
+	{
+		currentClippingRect = [self nearOrthoClippingRectFromVisibleRect:[self visibleRect]];
+		
+		// Ortho centers are trivial.
+		newCenter.x = transformedPoint.x;
+		newCenter.y = transformedPoint.y;
+		
+		// Calculate a clipping rect centered on the clicked point's projection. 
+		newClippingRect.size        = currentClippingRect.size;
+		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
+		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
+		
+		// Reverse-derive the correct Cocoa view visible rect which will result 
+		// in the desired clipping rect to be used. 
+		newVisibleRect = [self visibleRectFromNearOrthoClippingRect:newClippingRect];
+	}
+
+	// Scroll to it. -makeProjection will now derive the exact frustum or ortho 
+	// projection which will make the clicked point appear in the center. 
+	[self scrollRectToVisible:newVisibleRect];
+	
+}//end scrollCenterToModelPoint:
 
 
 //========== scrollCenterToPoint ===============================================

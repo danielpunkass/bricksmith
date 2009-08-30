@@ -305,6 +305,23 @@
 
 
 #pragma mark -
+#pragma mark UTILITES
+#pragma mark -
+
+//========== optimizeDrawing ===================================================
+//
+// Purpose:		Makes this part run faster by compiling its contents into a 
+//				display list if possible.
+//
+//==============================================================================
+- (void) optimizeDrawing
+{
+	[self->containedObjects makeObjectsPerformSelector:@selector(optimizeDrawing)];
+
+}//end optimizeDrawing
+
+
+#pragma mark -
 #pragma mark DESTRUCTOR
 #pragma mark -
 

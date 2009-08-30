@@ -59,6 +59,7 @@
 
 //Utilities
 - (BOOL) isAncestorInList:(NSArray *)containers;
+- (void) optimizeDrawing;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;
 
 @end

@@ -637,7 +637,7 @@
 //				glPushMatrix();
 //					glLoadIdentity();
 					glNewList(displayListTag, GL_COMPILE);
-						[modelToDraw draw:DRAW_IN_IMMEDIATE_MODE parentColor:glColor];
+						[modelToDraw draw:DRAW_FOR_DISPLAY_LIST_COMPILE parentColor:glColor];
 					glEndList();
 //				glPopMatrix();
 				
@@ -948,7 +948,7 @@
 		//We found it in the LDraw folder; now all we need to do is get 
 		// the model for it.
 		LDrawFile *parsedFile = [LDrawFile fileFromContentsAtPath:partPath];
-		[parsedFile optimize];
+		[parsedFile optimizeStructure];
 		model = [[parsedFile submodels] objectAtIndex:0];
 		
 			//Now that we've parsed it once, save it for future reference.

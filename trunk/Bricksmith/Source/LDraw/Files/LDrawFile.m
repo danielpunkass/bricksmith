@@ -616,7 +616,7 @@
 }//end projectedBoundingBoxWithModelView:projection:view:
 
 
-//========== optimize ==========================================================
+//========== optimizeStructure =================================================
 //
 // Purpose:		Arranges the directives in such a way that the file will be 
 //				drawn faster. This method should *never* be called on files 
@@ -625,20 +625,21 @@
 //				library.
 //
 //==============================================================================
-- (void) optimize
+- (void) optimizeStructure
 {
-	LDrawMPDModel	*currentModel	= nil;
-	NSArray			*modelsInFile	= [self subdirectives];
-	int				 numberModels	= [modelsInFile count];
-	int				 counter;
+	LDrawMPDModel   *currentModel   = nil;
+	NSArray         *modelsInFile   = [self subdirectives];
+	int             numberModels    = [modelsInFile count];
+	int             counter         = 0;
 	
 	//Write out each MPD submodel, one after another.
-	for(counter = 0; counter < numberModels; counter++){
+	for(counter = 0; counter < numberModels; counter++)
+	{
 		currentModel = [modelsInFile objectAtIndex:counter];
-		[currentModel optimize];
+		[currentModel optimizeStructure];
 	}
 
-}//end optimize
+}//end optimizeStructure
 
 
 //========== renameModel:toName: ===============================================

@@ -35,6 +35,7 @@
 
 	BOOL			hasDisplayList;
 	GLuint			displayListTag;	//list ID for normals in non-inverted matrix
+	NSLock			*drawLock;
 }
 
 //Initialization
@@ -65,6 +66,8 @@
 - (void) rotateByDegrees:(Tuple3)degreesToRotate centerPoint:(Point3)center;
 
 //Utilities
-- (void) optimize;
+- (void) optimizeDrawing;
+- (void) optimizeDrawingInternal;
+- (void) removeDisplayList;
 
 @end

@@ -170,44 +170,35 @@
 //==============================================================================
 - (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
 {
-	//step display lists are a thing of the past. It's better to display-optimize 
-	// the entire part at once rather than six zillion little mini-lists.
-	// see other comments in -[LDrawStep optimize]
-	if(hasDisplayList == YES)
-	{
-		glCallList(self->displayListTag);
+	NSArray			*commandsInStep		= [self subdirectives];
+	int				 numberCommands		= [commandsInStep count];
+	LDrawDirective	*currentDirective	= nil;
+	int				 counter			= 0;
+	
+	//Check for optimized steps.
+	if(self->stepFlavor == LDrawStepQuadrilaterals)
+		glBegin(GL_QUADS);
+	else if(self->stepFlavor == LDrawStepTriangles)
+		glBegin(GL_TRIANGLES);
+	else if(self->stepFlavor == LDrawStepLines)
+		glBegin(GL_LINES);
+	
+	//If we have any specialized flavor above, then we have already begun 
+	// drawing. This little tidbit must be passed on down to the lower reaches.
+	if(self->stepFlavor != LDrawStepAnyDirectives){
+		optionsMask |= DRAW_BEGUN;
 	}
-	else
+	
+	//Draw each element in the step.
+	for(counter = 0; counter < numberCommands; counter++)
 	{
-		NSArray			*commandsInStep		= [self subdirectives];
-		int				 numberCommands		= [commandsInStep count];
-		LDrawDirective	*currentDirective	= nil;
-		int				 counter			= 0;
-		
-		//Check for optimized steps.
-		if(self->stepFlavor == LDrawStepQuadrilaterals)
-			glBegin(GL_QUADS);
-		else if(self->stepFlavor == LDrawStepTriangles)
-			glBegin(GL_TRIANGLES);
-		else if(self->stepFlavor == LDrawStepLines)
-			glBegin(GL_LINES);
-		
-		//If we have any specialized flavor above, then we have already begun 
-		// drawing. This little tidbit must be passed on down to the lower reaches.
-		if(self->stepFlavor != LDrawStepAnyDirectives){
-			optionsMask |= DRAW_BEGUN;
-		}
-		
-		//Draw each element in the step.
-		for(counter = 0; counter < numberCommands; counter++){
-			currentDirective = [commandsInStep objectAtIndex:counter];
-			[currentDirective draw:optionsMask parentColor:parentColor];
-		}
-		
-		//close drawing if we started it.
-		if(stepFlavor != LDrawStepAnyDirectives)
-			glEnd();
+		currentDirective = [commandsInStep objectAtIndex:counter];
+		[currentDirective draw:optionsMask parentColor:parentColor];
 	}
+	
+	//close drawing if we started it.
+	if(stepFlavor != LDrawStepAnyDirectives)
+		glEnd();
 
 }//end draw:parentColor:
 
@@ -595,96 +586,6 @@
 	self->stepRotationType = newValue;
 	
 }//end setStepRotationType:
-
-
-#pragma mark -
-#pragma mark OPTIMIZE
-#pragma mark -
-
-//========== optimize ==========================================================
-//
-// Purpose:		Makes this step run faster by compiling its contents into a 
-//				display list if possible.
-//
-// Notes:		Now that I'm creating a display list for the entire part at 
-//				once, this optimization seems to provide no speed 
-//				advantange--and maybe even a very, very slight disadvantage. 
-//
-//==============================================================================
-- (void) optimize
-{
-#if OPTIMIZE_STEPS == 1
-	NSArray			*commandsInStep		= [self subdirectives];
-	int				 numberCommands		= [commandsInStep count];
-	id				 currentDirective	= nil;
-	LDrawColorT		 currentColor		= LDrawColorBogus;
-	LDrawColorT		 stepColor			= LDrawColorBogus;
-	BOOL			 isColorOptimizable	= YES; //assume YES at first.
-	int				 counter			= 0;
-	
-	//See if everything is the same color.
-	for(counter = 0; counter < numberCommands; counter++)
-	{
-		currentDirective = [commandsInStep objectAtIndex:counter];
-		
-		if([currentDirective conformsToProtocol:@protocol(LDrawColorable)])
-		{
-			currentColor = [currentDirective LDrawColor];
-			if(stepColor == LDrawColorBogus)
-				stepColor = currentColor;
-		}
-		
-		if(currentColor != stepColor) {
-			isColorOptimizable = NO;
-			break;
-		}
-		
-	}
-	
-	// Obsolete notion. 
-	// Notes:		This was a misguided optimization. It turns out to be 
-	//				preferable to simply display-list the entire part at once. 
-	//				Interestingly, this whole route caused nasty graphical 
-	//				glitches. Each vertex in the list needs to have a 
-	//				pre-associated color. Optimizing steps would only work 
-	//				assuming that each display list could be associated with a 
-	//				color *on the fly.* But we can't do that; the display list 
-	//				needs to have colors *cooked in.*  
-	
-//	//Put what we can in a display list. I haven't figured out how to overcome 
-//	// the hierarchical nature of LDraw with display lists yet, so our options 
-//	// are really very limited here.
-//	//
-//	//Another note: Display list IDs are by default unique to their context. 
-//	// We want them to be global to the application! Solution: we set up a 
-//	// shared context in LDrawApplication.
-//	if(		isColorOptimizable == YES
-////		&&	(stepColor == LDrawCurrentColor || stepColor == LDrawEdgeColor)
-//		&&	numberCommands >= 4 )
-//	{
-//		pthread_mutex_init(&displayListMutex, NULL);
-//
-//		// Generate only one display list. I used to create two; one for regular 
-//		// normals and another for normals drown inside an inverted 
-//		// transformation matrix. We don't need to do that anymore because we 
-//		// have two light sources, pointed in exactly opposite directions, so 
-//		// that both kinds of normals will be illuminated. 
-//		self->displayListTag	= glGenLists(1);
-//		GLfloat glColor[4];
-//		rgbafForCode(stepColor, glColor);
-//
-//		glNewList(displayListTag, GL_COMPILE);
-//			[self draw:DRAW_NO_OPTIONS parentColor:glColor];
-//		glEndList();
-//		
-//		//We have generated the list; we can now safely flag this step to be 
-//		// henceforth drawn via the list.
-//		self->hasDisplayList = YES;
-//		
-//	}//end if is optimizable
-	
-#endif
-}//end optimize
 
 
 #pragma mark -

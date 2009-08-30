@@ -440,6 +440,21 @@
 }//end isAncestorInList:
 
 
+//========== optimizeDrawing ===================================================
+//
+// Purpose:		The caller is asking this instance to optimize itself for faster 
+//				drawing. The optimizations performed in this method are 
+//				inefficient or impossible for the part to attempt to manage 
+//				itself; it needs its caller to tell it when. 
+//
+//==============================================================================
+- (void) optimizeDrawing
+{
+	// only meaningful in a subclass
+	
+}//end optimizeDrawing
+
+
 //========== registerUndoActions: ==============================================
 //
 // Purpose:		Registers the undo actions that are unique to this subclass, 

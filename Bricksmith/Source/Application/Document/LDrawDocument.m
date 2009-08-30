@@ -577,6 +577,10 @@
 	[documentContents release];
 	
 	documentContents = newContents;
+	
+	[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
+	
+	[newContents optimizeDrawing];
 		
 }//end setDocumentContents:
 
@@ -2249,6 +2253,7 @@
 		
 		//Do the move.
 		[object moveBy:moveVector];
+		[object optimizeDrawing];
 	}
 	
 	//our part changed; notify!
@@ -2299,6 +2304,7 @@
 	[[self documentContents] lockForEditing];
 	{
 		[part rotateByDegrees:rotationDegrees centerPoint:rotationCenter];
+		[part optimizeDrawing];
 	}
 	[[self documentContents] unlockEditor];
 
@@ -2347,7 +2353,7 @@
 // Purpose:		Undo-aware call to change the color of an object.
 //
 //==============================================================================
-- (void) setObject:(id <LDrawColorable> )object toColor:(LDrawColorT)newColor
+- (void) setObject:(LDrawDirective <LDrawColorable>* )object toColor:(LDrawColorT)newColor
 {
 	NSUndoManager *undoManager = [self undoManager];
 	
@@ -2359,6 +2365,8 @@
 	[[self documentContents] lockForEditing];
 	{
 		[object setLDrawColor:newColor];
+		if([object respondsToSelector:@selector(optimizeDrawing)])
+			[(LDrawDirective*)object optimizeDrawing];
 	}
 	[[self documentContents] unlockEditor];
 	[self updateInspector];
@@ -2384,6 +2392,7 @@
 	{
 		[[self documentContents] unlockEditor];
 		[part setTransformComponents:newComponents];
+		[part optimizeDrawing];
 		
 		//Be ready to restore the old components.
 		[[undoManager prepareWithInvocationTarget:self]

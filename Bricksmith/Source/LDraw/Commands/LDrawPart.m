@@ -33,6 +33,13 @@
 #import "PartLibrary.h"
 #import "PartReport.h"
 
+// Use the -[PartLibrary retainDisplayList:] to share optimized parts across all 
+// instances. Otherwise, optimize each part individually. Contrary to 
+// expectations, the latter yielded no speed benefit. However, it was necessary 
+// to demonstrate Apple's bug in drawing nested display lists on separate 
+// threads. 
+#define SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS 1
+
 @implementation LDrawPart
 
 #pragma mark -
@@ -178,6 +185,7 @@
 	
 	[self setDisplayName:@""];
 	[self setTransformComponents:IdentityComponents];
+//	drawLock = [[NSLock alloc] init];
 	
 	return self;
 	
@@ -257,32 +265,50 @@
 //==============================================================================
 - (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
 {
-	LDrawModel *modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	LDrawModel  *modelToDraw    = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	BOOL        drawBoundsOnly  = ((optionsMask & DRAW_BOUNDS_ONLY) != 0);
 	
-	glPushMatrix();
+	if( hasDisplayList == YES && drawBoundsOnly == NO)
 	{
-		glMultMatrixf(glTransformation);
-		if((optionsMask & DRAW_BOUNDS_ONLY) == 0)
+		// Multithreading finally works with one display list per displayed part 
+		// AND mutexes around the glCallList. But the mutex contention causes a 
+		// 50% increase in drawing time. Gah! 
+		
+#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS
+		glPushMatrix();
+			glMultMatrixf(glTransformation);
+#endif
+//			[drawLock lock];
+			glCallList(self->displayListTag);
+//			[drawLock unlock];
+
+#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS
+		glPopMatrix();
+#endif
+	}
+	else
+	{
+		glPushMatrix();
 		{
-			if( hasDisplayList == YES )
+//			glTranslated(0, 0, 0);
+			glMultMatrixf(glTransformation);
+			if(drawBoundsOnly == NO)
 			{
-				glCallList(self->displayListTag);
-			}
-			else
-			{	
+				modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+				
 				//let subreferences use display lists.
 				[modelToDraw draw:(optionsMask) 
 					  parentColor:drawingColor];
 			}
+			else
+			{
+				glColor4fv(drawingColor);
+//				glColor4f(drawingColor[0], drawingColor[1], drawingColor[2], 0.25); // debug bounding boxes
+				[self drawBounds];
+			}
 		}
-		else
-		{
-			glColor4fv(drawingColor);
-//			glColor4f(drawingColor[0], drawingColor[1], drawingColor[2], 0.25); // debug bounding boxes
-			[self drawBounds];
-		}
+		glPopMatrix();
 	}
-	glPopMatrix();
 
 }//end drawElement:parentColor:
 
@@ -680,7 +706,10 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 -(void) setLDrawColor:(LDrawColorT)newColor
 {
 	[super setLDrawColor:newColor];
-	[self optimize];
+	
+	// Note: only one of these has any effect
+	[self removeDisplayList];
+	[self optimizeDrawingInternal];
 	
 }//end setLDrawColor:
 
@@ -709,7 +738,9 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	[referenceName release];
 	referenceName = newReferenceName;
 	
-	[self optimize];
+	// Note: only one of these has any effect
+	[self removeDisplayList];
+	[self optimizeDrawingInternal];
 	
 }//end setDisplayName:
 
@@ -755,8 +786,14 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	int row, column;
 	
 	for(row = 0; row < 4; row++)
+	{
 		for(column = 0; column < 4; column++)
+		{
 			glTransformation[row * 4 + column] = newMatrix->element[row][column];
+		}
+	}
+	
+	[self removeDisplayList];
 	
 }//end setTransformationMatrix
 
@@ -1079,15 +1116,65 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 }//end collectPartReport:
 
 
-//========== optimize ==========================================================
+//========== optimizeDrawing ===================================================
 //
 // Purpose:		Makes this part run faster by compiling its contents into a 
 //				display list if possible.
 //
+//				This optimization mechanism can only be managed by the 
+//				containers which hold the part. 
+//
 //==============================================================================
-- (void) optimize
+- (void) optimizeDrawing
 {
-	//Only optimize explicitly colored parts.
+#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS == 0 //{
+	if(self->hasDisplayList == YES)
+		[self removeDisplayList];
+
+	if(self->referenceName != nil)
+	{
+		LDrawModel *referencedSubmodel	= [self referencedMPDSubmodel];
+		
+		if(referencedSubmodel == nil)
+		{
+			self->displayListTag = glGenLists(1); //create new list name
+			if(self->displayListTag != 0)
+			{
+				glNewList(self->displayListTag, GL_COMPILE);
+					[self draw:DRAW_FOR_DISPLAY_LIST_COMPILE parentColor:self->glColor];
+				glEndList();
+				
+				self->hasDisplayList = YES;
+			}
+		}
+		else
+		{
+			// Don't optimize MPD references. The user can change their 
+			// referenced contents, and I don't want to have to keep track 
+			// of invalidating display lists when he does. 
+		}
+	}
+#endif // }
+}//end optimizeDrawing
+
+
+//========== optimizeDrawingInternal ===========================================
+//
+// Purpose:		Makes this part run faster using a scheme of optimization which 
+//				the part can manage internally, all by itself. 
+//
+//				This is *incompatible* with the method using in -optimizeDrawing.
+//
+// Notes:		The performance difference between creating a single display 
+//				list for a part/color pair (as in this method) and creating a 
+//				display list for every drawn part position (as in 
+//				optimizeDrawing) was negligable, much to my great surprise. 
+//
+//==============================================================================
+- (void) optimizeDrawingInternal
+{
+#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS // {
+	// Only optimize explicitly colored parts.
 	// Obviously it would be better to optimize uncolored parts inside the 
 	// library, but alas, uncolored parts need to know about the current color 
 	// as they are drawn, which is anathema to optimization. Rats.
@@ -1098,8 +1185,8 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 		if(referencedSubmodel == nil)
 		{
 			self->displayListTag = [[LDrawApplication sharedPartLibrary]
-													retainDisplayListForPart:self
-																	   color:self->glColor];
+									retainDisplayListForPart:self
+									color:self->glColor];
 			if(displayListTag != 0)
 				self->hasDisplayList = YES;
 		}
@@ -1112,8 +1199,9 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	}
 	else
 		self->hasDisplayList = NO;
-
-}//end optimize
+		
+#endif // }	
+}//end optimizeDrawingInternal
 
 
 //========== registerUndoActions ===============================================
@@ -1134,6 +1222,23 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 }//end registerUndoActions:
 
 
+//========== removeDisplayList =================================================
+//
+// Purpose:		Delete the now-invalid associated display list.
+//
+//==============================================================================
+- (void) removeDisplayList
+{
+#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS == 0 // {
+	if(self->hasDisplayList)
+	{
+		glDeleteLists(self->displayListTag, 1);
+		self->hasDisplayList = NO;
+	}
+#endif // }
+}//end removeDisplayList
+
+
 #pragma mark -
 #pragma mark DESTRUCTOR
 #pragma mark -
@@ -1152,11 +1257,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	[displayName	release];
 	[referenceName	release];
 	
-	//give our display list back
-	if(self->hasDisplayList)
-	{
-		// I suppose we could release it here.
-	}
+	[self removeDisplayList];
 	
 	[super dealloc];
 	

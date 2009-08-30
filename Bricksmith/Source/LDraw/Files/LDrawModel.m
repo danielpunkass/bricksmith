@@ -940,7 +940,7 @@
 }//end numberElements
 
 
-//========== optimize ==========================================================
+//========== optimizeStructure =================================================
 //
 // Purpose:		Arranges the directives in such a way that the file will be 
 //				drawn faster. This method should *never* be called on files 
@@ -955,7 +955,7 @@
 //				Then when drawing, we need not call glBegin() each time.
 //
 //==============================================================================
-- (void) optimize
+- (void) optimizeStructure
 {
 	NSArray			*steps			= [self subdirectives];
 	LDrawStep		*firstStep		= 0;
@@ -996,10 +996,6 @@
 				[everythingElse addDirective:currentObject];
 		}
 		
-		[lines			optimize];
-		[triangles		optimize];
-		[quadrilaterals	optimize];
-		
 		//Now that we have everything separated, remove the main step 
 		// (it's the one that has the entire model in it) and replace it 
 		// with the categorized steps we've created.
@@ -1020,7 +1016,7 @@
 		self->cachedBounds = (Box3*)malloc( sizeof(Box3) );
 		memcpy( cachedBounds, &bounds, sizeof(Box3) );
 	}
-}//end optimize
+}//end optimizeStructure
 
 
 //========== parseHeaderFromLines: =============================================

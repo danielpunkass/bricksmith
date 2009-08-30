@@ -80,7 +80,7 @@ typedef enum {
 //Utilities
 - (int) maxStepIndexToOutput;
 - (int) numberElements;
-- (void) optimize;
+- (void) optimizeStructure;
 - (NSArray *) parseHeaderFromLines:(NSArray *) lines;
 - (BOOL) line:(NSString *)line isValidForHeader:(NSString *)headerKey;
 

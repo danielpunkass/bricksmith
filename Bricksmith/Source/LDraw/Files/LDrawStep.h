@@ -58,9 +58,6 @@ typedef enum
 	LDrawStepFlavorT	stepFlavor; //defaults to LDrawStepAnyDirectives
 	LDrawColorT			colorOfAllDirectives;
 	
-	BOOL				hasDisplayList;
-	GLuint				displayListTag;	//list ID for normals in non-inverted matrix
-
 	//Inherited from the superclasses:
 	//NSMutableArray	*containedObjects; //the commands that make up the step.
 	//LDrawContainer	*enclosingDirective; //weak link to enclosing model.
@@ -88,7 +85,6 @@ typedef enum
 - (void) setStepRotationType:(LDrawStepRotationT)newValue;
 
 //Utilities
-- (void) optimize;
 - (BOOL) parseRotationStepFromLine:(NSString *)rotstep;
 
 @end

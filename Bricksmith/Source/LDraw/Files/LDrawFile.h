@@ -54,7 +54,7 @@
 - (void) setPath:(NSString *)newPath;
 
 // Utilities
-- (void) optimize;
+- (void) optimizeStructure;
 - (void) renameModel:(LDrawMPDModel *)submodel toName:(NSString *)newName;
 - (void) setNeedsDisplay;
 

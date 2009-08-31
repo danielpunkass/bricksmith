@@ -184,37 +184,48 @@
 	glLoadIdentity();
 	glRotatef(180,1,0,0); //convert to standard, upside-down LDraw orientation.
 	
-	// We are going to have two lights, one in a standard position (LIGHT0) and 
-	// another pointing opposite to it (LIGHT1). The second light will 
-	// illuminate any inverted normals or backwards polygons. 
-	float position0[] = {0, -0.15, -1.0, 0};
-	float position1[] = {0,  0.15,  1.0, 0};
+	//---------- Material ------------------------------------------------------
 	
-	float lightModelAmbient[4]    = {0.6, 0.6, 0.6, 0.0};
+//	GLfloat ambient[4]  = { 0.2, 0.2, 0.2, 1.0 };
+//	GLfloat diffuse[4]	= { 0.5, 0.5, 0.5, 1.0 };
+	GLfloat specular[4] = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat shininess   = 64.0; // range [0-128]
 	
-	float light0Ambient[4]     = { 0.7, 0.7, 0.7, 1.0 };
-	float light0Diffuse[4]     = { 1.0, 1.0, 1.0, 1.0 };
-	float light0Specular[4]    = { 0.0, 0.0, 0.0, 1.0 };
-	
-	GLfloat ambient[4] = { 0.05, 0.05, 0.05, 1.0 };
-//	GLfloat diffuse[4] = { 0.5, 0.5, 0.5, 1.0 };
-	GLfloat specular[4]= { 0.0, 0.0, 0.0, 1.0 };
-	GLfloat shininess  = 0;
-	glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ambient );
-//	glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse ); //don't bother; overridden by glColorMaterial
-	glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, specular );
-	glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, &shininess );
+//	glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT,	ambient );
+//	glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE,	diffuse ); //don't bother; overridden by glColorMaterial
+	glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR,	specular );
+	glMaterialf(  GL_FRONT_AND_BACK, GL_SHININESS,	shininess );
 
-	glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_COLOR_MATERIAL);
 	
 
+	//---------- Light Model ---------------------------------------------------
+	
+	// The overall scene has ambient light to make the lighting less harsh. But 
+	// too much ambient light makes everything washed out. 
+	float lightModelAmbient[4]    = {0.3, 0.3, 0.3, 0.0};
+	
 	glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER,	GL_FALSE);
-	glLightModeli( GL_LIGHT_MODEL_TWO_SIDE,		GL_TRUE );
+	glLightModeli( GL_LIGHT_MODEL_TWO_SIDE,		GL_FALSE );
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,		lightModelAmbient);
+	
+	
+	//---------- Lights --------------------------------------------------------
+	
+	// We are going to have two lights, one in a standard position (LIGHT0) and 
+	// another pointing opposite to it (LIGHT1). The second light will 
+	// illuminate any inverted normals or backwards polygons. 
+	float position0[] = {0, -0.0, -1.0, 0};
+	float position1[] = {0,  0.0,  1.0, 0};
+	
+	// Lessening the diffuseness also makes lighting less extreme.
+	float light0Ambient[4]     = { 0.0, 0.0, 0.0, 1.0 };
+	float light0Diffuse[4]     = { 0.8, 0.8, 0.8, 1.0 };
+	float light0Specular[4]    = { 0.0, 0.0, 0.0, 1.0 };
 	
 	//normal forward light
 	glLightfv(GL_LIGHT0, GL_POSITION, position0);
@@ -222,12 +233,20 @@
 	glLightfv(GL_LIGHT0, GL_DIFFUSE,  light0Diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, light0Specular);
 	
+	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION,	1.0);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION,		0.0);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION,	0.0);
+
 	//opposing light to illuminate backward normals.
 	glLightfv(GL_LIGHT1, GL_POSITION, position1);
 	glLightfv(GL_LIGHT1, GL_AMBIENT,  light0Ambient);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE,  light0Diffuse);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light0Specular);
 	
+	glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION,	1.0);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION,		0.0);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION,	0.0);
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHT1);

@@ -894,9 +894,19 @@
 //==============================================================================
 - (NSString *) descriptionForFilePath:(NSString *)filepath
 {
-	NSString		*fileContents		= [NSString stringWithContentsOfFile:filepath];
+	NSString		*fileContents		= nil;
 	NSString		*partDescription	= nil;
 	NSCharacterSet	*whitespace			= [NSCharacterSet whitespaceAndNewlineCharacterSet];
+	
+	// Read the file. I believe all official library files are supposed to be 
+	// ASCII, but whatever. 
+	fileContents = [NSString stringWithContentsOfFile:filepath encoding:NSUTF8StringEncoding error:NULL];
+	
+	if(fileContents == nil)
+		fileContents = [NSString stringWithContentsOfFile:filepath encoding:NSISOLatin1StringEncoding error:NULL];
+	
+	if(fileContents == nil) // just use an encoding which is guaranteed defined for all codepoints.
+		fileContents = [NSString stringWithContentsOfFile:filepath encoding:NSMacOSRomanStringEncoding error:NULL];
 	
 	// Read the first line of the file. Make sure the file is parsable.
 	if(		fileContents != nil

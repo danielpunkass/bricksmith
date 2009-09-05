@@ -137,7 +137,7 @@
 //				LDrawDirective's implementation does nothing.
 //
 //==============================================================================
-- (void) draw:(unsigned int)optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger)optionsMask parentColor:(GLfloat *)parentColor
 {
 	//subclasses should override this with OpenGL code to draw the line.
 	
@@ -268,10 +268,10 @@
 //==============================================================================
 - (LDrawFile *) enclosingFile
 {
-	NSArray	*ancestors			= [self ancestors];
-	id		 currentAncestor	= nil;
-	BOOL	 foundIt			= NO;
-	int		 counter			= 0;
+	NSArray     *ancestors      = [self ancestors];
+	id          currentAncestor = nil;
+	BOOL        foundIt         = NO;
+	NSInteger   counter         = 0;
 	
 	//loop through the ancestors looking for an LDrawFile.
 	for(counter = 0; counter < [ancestors count] && foundIt == NO; counter++)

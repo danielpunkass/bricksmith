@@ -71,7 +71,7 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField intValue] == 3){
+		if([parsedField integerValue] == 3){
 			parsedTriangle = [LDrawTriangle new];
 			
 			//Read in the color code.
@@ -210,7 +210,7 @@
 //				subroutine of -draw: in LDrawDrawableElement.
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
 {
 	//Have we already begun drawing somewhere upstream? If so, all we need to 
 	// do here is add the vertices.

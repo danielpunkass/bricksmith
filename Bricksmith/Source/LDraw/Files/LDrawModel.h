@@ -35,7 +35,7 @@ typedef enum {
 	Box3					*cachedBounds;			// used only for optimized parts
 	ColorLibrary			*colorLibrary;			// in-scope !COLOURS local to the model
 	BOOL					 stepDisplayActive;		// YES if we are only display steps 1-currentStepDisplayed
-	int						 currentStepDisplayed;	// display up to and including this step index
+	NSUInteger				 currentStepDisplayed;	// display up to and including this step index
 	
 	//steps are stored in the superclass.
 	
@@ -58,8 +58,8 @@ typedef enum {
 - (NSString *)fileName;
 - (NSString *)author;
 - (LDrawDotOrgModelStatusT) ldrawRepositoryStatus;
-- (int) maximumStepIndexForStepDisplay;
-- (Tuple3) rotationAngleForStepAtIndex:(int)stepNumber;
+- (NSUInteger) maximumStepIndexForStepDisplay;
+- (Tuple3) rotationAngleForStepAtIndex:(NSUInteger)stepNumber;
 - (BOOL) stepDisplay;
 - (NSArray *) steps;
 - (LDrawStep *) visibleStep;
@@ -70,7 +70,7 @@ typedef enum {
 - (void) setAuthor:(NSString *)newAuthor;
 - (void) setLDrawRepositoryStatus:(LDrawDotOrgModelStatusT) newStatus;
 - (void) setStepDisplay:(BOOL)flag;
-- (void) setMaximumStepIndexForStepDisplay:(int)stepIndex;
+- (void) setMaximumStepIndexForStepDisplay:(NSUInteger)stepIndex;
 
 //Actions
 - (LDrawStep *) addStep;
@@ -78,8 +78,8 @@ typedef enum {
 - (void) makeStepVisible:(LDrawStep *)step;
 
 //Utilities
-- (int) maxStepIndexToOutput;
-- (int) numberElements;
+- (NSUInteger) maxStepIndexToOutput;
+- (NSUInteger) numberElements;
 - (void) optimizeStructure;
 - (NSArray *) parseHeaderFromLines:(NSArray *) lines;
 - (BOOL) line:(NSString *)line isValidForHeader:(NSString *)headerKey;

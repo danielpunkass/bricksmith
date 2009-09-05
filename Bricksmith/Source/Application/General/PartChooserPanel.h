@@ -29,7 +29,7 @@
 - (NSString *) selectedPartName;
 
 //Actions
-- (int) runModal;
+- (NSInteger) runModal;
 - (IBAction) insertPartClicked:(id)sender;
 - (IBAction) cancelClicked:(id)sender;
 

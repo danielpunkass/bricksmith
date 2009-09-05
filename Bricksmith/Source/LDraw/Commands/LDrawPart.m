@@ -95,7 +95,7 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField intValue] == 1){
+		if([parsedField integerValue] == 1){
 			parsedPart = [LDrawPart new];
 	
 			//Read in the color code.
@@ -263,7 +263,7 @@
 //				subroutine of -draw: in LDrawDrawableElement.
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
 {
 	LDrawModel  *modelToDraw    = [[LDrawApplication sharedPartLibrary] modelForPart:self];
 	BOOL        drawBoundsOnly  = ((optionsMask & DRAW_BOUNDS_ONLY) != 0);
@@ -783,7 +783,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //==============================================================================
 - (void) setTransformationMatrix:(Matrix4 *)newMatrix
 {
-	int row, column;
+	NSUInteger row, column;
 	
 	for(row = 0; row < 4; row++)
 	{

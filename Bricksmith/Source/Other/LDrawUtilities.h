@@ -44,7 +44,7 @@ typedef enum
 
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;
 + (Box3) boundingBox3ForDirectives:(NSArray *)directives;
-+ (Class) classForLineType:(int)lineType;
++ (Class) classForLineType:(NSInteger)lineType;
 + (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset;
 + (float) gridSpacingForMode:(gridSpacingModeT)gridMode;
 + (BOOL) isLDrawFilenameValid:(NSString *)fileName;

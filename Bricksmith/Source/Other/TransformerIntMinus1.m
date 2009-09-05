@@ -44,9 +44,9 @@
 //==============================================================================
 - (id)transformedValue:(id)value
 {
-	int intValue = [value intValue];
+	NSInteger intValue = [value integerValue];
 	
-	return [NSNumber numberWithInt:(intValue - 1)];
+	return [NSNumber numberWithInteger:(intValue - 1)];
 	
 }//end transformedValue:
 

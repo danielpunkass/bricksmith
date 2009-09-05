@@ -72,10 +72,10 @@
 //------------------------------------------------------------------------------
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents
 {
-	LDrawFile	*newFile	= [[LDrawFile alloc] init];
-	NSArray		*lines		= [fileContents separateByLine];
-	NSArray		*models		= [LDrawFile parseModelsFromLines:lines];
-	int			 counter;
+	LDrawFile   *newFile    = [[LDrawFile alloc] init];
+	NSArray     *lines      = [fileContents separateByLine];
+	NSArray     *models     = [LDrawFile parseModelsFromLines:lines];
+	NSInteger   counter;
 	
 	//Initialize the list of models.
 	for(counter = 0; counter < [models count]; counter++)
@@ -98,13 +98,13 @@
 //------------------------------------------------------------------------------
 + (NSArray *) parseModelsFromLines:(NSArray *) linesFromFile
 {
-	NSMutableArray	*models				= [NSMutableArray array]; //array of parsed MPD models
-	NSMutableArray	*currentModelLines	= [NSMutableArray array]; //lines to parse into a model.
-	LDrawMPDModel	*newModel			= nil; //the parsed result.
+	NSMutableArray  *models             = [NSMutableArray array]; //array of parsed MPD models
+	NSMutableArray  *currentModelLines  = [NSMutableArray array]; //lines to parse into a model.
+	LDrawMPDModel   *newModel           = nil; //the parsed result.
 	
-	int				 numberLines		= [linesFromFile count];
-	NSString		*currentLine		= nil;
-	int				 counter			= 0;
+	NSInteger       numberLines         = [linesFromFile count];
+	NSString        *currentLine        = nil;
+	NSInteger       counter             = 0;
 	
 	//Search through all the lines in the file, and separate them out into 
 	// submodels.
@@ -215,9 +215,9 @@
 //==============================================================================
 - (id) copyWithZone:(NSZone *)zone
 {
-	LDrawFile	*copiedFile			= (LDrawFile *)[super copyWithZone:zone];
-	int			 indexOfActiveModel	= [self indexOfDirective:self->activeModel];
-	id			 copiedActiveModel	= [[copiedFile subdirectives] objectAtIndex:indexOfActiveModel];
+	LDrawFile   *copiedFile         = (LDrawFile *)[super copyWithZone:zone];
+	NSInteger   indexOfActiveModel  = [self indexOfDirective:self->activeModel];
+	id          copiedActiveModel   = [[copiedFile subdirectives] objectAtIndex:indexOfActiveModel];
 	
 	[copiedFile setActiveModel:copiedActiveModel];
 	
@@ -246,7 +246,7 @@
 //				complete. Thus, no draws can happen during that time.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
 {
 	//this is like calling the non-existent method
 	//			[editLock setCondition:([editLock condition] + 1)]
@@ -275,21 +275,23 @@
 //==============================================================================
 - (NSString *) write
 {
-	NSMutableString	*written		= [NSMutableString string];
-	NSString		*CRLF			= [NSString CRLF];
-	LDrawMPDModel	*currentModel	= nil;
-	NSArray			*modelsInFile	= [self subdirectives];
-	int				 numberModels	= [modelsInFile count];
-	int				 counter;
+	NSMutableString *written        = [NSMutableString string];
+	NSString        *CRLF           = [NSString CRLF];
+	LDrawMPDModel   *currentModel   = nil;
+	NSArray         *modelsInFile   = [self subdirectives];
+	NSInteger       numberModels    = [modelsInFile count];
+	NSInteger       counter         = 0;
 	
 	//If there is only one submodel, this hardly qualifies as an MPD document.
 	// So write out the single model without the MPD FILE/NOFILE wrapper.
-	if(numberModels == 1){
+	if(numberModels == 1)
+	{
 		currentModel = [modelsInFile objectAtIndex:0];
 		//Write out the model, without MPD wrappers.
 		[written appendString:[currentModel writeModel]];
 	}
-	else{
+	else
+	{
 		//Write out each MPD submodel, one after another.
 		for(counter = 0; counter < numberModels; counter++){
 			currentModel = [modelsInFile objectAtIndex:counter];
@@ -394,11 +396,11 @@
 //==============================================================================
 - (NSArray *) modelNames
 {
-	NSArray			*submodels		= [self subdirectives];
-	int				 numberModels	= [submodels count];
-	LDrawMPDModel	*currentModel	= nil;
-	NSMutableArray	*modelNames		= [NSMutableArray array];
-	int				 counter		= 0;
+	NSArray         *submodels      = [self subdirectives];
+	NSInteger       numberModels    = [submodels count];
+	LDrawMPDModel   *currentModel   = nil;
+	NSMutableArray  *modelNames     = [NSMutableArray array];
+	NSInteger       counter         = 0;
 	
 	//Look through the models and see if we find one.
 	for(counter = 0; counter < numberModels; counter++){
@@ -419,17 +421,19 @@
 //==============================================================================
 - (LDrawMPDModel *) modelWithName:(NSString *)soughtName
 {
-	NSArray			*submodels		= [self subdirectives];
-	int				 numberModels	= [submodels count];
-	LDrawMPDModel	*currentModel	= nil;
-	LDrawMPDModel	*foundModel		= nil;
-	int				 counter		= 0;
+	NSArray         *submodels      = [self subdirectives];
+	NSInteger       numberModels    = [submodels count];
+	LDrawMPDModel   *currentModel   = nil;
+	LDrawMPDModel   *foundModel     = nil;
+	NSInteger       counter         = 0;
 	
 	//Look through the models and see if we find one.
-	for(counter = 0; counter < numberModels; counter++){
+	for(counter = 0; counter < numberModels; counter++)
+	{
 		currentModel = [submodels objectAtIndex:counter];
 		//remember, we standardized on lower-case names for searching.
-		if([[currentModel modelName] caseInsensitiveCompare:soughtName] == NSOrderedSame) {
+		if([[currentModel modelName] caseInsensitiveCompare:soughtName] == NSOrderedSame)
+		{
 			foundModel = currentModel;
 			break;
 		}
@@ -629,8 +633,8 @@
 {
 	LDrawMPDModel   *currentModel   = nil;
 	NSArray         *modelsInFile   = [self subdirectives];
-	int             numberModels    = [modelsInFile count];
-	int             counter         = 0;
+	NSInteger       numberModels    = [modelsInFile count];
+	NSInteger       counter         = 0;
 	
 	//Write out each MPD submodel, one after another.
 	for(counter = 0; counter < numberModels; counter++)
@@ -652,13 +656,13 @@
 - (void) renameModel:(LDrawMPDModel *)submodel
 			  toName:(NSString *)newName
 {
-	NSArray		*submodels			= [self submodels];
-	BOOL		containsSubmodel	= ([submodels indexOfObjectIdenticalTo:submodel] != NSNotFound);
-	NSString	*oldName			= [submodel modelName];
-	PartReport	*partReport			= nil;
-	NSArray		*allParts			= nil;
-	LDrawPart	*currentPart		= nil;
-	int			counter				= 0;
+	NSArray     *submodels          = [self submodels];
+	BOOL        containsSubmodel    = ([submodels indexOfObjectIdenticalTo:submodel] != NSNotFound);
+	NSString    *oldName            = [submodel modelName];
+	PartReport  *partReport         = nil;
+	NSArray     *allParts           = nil;
+	LDrawPart   *currentPart        = nil;
+	NSInteger   counter             = 0;
 
 	if(		containsSubmodel == YES
 	   &&	[oldName isEqualToString:newName] == NO )

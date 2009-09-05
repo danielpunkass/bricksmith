@@ -93,11 +93,11 @@
 	[descriptionField		setStringValue:[representedObject modelDescription]	];
 	[authorField			setStringValue:[representedObject author]			];
 	
-	int tagIndex = [ldrawDotOrgPopUp indexOfItemWithTag:[representedObject ldrawRepositoryStatus]];
+	NSInteger tagIndex = [ldrawDotOrgPopUp indexOfItemWithTag:[representedObject ldrawRepositoryStatus]];
 	[ldrawDotOrgPopUp		selectItemAtIndex:tagIndex];
 	
-	[numberElementsField	setIntValue:[representedObject numberElements]		];
-	[numberStepsField		setIntValue:[[representedObject steps] count]		];
+	[numberElementsField setIntegerValue:[representedObject numberElements]];
+	[numberStepsField setIntegerValue:[[representedObject steps] count]];
 	
 	[super revert:sender];
 	

@@ -18,7 +18,7 @@
 //				enable interapplication drags.
 //
 //==============================================================================
-- (unsigned int)draggingSourceOperationMaskForLocal:(BOOL)isLocal
+- (NSUInteger)draggingSourceOperationMaskForLocal:(BOOL)isLocal
 {
 	if(isLocal == NO)
 		return NSDragOperationCopy;
@@ -37,10 +37,10 @@
 - (NSIndexSet *) selectObjects:(NSArray *)objects
 {
 	//Select all the objects which have been added.
-	id					 currentObject		= nil;
-	unsigned int		 indexOfObject		= 0;
-	NSMutableIndexSet	*indexesToSelect	= [NSMutableIndexSet indexSet];
-	int					 counter			= 0;
+	id                  currentObject       = nil;
+	NSUInteger          indexOfObject       = 0;
+	NSMutableIndexSet   *indexesToSelect    = [NSMutableIndexSet indexSet];
+	NSInteger           counter             = 0;
 	
 	//Gather up the indices of the pasted objects.
 	for(counter = 0; counter < [objects count]; counter++)

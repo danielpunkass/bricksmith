@@ -119,8 +119,8 @@
 	id				 currentElement		= nil;
 	LDrawModel		*partModel			= nil;
 	NSString		*category			= nil;
-	unsigned		 elementCount		= [elements count];
-	unsigned		 counter			= 0;
+	NSUInteger		 elementCount		= [elements count];
+	NSUInteger		 counter			= 0;
 	
 	//clear out any previous reports.
 	if(self->missingParts != nil)
@@ -168,10 +168,10 @@
 - (void) registerPart:(LDrawPart *)part
 {
 	NSString			*partName			= [part referenceName];
-	NSNumber			*partColor			= [NSNumber numberWithInt:[part LDrawColor]];
+	NSNumber			*partColor			= [NSNumber numberWithInteger:[part LDrawColor]];
 	
 	NSMutableDictionary	*partRecord			= [self->partsReport objectForKey:partName];
-	unsigned			 numberColoredParts	= 0;
+	NSUInteger			 numberColoredParts	= 0;
 
 	
 	if(partRecord == nil)
@@ -183,13 +183,13 @@
 	
 	// Now let's see how many parts with this color we have so far. If we don't 
 	// have any, this call will conveniently return 0. 
-	numberColoredParts = [[partRecord objectForKey:partColor] intValue];
+	numberColoredParts = [[partRecord objectForKey:partColor] integerValue];
 	
 	// Update our tallies.
 	self->totalNumberOfParts += 1;
 	numberColoredParts += 1;
 	
-	[partRecord setObject:[NSNumber numberWithUnsignedInt:numberColoredParts]
+	[partRecord setObject:[NSNumber numberWithUnsignedInteger:numberColoredParts]
 				   forKey:partColor];
 				   
 }//end registerPart:
@@ -208,8 +208,8 @@
 {
 	NSArray			*elements			= [self->reportedObject allEnclosedElements];
 	id				 currentElement		= nil;
-	unsigned		 elementCount		= [elements count];
-	unsigned		 counter			= 0;
+	NSUInteger		 elementCount		= [elements count];
+	NSUInteger		 counter			= 0;
 	NSMutableArray	*parts				= [NSMutableArray array];
 	
 	// Find all LDrawPart instances in the contained elements
@@ -239,22 +239,22 @@
 //==============================================================================
 - (NSArray *) flattenedReport
 {
-	NSMutableArray	*flattenedReport	= [NSMutableArray array];
-	NSArray			*allPartNames		= [partsReport allKeys];
-	NSDictionary	*quantitiesForPart	= nil;
-	NSArray			*allColors			= nil;
+	NSMutableArray  *flattenedReport        = [NSMutableArray array];
+	NSArray         *allPartNames           = [partsReport allKeys];
+	NSDictionary    *quantitiesForPart      = nil;
+	NSArray         *allColors              = nil;
 	
-	PartLibrary		*partLibrary		= [LDrawApplication sharedPartLibrary];
+	PartLibrary     *partLibrary            = [LDrawApplication sharedPartLibrary];
 	
-	NSDictionary	*currentPartRecord	= nil;
-	NSString		*currentPartNumber	= nil;
-	NSNumber		*currentPartColor	= nil;
-	NSNumber		*currentPartQuantity= nil;
-	NSString		*currentPartName	= nil; //for convenience.
-	NSString		*currentColorName	= nil;
+	NSDictionary    *currentPartRecord      = nil;
+	NSString        *currentPartNumber      = nil;
+	NSNumber        *currentPartColor       = nil;
+	NSNumber        *currentPartQuantity    = nil;
+	NSString        *currentPartName        = nil; //for convenience.
+	NSString        *currentColorName       = nil;
 	
-	int				 counter			= 0;
-	int				 colorCounter		= 0;
+	NSUInteger      counter                 = 0;
+	NSUInteger      colorCounter            = 0;
 	
 	//Loop through every type of part in the report
 	for(counter = 0; counter < [allPartNames count]; counter++)
@@ -270,7 +270,7 @@
 			currentPartQuantity	= [quantitiesForPart objectForKey:currentPartColor];
 			
 			currentPartName		= [partLibrary descriptionForPartName:currentPartNumber];
-			currentColorName	= [[[ColorLibrary sharedColorLibrary] colorForCode:[currentPartColor intValue]] localizedName];
+			currentColorName	= [[[ColorLibrary sharedColorLibrary] colorForCode:[currentPartColor integerValue]] localizedName];
 			
 			//Now we have all the information we need. Flatten it into a single
 			// record.
@@ -329,7 +329,7 @@
 // Purpose:		Returns the total number of parts registered in this report.
 //
 //==============================================================================
-- (unsigned) numberOfParts
+- (NSUInteger) numberOfParts
 {
 	return self->totalNumberOfParts;
 	
@@ -354,11 +354,11 @@
 //==============================================================================
 - (NSString *) textualRepresentationWithSortDescriptors:(NSArray *)sortDescriptors
 {
-	NSArray			*flattenedReport	= [self flattenedReport];
-	NSMutableString	*text				= [NSMutableString stringWithCapacity:1024];
-	NSString		*lineFormat			= @"%@\t%@\t%@\t%@\n";
-	NSDictionary	*partRecord			= nil;
-	int				 counter			= 0;
+	NSArray         *flattenedReport    = [self flattenedReport];
+	NSMutableString *text               = [NSMutableString stringWithCapacity:1024];
+	NSString        *lineFormat         = @"%@\t%@\t%@\t%@\n";
+	NSDictionary    *partRecord         = nil;
+	NSUInteger      counter             = 0;
 	
 	//rely on someone outside us providing a sort order
 	if(sortDescriptors != nil)

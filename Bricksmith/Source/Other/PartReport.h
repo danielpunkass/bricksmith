@@ -25,7 +25,7 @@
 	NSMutableDictionary	*partsReport;			//see -registerPart: for a description of this data
 	NSMutableArray		*missingParts;
 	NSMutableArray		*movedParts;
-	unsigned			 totalNumberOfParts;	//how many parts are in the model.
+	NSUInteger			 totalNumberOfParts;	//how many parts are in the model.
 }
 
 //Initialization
@@ -41,7 +41,7 @@
 - (NSArray *) flattenedReport;
 - (NSArray *) missingParts;
 - (NSArray *) movedParts;
-- (unsigned) numberOfParts;
+- (NSUInteger) numberOfParts;
 - (NSString *) textualRepresentationWithSortDescriptors:(NSArray *)sortDescriptors;
 
 @end

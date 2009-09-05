@@ -150,11 +150,11 @@
 	
 	// Parse out steps. Each time we run into a new 0 STEP command, we finish 
 	// the current step. 
-	NSMutableArray	*currentStepLines	= [NSMutableArray array];
-	LDrawStep		*newStep			= nil;
-	NSString		*currentLine		= nil;
-	int				 numberLines		= [lines count];
-	int				 counter			= 0;
+	NSMutableArray  *currentStepLines   = [NSMutableArray array];
+	LDrawStep       *newStep            = nil;
+	NSString        *currentLine        = nil;
+	NSUInteger      numberLines         = [lines count];
+	NSUInteger      counter             = 0;
 	
 	for(counter = 0; counter < numberLines; counter++)
 	{
@@ -257,12 +257,12 @@
 //				their constituents.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
 {
-	NSArray			*steps				= [self subdirectives];
-	int				 maxIndex			= [self maxStepIndexToOutput];
-	LDrawStep		*currentDirective	= nil;
-	int				 counter			= 0;
+	NSArray     *steps              = [self subdirectives];
+	NSUInteger  maxIndex            = [self maxStepIndexToOutput];
+	LDrawStep   *currentDirective   = nil;
+	NSUInteger  counter             = 0;
 	
 	// Draw all the steps in the model
 	for(counter = 0; counter <= maxIndex; counter++)
@@ -285,14 +285,14 @@
 //==============================================================================
 - (NSString *) write
 {
-	NSString		*CRLF			= [NSString CRLF]; //we need a DOS line-end marker, because 
+	NSString        *CRLF           = [NSString CRLF]; //we need a DOS line-end marker, because 
 														//LDraw is predominantly DOS-based.
-	NSMutableString	*written		= [NSMutableString string];
-	NSArray			*steps			= [self subdirectives];
-	int				 numberSteps	= [steps count];
-	LDrawStep		*currentStep	= nil;
-	NSString		*stepOutput		= nil;
-	int				 counter		= 0;
+	NSMutableString *written        = [NSMutableString string];
+	NSArray         *steps          = [self subdirectives];
+	NSUInteger      numberSteps     = [steps count];
+	LDrawStep       *currentStep    = nil;
+	NSString        *stepOutput     = nil;
+	NSUInteger      counter         = 0;
 	
 	//Write out the file header in all of its irritating glory.
 	[written appendFormat:@"0 %@%@", [self modelDescription], CRLF];
@@ -529,7 +529,7 @@
 //				value only has meaning if the model is in step-display mode. 
 //
 //==============================================================================
-- (int) maximumStepIndexForStepDisplay
+- (NSUInteger) maximumStepIndexForStepDisplay
 {
 	return self->currentStepDisplayed;
 	
@@ -557,17 +557,17 @@
 //				Step Display mode, when the step being viewed is changed. 
 //
 //==============================================================================
-- (Tuple3) rotationAngleForStepAtIndex:(int)stepNumber
+- (Tuple3) rotationAngleForStepAtIndex:(NSUInteger)stepNumber
 {
-	NSArray				*steps				= [self steps];
-	LDrawStep			*currentStep		= nil;
-	LDrawStepRotationT	rotationType		= LDrawStepRotationNone;
-	Tuple3				stepRotationAngle	= ZeroPoint3;
-	Tuple3				previousRotation	= ZeroPoint3;
-	Tuple3				newRotation			= ZeroPoint3;
-	Tuple3				totalRotation		= ZeroPoint3;
-	Matrix4				rotationMatrix		= IdentityMatrix4;
-	int					counter				= 0;
+	NSArray             *steps              = [self steps];
+	LDrawStep           *currentStep        = nil;
+	LDrawStepRotationT  rotationType        = LDrawStepRotationNone;
+	Tuple3              stepRotationAngle   = ZeroPoint3;
+	Tuple3              previousRotation    = ZeroPoint3;
+	Tuple3              newRotation         = ZeroPoint3;
+	Tuple3              totalRotation       = ZeroPoint3;
+	Matrix4             rotationMatrix      = IdentityMatrix4;
+	NSUInteger          counter             = 0;
 	
 	// Start with the default 3D angle onto the stack. If no rotation is ever 
 	// specified, that is the one we use. 
@@ -703,9 +703,9 @@
 //==============================================================================
 - (void) setDraggingDirectives:(NSArray *)directives
 {
-	LDrawStep		*dragStep			= nil;
-	LDrawDirective	*currentDirective	= nil;
-	int				 counter			= 0;
+	LDrawStep       *dragStep           = nil;
+	LDrawDirective  *currentDirective   = nil;
+	NSUInteger      counter             = 0;
 	
 	// When we get sent nil directives, nil out the drag step.
 	if(directives != nil)
@@ -801,13 +801,13 @@
 //				enter step display. 
 //
 //==============================================================================
-- (void) setMaximumStepIndexForStepDisplay:(int)stepIndex
+- (void) setMaximumStepIndexForStepDisplay:(NSUInteger)stepIndex
 {
 	//Need to check and make sure this step number is not overflowing the bounds.
-	int maximumIndex = [[self steps] count]-1;
+	NSInteger maximumIndex = [[self steps] count]-1;
 	
 	if(stepIndex > maximumIndex || stepIndex < 0)
-		[NSException raise:NSRangeException format:@"index (%d) beyond maximum step index %d", stepIndex, maximumIndex];
+		[NSException raise:NSRangeException format:@"index (%ld) beyond maximum step index %ld", (long)stepIndex, (long)maximumIndex];
 	else
 	{
 		self->currentStepDisplayed = stepIndex;
@@ -869,7 +869,7 @@
 //==============================================================================
 - (void) makeStepVisible:(LDrawStep *)step
 {
-	int stepIndex = [self indexOfDirective:step];
+	NSUInteger stepIndex = [self indexOfDirective:step];
 	
 	// If we're in step display, but below this step, make it visible.
 	if(		stepIndex != NSNotFound
@@ -893,10 +893,10 @@
 //				case should never happen.)
 //
 //==============================================================================
-- (int) maxStepIndexToOutput
+- (NSUInteger) maxStepIndexToOutput
 {
-	NSArray	*steps		= [self subdirectives];
-	int		 maxStep	= 0;
+	NSArray     *steps  = [self subdirectives];
+	NSUInteger  maxStep = 0;
 	
 	// If step display is active, we want to display only as far as the 
 	// specified step, or the maximum step if the one specified exceeds the 
@@ -923,16 +923,17 @@
 //				included.
 //
 //==============================================================================
-- (int) numberElements
+- (NSUInteger) numberElements
 {
-	NSArray		*steps			= [self steps];
-	LDrawStep	*currentStep	= nil;
-	int			 numberElements	= 0;
-	int			 counter		= 0;
+	NSArray     *steps          = [self steps];
+	LDrawStep   *currentStep    = nil;
+	NSUInteger  numberElements  = 0;
+	NSUInteger  counter         = 0;
 	
-	for(counter = 0; counter < [steps count]; counter++){
-		currentStep = [steps objectAtIndex:counter];
-		numberElements += [[currentStep subdirectives] count];
+	for(counter = 0; counter < [steps count]; counter++)
+	{
+		currentStep     = [steps objectAtIndex:counter];
+		numberElements  += [[currentStep subdirectives] count];
 	}
 	
 	return numberElements;
@@ -957,18 +958,18 @@
 //==============================================================================
 - (void) optimizeStructure
 {
-	NSArray			*steps			= [self subdirectives];
-	LDrawStep		*firstStep		= 0;
-	NSArray			*directives		= nil;
-	LDrawDirective	*currentObject	= 0;
+	NSArray         *steps          = [self subdirectives];
+	LDrawStep       *firstStep      = 0;
+	NSArray         *directives     = nil;
+	LDrawDirective  *currentObject  = 0;
 	
-	LDrawStep		*lines			= [LDrawStep emptyStepWithFlavor:LDrawStepLines];
-	LDrawStep		*triangles		= [LDrawStep emptyStepWithFlavor:LDrawStepTriangles];
-	LDrawStep		*quadrilaterals	= [LDrawStep emptyStepWithFlavor:LDrawStepQuadrilaterals];
-	LDrawStep		*everythingElse	= [LDrawStep emptyStepWithFlavor:LDrawStepAnyDirectives];
+	LDrawStep       *lines          = [LDrawStep emptyStepWithFlavor:LDrawStepLines];
+	LDrawStep       *triangles      = [LDrawStep emptyStepWithFlavor:LDrawStepTriangles];
+	LDrawStep       *quadrilaterals = [LDrawStep emptyStepWithFlavor:LDrawStepQuadrilaterals];
+	LDrawStep       *everythingElse = [LDrawStep emptyStepWithFlavor:LDrawStepAnyDirectives];
 	
-	int				 directiveCount	= 0;
-	int				 counter		= 0;
+	NSUInteger      directiveCount  = 0;
+	NSUInteger      counter         = 0;
 	
 	//If there is more than one step in the model, then we shall assume that 
 	// it has either a) already been optimized or b) been created by the user.
@@ -1040,9 +1041,9 @@
 //==============================================================================
 - (NSArray *) parseHeaderFromLines:(NSArray *) lines
 {
-	NSMutableArray	*linesWithoutHeader = [NSMutableArray arrayWithArray:lines];
-	NSString		*currentLine		= nil;
-	int				 counter			= 0;
+	NSMutableArray  *linesWithoutHeader = [NSMutableArray arrayWithArray:lines];
+	NSString        *currentLine        = nil;
+	NSUInteger      counter             = 0;
 	
 	@try
 	{

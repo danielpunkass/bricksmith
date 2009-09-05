@@ -10,16 +10,23 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface IconTextCell : NSTextFieldCell {
+////////////////////////////////////////////////////////////////////////////////
+//
+// class IconTextCell
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface IconTextCell : NSTextFieldCell
+{
 	@private
 		NSImage		*image;
-		float		 imagePadding; //amount of space to the left and right of the image.
+		CGFloat		 imagePadding; //amount of space to the left and right of the image.
 }
 
 //Accessors
 - (NSImage *)image;
+- (CGFloat) imagePadding;
+
 - (void) setImage:(NSImage *)newImage;
-- (float) imagePadding;
-- (void) setImagePadding:(float)newAmount;
+- (void) setImagePadding:(CGFloat)newAmount;
 
 @end

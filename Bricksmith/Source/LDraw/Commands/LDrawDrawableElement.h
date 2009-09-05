@@ -27,7 +27,7 @@
 }
 
 // Directives
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor;
+- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor;
 
 // Accessors
 - (Box3) boundingBox3;

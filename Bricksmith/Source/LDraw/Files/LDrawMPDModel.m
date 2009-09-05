@@ -131,7 +131,7 @@
 		//Extract MPD-specific data: the submodel name.
 		// Make sure there is actually a name after the marker. There certainly 
 		// should be, but let's be extra-special safe.
-		int indexOfName = [LDRAW_MPD_FILE_START_MARKER length] + 1; // after "0 FILE "
+		NSUInteger indexOfName = [LDRAW_MPD_FILE_START_MARKER length] + 1; // after "0 FILE "
 		if([mpdFileCommand length] >= indexOfName)
 		{
 			mpdSubmodelName = [mpdFileCommand substringFromIndex:indexOfName];

@@ -71,7 +71,7 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField intValue] == 5){
+		if([parsedField integerValue] == 5){
 			parsedConditionalLine = [[LDrawConditionalLine new] autorelease];
 			
 			//Read in the color code.
@@ -215,7 +215,7 @@
 //				further review (read: better programming skill).
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
 {
 	//do nothing.
 	
@@ -230,7 +230,7 @@
 // Note:		DISABLED. See -draw:parentColor:
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
 {
 	[super drawElement:optionsMask withColor:drawingColor];
 	

@@ -81,20 +81,10 @@
 //				appropriate.
 //
 //==============================================================================
-- (int) runModal
+- (NSInteger) runModal
 {
-	int		returnCode	= NSCancelButton;
-	SInt32	OSVersion	= 0;
-	
-	Gestalt(gestaltSystemVersion, &OSVersion); //Carbon!
-	
-	//Prior to Mac OS 10.4, the timer NSSearchFieldCell used to send its action 
-	// while typing was only registered for NSDefaultRunLoopMode, which means 
-	// it cannot be used in modal dialogs. In Tiger, the field can be used in 
-	// both modal and non-modal dialogs.
-	if(OSVersion < 0x1040) //System 10.4.0; Tiger
-		[[searchField cell] setSendsWholeSearchString:YES];
-	
+	NSInteger   returnCode  = NSCancelButton;
+		
 	//Run the dialog.
 	returnCode = [NSApp runModalForWindow:self];
 	

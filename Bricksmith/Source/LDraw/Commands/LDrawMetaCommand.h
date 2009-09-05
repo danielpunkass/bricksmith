@@ -22,7 +22,7 @@
 + (LDrawMetaCommand *) commandWithDirectiveText:(NSString *)directive;
 - (BOOL) finishParsing:(NSScanner *)scanner;
 
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor;
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor;
 - (NSString *) write;
 
 //Accessors

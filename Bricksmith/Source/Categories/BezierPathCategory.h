@@ -12,6 +12,6 @@
 
 @interface NSBezierPath (BezierPathCategory)
 
-+ (NSBezierPath *) bezierPathWithRect:(NSRect)rect radiusPercentage:(float)radiusPercentage;
++ (NSBezierPath *) bezierPathWithRect:(NSRect)rect radiusPercentage:(CGFloat)radiusPercentage;
 
 @end

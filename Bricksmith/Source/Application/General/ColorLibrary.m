@@ -133,7 +133,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 //==============================================================================
 - (LDrawColor *) colorForCode:(LDrawColorT)colorCode
 {
-	NSNumber	*key	= [NSNumber numberWithInt:colorCode];
+	NSNumber	*key	= [NSNumber numberWithInteger:colorCode];
 	LDrawColor	*color	= [self->colors objectForKey:key];
 	
 	if(color == nil && self != sharedColorLibrary)
@@ -199,7 +199,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 - (void) addColor:(LDrawColor *)newColor
 {
 	LDrawColorT	 colorCode	= [newColor colorCode];
-	NSNumber	*key		= [NSNumber numberWithInt:colorCode];
+	NSNumber	*key		= [NSNumber numberWithInteger:colorCode];
 
 	[self->colors setObject:newColor forKey:key];
 	

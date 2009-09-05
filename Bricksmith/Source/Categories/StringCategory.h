@@ -12,7 +12,7 @@
 
 @interface NSString (StringCategory)
 
-- (BOOL) containsString:(NSString *)substring options:(unsigned)mask;
+- (BOOL) containsString:(NSString *)substring options:(NSUInteger)mask;
 + (NSString *) CRLF;
 - (NSComparisonResult)numericCompare:(NSString *)string;
 - (NSArray *) separateByLine;

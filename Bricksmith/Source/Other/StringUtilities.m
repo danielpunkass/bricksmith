@@ -31,13 +31,13 @@
 //------------------------------------------------------------------------------
 + (NSString *) nextCopyNameForString:(NSString *)originalString
 {
-	NSString	*copyToken				= NSLocalizedString(@"CopySuffix", nil);
-	NSRange		 rangeOfCopyToken		= [originalString rangeOfString:copyToken options:NSBackwardsSearch];
-	NSScanner	*copyNumberScanner		= nil;
-	int			 currentCopyNumber		= 0;
-	BOOL		 foundCopyNumber		= NO;
-	NSString	*baseName				= nil;
-	NSString	*newCopyString			= nil;
+	NSString    *copyToken          = NSLocalizedString(@"CopySuffix", nil);
+	NSRange     rangeOfCopyToken    = [originalString rangeOfString:copyToken options:NSBackwardsSearch];
+	NSScanner   *copyNumberScanner  = nil;
+	NSInteger   currentCopyNumber   = 0;
+	BOOL        foundCopyNumber     = NO;
+	NSString    *baseName           = nil;
+	NSString    *newCopyString      = nil;
 	
 	// This string doesn't have the word "copy" in it yet.
 	if(rangeOfCopyToken.location == NSNotFound)
@@ -52,7 +52,7 @@
 		[copyNumberScanner setScanLocation:NSMaxRange(rangeOfCopyToken)];
 		
 		// Is there a number at the end?
-		foundCopyNumber = [copyNumberScanner scanInt:&currentCopyNumber];
+		foundCopyNumber = [copyNumberScanner scanInteger:&currentCopyNumber];
 		
 		if([copyNumberScanner isAtEnd] == NO)
 		{
@@ -88,7 +88,7 @@
 			baseName = [originalString substringToIndex:NSMaxRange(rangeOfCopyToken)];
 		
 			// Increment the copy number.
-			newCopyString = [baseName stringByAppendingFormat:@" %d", (currentCopyNumber + 1)];
+			newCopyString = [baseName stringByAppendingFormat:@" %ld", (long)(currentCopyNumber + 1)];
 			break;
 	}
 	

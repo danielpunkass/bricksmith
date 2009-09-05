@@ -232,7 +232,7 @@
 // Purpose:		Draws the part.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
 {
 	// Nothing to do here.
 	

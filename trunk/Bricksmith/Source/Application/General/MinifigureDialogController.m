@@ -198,9 +198,9 @@
 //				appropriate.
 //
 //==============================================================================
-- (int) runModal
+- (NSInteger) runModal
 {
-	int		returnCode	= NSCancelButton;
+	NSInteger		returnCode	= NSCancelButton;
 	
 	//set the values
 	[self restoreFromPreferences];
@@ -819,10 +819,10 @@
 - (void) selectPartWithName:(NSString *) name
 			   inController:(NSArrayController *)controller
 {
-	NSArray		*parts			= [controller arrangedObjects];
-	LDrawPart	*currentPart	= nil;
-	int			 partCount		= [parts count];
-	int			 counter		= 0;
+	NSArray     *parts          = [controller arrangedObjects];
+	LDrawPart   *currentPart    = nil;
+	NSUInteger  partCount       = [parts count];
+	NSUInteger  counter         = 0;
 	
 	//just look for the right name.
 	for(counter = 0; counter < partCount; counter++)

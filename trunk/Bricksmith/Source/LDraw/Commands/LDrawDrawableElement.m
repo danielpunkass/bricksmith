@@ -105,7 +105,7 @@
 //				actually draws the element.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
 {
 	//[super draw]; //does nothing anyway; don't call it.
 	
@@ -129,8 +129,8 @@
 		if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
 		{
 			LDrawContainer *enclosingStep = [self enclosingDirective];
-			int partIndex = [enclosingStep indexOfDirective:self]; 
-			int stepIndex = [[enclosingStep enclosingDirective] indexOfDirective:enclosingStep];
+			NSInteger partIndex = [enclosingStep indexOfDirective:self]; 
+			NSInteger stepIndex = [[enclosingStep enclosingDirective] indexOfDirective:enclosingStep];
 			glLoadName( stepIndex*STEP_NAME_MULTIPLIER + partIndex );
 			//SERIOUS FLAW!!! This object is not required to have a parent. But 
 			// currently, such an orphan would never be drawn. So life goes on.
@@ -185,7 +185,7 @@
 //				shared functionality such as setting colors.
 //
 //==============================================================================
-- (void) drawElement:(unsigned int) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
 {
 	//implemented by subclasses.
 	

@@ -132,7 +132,7 @@
 - (void) setMinifigureName:(NSString *)newName;
 
 //Actions
-- (int) runModal;
+- (NSInteger) runModal;
 - (IBAction) okButtonClicked:(id)sender;
 - (IBAction) cancelButtonClicked:(id)sender;
 

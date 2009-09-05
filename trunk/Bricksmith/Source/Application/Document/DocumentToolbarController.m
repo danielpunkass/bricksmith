@@ -592,8 +592,8 @@
 //==============================================================================
 - (void) gridSpacingSegmentedControlClicked:(id)sender
 {
-	int					selectedSegment	= [sender selectedSegment];
-	gridSpacingModeT	newGridMode		= [[sender cell] tagForSegment:selectedSegment];
+	NSInteger           selectedSegment = [sender selectedSegment];
+	gridSpacingModeT    newGridMode     = [[sender cell] tagForSegment:selectedSegment];
 //	gridSpacingModeT	newGridMode		= [sender selectedTag]; // WHY does this not work!? Sheesh!
 	
 	[self->document setGridSpacingMode:newGridMode];
@@ -663,7 +663,7 @@
 //==============================================================================
 - (IBAction) zoomScaleChanged:(id)sender
 {
-	float newZoom = [sender floatValue];
+	CGFloat newZoom = [sender doubleValue];
 	[self->document setZoomPercentage:newZoom];
 	
 }//end zoomScaleChanged:

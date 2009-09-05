@@ -25,10 +25,10 @@
 //
 //------------------------------------------------------------------------------
 + (NSBezierPath *) bezierPathWithRect:(NSRect)rect
-					 radiusPercentage:(float)radiusPercentage
+					 radiusPercentage:(CGFloat)radiusPercentage
 {
 	NSBezierPath	*roundRect		= [NSBezierPath bezierPath];
-	float			radius			= NSWidth(rect)/2 * (radiusPercentage/100);
+	CGFloat			radius			= NSWidth(rect)/2 * (radiusPercentage/100);
 	
 	//start with a blank path.
 	

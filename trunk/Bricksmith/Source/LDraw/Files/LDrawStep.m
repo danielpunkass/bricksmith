@@ -76,16 +76,16 @@
 //------------------------------------------------------------------------------
 + (LDrawStep *) stepWithLines:(NSArray *)lines
 {
-	LDrawStep		*newStep			= [[LDrawStep alloc] init];
+	LDrawStep   *newStep            = [[LDrawStep alloc] init];
 	
-	NSString		*currentLine		= nil;
-	NSString		*commandCodeString	= nil;
-	int				 commandCode		= 0;
-	Class			 CommandClass		= Nil;
-	id				 newDirective		= nil;
-	int				 counter			= 0;
-	int				 lastLineIndex		= [lines count] - 1; // index of last subdirective line.
-	NSString		*lastLine			= [lines objectAtIndex:lastLineIndex];
+	NSString    *currentLine        = nil;
+	NSString    *commandCodeString  = nil;
+	NSInteger   commandCode         = 0;
+	Class       CommandClass        = Nil;
+	id          newDirective        = nil;
+	NSUInteger  counter             = 0;
+	NSUInteger  lastLineIndex       = [lines count] - 1; // index of last subdirective line.
+	NSString    *lastLine           = [lines objectAtIndex:lastLineIndex];
 	
 	if([lastLine hasPrefix:LDRAW_STEP])
 	{
@@ -106,7 +106,7 @@
 		{
 			commandCodeString = [LDrawUtilities readNextField:currentLine remainder:NULL];
 			//We may need to check for nil here someday.
-			commandCode = [commandCodeString intValue];
+			commandCode = [commandCodeString integerValue];
 		
 			CommandClass = [LDrawUtilities classForLineType:commandCode];
 			
@@ -168,12 +168,12 @@
 //				so we need call glBegin only once for the entire step.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
 {
-	NSArray			*commandsInStep		= [self subdirectives];
-	int				 numberCommands		= [commandsInStep count];
-	LDrawDirective	*currentDirective	= nil;
-	int				 counter			= 0;
+	NSArray         *commandsInStep     = [self subdirectives];
+	NSUInteger      numberCommands      = [commandsInStep count];
+	LDrawDirective  *currentDirective   = nil;
+	NSUInteger      counter             = 0;
 	
 	//Check for optimized steps.
 	if(self->stepFlavor == LDrawStepQuadrilaterals)
@@ -230,14 +230,14 @@
 //==============================================================================
 - (NSString *) writeWithStepCommand:(BOOL)flag
 {
-	NSMutableString	*written			= [NSMutableString string];
-	NSString		*CRLF				= [NSString CRLF];
-	Tuple3			 angleZYX			= [self rotationAngleZYX];
+	NSMutableString *written        = [NSMutableString string];
+	NSString        *CRLF           = [NSString CRLF];
+	Tuple3          angleZYX        = [self rotationAngleZYX];
 	
-	NSArray			*commandsInStep		= [self subdirectives];
-	LDrawDirective	*currentCommand		= nil;
-	int				 numberCommands		= [commandsInStep count];
-	int				 counter			= 0;
+	NSArray         *commandsInStep = [self subdirectives];
+	LDrawDirective  *currentCommand = nil;
+	NSUInteger      numberCommands  = [commandsInStep count];
+	NSUInteger      counter         = 0;
 	
 	// Write all the step's subdirectives
 	for(counter = 0; counter < numberCommands; counter++)
@@ -310,8 +310,8 @@
 //==============================================================================
 - (NSString *)browsingDescription
 {
-	LDrawModel	*enclosingModel = [self enclosingModel];
-	NSString	*description = nil;
+	LDrawModel  *enclosingModel = [self enclosingModel];
+	NSString    *description    = nil;
 	
 	//If there is no parent model, just display the word step. This situtation 
 	// would be highly irregular.
@@ -320,12 +320,12 @@
 	
 	else{
 		//Return the step number.
-		NSArray *modelSteps = [enclosingModel steps];
-		int		 stepIndex = [modelSteps indexOfObjectIdenticalTo:self];
+		NSArray     *modelSteps = [enclosingModel steps];
+		NSUInteger  stepIndex   = [modelSteps indexOfObjectIdenticalTo:self];
 		
 		description = [NSString stringWithFormat:
 							NSLocalizedString(@"StepDisplayWithNumber", nil),
-							stepIndex + 1] ;
+							(long)stepIndex + 1] ;
 	}
 	
 	return description;

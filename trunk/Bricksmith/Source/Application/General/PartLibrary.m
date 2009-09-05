@@ -619,7 +619,7 @@
 	
 		if(listTag != nil)
 		{
-			displayListTag = [listTag intValue];
+			displayListTag = [listTag integerValue];
 //			NSLog(@"found %d for %@ %d", displayListTag, referenceName, color);
 		}
 		else
@@ -641,7 +641,7 @@
 					glEndList();
 //				glPopMatrix();
 				
-				[partRecord setObject:[NSNumber numberWithUnsignedInt:displayListTag]
+				[partRecord setObject:[NSNumber numberWithUnsignedInteger:displayListTag]
 							   forKey:key ];
 				
 //				NSLog(@"generated %d for %@ %d", displayListTag, referenceName, color);
@@ -684,22 +684,22 @@
 			   namePrefix:(NSString *)namePrefix
 				 delegate:(id <PartLibraryReloadPartsDelegate>)delegate
 {
-	NSFileManager		*fileManager		= [NSFileManager defaultManager];
+	NSFileManager       *fileManager        = [NSFileManager defaultManager];
 // Not working for some reason. Why?
 //	NSArray				*readableFileTypes = [NSDocument readableTypes];
 //	NSLog(@"readable types: %@", readableFileTypes);
-	NSArray				*readableFileTypes	= [NSArray arrayWithObjects:@"dat", @"ldr", nil];
+	NSArray             *readableFileTypes  = [NSArray arrayWithObjects:@"dat", @"ldr", nil];
 	
-	NSArray				*partNames			= [fileManager directoryContentsAtPath:folderPath];
-	int					 numberOfParts		= [partNames count];
-	int					 counter;
+	NSArray             *partNames          = [fileManager directoryContentsAtPath:folderPath];
+	NSUInteger          numberOfParts       = [partNames count];
+	NSUInteger          counter;
 	
-	NSString			*currentPath		= nil;
-	NSString			*category			= nil;
-	NSString			*partDescription	= nil;
-	NSString			*partNumber			= nil;
+	NSString            *currentPath        = nil;
+	NSString            *category           = nil;
+	NSString            *partDescription    = nil;
+	NSString            *partNumber         = nil;
 	
-	NSMutableDictionary	*categoryRecord		= nil;
+	NSMutableDictionary *categoryRecord     = nil;
 	
 	//Get the subreference tables out of the main catalog (the should already exist!).
 	NSMutableDictionary *partNumberList		= [catalog objectForKey:PARTS_LIST_KEY]; //lookup parts by number
@@ -912,7 +912,7 @@
 	if(		fileContents != nil
 	   &&	[fileContents length] > 0 )
 	{
-		unsigned		 newlineIndex	= 0; //index of the first newline character in the file.
+		NSUInteger		 newlineIndex	= 0; //index of the first newline character in the file.
 		NSString		*firstLine		= nil;
 		NSString		*lineCode		= nil;
 		

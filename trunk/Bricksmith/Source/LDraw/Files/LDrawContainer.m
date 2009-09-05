@@ -83,11 +83,11 @@
 //==============================================================================
 - (id) copyWithZone:(NSZone *)zone
 {
-	LDrawContainer	*copiedContainer	= (LDrawContainer *)[super copyWithZone:zone];
-	int				numberSubdirectives	= [self->containedObjects count];
-	id				currentObject		= nil;
-	id				copiedObject		= nil;
-	int				counter				= 0;
+	LDrawContainer  *copiedContainer    = (LDrawContainer *)[super copyWithZone:zone];
+	NSInteger       numberSubdirectives = [self->containedObjects count];
+	id              currentObject       = nil;
+	id              copiedObject        = nil;
+	NSInteger       counter             = 0;
 	
 	//Allocate our instance varibales.
 	copiedContainer->containedObjects = [[NSMutableArray alloc] initWithCapacity:numberSubdirectives];
@@ -118,9 +118,9 @@
 //==============================================================================
 - (NSArray *) allEnclosedElements
 {
-	NSMutableArray	*subelements		= [NSMutableArray array];
-	id				 currentDirective	= nil;
-	int				 counter			= 0;
+	NSMutableArray  *subelements        = [NSMutableArray array];
+	id              currentDirective    = nil;
+	NSInteger       counter             = 0;
 	
 	for(counter = 0; counter < [self->containedObjects count]; counter++)
 	{
@@ -160,11 +160,11 @@
 								projection:(const GLdouble *)projectionGLMatrix
 									  view:(const GLint *)viewport
 {
-	Box3	bounds				= InvalidBox;
-	Box3	partBounds			= InvalidBox;
-	id		currentDirective	= nil;
-	int		numberOfDirectives	= [self->containedObjects count];
-	int		counter				= 0;
+	Box3        bounds              = InvalidBox;
+	Box3        partBounds          = InvalidBox;
+	id          currentDirective    = nil;
+	NSInteger   numberOfDirectives  = [self->containedObjects count];
+	NSInteger   counter             = 0;
 	
 	for(counter = 0; counter < numberOfDirectives; counter++)
 	{
@@ -188,7 +188,7 @@
 // Purpose:		Adds directive into the collection at position index.
 //
 //==============================================================================
-- (int) indexOfDirective:(LDrawDirective *)directive
+- (NSInteger) indexOfDirective:(LDrawDirective *)directive
 {
 	return [containedObjects indexOfObjectIdenticalTo:directive];
 	
@@ -218,7 +218,7 @@
 //==============================================================================
 - (void) addDirective:(LDrawDirective *)directive
 {
-	int index = [containedObjects count];
+	NSInteger index = [containedObjects count];
 	[self insertDirective:directive atIndex:index];
 	
 }//end addDirective:
@@ -232,8 +232,8 @@
 //==============================================================================
 - (void) collectPartReport:(PartReport *)report
 {
-	id		currentDirective	= nil;
-	int		counter				= 0;
+	id          currentDirective    = nil;
+	NSInteger   counter             = 0;
 	
 	for(counter = 0; counter < [containedObjects count]; counter++)
 	{
@@ -256,7 +256,7 @@
 - (void) removeDirective:(LDrawDirective *)doomedDirective
 {
 	//First, find the object (making sure it's actually there in the process)
-	int indexOfObject = [self indexOfDirective:doomedDirective];
+	NSInteger indexOfObject = [self indexOfDirective:doomedDirective];
 	
 	if(indexOfObject != NSNotFound)
 	{
@@ -271,7 +271,7 @@
 // Purpose:		Adds directive into the collection at position index.
 //
 //==============================================================================
-- (void) insertDirective:(LDrawDirective *)directive atIndex:(int)index
+- (void) insertDirective:(LDrawDirective *)directive atIndex:(NSInteger)index
 {
 	[containedObjects insertObject:directive atIndex:index];
 	[directive setEnclosingDirective:self];
@@ -288,7 +288,7 @@
 // Purpose:		Removes the LDraw directive stored at index in this collection.
 //
 //==============================================================================
-- (void) removeDirectiveAtIndex:(int)index
+- (void) removeDirectiveAtIndex:(NSInteger)index
 {
 	LDrawDirective *doomedDirective = [self->containedObjects objectAtIndex:index];
 	

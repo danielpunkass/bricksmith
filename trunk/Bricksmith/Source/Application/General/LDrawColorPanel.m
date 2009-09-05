@@ -155,7 +155,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 - (void) setLDrawColor:(LDrawColorT)newColor
 {
 	//Try to find the color we are after in the current list.
-	int rowToSelect = [self indexOfColorCode:newColor]; //will be the row index for the color we want.
+	NSInteger rowToSelect = [self indexOfColorCode:newColor]; //will be the row index for the color we want.
 	
 	if(rowToSelect == NSNotFound)
 	{
@@ -251,7 +251,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 		// about the current color, though!
 		[[NSNotificationCenter defaultCenter]
 							postNotificationName:LDrawColorDidChangeNotification
-										  object:[NSNumber numberWithInt:[self LDrawColor]] ];
+										  object:[NSNumber numberWithInteger:[self LDrawColor]] ];
 	}
 
 }//end sendAction
@@ -268,10 +268,10 @@ LDrawColorPanel *sharedColorPanel = nil;
 //==============================================================================
 - (IBAction) searchFieldChanged:(id)sender
 {
-	NSString		*searchString				= [sender stringValue];
-	NSPredicate		*searchPredicate			= nil;
-	LDrawColorT		 currentColor				= [self LDrawColor];
-	int				 indexOfPreviousSelection	= 0;
+	NSString    *searchString               = [sender stringValue];
+	NSPredicate *searchPredicate            = nil;
+	LDrawColorT currentColor                = [self LDrawColor];
+	NSInteger   indexOfPreviousSelection    = 0;
 	
 	searchPredicate = [self predicateForSearchString:searchString];
 	
@@ -336,14 +336,14 @@ LDrawColorPanel *sharedColorPanel = nil;
 //				or NSNotFound if colorCodeSought is not displayed. 
 //
 //==============================================================================
-- (int) indexOfColorCode:(LDrawColorT)colorCodeSought
+- (NSInteger) indexOfColorCode:(LDrawColorT)colorCodeSought
 {
-	NSArray			*visibleColors	= [self->colorListController arrangedObjects];
-	int				 numberColors	= [visibleColors count];
-	LDrawColor		*currentColor	= nil;
-	LDrawColorT		 currentCode	= LDrawColorBogus;
-	int				 rowToSelect	= NSNotFound; //will be the row index for the color we want.
-	int				 counter		= 0;
+	NSArray     *visibleColors  = [self->colorListController arrangedObjects];
+	NSInteger   numberColors    = [visibleColors count];
+	LDrawColor  *currentColor   = nil;
+	LDrawColorT currentCode     = LDrawColorBogus;
+	NSInteger   rowToSelect     = NSNotFound; //will be the row index for the color we want.
+	NSInteger   counter         = 0;
 	
 	//Search through all the colors in the current color set and see if the 
 	// one we are after is in there. A brute force search.
@@ -409,10 +409,10 @@ LDrawColorPanel *sharedColorPanel = nil;
 //==============================================================================
 - (NSPredicate *) predicateForSearchString:(NSString *)searchString
 {
-	NSPredicate		*searchPredicate		= nil;
-	BOOL			 searchByCode			= NO; //color name search by default.
-	NSScanner		*digitScanner			= nil;
-	int				 colorCode				= 0;
+	NSPredicate *searchPredicate    = nil;
+	BOOL        searchByCode        = NO; //color name search by default.
+	NSScanner   *digitScanner       = nil;
+	NSInteger   colorCode           = 0;
 	
 	// If there is no string, then clear the search predicate (find all).
 	if([searchString length] == 0)
@@ -424,13 +424,13 @@ LDrawColorPanel *sharedColorPanel = nil;
 		// assume this is a color-code search. Otherwise, it will be a name 
 		// search. 
 		digitScanner	= [NSScanner scannerWithString:searchString];
-		searchByCode	= [digitScanner scanInt:&colorCode];
+		searchByCode	= [digitScanner scanInteger:&colorCode];
 		
 		// If it is an LDraw code search, try to find a color code equal to the 
 		// search number entered. 
 		if(searchByCode == YES)
 		{
-			searchPredicate = [NSPredicate predicateWithFormat:@"%K == %d", @"colorCode", colorCode];
+			searchPredicate = [NSPredicate predicateWithFormat:@"%K == %ld", @"colorCode", (long)colorCode];
 		}
 		else
 		{

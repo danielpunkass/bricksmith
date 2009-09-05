@@ -244,11 +244,11 @@
 //==============================================================================
 - (IBAction) exportButtonClicked:(id)sender
 {
-	NSSavePanel	*savePanel			= [NSSavePanel savePanel];
-	NSURL		*savePath			= nil;
-	NSString	*exported			= nil;
-	NSArray		*sortDescriptors	= [self->pieceCountTable sortDescriptors];
-	int			 result				= 0;
+	NSSavePanel *savePanel          = [NSSavePanel savePanel];
+	NSURL       *savePath           = nil;
+	NSString    *exported           = nil;
+	NSArray     *sortDescriptors    = [self->pieceCountTable sortDescriptors];
+	NSInteger   result              = 0;
 	
 	//set up the save panel
 	[savePanel setRequiredFileType:@"txt"];
@@ -283,7 +283,7 @@
 // Purpose:		How many parts?
 //
 //==============================================================================
-- (int) numberOfRowsInTableView:(NSTableView *)aTableView
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView
 {
 	return [flattenedReport count];
 	
@@ -298,7 +298,7 @@
 //==============================================================================
 - (id)				tableView:(NSTableView *)tableView
 	objectValueForTableColumn:(NSTableColumn *)tableColumn
-						  row:(int)rowIndex
+						  row:(NSInteger)rowIndex
 {
 	NSString		*identifier	= [tableColumn identifier];
 	NSDictionary	*partRecord	= [flattenedReport objectAtIndex:rowIndex];
@@ -365,12 +365,12 @@
 //==============================================================================
 - (void) syncSelectionAndPartDisplayed
 {
-	NSDictionary	*partRecord			= nil;
-	NSString		*partName			= nil;
-	LDrawColorT		 partColor			= LDrawColorBogus;
-	PartLibrary		*partLibrary		= [LDrawApplication sharedPartLibrary];
-	id				 modelToView		= nil;
-	int				 rowIndex			= [pieceCountTable selectedRow];
+	NSDictionary    *partRecord     = nil;
+	NSString        *partName       = nil;
+	LDrawColorT     partColor       = LDrawColorBogus;
+	PartLibrary     *partLibrary    = [LDrawApplication sharedPartLibrary];
+	id              modelToView     = nil;
+	NSInteger       rowIndex        = [pieceCountTable selectedRow];
 	
 	if(rowIndex >= 0)
 	{

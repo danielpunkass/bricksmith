@@ -70,7 +70,7 @@ typedef enum
 	// Threading
 	NSConditionLock			*canDrawLock;			// when condition is YES, render thread will wake up and draw.
 	BOOL					keepDrawThreadAlive;	// when it has no items in it, the thread will die
-	unsigned                numberDrawRequests;		// how many threaded draws are piling up in the queue.
+	NSUInteger                numberDrawRequests;		// how many threaded draws are piling up in the queue.
 	BOOL					hasThread;
 	
 	// Drawing Environment
@@ -98,7 +98,7 @@ typedef enum
 // Drawing
 - (void) draw;
 - (void) drawFocusRing;
-- (void) strokeInsideRect:(NSRect)rect thickness:(float)borderWidth;
+- (void) strokeInsideRect:(NSRect)rect thickness:(CGFloat)borderWidth;
 
 // Accessors
 - (LDrawColorT) LDrawColor;
@@ -110,7 +110,7 @@ typedef enum
 - (ProjectionModeT) projectionMode;
 - (Tuple3) viewingAngle;
 - (ViewOrientationT) viewOrientation;
-- (float) zoomPercentage;
+- (CGFloat) zoomPercentage;
 
 - (void) setAcceptsFirstResponder:(BOOL)flag;
 - (void) setAutosaveName:(NSString *)newName;
@@ -125,7 +125,7 @@ typedef enum
 - (void) setTarget:(id)target;
 - (void) setViewingAngle:(Tuple3)newAngle;
 - (void) setViewOrientation:(ViewOrientationT) newAngle;
-- (void) setZoomPercentage:(float) newPercentage;
+- (void) setZoomPercentage:(CGFloat) newPercentage;
 
 // Actions
 - (IBAction) viewOrientationSelected:(id)sender;

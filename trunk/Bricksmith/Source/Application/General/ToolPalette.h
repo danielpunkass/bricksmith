@@ -45,7 +45,7 @@ typedef enum
 	
 	//Event Tracking
 	NSString				*currentKeyCharacters;	//identifies the current keys down, independent of modifiers (empty string if no keys down)
-	unsigned int			 currentKeyModifiers;	//identifiers the current modifiers down (including device-dependent)
+	NSUInteger				 currentKeyModifiers;	//identifiers the current modifiers down (including device-dependent)
 	BOOL					 mouseButton3IsDown;
 	NSPointingDeviceType	 tabletPointingDevice;	// current pen-tablet device currently in proximity
 
@@ -73,7 +73,7 @@ typedef enum
 
 //Utilities
 - (void) resolveCurrentToolMode;
-+ (NSString *) keysForToolMode:(ToolModeT)toolMode modifiers:(unsigned int*)modifiersOut;
-+ (BOOL) toolMode:(ToolModeT)toolMode matchesCharacters:(NSString *)characters modifiers:(unsigned int)modifiers;
++ (NSString *) keysForToolMode:(ToolModeT)toolMode modifiers:(NSUInteger*)modifiersOut;
++ (BOOL) toolMode:(ToolModeT)toolMode matchesCharacters:(NSString *)characters modifiers:(NSUInteger)modifiers;
 
 @end

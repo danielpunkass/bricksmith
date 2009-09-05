@@ -25,7 +25,7 @@
 {
 	LDrawMPDModel		*activeModel;
 	NSString			*filePath;			//where this file came from on disk.
-	unsigned			 drawCount;			//number of threads currently drawing us
+	NSUInteger			 drawCount;			//number of threads currently drawing us
 	NSConditionLock		*editLock;
 }
 

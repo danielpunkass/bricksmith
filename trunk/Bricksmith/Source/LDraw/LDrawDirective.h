@@ -35,7 +35,7 @@
 + (id) directiveWithString:(NSString *)lineFromFile;
 
 //Directives
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor;
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor;
 - (NSString *) write;
 
 //Display

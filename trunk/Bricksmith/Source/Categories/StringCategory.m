@@ -23,7 +23,7 @@
 // Note:		Every string is reported as containing the empty string (@"").
 //
 //==============================================================================
-- (BOOL) containsString:(NSString *)substring options:(unsigned)mask
+- (BOOL) containsString:(NSString *)substring options:(NSUInteger)mask
 {
 	NSRange foundRange = [self rangeOfString:substring options:mask];
 	
@@ -75,15 +75,15 @@
 //==============================================================================
 - (NSArray *) separateByLine
 {
-	NSMutableArray	*lines = [NSMutableArray array];
-	unsigned		 stringLength = [self length];
+	NSMutableArray  *lines              = [NSMutableArray array];
+	NSUInteger      stringLength        = [self length];
 	
-	unsigned		 lineStartIndex = 0;
-	unsigned		 nextlineStartIndex = 0;
-	unsigned		 newlineIndex	= 0; //index of the first newline character in the line.
+	NSUInteger      lineStartIndex      = 0;
+	NSUInteger      nextlineStartIndex  = 0;
+	NSUInteger      newlineIndex        = 0; //index of the first newline character in the line.
 	
-	NSString		*isolatedLine;
-	int				 lineLength = 0;
+	NSString        *isolatedLine;
+	NSInteger       lineLength          = 0;
 	
 	while(nextlineStartIndex < stringLength){
 		//Read the first line. LDraw files are in DOS format. Oh the agony.
@@ -111,13 +111,13 @@
 //==============================================================================
 - (NSString *) stringByRemovingWhitespace
 {
-	int				originalLength		= [self length];
-	unichar			*resultBuffer		= malloc( sizeof(unichar) * originalLength );
-	NSCharacterSet	*whitespaceSet		= [NSCharacterSet whitespaceCharacterSet];
-	unichar			 currentCharacter	= '\0';
-	int				 resultLength		= 0;
-	int				 counter			= 0;
-	NSString		*strippedString		= nil;
+	NSInteger       originalLength      = [self length];
+	unichar         *resultBuffer       = malloc( sizeof(unichar) * originalLength );
+	NSCharacterSet  *whitespaceSet      = [NSCharacterSet whitespaceCharacterSet];
+	unichar         currentCharacter    = '\0';
+	NSInteger       resultLength        = 0;
+	NSInteger       counter             = 0;
+	NSString        *strippedString     = nil;
 	
 	// Copy only non-whitespace characters into the new string.
 	//	* We'll assume the Unicode Consortium will never be sick enough to put 

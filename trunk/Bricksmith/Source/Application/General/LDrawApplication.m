@@ -60,9 +60,9 @@
 	// seriously do not feel like coming up with a Tiger solution to that mess. 
 	if(systemVersion < 0x1050)
 	{
-		NSMenu			*mainMenu			= [NSApp mainMenu];
-		NSMenu			*toolsMenu			= [[mainMenu itemWithTag:toolsMenuTag] submenu];
-		int				 fileContentsIndex	= [toolsMenu indexOfItemWithTag:fileContentsMenuTag];
+		NSMenu      *mainMenu           = [NSApp mainMenu];
+		NSMenu      *toolsMenu          = [[mainMenu itemWithTag:toolsMenuTag] submenu];
+		NSInteger   fileContentsIndex   = [toolsMenu indexOfItemWithTag:fileContentsMenuTag];
 		
 		[toolsMenu removeItemAtIndex:fileContentsIndex];
 	}
@@ -491,12 +491,12 @@
 //==============================================================================
 - (void) partBrowserStyleDidChange:(NSNotification *)notification
 {
-	NSUserDefaults			*userDefaults		= [NSUserDefaults standardUserDefaults];
-	PartBrowserStyleT		 newStyle			= [userDefaults integerForKey:PART_BROWSER_STYLE_KEY];
-	NSDocumentController	*documentController	= [NSDocumentController sharedDocumentController];
-	NSArray					*documents			= [documentController documents];
-	int						 documentCount		= [documents count];
-	int						 counter			= 0;
+	NSUserDefaults          *userDefaults       = [NSUserDefaults standardUserDefaults];
+	PartBrowserStyleT       newStyle            = [userDefaults integerForKey:PART_BROWSER_STYLE_KEY];
+	NSDocumentController    *documentController = [NSDocumentController sharedDocumentController];
+	NSArray                 *documents          = [documentController documents];
+	NSInteger               documentCount       = [documents count];
+	NSInteger               counter             = 0;
 	
 	switch(newStyle)
 	{
@@ -581,15 +581,15 @@
 //==============================================================================
 - (NSString *) findLDrawPath
 {
-	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
-	int				 counter			= 0;
-	BOOL			 foundAPath			= NO;
+	NSUserDefaults  *userDefaults       = [NSUserDefaults standardUserDefaults];
+	NSInteger       counter             = 0;
+	BOOL            foundAPath          = NO;
 	
-	NSString		*applicationPath	= [[NSBundle mainBundle] bundlePath];
-	NSString		*applicationFolder	= [applicationPath stringByDeletingLastPathComponent];
-	NSString		*siblingFolder		= [applicationFolder stringByDeletingLastPathComponent];
-	NSString		*library			= [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES) objectAtIndex:0];
-	NSString		*userLibrary		= [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask,  YES) objectAtIndex:0];
+	NSString        *applicationPath    = [[NSBundle mainBundle] bundlePath];
+	NSString        *applicationFolder  = [applicationPath stringByDeletingLastPathComponent];
+	NSString        *siblingFolder      = [applicationFolder stringByDeletingLastPathComponent];
+	NSString        *library            = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES) objectAtIndex:0];
+	NSString        *userLibrary        = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask,  YES) objectAtIndex:0];
 	
 	//Try User Defaults first; maybe we've already saved one.
 	NSString		*preferencePath		= [userDefaults stringForKey:LDRAW_PATH_KEY];

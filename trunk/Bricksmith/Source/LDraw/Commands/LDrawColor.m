@@ -145,7 +145,7 @@
 // Purpose:		"Draws" the color.
 //
 //==============================================================================
-- (void) draw:(unsigned int) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
 {
 	// Need to add this color to the model's color library.
 	ColorLibrary *colorLibrary = [[(LDrawStep*)[self enclosingDirective] enclosingModel] colorLibrary];
@@ -426,9 +426,9 @@
 // Purpose:		Sets the actual RGBA component values for this color. 
 //
 //==============================================================================
-- (void) setColorRGBA:(float *)newComponents
+- (void) setColorRGBA:(GLfloat *)newComponents
 {
-	memcpy(self->colorRGBA, newComponents, sizeof(float[4]));
+	memcpy(self->colorRGBA, newComponents, sizeof(GLfloat[4]));
 	
 }//end setColorRGBA:
 
@@ -462,9 +462,9 @@
 //				LDrawColorBogus. 
 //
 //==============================================================================
-- (void) setEdgeColorRGBA:(float *)newComponents
+- (void) setEdgeColorRGBA:(GLfloat *)newComponents
 {
-	memcpy(self->edgeColorRGBA, newComponents, sizeof(float[4]));
+	memcpy(self->edgeColorRGBA, newComponents, sizeof(GLfloat[4]));
 	
 	// Disable the edge color code, since we have real color values for it now.
 	[self setEdgeColorCode:LDrawColorBogus];
@@ -610,7 +610,7 @@
 //				extension. 
 //
 //==============================================================================
-- (NSString *) hexStringForRGB:(float *)components
+- (NSString *) hexStringForRGB:(GLfloat *)components
 {
 	NSString	*hexString	= [NSString stringWithFormat:@"#%02X%02X%02X",
 													(int) (components[0] * 255),
@@ -634,7 +634,7 @@
 // Example:		#77CC00 becomes (R = 0.4666; G = 0.8; B = 0.0)
 //
 //==============================================================================
-- (BOOL) scanHexString:(NSScanner *)hexScanner intoRGB:(float *)components
+- (BOOL) scanHexString:(NSScanner *)hexScanner intoRGB:(GLfloat *)components
 {
 	unsigned	hexBytes	= 0;
 	BOOL		success		= NO;
@@ -653,9 +653,9 @@
 		[hexScanner scanHexInt:&hexBytes];
 		
 		// Colors will be stored in the integer as follows: xxRRGGBB
-		components[0] = (float) ((hexBytes >> 2 * 8) & 0xFF) / 255; // Red
-		components[1] = (float) ((hexBytes >> 1 * 8) & 0xFF) / 255; // Green
-		components[2] = (float) ((hexBytes >> 0 * 8) & 0xFF) / 255; // Blue
+		components[0] = (GLfloat) ((hexBytes >> 2 * 8) & 0xFF) / 255; // Red
+		components[1] = (GLfloat) ((hexBytes >> 1 * 8) & 0xFF) / 255; // Green
+		components[2] = (GLfloat) ((hexBytes >> 0 * 8) & 0xFF) / 255; // Blue
 		components[3] = 1.0; // we shall assume alpha
 	}
 	

@@ -88,7 +88,7 @@ typedef enum insertionMode {
 - (Tuple3) viewingAngle;
 
 - (void) setActiveModel:(LDrawMPDModel *)newActiveModel;
-- (void) setCurrentStep:(int)requestedStep;
+- (void) setCurrentStep:(NSInteger)requestedStep;
 - (void) setDocumentContents:(LDrawFile *)newContents;
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;
 - (void) setLastSelectedPart:(LDrawPart *)newPart;
@@ -101,7 +101,7 @@ typedef enum insertionMode {
 - (void) rotateSelection:(Tuple3)rotation mode:(RotationModeT)mode fixedCenter:(Point3 *)fixedCenter;
 - (void) selectDirective:(LDrawDirective *)directiveToSelect byExtendingSelection:(BOOL)shouldExtend;
 - (void) setSelectionToHidden:(BOOL)hideFlag;
-- (void) setZoomPercentage:(float)newPercentage;
+- (void) setZoomPercentage:(CGFloat)newPercentage;
 
 //Actions
 - (void) changeLDrawColor:(id)sender;
@@ -166,7 +166,7 @@ typedef enum insertionMode {
 
 //Undoable Activities
 - (void) addDirective:(LDrawDirective *)newDirective toParent:(LDrawContainer * )parent;
-- (void) addDirective:(LDrawDirective *)newDirective toParent:(LDrawContainer * )parent atIndex:(int)index;
+- (void) addDirective:(LDrawDirective *)newDirective toParent:(LDrawContainer * )parent atIndex:(NSInteger)index;
 - (void) deleteDirective:(LDrawDirective *)doomedDirective;
 - (void) moveDirective:(LDrawDrawableElement *)object inDirection:(Vector3)moveVector;
 - (void) rotatePart:(LDrawPart *)part byDegrees:(Tuple3)rotationDegrees aroundPoint:(Point3)rotationCenter;

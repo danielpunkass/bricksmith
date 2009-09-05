@@ -176,7 +176,7 @@ ToolPalette *sharedToolPalette = nil;
 		//inform observers.
 		[[NSNotificationCenter defaultCenter]
 				postNotificationName:LDrawMouseToolDidChangeNotification
-							  object:[NSNumber numberWithInt:effectiveToolMode] ];
+							  object:[NSNumber numberWithInteger:effectiveToolMode] ];
 	}
 
 }//end setToolMode:
@@ -399,13 +399,13 @@ ToolPalette *sharedToolPalette = nil;
 //==============================================================================
 - (void) resolveCurrentToolMode
 {
-	ToolModeT		 newToolMode;
+	ToolModeT   newToolMode;
 	
-	NSString		*baseCharacters			= nil;
-	unsigned int	 baseModifiers			= 0;
+	NSString    *baseCharacters         = nil;
+	NSUInteger  baseModifiers           = 0;
 	
-	NSString		*effectiveCharacters	= nil;
-	unsigned int	 effectiveModifiers		= 0;
+	NSString    *effectiveCharacters    = nil;
+	NSUInteger  effectiveModifiers      = 0;
 	
 	baseCharacters = [ToolPalette keysForToolMode: baseToolMode
 										modifiers:&baseModifiers ];
@@ -483,7 +483,7 @@ ToolPalette *sharedToolPalette = nil;
 //
 //------------------------------------------------------------------------------
 + (NSString *) keysForToolMode:(ToolModeT)toolMode
-					 modifiers:(unsigned int*)modifiersOut
+					 modifiers:(NSUInteger*)modifiersOut
 {
 	NSString *characters = nil; //characters required with this modifier
 	
@@ -541,11 +541,11 @@ ToolPalette *sharedToolPalette = nil;
 //------------------------------------------------------------------------------
 + (BOOL) toolMode:(ToolModeT)toolMode
 matchesCharacters:(NSString *)characters
-		modifiers:(unsigned int)modifiers
+		modifiers:(NSUInteger)modifiers
 {
-	NSString		*testCharacters			= nil;
-	unsigned int	 testModifiers			= 0;
-	BOOL			 matches				= NO;
+	NSString    *testCharacters = nil;
+	NSUInteger  testModifiers   = 0;
+	BOOL        matches         = NO;
 	
 	testCharacters = [ToolPalette keysForToolMode: toolMode
 										modifiers:&testModifiers ];

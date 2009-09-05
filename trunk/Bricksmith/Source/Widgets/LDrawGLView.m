@@ -207,7 +207,7 @@
 	
 	// The overall scene has ambient light to make the lighting less harsh. But 
 	// too much ambient light makes everything washed out. 
-	float lightModelAmbient[4]    = {0.3, 0.3, 0.3, 0.0};
+	GLfloat lightModelAmbient[4]    = {0.3, 0.3, 0.3, 0.0};
 	
 	glLightModeli( GL_LIGHT_MODEL_LOCAL_VIEWER,	GL_FALSE);
 	glLightModeli( GL_LIGHT_MODEL_TWO_SIDE,		GL_FALSE );
@@ -219,13 +219,13 @@
 	// We are going to have two lights, one in a standard position (LIGHT0) and 
 	// another pointing opposite to it (LIGHT1). The second light will 
 	// illuminate any inverted normals or backwards polygons. 
-	float position0[] = {0, -0.0, -1.0, 0};
-	float position1[] = {0,  0.0,  1.0, 0};
+	GLfloat position0[] = {0, -0.0, -1.0, 0};
+	GLfloat position1[] = {0,  0.0,  1.0, 0};
 	
 	// Lessening the diffuseness also makes lighting less extreme.
-	float light0Ambient[4]     = { 0.0, 0.0, 0.0, 1.0 };
-	float light0Diffuse[4]     = { 0.8, 0.8, 0.8, 1.0 };
-	float light0Specular[4]    = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat light0Ambient[4]     = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat light0Diffuse[4]     = { 0.8, 0.8, 0.8, 1.0 };
+	GLfloat light0Specular[4]    = { 0.0, 0.0, 0.0, 1.0 };
 	
 	//normal forward light
 	glLightfv(GL_LIGHT0, GL_POSITION, position0);
@@ -337,7 +337,7 @@
 - (void) draw
 {
 	NSDate				*startTime			= nil;
-	unsigned			 options			= DRAW_NO_OPTIONS;
+	NSUInteger			 options			= DRAW_NO_OPTIONS;
 	NSTimeInterval		 drawTime			= 0;
 	BOOL				 considerFastDraw	= NO;
 	
@@ -430,7 +430,7 @@
 - (void) drawFocusRing
 {
 	NSRect	visibleRect = [self visibleRect];
-	float	lineWidth	= 1.0;
+	CGFloat	lineWidth	= 1.0;
 	
 	lineWidth /= [self zoomPercentage] / 100;
 	
@@ -484,7 +484,7 @@
 //
 //==============================================================================
 - (void) strokeInsideRect:(NSRect)rect
-				thickness:(float)borderWidth
+				thickness:(CGFloat)borderWidth
 {
 	//draw like the wood of a picture frame: four trapezoids
 	glBegin(GL_QUAD_STRIP);
@@ -731,10 +731,10 @@
 //				method returns 100.
 //
 //==============================================================================
-- (float) zoomPercentage
+- (CGFloat) zoomPercentage
 {
 	NSScrollView	*scrollview		= [self enclosingScrollView];
-	float			 zoomPercentage	= 0;
+	CGFloat			 zoomPercentage	= 0;
 	
 	if(scrollview != nil)
 	{
@@ -1089,7 +1089,7 @@
 //				constrained to a minimum of 1%. 
 //
 //==============================================================================
-- (void) setZoomPercentage:(float) newPercentage
+- (void) setZoomPercentage:(CGFloat) newPercentage
 {
 	NSScrollView *scrollView = [self enclosingScrollView];
 	
@@ -1099,7 +1099,7 @@
 		NSRect		 clipFrame		= [clipView frame];
 		NSRect		 clipBounds		= [clipView bounds];
 		NSPoint		 originalCenter	= [self centerPoint];
-		float		scaleFactor		= 0;
+		CGFloat		scaleFactor		= 0;
 		
 		// Don't go below a certain zoom
 		if(newPercentage >= 1)
@@ -1155,8 +1155,8 @@
 //==============================================================================
 - (IBAction) zoomIn:(id)sender
 {
-	float currentZoom	= [self zoomPercentage];
-	float newZoom		= currentZoom * 2;
+	CGFloat currentZoom	= [self zoomPercentage];
+	CGFloat newZoom		= currentZoom * 2;
 	
 	[self setZoomPercentage:newZoom];
 	
@@ -1170,8 +1170,8 @@
 //==============================================================================
 - (IBAction) zoomOut:(id)sender
 {
-	float currentZoom	= [self zoomPercentage];
-	float newZoom		= currentZoom / 2;
+	CGFloat currentZoom	= [self zoomPercentage];
+	CGFloat newZoom		= currentZoom / 2;
 	
 	[self setZoomPercentage:newZoom];
 	
@@ -1197,7 +1197,7 @@
 	Box3        projectedBounds         = InvalidBox;
 	NSRect      projectionRect          = NSZeroRect;
 	NSSize      zoomScale2D             = NSZeroSize;
-	float       zoomScaleFactor         = 0.0;
+	CGFloat     zoomScaleFactor         = 0.0;
 	
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
@@ -1824,7 +1824,7 @@
 //==============================================================================
 - (NSMenu *) menuForEvent:(NSEvent *)theEvent
 {
-	int modifiers = [theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+	NSUInteger modifiers = [theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
 	
 	// Only display contextual menus for pure control- or right-clicks. By 
 	// default, the system permits control+<any other modifiers> to trigger 
@@ -2012,7 +2012,7 @@
 - (void) panDragged:(NSEvent *)theEvent
 {
 	NSRect	visibleRect	= [self visibleRect];
-	float	scaleFactor	= [self zoomPercentage] / 100;
+	CGFloat	scaleFactor	= [self zoomPercentage] / 100;
 	
 	//scroll the opposite direction of pull.
 	visibleRect.origin.x -= [theEvent deltaX] / scaleFactor;
@@ -2073,20 +2073,20 @@
 		// horrible things happen without this call.
 		[[self openGLContext] makeCurrentContext];
 		
-		float	deltaX			=   [theEvent deltaX];
-		float	deltaY			= - [theEvent deltaY]; //Apple's delta is backwards, for some reason.
-		float	viewWidth		= NSWidth([self frame]);
-		float	viewHeight		= NSHeight([self frame]);
+		CGFloat	deltaX			=   [theEvent deltaX];
+		CGFloat	deltaY			= - [theEvent deltaY]; //Apple's delta is backwards, for some reason.
+		CGFloat	viewWidth		= NSWidth([self frame]);
+		CGFloat	viewHeight		= NSHeight([self frame]);
 		
 		// Get the percentage of the window we have swept over. Since half the 
 		// window represents 180 degrees of rotation, we will eventually 
 		// multiply this percentage by 180 to figure out how much to rotate. 
-		float	percentDragX	= deltaX / viewWidth;
-		float	percentDragY	= deltaY / viewHeight;
+		CGFloat	percentDragX	= deltaX / viewWidth;
+		CGFloat	percentDragY	= deltaY / viewHeight;
 		
 		//Remember, dragging on y means rotating about x.
-		float	rotationAboutY	= + ( percentDragX * 180 );
-		float	rotationAboutX	= - ( percentDragY * 180 ); //multiply by -1,
+		CGFloat	rotationAboutY	= + ( percentDragX * 180 );
+		CGFloat	rotationAboutX	= - ( percentDragY * 180 ); //multiply by -1,
 					// as we need to convert our drag into a proper rotation 
 					// direction. See notes in function header.
 		
@@ -2135,8 +2135,8 @@
 //==============================================================================
 - (void) zoomDragged:(NSEvent *)theEvent
 {
-	float zoomChange	= -[theEvent deltaY];
-	float currentZoom	= [self zoomPercentage];
+	CGFloat zoomChange	= -[theEvent deltaY];
+	CGFloat currentZoom	= [self zoomPercentage];
 	
 	//Negative means down
 	[self setZoomPercentage:currentZoom + zoomChange];
@@ -2262,8 +2262,8 @@
 - (void) mouseZoomClick:(NSEvent*)theEvent
 {
 	ToolModeT	toolMode	= [ToolPalette toolMode];
-	float		currentZoom	= [self zoomPercentage];
-	float		newZoom		= 0;
+	CGFloat		currentZoom	= [self zoomPercentage];
+	CGFloat		newZoom		= 0;
 	NSPoint		newCenter	= [self convertPoint:[theEvent locationInWindow]
 										fromView:nil ];
 
@@ -2365,7 +2365,7 @@
 {
 	CGFloat magnification   = [theEvent magnification]; // 1 = increase 100%; -1 = decrease 100%
 	CGFloat zoomChange      = magnification * 100;
-	float   currentZoom     = [self zoomPercentage];
+	CGFloat currentZoom     = [self zoomPercentage];
 	
 	//Negative means down
 	[self setZoomPercentage:currentZoom + zoomChange];
@@ -2450,21 +2450,21 @@
 //==============================================================================
 - (NSDragOperation) draggingEntered:(id <NSDraggingInfo>)info
 {
-	NSPasteboard			*pasteboard			= [info draggingPasteboard];
-	id						 sourceView			= [info draggingSource];
-	NSDragOperation			 dragOperation		= NSDragOperationNone;
-	NSArray					*archivedDirectives	= nil;
-	NSMutableArray			*directives			= nil;
-	LDrawDrawableElement	*firstDirective		= nil;
-	LDrawPart				*newPart			= nil;
-	NSData					*data				= nil;
-	id						 currentObject		= nil;
-	int						 directiveCount		= 0;
-	int						 counter			= 0;
-	NSPoint					 dragPointInWindow	= [info draggingLocation];
-	TransformComponents		 partTransform		= IdentityComponents;
-	Point3					 modelReferencePoint= ZeroPoint3;
-	NSData					*vectorOffsetData	= nil;
+	NSPasteboard            *pasteboard         = [info draggingPasteboard];
+	id                      sourceView          = [info draggingSource];
+	NSDragOperation         dragOperation       = NSDragOperationNone;
+	NSArray                 *archivedDirectives = nil;
+	NSMutableArray          *directives         = nil;
+	LDrawDrawableElement    *firstDirective     = nil;
+	LDrawPart               *newPart            = nil;
+	NSData                  *data               = nil;
+	id                      currentObject       = nil;
+	NSUInteger              directiveCount      = 0;
+	NSUInteger              counter             = 0;
+	NSPoint                 dragPointInWindow   = [info draggingLocation];
+	TransformComponents     partTransform       = IdentityComponents;
+	Point3                  modelReferencePoint = ZeroPoint3;
+	NSData                  *vectorOffsetData   = nil;
 	
 	// local drag?
 	if(sourceView == self)
@@ -2750,16 +2750,16 @@
 	  depthReferencePoint:(Point3)modelReferencePoint
 			constrainAxis:(BOOL)constrainAxis
 {
-	LDrawDrawableElement	*firstDirective			= nil;
-	NSPoint					 dragPointInView		= NSZeroPoint;
-	Point3					 modelPoint				= ZeroPoint3;
-	Point3					 oldPosition			= ZeroPoint3;
-	Point3					 constrainedPosition	= ZeroPoint3;
-	Vector3					 displacement			= ZeroPoint3;
-	Vector3					 cumulativeDisplacement	= ZeroPoint3;
-	float					 gridSpacing			= [LDrawUtilities gridSpacingForMode:self->gridMode];
-	int						 counter				= 0;
-	BOOL					 moved					= NO;
+	LDrawDrawableElement    *firstDirective         = nil;
+	NSPoint                 dragPointInView         = NSZeroPoint;
+	Point3                  modelPoint              = ZeroPoint3;
+	Point3                  oldPosition             = ZeroPoint3;
+	Point3                  constrainedPosition     = ZeroPoint3;
+	Vector3                 displacement            = ZeroPoint3;
+	Vector3                 cumulativeDisplacement  = ZeroPoint3;
+	float                   gridSpacing             = [LDrawUtilities gridSpacingForMode:self->gridMode];
+	NSUInteger              counter                 = 0;
+	BOOL                    moved                   = NO;
 	
 	firstDirective	= [directives objectAtIndex:0];
 	
@@ -2905,7 +2905,7 @@
 		[[self openGLContext] makeCurrentContext];
 
 		NSRect	visibleRect	= [self visibleRect];
-		float	scaleFactor	= [self zoomPercentage] / 100;
+		CGFloat	scaleFactor	= [self zoomPercentage] / 100;
 		
 	//	NSLog(@"GL view(0x%X) reshaping; frame %@", self, NSStringFromRect(frame));
 		
@@ -3026,9 +3026,9 @@
 		GLuint			 nameBuffer			[512]	= {0};
 		GLint			 viewport			[4]		= {0};
 		GLfloat			 projectionMatrix	[16]	= {0.0};
-		int				 numberOfHits				= 0;
-		int				 counter					= 0;
-		unsigned int	 drawOptions				= DRAW_HIT_TEST_MODE;
+		NSUInteger		 numberOfHits				= 0;
+		NSUInteger		 counter					= 0;
+		NSUInteger		 drawOptions				= DRAW_HIT_TEST_MODE;
 		
 		if(fastDraw == YES)
 			drawOptions |= DRAW_BOUNDS_ONLY;
@@ -3054,8 +3054,8 @@
 				glLoadIdentity();
 				
 				//Lastly, convert to viewport coordinates:
-				float pickX = viewClickedPoint.x - NSMinX(visibleRect);
-				float pickY = viewClickedPoint.y - NSMinY(visibleRect);
+				GLdouble pickX = viewClickedPoint.x - NSMinX(visibleRect);
+				GLdouble pickY = viewClickedPoint.y - NSMinY(visibleRect);
 				
 				gluPickMatrix(pickX,
 							  pickY,
@@ -3133,10 +3133,10 @@
 	GLuint	minimumDepth		= UINT_MAX;
 	GLuint	currentName			= 0;
 	GLuint	currentDepth		= 0;
-	int		numberNames			= 0;
-	int		hitCounter			= 0;
-	int		counter				= 0;
-	int		hitRecordBaseIndex	= 0;
+	GLuint		numberNames			= 0;
+	GLuint		hitCounter			= 0;
+	GLuint		counter				= 0;
+	GLuint		hitRecordBaseIndex	= 0;
 	
 	//Process all the hits. In theory, each hit record can be of variable 
 	// length, so the logic is a little messy. (In Bricksmith, each it record 
@@ -3200,8 +3200,8 @@
 	LDrawDirective	*clickedDirective	= nil;
 	
 	//Name tags encode the indices at which the reside.
-	int	stepIndex	= name / STEP_NAME_MULTIPLIER; //integer division
-	int	partIndex	= name % STEP_NAME_MULTIPLIER;
+	NSUInteger	stepIndex	= name / STEP_NAME_MULTIPLIER; //integer division
+	NSUInteger	partIndex	= name % STEP_NAME_MULTIPLIER;
 	
 	//Find the reference we seek. Note that the "fileBeingDrawn" is 
 	// not necessarily a file, so we have to compensate.
@@ -3885,7 +3885,7 @@
 	NSRect	frame			= [self frame];
 	NSRect	visibilityPlane	= NSZeroRect;
 
-	float y = NSMinY(visibleRect);
+	CGFloat y = NSMinY(visibleRect);
 	if([self isFlipped] == YES)
 		y = NSHeight(frame) - y - NSHeight(visibleRect);
 	

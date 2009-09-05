@@ -3,7 +3,7 @@
 // File:		AMSProgressPanel.h
 //
 // Purpose:		Displays a progress bar which estimates the time remaining to 
-//				completion.
+//				completion. 
 //
 //  Created by Allen Smith on Sun Sept 19 2004.
 //  Copyright (c) 2004. All rights reserved.
@@ -27,12 +27,12 @@
 
 //Initialization
 + (AMSProgressPanel *) progressPanel;
-+ (AMSProgressPanel *) doProgressBarWithMax:(float)maximum forWindow:(NSWindow *)parentWindow message:(NSString*)messageKey;
-- (id) initWithMax:(float)maximum message:(NSString*)messageKey;
++ (AMSProgressPanel *) doProgressBarWithMax:(double)maximum forWindow:(NSWindow *)parentWindow message:(NSString*)messageKey;
+- (id) initWithMax:(double)maximum message:(NSString*)messageKey;
 
 //Accessors
 - (void) setIndeterminate:(BOOL)flag;
-- (void) setValue:(float)newValue;
+- (void) setValue:(double)newValue;
 - (void) increment;
 - (void) setMinValue:(double)newValue;
 - (void) setMaxValue:(double)newValue;

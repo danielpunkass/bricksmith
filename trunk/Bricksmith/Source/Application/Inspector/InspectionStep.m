@@ -295,9 +295,9 @@
 //==============================================================================
 - (void) setAngleUIAccordingToPopUp
 {
-	LDrawStepRotationT	stepRotationType	= [self->rotationTypeRadioButtons selectedTag];
-	int					shortcut			= 0;
-	Tuple3				newAngle			= ZeroPoint3;
+	LDrawStepRotationT  stepRotationType    = [self->rotationTypeRadioButtons selectedTag];
+	NSInteger           shortcut            = 0;
+	Tuple3              newAngle            = ZeroPoint3;
 	
 	// Relative rotation?
 	if(stepRotationType == LDrawStepRotationRelative)

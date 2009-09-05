@@ -42,12 +42,12 @@
 //==============================================================================
 - (void) awakeFromNib
 {
-	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
-	NSString		*startingCategory	= [userDefaults stringForKey:PART_BROWSER_PREVIOUS_CATEGORY];
-	int				 startingRow		= [userDefaults integerForKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
-	NSMenu			*searchMenuTemplate	= [[NSMenu alloc] initWithTitle:@"Search template"];
-	NSMenuItem		*recentsItem		= nil;
-	NSMenuItem		*noRecentsItem		= nil;
+	NSUserDefaults  *userDefaults       = [NSUserDefaults standardUserDefaults];
+	NSString        *startingCategory   = [userDefaults stringForKey:PART_BROWSER_PREVIOUS_CATEGORY];
+	NSInteger       startingRow         = [userDefaults integerForKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
+	NSMenu          *searchMenuTemplate = [[NSMenu alloc] initWithTitle:@"Search template"];
+	NSMenuItem      *recentsItem        = nil;
+	NSMenuItem      *noRecentsItem      = nil;
 	
 	// Loading main nib (the one in which this helper controller was allocated)
 	// By the time this is called, our accessory nib has already been loaded in 
@@ -171,9 +171,9 @@
 //==============================================================================
 - (NSString *) selectedPartName
 {
-	int				 rowIndex	= [partsTable selectedRow];
-	NSDictionary	*partRecord	= nil;
-	NSString		*partName	= nil;
+	NSInteger       rowIndex    = [partsTable selectedRow];
+	NSDictionary    *partRecord = nil;
+	NSString        *partName   = nil;
 	
 	if(rowIndex >= 0)
 	{
@@ -467,7 +467,7 @@
 // Purpose:		Returns the number of browsable categories.
 //
 //==============================================================================
-- (int)numberOfItemsInComboBox:(NSComboBox *)comboBox
+- (NSInteger) numberOfItemsInComboBox:(NSComboBox *)comboBox
 {
 	return [categoryList count];
 	
@@ -480,7 +480,7 @@
 // Purpose:		Brings the window on screen.
 //
 //==============================================================================
-- (id)comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(int)index
+- (id) comboBox:(NSComboBox *)comboBox objectValueForItemAtIndex:(NSInteger)index
 {
 	return [categoryList objectAtIndex:index];
 	
@@ -493,13 +493,13 @@
 // Purpose:		Do a lazy string completion; no capital letters required.
 //
 //==============================================================================
-- (NSString *)comboBox:(NSComboBox *)comboBox completedString:(NSString *)uncompletedString
+- (NSString *) comboBox:(NSComboBox *)comboBox completedString:(NSString *)uncompletedString
 {
-	NSString			*currentCategory	= nil;
-	BOOL				 foundMatch			= NO;
-	NSComparisonResult	 comparisonResult	= NSOrderedSame;
-	NSString			*completedString	= nil;
-	int					 counter			= 0;
+	NSString            *currentCategory    = nil;
+	BOOL                foundMatch          = NO;
+	NSComparisonResult  comparisonResult    = NSOrderedSame;
+	NSString            *completedString    = nil;
+	NSUInteger          counter             = 0;
 	
 	//Search through all available categories, trying to find one with a 
 	// case-insensitive prefix of uncompletedString
@@ -539,7 +539,7 @@
 //				being browsed.
 //
 //==============================================================================
-- (int)numberOfRowsInTableView:(NSTableView *)tableView
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView
 {
 	return [tableDataSource count];
 	
@@ -554,7 +554,7 @@
 //==============================================================================
 - (id)				tableView:(NSTableView *)tableView
 	objectValueForTableColumn:(NSTableColumn *)tableColumn
-						  row:(int)rowIndex
+						  row:(NSInteger)rowIndex
 {
 	NSDictionary	*partRecord			= [tableDataSource objectAtIndex:rowIndex];
 	NSString		*columnIdentifier	= [tableColumn identifier];
@@ -648,8 +648,8 @@
 //==============================================================================
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	int				 newRow			= [self->partsTable selectedRow];
+	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+	NSInteger       newRow          = [self->partsTable selectedRow];
 	
 	//Redisplay preview.
 	[self syncSelectionAndPartDisplayed];
@@ -678,7 +678,7 @@
 {
 	PartLibrary *newLibrary         = [notification object];
 	NSString    *currentCategory    = [self->categoryComboBox stringValue];
-	int         selectedRow         = [self->partsTable selectedRow];
+	NSInteger   selectedRow         = [self->partsTable selectedRow];
 	
 	[self setPartLibrary:newLibrary];
 	
@@ -720,13 +720,13 @@
 - (NSMutableArray *) filterPartRecords:(NSArray *)partRecords
 						bySearchString:(NSString *)searchString
 {
-	NSDictionary	*record					= nil;
-	int				 counter				= 0;
-	NSString		*partNumber				= nil;
-	NSString		*partDescription		= nil;
-	NSString		*partSansWhitespace		= nil;
-	NSMutableArray	*matchingParts			= [NSMutableArray array];
-	NSString		*searchSansWhitespace	= [searchString stringByRemovingWhitespace];
+	NSDictionary    *record                 = nil;
+	NSUInteger      counter                 = 0;
+	NSString        *partNumber             = nil;
+	NSString        *partDescription        = nil;
+	NSString        *partSansWhitespace     = nil;
+	NSMutableArray  *matchingParts          = [NSMutableArray array];
+	NSString        *searchSansWhitespace   = [searchString stringByRemovingWhitespace];
 	
 	if([searchString length] == 0)
 	{

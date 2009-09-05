@@ -25,14 +25,14 @@
 - (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
 								projection:(const GLdouble *)projectionGLMatrix
 									  view:(const GLint *)viewport;
-- (int) indexOfDirective:(LDrawDirective *)directive;
+- (NSInteger) indexOfDirective:(LDrawDirective *)directive;
 - (NSArray *) subdirectives;
 
 //Actions
 - (void) addDirective:(LDrawDirective *)directive;
 - (void) collectPartReport:(PartReport *)report;
-- (void) insertDirective:(LDrawDirective *)directive atIndex:(int)index;
+- (void) insertDirective:(LDrawDirective *)directive atIndex:(NSInteger)index;
 - (void) removeDirective:(LDrawDirective *)doomedDirective;
-- (void) removeDirectiveAtIndex:(int)index;
+- (void) removeDirectiveAtIndex:(NSInteger)index;
 
 @end

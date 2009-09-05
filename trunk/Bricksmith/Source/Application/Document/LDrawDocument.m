@@ -109,12 +109,12 @@
 //==============================================================================
 - (void) windowControllerDidLoadNib:(NSWindowController *) aController
 {
-	NSNotificationCenter	*notificationCenter	= [NSNotificationCenter defaultCenter];
-	NSUserDefaults			*userDefaults		= [NSUserDefaults standardUserDefaults];
-	NSWindow				*window				= [aController window];
-	NSToolbar				*toolbar			= nil;
-	NSString				*savedSizeString	= nil;
-	int						 drawerState		= 0;
+	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
+	NSUserDefaults          *userDefaults       = [NSUserDefaults standardUserDefaults];
+	NSWindow                *window             = [aController window];
+	NSToolbar               *toolbar            = nil;
+	NSString                *savedSizeString    = nil;
+	NSInteger               drawerState         = 0;
 
     [super windowControllerDidLoadNib:aController];
 	
@@ -541,14 +541,14 @@
 //								  bounds-checking. 
 //
 //==============================================================================
-- (void) setCurrentStep:(int)requestedStep
+- (void) setCurrentStep:(NSInteger)requestedStep
 {
 	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
 	
 	[activeModel setMaximumStepIndexForStepDisplay:requestedStep];
 	
 	// Update UI
-	[self->stepField setIntValue:(requestedStep + 1)]; // make 1-relative
+	[self->stepField setIntegerValue:(requestedStep + 1)]; // make 1-relative
 	if([activeModel stepDisplay] == YES)
 	{
 		[self updateViewingAngleToMatchStep];
@@ -667,7 +667,7 @@
 	[self->viewStepsButton setState:(showStepsFlag == YES)];
 	
 	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
-	[self->stepField setIntValue:[activeModel maximumStepIndexForStepDisplay] + 1];
+	[self->stepField setIntegerValue:[activeModel maximumStepIndexForStepDisplay] + 1];
 	
 }//end toggleStepDisplay:
 
@@ -687,9 +687,9 @@
 //==============================================================================
 - (void) moveSelectionBy:(Vector3) movementVector
 {
-	NSArray			*selectedObjects	= [self selectedObjects];
-	LDrawDirective	*currentObject		= nil;
-	int				 counter			= 0;
+	NSArray         *selectedObjects    = [self selectedObjects];
+	LDrawDirective  *currentObject      = nil;
+	NSInteger       counter             = 0;
 	
 	//find the nudgable items
 	for(counter = 0; counter < [selectedObjects count]; counter++)
@@ -712,13 +712,13 @@
 //				give them our best estimate based on the grid granularity.
 //
 //==============================================================================
-- (void) nudgeSelectionBy:(Vector3) nudgeVector
+- (void) nudgeSelectionBy:(Vector3)nudgeVector
 {
-	NSArray					*selectedObjects	= [self selectedObjects];
-	LDrawDrawableElement	*firstNudgable		= nil;
-	id						 currentObject		= nil;
-	float					 nudgeMagnitude		= [LDrawUtilities gridSpacingForMode:self->gridMode];
-	int						 counter			= 0;
+	NSArray                 *selectedObjects    = [self selectedObjects];
+	LDrawDrawableElement    *firstNudgable      = nil;
+	id                      currentObject       = nil;
+	float                   nudgeMagnitude      = [LDrawUtilities gridSpacingForMode:self->gridMode];
+	NSInteger               counter             = 0;
 	
 	//normalize just in case someone didn't get the message!
 	nudgeVector = V3Normalize(nudgeVector);
@@ -820,11 +820,11 @@
 					mode:(RotationModeT)mode
 			 fixedCenter:(Point3 *)fixedCenter
 {
-	NSArray			*selectedObjects	= [self selectedObjects]; //array of LDrawDirectives.
-	id				 currentObject		= nil;
-	Box3			 selectionBounds	= [LDrawUtilities boundingBox3ForDirectives:selectedObjects];
-	Point3			 rotationCenter		= {0};
-	int				 counter			= 0;
+	NSArray     *selectedObjects    = [self selectedObjects]; //array of LDrawDirectives.
+	id          currentObject       = nil;
+	Box3        selectionBounds     = [LDrawUtilities boundingBox3ForDirectives:selectedObjects];
+	Point3      rotationCenter      = {0};
+	NSInteger   counter             = 0;
 	
 	if(mode == RotateAroundSelectionCenter)
 	{
@@ -868,9 +868,9 @@
 - (void) selectDirective:(LDrawDirective *) directiveToSelect
 	byExtendingSelection:(BOOL) shouldExtend
 {
-	NSArray			*ancestors			= [directiveToSelect ancestors];
-	int				 indexToSelect		= 0;
-	int				 counter			= 0;
+	NSArray     *ancestors      = [directiveToSelect ancestors];
+	NSInteger   indexToSelect   = 0;
+	NSInteger   counter         = 0;
 	
 	if(directiveToSelect == nil)
 		[fileContentsOutline deselectAll:nil];
@@ -907,9 +907,9 @@
 //==============================================================================
 - (void) setSelectionToHidden:(BOOL)hideFlag
 {
-	NSArray			*selectedObjects	= [self selectedObjects];
-	id				 currentObject		= nil;
-	int				 counter			= 0;
+	NSArray     *selectedObjects    = [self selectedObjects];
+	id          currentObject       = nil;
+	NSInteger   counter             = 0;
 	
 	for(counter = 0; counter < [selectedObjects count]; counter++)
 	{
@@ -925,7 +925,7 @@
 // Purpose:		Zooms the selected LDraw view to the specified percentage.
 //
 //==============================================================================
-- (void) setZoomPercentage:(float)newPercentage
+- (void) setZoomPercentage:(CGFloat)newPercentage
 {
 	[self->mostRecentLDrawView setZoomPercentage:newPercentage];
 	
@@ -949,10 +949,10 @@
 //==============================================================================
 - (void) changeLDrawColor:(id)sender
 {
-	NSArray		*selectedObjects	= [self selectedObjects];
-	id			 currentObject		= nil;
-	LDrawColorT	 newColor			= [sender LDrawColor];
-	int			 counter			= 0;
+	NSArray     *selectedObjects    = [self selectedObjects];
+	id          currentObject       = nil;
+	LDrawColorT newColor            = [sender LDrawColor];
+	NSInteger   counter             = 0;
 	
 	for(counter = 0; counter < [selectedObjects count]; counter++)
 	{
@@ -1067,11 +1067,11 @@
 //==============================================================================
 - (void) doMissingModelnameExtensionCheck:(id)sender
 {
-	NSArray			*submodels			= [[self documentContents] submodels];
-	LDrawMPDModel	*currentSubmodel	= nil;
-	NSString		*currentName		= nil;
-	NSString		*acceptableName		= nil;
-	int				counter				= 0;
+	NSArray         *submodels          = [[self documentContents] submodels];
+	LDrawMPDModel   *currentSubmodel    = nil;
+	NSString        *currentName        = nil;
+	NSString        *acceptableName     = nil;
+	NSInteger       counter             = 0;
 	
 	// Find submodels with bad names.
 	for(counter = 0; counter < [submodels count]; counter++)
@@ -1149,10 +1149,10 @@
 //==============================================================================
 - (void) doMovedPiecesCheck:(id)sender
 {
-	PartReport		*partReport			= [PartReport partReportForContainer:[self documentContents]];
-	NSArray			*movedParts			= [partReport movedParts];
-	int				 buttonReturned		= 0;
-	int				 counter			= 0;
+	PartReport	*partReport     = [PartReport partReportForContainer:[self documentContents]];
+	NSArray     *movedParts     = [partReport movedParts];
+	NSInteger   buttonReturned  = 0;
+	NSInteger   counter         = 0;
 	
 	if([movedParts count] > 0)
 	{
@@ -1218,10 +1218,10 @@
 //==============================================================================
 - (IBAction) stepFieldChanged:(id)sender
 {
-	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	int				numberSteps		= [[activeModel steps] count];
-	int				requestedStep	= [sender intValue]; // 1-relative
-	int				actualStep		= 0; // 1-relative
+	LDrawMPDModel   *activeModel    = [[self documentContents] activeModel];
+	NSInteger       numberSteps     = [[activeModel steps] count];
+	NSInteger       requestedStep   = [sender integerValue]; // 1-relative
+	NSInteger       actualStep      = 0; // 1-relative
 	
 	// The user's number may have been out of range.
 	actualStep = CLAMP(requestedStep, 1, numberSteps);
@@ -1289,24 +1289,24 @@
 //
 //==============================================================================
 - (void)exportStepsPanelDidEnd:(NSSavePanel *)savePanel
-					returnCode:(int)returnCode
+					returnCode:(NSInteger)returnCode
 				   contextInfo:(void *)contextInfo
 {
-	NSFileManager	*fileManager		= [NSFileManager defaultManager];
-	NSString		*saveName			= nil;
-	NSString		*modelName			= nil;
-	NSString		*folderName			= nil;
-	NSString		*modelnameFormat	= NSLocalizedString(@"ExportedStepsFolderFormat", nil);
-	NSString		*filenameFormat		= NSLocalizedString(@"ExportedStepsFileFormat", nil);
-	NSString		*fileString			= nil;
-	NSData			*fileOutputData		= nil;
-	NSString		*outputName			= nil;
-	NSString		*outputPath			= nil;
+	NSFileManager   *fileManager        = [NSFileManager defaultManager];
+	NSString        *saveName           = nil;
+	NSString        *modelName          = nil;
+	NSString        *folderName         = nil;
+	NSString        *modelnameFormat    = NSLocalizedString(@"ExportedStepsFolderFormat", nil);
+	NSString        *filenameFormat     = NSLocalizedString(@"ExportedStepsFileFormat", nil);
+	NSString        *fileString         = nil;
+	NSData          *fileOutputData     = nil;
+	NSString        *outputName         = nil;
+	NSString        *outputPath         = nil;
 		
-	LDrawFile		*fileCopy			= nil;
+	LDrawFile       *fileCopy           = nil;
 	
-	int				 modelCounter		= 0;
-	int				 counter			= 0;
+	NSInteger       modelCounter        = 0;
+	NSInteger       counter             = 0;
 	
 	if(returnCode == NSOKButton)
 	{
@@ -1347,7 +1347,7 @@
 				
 				outputName = [NSString stringWithFormat: filenameFormat, 
 														 [currentModel modelName],
-														 counter+1 ];
+														 (long)counter+1 ];
 				outputPath = [folderName stringByAppendingPathComponent:outputName];
 				[fileManager createFileAtPath:outputPath
 									 contents:fileOutputData
@@ -1434,9 +1434,9 @@
 //==============================================================================
 - (IBAction) delete:(id)sender
 {
-	NSArray			*selectedObjects	= [self selectedObjects];
-	LDrawDirective	*currentObject		= nil;
-	int				 counter;
+	NSArray         *selectedObjects    = [self selectedObjects];
+	LDrawDirective  *currentObject      = nil;
+	NSInteger       counter;
 	
 	//We'll just try to delete everything. Count backwards so that if a 
 	// deletion fails, it's the thing at the top rather than the bottom that 
@@ -1464,10 +1464,10 @@
 //==============================================================================
 - (IBAction) selectAll:(id)sender
 {
-	LDrawModel	*activeModel	= [[self documentContents] activeModel];
-	NSArray		*elements		= [activeModel allEnclosedElements];
-	id			 currentElement	= nil;
-	int			 counter		= 0;
+	LDrawModel  *activeModel    = [[self documentContents] activeModel];
+	NSArray     *elements       = [activeModel allEnclosedElements];
+	id          currentElement  = nil;
+	NSInteger   counter         = 0;
 	
 	//Deselect all first.
 	[self selectDirective:nil byExtendingSelection:NO];
@@ -1637,8 +1637,8 @@
 //==============================================================================
 - (IBAction) gridGranularityMenuChanged:(id)sender
 {
-	int					menuTag		= [sender tag];
-	gridSpacingModeT	newGridMode	= gridModeFine;;
+	NSInteger           menuTag     = [sender tag];
+	gridSpacingModeT    newGridMode = gridModeFine;;
 	
 	
 	switch(menuTag)
@@ -1784,9 +1784,9 @@
 //==============================================================================
 - (IBAction) advanceOneStep:(id)sender
 {
-	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	int				currentStep		= [activeModel maximumStepIndexForStepDisplay];
-	int				numberSteps		= [[activeModel steps] count];
+	LDrawMPDModel   *activeModel    = [[self documentContents] activeModel];
+	NSInteger       currentStep     = [activeModel maximumStepIndexForStepDisplay];
+	NSInteger       numberSteps     = [[activeModel steps] count];
 	
 	[self setCurrentStep: (currentStep+1) % numberSteps ];
 	
@@ -1800,9 +1800,9 @@
 //==============================================================================
 - (IBAction) backOneStep:(id)sender
 {
-	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	int				currentStep		= [activeModel maximumStepIndexForStepDisplay];
-	int				numberSteps		= [[activeModel steps] count];
+	LDrawMPDModel   *activeModel    = [[self documentContents] activeModel];
+	NSInteger       currentStep     = [activeModel maximumStepIndexForStepDisplay];
+	NSInteger       numberSteps     = [[activeModel steps] count];
 	
 	// Wrap around?
 	if(currentStep == 0)
@@ -1847,13 +1847,13 @@
 //==============================================================================
 - (void) snapSelectionToGrid:(id)sender
 {	
-	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
-	NSArray				*selectedObjects	= [self selectedObjects];
-	id					 currentObject		= nil;
-	float				 gridSpacing		= 0;
-	float				 degreesToRotate	= 0;
-	int					 counter			= 0;
-	TransformComponents	snappedComponents	= IdentityComponents;
+	NSUserDefaults      *userDefaults       = [NSUserDefaults standardUserDefaults];
+	NSArray             *selectedObjects    = [self selectedObjects];
+	id                  currentObject       = nil;
+	float               gridSpacing         = 0;
+	float               degreesToRotate     = 0;
+	NSInteger           counter             = 0;
+	TransformComponents snappedComponents   = IdentityComponents;
 	
 	//Determine granularity of grid.
 	switch([self gridSpacingMode])
@@ -2115,8 +2115,8 @@
 //==============================================================================
 - (void) addMinifigure:(id)sender
 {
-	MinifigureDialogController	*minifigDialog	= [MinifigureDialogController new];
-	int							 result			= NSCancelButton;
+	MinifigureDialogController  *minifigDialog  = [MinifigureDialogController new];
+	NSInteger                   result          = NSCancelButton;
 	
 	result = [minifigDialog runModal];
 	if(result == NSOKButton)
@@ -2159,7 +2159,8 @@
 - (void) addDirective:(LDrawDirective *)newDirective
 			 toParent:(LDrawContainer * )parent
 {
-	int index;
+	NSInteger index = 0;
+	
 	if(self->insertionMode == insertAtEnd)
 		index = [[parent subdirectives] count];
 	else
@@ -2179,7 +2180,7 @@
 //==============================================================================
 - (void) addDirective:(LDrawDirective *)newDirective
 			 toParent:(LDrawContainer * )parent
-			  atIndex:(int)index
+			  atIndex:(NSInteger)index
 {
 	NSUndoManager	*undoManager	= [self undoManager];
 	
@@ -2205,9 +2206,9 @@
 //==============================================================================
 - (void) deleteDirective:(LDrawDirective *)doomedDirective
 {
-	NSUndoManager	*undoManager	= [self undoManager];
-	LDrawContainer	*parent			= [doomedDirective enclosingDirective];
-	int				 index			= [[parent subdirectives] indexOfObject:doomedDirective];
+	NSUndoManager   *undoManager    = [self undoManager];
+	LDrawContainer  *parent         = [doomedDirective enclosingDirective];
+	NSInteger       index           = [[parent subdirectives] indexOfObject:doomedDirective];
 	
 	[[self documentContents] lockForEditing];
 	{
@@ -2419,9 +2420,9 @@
 //				expanded item.
 //
 //==============================================================================
-- (int)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
+- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
-	int numberOfChildren = 0;
+	NSInteger numberOfChildren = 0;
 	
 	//root object; return the number of submodels
 	if(item == nil)
@@ -2461,7 +2462,7 @@
 //
 //==============================================================================
 - (id)outlineView:(NSOutlineView *)outlineView
-			child:(int)index
+			child:(NSInteger)index
 		   ofItem:(id)item
 {
 	NSArray *children = nil;
@@ -2527,10 +2528,10 @@
 		 writeItems:(NSArray *)items
 	   toPasteboard:(NSPasteboard *)pboard
 {
-	int				 numberItems	= [items count];
-	NSMutableArray	*rowIndexes		= [NSMutableArray arrayWithCapacity:numberItems];
-	int				 itemIndex		= 0;
-	int				 counter		= 0;
+	NSInteger       numberItems = [items count];
+	NSMutableArray  *rowIndexes = [NSMutableArray arrayWithCapacity:numberItems];
+	NSInteger       itemIndex   = 0;
+	NSInteger       counter     = 0;
 	
 	//Write the objects as data.
 	[self writeDirectives:items toPasteboard:pboard];
@@ -2539,7 +2540,7 @@
 	// objects in the event of a successful drag.
 	for(counter = 0; counter < numberItems; counter++){
 		itemIndex = [outlineView rowForItem:[items objectAtIndex:counter]];
-		[rowIndexes addObject:[NSNumber numberWithInt:itemIndex]];
+		[rowIndexes addObject:[NSNumber numberWithInteger:itemIndex]];
 	}
 	[pboard addTypes:[NSArray arrayWithObject:LDrawDragSourceRowsPboardType]
 			   owner:nil];
@@ -2560,7 +2561,7 @@
 - (NSDragOperation) outlineView:(NSOutlineView *)outlineView
 				   validateDrop:(id <NSDraggingInfo>)info
 				   proposedItem:(id)newParent
-			 proposedChildIndex:(int)index
+			 proposedChildIndex:(NSInteger)index
 {
 	NSPasteboard		*pasteboard		= [info draggingPasteboard];
 	NSOutlineView		*sourceView		= [info draggingSource];
@@ -2637,7 +2638,7 @@
 - (BOOL)outlineView:(NSOutlineView *)outlineView
 		 acceptDrop:(id <NSDraggingInfo>)info
 			   item:(id)newParent
-		 childIndex:(int)dropIndex
+		 childIndex:(NSInteger)dropIndex
 {
 	//Identify the root object if needed.
 	if(newParent == nil)
@@ -2648,11 +2649,11 @@
 	NSPasteboard    *pasteboard             = [info draggingPasteboard];
 	NSUndoManager   *undoManager            = [self undoManager];
 	NSOutlineView   *sourceView             = [info draggingSource];
-	int             selectionIndex          = 0;
+	NSInteger       selectionIndex          = 0;
 	NSMutableArray  *doomedObjects          = [NSMutableArray array];
 	NSArray         *pastedObjects          = nil;
 	BOOL            renameDuplicateModels   = YES;
-	int             counter                 = 0;
+	NSInteger       counter                 = 0;
 	
 	//Due to an unfortunate lack of foresight in the design, the main pasting 
 	// code determines the paste location by looking at the current selection.
@@ -2696,15 +2697,15 @@
 		//
 		// Note we're doing this *before* moving, so that the indexes are 
 		// still correct.
-		NSArray			*rowsToDelete	= nil;
-		int				 doomedIndex	= 0;
-		LDrawDirective	*objectToDelete	= nil;
+		NSArray         *rowsToDelete   = nil;
+		NSInteger       doomedIndex     = 0;
+		LDrawDirective  *objectToDelete = nil;
 		
 		//Gather up the objects we'll be removing.
 		rowsToDelete = [pasteboard propertyListForType:LDrawDragSourceRowsPboardType];
 		for(counter = 0; counter < [rowsToDelete count]; counter++)
 		{
-			doomedIndex = [[rowsToDelete objectAtIndex:counter] intValue];
+			doomedIndex = [[rowsToDelete objectAtIndex:counter] integerValue];
 			objectToDelete = [outlineView itemAtRow:doomedIndex];
 			[doomedObjects addObject:objectToDelete];
 		}
@@ -2791,12 +2792,12 @@
 //==============================================================================
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification
 {
-	NSOutlineView	*outlineView		= [notification object];
-	NSArray			*selectedObjects	= [self selectedObjects];
-	id				 lastSelectedItem	= [outlineView itemAtRow:[outlineView selectedRow]];
-	LDrawMPDModel	*selectedModel		= [self selectedModel];
-	LDrawStep		*selectedStep		= [self selectedStep];
-	int				 counter			= 0;
+	NSOutlineView   *outlineView        = [notification object];
+	NSArray         *selectedObjects    = [self selectedObjects];
+	id              lastSelectedItem    = [outlineView itemAtRow:[outlineView selectedRow]];
+	LDrawMPDModel   *selectedModel      = [self selectedModel];
+	LDrawStep       *selectedStep       = [self selectedStep];
+	NSInteger       counter             = 0;
 	
 	//Deselect all the previously-selected directives
 	// (clears the internal directive flag used for drawing)
@@ -2847,16 +2848,16 @@
 		  acceptDrop:(id < NSDraggingInfo >)info
 		  directives:(NSArray *)directives
 {
-	NSPasteboard		*pasteboard			= [NSPasteboard pasteboardWithName:@"BricksmithDragAndDropPboard"];
-	NSUndoManager		*undoManager		= [self undoManager];
-	int					 selectionCount		= [self->selectedDirectives count];
-	id					 currentDirective	= nil;
-	id					 dragPart			= nil;
-	Point3				 originalPosition	= ZeroPoint3;
-	Point3				 dragPosition		= ZeroPoint3;
-	Vector3				 displacement		= ZeroPoint3;
-	int					 counter			= 0;
-	int					 dropDirectiveIndex	= 0;
+	NSPasteboard    *pasteboard         = [NSPasteboard pasteboardWithName:@"BricksmithDragAndDropPboard"];
+	NSUndoManager   *undoManager        = [self undoManager];
+	NSInteger       selectionCount      = [self->selectedDirectives count];
+	id              currentDirective    = nil;
+	id              dragPart            = nil;
+	Point3          originalPosition    = ZeroPoint3;
+	Point3          dragPosition        = ZeroPoint3;
+	Vector3         displacement        = ZeroPoint3;
+	NSInteger       counter             = 0;
+	NSInteger       dropDirectiveIndex  = 0;
 	
 	// Being dragged within the same document. We must simply apply the 
 	// transforms from the dragged parts to the original parts, which have been 
@@ -2933,9 +2934,9 @@
 //==============================================================================
 - (void) LDrawGLViewPartsWereDraggedIntoOblivion:(LDrawGLView *)glView
 {
-	int		selectionCount		= [self->selectedDirectives count];
-	id		currentDirective	= nil;
-	int		counter				= 0;
+	NSInteger   selectionCount      = [self->selectedDirectives count];
+	id          currentDirective    = nil;
+	NSInteger   counter             = 0;
 	
 	for(counter = 0; counter < selectionCount; counter++)
 	{
@@ -3009,12 +3010,12 @@
  writeDirectivesToPasteboard:(NSPasteboard *)pasteboard
 					  asCopy:(BOOL)copyFlag
 {
-	int				 selectionCount		= [self->selectedDirectives count];
-	NSMutableArray	*archivedParts		= [NSMutableArray array];
-	id				 currentDirective	= nil;
-	NSData			*partData			= nil;
-	int				 counter			= 0;
-	BOOL			 success			= NO;
+	NSInteger       selectionCount      = [self->selectedDirectives count];
+	NSMutableArray  *archivedParts      = [NSMutableArray array];
+	id              currentDirective    = nil;
+	NSData          *partData           = nil;
+	NSInteger       counter             = 0;
+	BOOL            success             = NO;
 	
 	// Archive selected moveable directives.
 	for(counter = 0; counter < selectionCount; counter++)
@@ -3403,12 +3404,12 @@
 //==============================================================================
 - (BOOL) validateMenuItem:(NSMenuItem *)menuItem
 {
-	int				 tag			= [menuItem tag];
-	NSArray			*selectedItems	= [self selectedObjects];
-	LDrawPart		*selectedPart	= [self selectedPart];
-	NSPasteboard	*pasteboard		= [NSPasteboard generalPasteboard];
-	LDrawMPDModel	*activeModel	= [[self documentContents] activeModel];
-	BOOL			 enable			= NO;
+	NSInteger       tag             = [menuItem tag];
+	NSArray         *selectedItems  = [self selectedObjects];
+	LDrawPart       *selectedPart   = [self selectedPart];
+	NSPasteboard    *pasteboard     = [NSPasteboard generalPasteboard];
+	LDrawMPDModel   *activeModel    = [[self documentContents] activeModel];
+	BOOL            enable          = NO;
 	
 	switch(tag)
 	{
@@ -3576,16 +3577,16 @@
 //==============================================================================
 - (void) addModelsToMenus
 {
-	NSMenu			*mainMenu			= [NSApp mainMenu];
-	NSMenu			*modelMenu			= [[mainMenu itemWithTag:modelsMenuTag] submenu];
-	NSMenu			*referenceMenu		= [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
-	int				 separatorIndex		= [modelMenu indexOfItemWithTag:modelsSeparatorMenuTag];
-	NSMenuItem		*modelItem			= nil;
-	NSMenuItem		*referenceItem		= nil;
-	NSArray			*models				= [[self documentContents] submodels];
-	LDrawMPDModel	*currentModel		= nil;
-	NSString		*modelDescription	= nil;
-	int				 counter			= 0;
+	NSMenu          *mainMenu           = [NSApp mainMenu];
+	NSMenu          *modelMenu          = [[mainMenu itemWithTag:modelsMenuTag] submenu];
+	NSMenu          *referenceMenu      = [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
+	NSInteger       separatorIndex      = [modelMenu indexOfItemWithTag:modelsSeparatorMenuTag];
+	NSMenuItem      *modelItem          = nil;
+	NSMenuItem      *referenceItem      = nil;
+	NSArray         *models             = [[self documentContents] submodels];
+	LDrawMPDModel   *currentModel       = nil;
+	NSString        *modelDescription   = nil;
+	NSInteger       counter             = 0;
 	
 	[self clearModelMenus];
 	
@@ -3646,11 +3647,11 @@
 //==============================================================================
 - (void) clearModelMenus
 {
-	NSMenu			*mainMenu		= [NSApp mainMenu];
-	NSMenu			*modelMenu		= [[mainMenu itemWithTag:modelsMenuTag] submenu];
-	NSMenu			*referenceMenu	= [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
-	int				 separatorIndex	= [modelMenu indexOfItemWithTag:modelsSeparatorMenuTag];
-	int				 counter		= 0;
+	NSMenu      *mainMenu       = [NSApp mainMenu];
+	NSMenu      *modelMenu      = [[mainMenu itemWithTag:modelsMenuTag] submenu];
+	NSMenu      *referenceMenu  = [[modelMenu itemWithTag:insertReferenceMenuTag] submenu];
+	NSInteger   separatorIndex  = [modelMenu indexOfItemWithTag:modelsSeparatorMenuTag];
+	NSInteger   counter         = 0;
 	
 	//Kill all model menu items.
 	for(counter = [modelMenu numberOfItems]-1; counter > separatorIndex; counter--)
@@ -3685,11 +3686,11 @@
 //==============================================================================
 - (void) addModel:(LDrawMPDModel *)newModel preventNameCollisions:(BOOL)renameModels
 {
-	NSString		*proposedModelName	= [newModel modelName];
-	LDrawModel		*selectedModel		= [self selectedModel];
-	NSUndoManager	*undoManager		= [self undoManager];
-	int				indexOfModel		= 0;
-	int				rowForItem			= 0;
+	NSString        *proposedModelName  = [newModel modelName];
+	LDrawModel      *selectedModel      = [self selectedModel];
+	NSUndoManager   *undoManager        = [self undoManager];
+	NSInteger       indexOfModel        = 0;
+	NSInteger       rowForItem          = 0;
 	
 	// Derive a non-duplicating name for this new model
 	if(renameModels == YES)
@@ -3746,7 +3747,7 @@
 		[[self documentContents] setActiveModel:selectedModel];
 	
 	if(selectedStep != nil){
-		int indexOfStep = [selectedModel indexOfDirective:selectedStep];
+		NSInteger indexOfStep = [selectedModel indexOfDirective:selectedStep];
 		[self addDirective:newStep
 				  toParent:selectedModel
 				   atIndex:indexOfStep+1 ];
@@ -3758,7 +3759,7 @@
 	//Select the new step.
 	[fileContentsOutline expandItem:selectedModel];
 	[fileContentsOutline expandItem:newStep];
-	int rowForItem = [fileContentsOutline rowForItem:newStep];
+	NSInteger rowForItem = [fileContentsOutline rowForItem:newStep];
 	[fileContentsOutline selectRowIndexes:[NSIndexSet indexSetWithIndex:rowForItem]
 					 byExtendingSelection:NO];
 	
@@ -3813,11 +3814,11 @@
 //==============================================================================
 - (void) addStepComponent:(LDrawDirective *)newDirective
 {
-	LDrawDirective	*selectedComponent	= [self selectedStepComponent];
-	LDrawStep		*selectedStep		= [self selectedStep];
-	LDrawMPDModel	*selectedModel		= [self selectedModel];
-	int				 indexOfElement		= 0;
-	int				 rowForItem			= 0;
+	LDrawDirective  *selectedComponent  = [self selectedStepComponent];
+	LDrawStep       *selectedStep       = [self selectedStep];
+	LDrawMPDModel   *selectedModel      = [self selectedModel];
+	NSInteger       indexOfElement      = 0;
+	NSInteger       rowForItem          = 0;
 	
 	//We need to synchronize our addition with the model currently active.
 	if(selectedModel == nil)
@@ -3940,11 +3941,11 @@
 //==============================================================================
 - (BOOL) elementsAreSelectedOfVisibility:(BOOL)visibleFlag
 {
-	NSArray			*selectedObjects	= [self selectedObjects];
-	id				 currentObject		= nil;
-	int				 counter			= 0;
-	BOOL			 invisibleSelected	= NO;
-	BOOL			 visibleSelected	= NO;
+	NSArray     *selectedObjects    = [self selectedObjects];
+	id          currentObject       = nil;
+	NSInteger   counter             = 0;
+	BOOL        invisibleSelected   = NO;
+	BOOL        visibleSelected     = NO;
 	
 	
 	for(counter = 0; counter < [selectedObjects count]; counter++)
@@ -3977,7 +3978,7 @@
 	NSUserDefaults			*userDefaults	= [NSUserDefaults standardUserDefaults];
 	NSString				*colorKey		= nil; //preference key for object's syntax color.
 	NSColor					*syntaxColor	= nil;
-	NSNumber				*obliqueness	= [NSNumber numberWithFloat:0.0]; //italicize?
+	NSNumber				*obliqueness	= [NSNumber numberWithDouble:0.0]; //italicize?
 	NSAttributedString		*styledString	= nil;
 	NSMutableDictionary		*attributes		= [NSMutableDictionary dictionary];
 	NSMutableParagraphStyle	*paragraphStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
@@ -4018,7 +4019,7 @@
 	
 	if([item respondsToSelector:@selector(isHidden)])
 		if([(id)item isHidden])
-			obliqueness = [NSNumber numberWithFloat:0.5];
+			obliqueness = [NSNumber numberWithDouble:0.5];
 	
 	
 	//Assemble the attributes dictionary.
@@ -4071,10 +4072,10 @@
 //==============================================================================
 - (NSArray *) selectedObjects
 {
-	NSIndexSet		*selectedIndexes	= [fileContentsOutline selectedRowIndexes];
-	unsigned int	 currentIndex		= [selectedIndexes firstIndex];
-	NSMutableArray	*selectedObjects	= [NSMutableArray arrayWithCapacity:[selectedIndexes count]];
-	id				 currentObject		= nil;
+	NSIndexSet      *selectedIndexes    = [fileContentsOutline selectedRowIndexes];
+	NSUInteger      currentIndex        = [selectedIndexes firstIndex];
+	NSMutableArray  *selectedObjects    = [NSMutableArray arrayWithCapacity:[selectedIndexes count]];
+	id              currentObject       = nil;
 	
 	//Search through all the indexes and get the objects associated with them.
 	while(currentIndex != NSNotFound){
@@ -4102,8 +4103,8 @@
 //==============================================================================
 - (LDrawMPDModel *) selectedModel
 {
-	int	selectedRow		= [fileContentsOutline selectedRow];
-	id	selectedItem	= [fileContentsOutline itemAtRow:selectedRow];
+	NSInteger   selectedRow     = [fileContentsOutline selectedRow];
+	id          selectedItem    = [fileContentsOutline itemAtRow:selectedRow];
 	
 	if(selectedItem == nil || [selectedItem isKindOfClass:[LDrawFile class]])
 		return nil;
@@ -4130,8 +4131,8 @@
 //==============================================================================
 - (LDrawStep *) selectedStep
 {
-	int	selectedRow		= [fileContentsOutline selectedRow];
-	id	selectedItem	= [fileContentsOutline itemAtRow:selectedRow];
+	NSInteger   selectedRow     = [fileContentsOutline selectedRow];
+	id          selectedItem    = [fileContentsOutline itemAtRow:selectedRow];
 	
 	//If a model is selected, a step can't be!
 	if(		selectedItem == nil
@@ -4160,8 +4161,8 @@
 //==============================================================================
 - (LDrawDirective *) selectedStepComponent
 {
-	int	selectedRow		= [fileContentsOutline selectedRow];
-	id	selectedItem	= [fileContentsOutline itemAtRow:selectedRow];
+	NSInteger   selectedRow     = [fileContentsOutline selectedRow];
+	id          selectedItem    = [fileContentsOutline itemAtRow:selectedRow];
 	
 	//If a model is selected, a step can't be!
 	if(		selectedItem == nil
@@ -4185,9 +4186,9 @@
 //==============================================================================
 - (LDrawPart *) selectedPart
 {
-	NSArray	*selectedObjects	= [self selectedObjects];
-	id		 currentObject		= nil;
-	int		 counter			= 0;
+	NSArray     *selectedObjects    = [self selectedObjects];
+	id          currentObject       = nil;
+	NSInteger   counter             = 0;
 	
 	while(counter < [selectedObjects count])
 	{
@@ -4228,10 +4229,10 @@
 //==============================================================================
 - (void) updateViewingAngleToMatchStep
 {
-	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
-	int					requestedStep	= [activeModel maximumStepIndexForStepDisplay];
-	Tuple3				viewingAngle	= [activeModel rotationAngleForStepAtIndex:requestedStep];
-	ViewOrientationT	viewOrientation	= [LDrawUtilities viewOrientationForAngle:viewingAngle];
+	LDrawMPDModel       *activeModel    = [[self documentContents] activeModel];
+	NSInteger           requestedStep   = [activeModel maximumStepIndexForStepDisplay];
+	Tuple3              viewingAngle    = [activeModel rotationAngleForStepAtIndex:requestedStep];
+	ViewOrientationT    viewOrientation = [LDrawUtilities viewOrientationForAngle:viewingAngle];
 	
 	// Set the Viewing angle
 	if(viewOrientation != ViewOrientation3D)
@@ -4278,7 +4279,7 @@
 	NSMutableArray	*archivedObjects	= [NSMutableArray array];
 	//list of LDrawDirectives which have been converted to strings.
 	NSMutableString	*stringedObjects	= [NSMutableString stringWithCapacity:256];
-	int				 counter			= 0;
+	NSInteger		counter				= 0;
 	
 	//Write out the selected objects, but only once for each object. 
 	// Don't write out items whose parent is selected; the parent will 
@@ -4354,11 +4355,11 @@
 - (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard
 			preventNameCollisions:(BOOL)renameModels
 {
-	NSArray			*objects		= nil;
-	id				 currentObject	= nil; //some kind of unarchived LDrawDirective
-	NSData			*data			= nil;
-	NSMutableArray	*addedObjects	= [NSMutableArray array];
-	int				 counter		= 0;
+	NSArray         *objects        = nil;
+	id              currentObject   = nil; //some kind of unarchived LDrawDirective
+	NSData          *data           = nil;
+	NSMutableArray  *addedObjects   = [NSMutableArray array];
+	NSInteger       counter         = 0;
 	
 	//We must make sure we have the proper pasteboard type available.
 	if([[pasteboard types] containsObject:LDrawDirectivePboardType])

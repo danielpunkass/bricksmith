@@ -283,7 +283,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	//inform interested parties.
 	[[NSNotificationCenter defaultCenter] 
 			postNotificationName:LDrawPartBrowserStyleDidChangeNotification
-						  object:[NSNumber numberWithInt:newStyle] ];
+						  object:[NSNumber numberWithInteger:newStyle] ];
 	
 }//end partBrowserStyleChanged:
 
@@ -653,11 +653,11 @@ PreferencesDialogController *preferencesDialog = nil;
 	//
 	// General
 	//
-	[initialDefaults setObject:[NSNumber numberWithInt:PartBrowserShowAsPanel]			forKey:PART_BROWSER_STYLE_KEY];
-	[initialDefaults setObject:[NSNumber numberWithInt:MouseDraggingBeginImmediately]	forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
+	[initialDefaults setObject:[NSNumber numberWithInteger:PartBrowserShowAsPanel]			forKey:PART_BROWSER_STYLE_KEY];
+	[initialDefaults setObject:[NSNumber numberWithInteger:MouseDraggingBeginImmediately]	forKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
 
-	[initialDefaults setObject:[NSNumber numberWithInt:NSDrawerClosedState]	forKey:PART_BROWSER_DRAWER_STATE];
-	[initialDefaults setObject:(id)kCFBooleanTrue							forKey:PART_BROWSER_PANEL_SHOW_AT_LAUNCH];
+	[initialDefaults setObject:[NSNumber numberWithInteger:NSDrawerClosedState]	forKey:PART_BROWSER_DRAWER_STATE];
+	[initialDefaults setObject:(id)kCFBooleanTrue								forKey:PART_BROWSER_PANEL_SHOW_AT_LAUNCH];
 	
 	//
 	// Syntax Colors
@@ -684,23 +684,23 @@ PreferencesDialogController *preferencesDialog = nil;
 	//
 	
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientation3D]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicsView"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModePerspective]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicsView"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientation3D]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicsView"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModePerspective]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicsView"]];
 	
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView1"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView1"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView1"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView1"]];
 	
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView2"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView2"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView2"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView2"]];
 
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationTop]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView3"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView3"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationTop]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileDetailView3"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileDetailView3"]];
 	
 	//
 	// Part Browser
 	//
 	[initialDefaults setObject:NSLocalizedString(@"Brick", nil)			forKey:PART_BROWSER_PREVIOUS_CATEGORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
+	[initialDefaults setObject:[NSNumber numberWithInteger:0]			forKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
 	[initialDefaults setObject:[NSArray array]							forKey:FAVORITE_PARTS_KEY];
 	
 	//
@@ -743,21 +743,21 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:@"972.dat"								forKey:MINIFIGURE_PARTNAME_LEG_LEFT];				//Minifig Lef Left
 	[initialDefaults setObject:@"6120.dat"								forKey:MINIFIGURE_PARTNAME_LEG_LEFT_ACCESSORY];		//Minifig Ski
 
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HEAD];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_NECK];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_TORSO];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_ARM_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_ARM_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HAND_LEFT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_HIPS];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_RIGHT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_RIGHT_ACCESSORY];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_LEFT];
-	[initialDefaults setObject:[NSNumber numberWithInt:0]				forKey:MINIFIGURE_ANGLE_LEG_LEFT_ACCESSORY];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_HAT];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_HEAD];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_NECK];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_TORSO];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_ARM_RIGHT];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_ARM_LEFT];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_HAND_RIGHT];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_HAND_RIGHT_ACCESSORY];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_HAND_LEFT];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_HAND_LEFT_ACCESSORY];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_HIPS];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_LEG_RIGHT];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_LEG_RIGHT_ACCESSORY];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_LEG_LEFT];
+	[initialDefaults setObject:[NSNumber numberWithFloat:0]				forKey:MINIFIGURE_ANGLE_LEG_LEFT_ACCESSORY];
 
 	[initialDefaults setObject:[NSNumber numberWithInt:LDrawBlue]		forKey:MINIFIGURE_COLOR_HAT];
 	[initialDefaults setObject:[NSNumber numberWithInt:LDrawYellow]		forKey:MINIFIGURE_COLOR_HEAD];
@@ -778,9 +778,9 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:[NSNumber numberWithFloat:4.0]			forKey:MINIFIGURE_HEAD_ELEVATION];
 	
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInt:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
-	[initialDefaults setObject:[NSNumber numberWithInt:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" MinifigureGeneratorView"]];
-	[initialDefaults setObject:(id)kCFBooleanFalse									forKey:@"UseThreads"];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" MinifigureGeneratorView"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" MinifigureGeneratorView"]];
+	[initialDefaults setObject:(id)kCFBooleanFalse										forKey:@"UseThreads"];
 	
 	//
 	// COMMIT!

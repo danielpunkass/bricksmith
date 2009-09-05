@@ -370,20 +370,20 @@ static MLCadIni *sharedIniFile = nil;
 //==============================================================================
 - (void) parseFromPath:(NSString *) path
 {
-	NSString		*fileString				= [LDrawUtilities stringFromFile:path];
-	NSArray			*rawLines				= [fileString separateByLine];
-	NSMutableArray	*lines					= [NSMutableArray arrayWithCapacity:[rawLines count]];
-	NSString		*currentLine			= nil;
-	NSString		*trimmed				= nil;
-	int				 lineCount				= [rawLines count];
-	int				 counter				= 0;
-	NSCharacterSet	*whitespaceCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+	NSString        *fileString             = [LDrawUtilities stringFromFile:path];
+	NSArray         *rawLines               = [fileString separateByLine];
+	NSMutableArray  *lines                  = [NSMutableArray arrayWithCapacity:[rawLines count]];
+	NSString        *currentLine            = nil;
+	NSString        *trimmed                = nil;
+	NSUInteger      lineCount               = [rawLines count];
+	NSUInteger      counter                 = 0;
+	NSCharacterSet  *whitespaceCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
 	
-	NSDictionary	*listsForSections		= nil;
-	NSArray			*sectionKeys			= nil;
-	NSString		*currentSectionKey		= nil;
-	NSArray			*sectionLines			= nil;
-	NSArray			*sectionParts			= nil;
+	NSDictionary    *listsForSections       = nil;
+	NSArray         *sectionKeys            = nil;
+	NSString        *currentSectionKey      = nil;
+	NSArray         *sectionLines           = nil;
+	NSArray         *sectionParts           = nil;
 	
 	//---------- cull out all the comments and blank lines ---------------------
 	
@@ -443,12 +443,12 @@ static MLCadIni *sharedIniFile = nil;
 - (NSArray *) readSection:(NSString *)sectionName
 				fromLines:(NSArray *)lines
 {
-	NSString		*sectionHeader	= [NSString stringWithFormat:@"[%@]", sectionName];
-	NSString		*currentLine	= nil;
-	NSMutableArray	*sectionLines	= [NSMutableArray array];
-	BOOL			 compileList	= NO;
-	int				 lineCount		= [lines count];
-	int				 counter		= 0;
+	NSString        *sectionHeader  = [NSString stringWithFormat:@"[%@]", sectionName];
+	NSString        *currentLine    = nil;
+	NSMutableArray  *sectionLines   = [NSMutableArray array];
+	BOOL            compileList     = NO;
+	NSUInteger      lineCount       = [lines count];
+	NSUInteger      counter         = 0;
 	
 	for(counter = 0; counter < lineCount; counter++)
 	{
@@ -512,9 +512,9 @@ static MLCadIni *sharedIniFile = nil;
 	
 	NSCharacterSet	*quoteSet		= [NSCharacterSet characterSetWithCharactersInString:@"\""];
 	NSCharacterSet	*whitespaceSet	= [NSCharacterSet whitespaceCharacterSet];
-	int				lineCount		= [lines count];
+	NSUInteger		lineCount		= [lines count];
 	BOOL			gotName			= NO;
-	int				counter			= 0;
+	NSUInteger		counter			= 0;
 	
 	for(counter = 0; counter< lineCount; counter++)
 	{

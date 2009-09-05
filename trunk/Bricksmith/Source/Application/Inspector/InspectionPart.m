@@ -148,16 +148,16 @@
 	if(rotationType == rotationRelative)
 	{
 		//Rotations entered will be additive.
-		[rotationXField setFloatValue:0.0];
-		[rotationYField setFloatValue:0.0];
-		[rotationZField setFloatValue:0.0];
+		[rotationXField setDoubleValue:0.0];
+		[rotationYField setDoubleValue:0.0];
+		[rotationZField setDoubleValue:0.0];
 	}
 	else
 	{
 		//Absolute rotation; fill in the real rotation angles.
-		[rotationXField setFloatValue:degrees(components.rotate.x)];
-		[rotationYField setFloatValue:degrees(components.rotate.y)];
-		[rotationZField setFloatValue:degrees(components.rotate.z)];
+		[rotationXField setDoubleValue:degrees(components.rotate.x)];
+		[rotationYField setDoubleValue:degrees(components.rotate.y)];
+		[rotationZField setDoubleValue:degrees(components.rotate.z)];
 		
 	}
 }//end setRotationAngles
@@ -188,9 +188,9 @@
 	{
 		Tuple3 additiveRotation;
 		
-		additiveRotation.x = [rotationXField floatValue];
-		additiveRotation.y = [rotationYField floatValue];
-		additiveRotation.z = [rotationZField floatValue];
+		additiveRotation.x = [rotationXField doubleValue];
+		additiveRotation.y = [rotationYField doubleValue];
+		additiveRotation.z = [rotationZField doubleValue];
 		
 		[representedObject rotateByDegrees:additiveRotation];
 	}
@@ -198,9 +198,9 @@
 	else{
 		TransformComponents components = [[self object] transformComponents];
 		
-		components.rotate.x = radians([rotationXField floatValue]); //convert from degrees
-		components.rotate.y = radians([rotationYField floatValue]);
-		components.rotate.z = radians([rotationZField floatValue]);
+		components.rotate.x = radians([rotationXField doubleValue]); //convert from degrees
+		components.rotate.y = radians([rotationYField doubleValue]);
+		components.rotate.z = radians([rotationZField doubleValue]);
 		
 		[representedObject setTransformComponents:components];
 	}
@@ -215,9 +215,9 @@
 	// resetting the rotations values to zero
 	if(rotationType == rotationRelative)
 	{
-		[rotationXField setFloatValue:0.0];
-		[rotationYField setFloatValue:0.0];
-		[rotationZField setFloatValue:0.0];
+		[rotationXField setDoubleValue:0.0];
+		[rotationYField setDoubleValue:0.0];
+		[rotationZField setDoubleValue:0.0];
 	}
 	
 }//end applyRotationClicked:

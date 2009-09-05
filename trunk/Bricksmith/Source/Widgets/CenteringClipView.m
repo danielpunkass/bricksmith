@@ -153,7 +153,7 @@
 
 //========== setFrameRotation: =================================================
 //==============================================================================
-- (void)setFrameRotation:(float)angle
+- (void)setFrameRotation:(CGFloat)angle
 {
 	[super setFrameRotation:angle];
 	[self centerDocumentView];

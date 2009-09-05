@@ -158,7 +158,7 @@
 // Purpose:		End the sheet (we are the sheet!)
 //
 //==============================================================================
-- (int) numberOfRowsInTableView:(NSTableView *)aTableView
+- (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView
 {
 	return NUMBER_OF_UNITS;
 	
@@ -177,23 +177,23 @@
 //==============================================================================
 - (id)				tableView:(NSTableView *)tableView
 	objectValueForTableColumn:(NSTableColumn *)tableColumn
-						  row:(int)rowIndex
+						  row:(NSInteger)rowIndex
 {
-	id		object	= nil;
-	Box3	bounds	= [self->activeModel boundingBox3];
-	float	width	= 0;
-	float	height	= 0;
-	float	length	= 0;
+	NSNumberFormatter   *floatFormatter = [[NSNumberFormatter new] autorelease];
+	id                  object          = nil;
+	Box3                bounds          = [self->activeModel boundingBox3];
+	double              width           = 0;
+	double              height          = 0;
+	double              length          = 0;
+	double              value           = 0;
 	
 	 // 1 stud = 3/8" = 20 LDraw units.
-	float	studsPerLDU				= 1 / 20.0; //HORIZONTAL studs!
-	float	inchesPerStud			= 5 / 16.0; //HORIZONTAL studs!
-	float	inchesPerVerticalStud	= 3 / 8.0  +  1 / 16.0; //brick height + stud height.
-	float	cmPerInch				= 2.54;
-	float	legoInchPerInch			= 128 / 3.0; // Legonian Imperial Feet are a 3:128 scale.
+	double	studsPerLDU				= 1 / 20.0; //HORIZONTAL studs!
+	double	inchesPerStud			= 5 / 16.0; //HORIZONTAL studs!
+	double	inchesPerVerticalStud	= 3 / 8.0  +  1 / 16.0; //brick height + stud height.
+	double	cmPerInch				= 2.54;
+	double	legoInchPerInch			= 128 / 3.0; // Legonian Imperial Feet are a 3:128 scale.
 	
-	float	value					= 0;
-	NSNumberFormatter *floatFormatter = [[NSNumberFormatter new] autorelease];
 	
 	[floatFormatter setPositiveFormat:@"0.0"];
 	
@@ -249,16 +249,16 @@
 		switch(rowIndex)
 		{
 			case STUDS_ROW_INDEX:
-				object = [NSNumber numberWithInt:ceil(value)];
+				object = [NSNumber numberWithInteger:ceil(value)];
 				break;
 			
 			case INCHES_ROW_INDEX:
-				object = [NSNumber numberWithFloat:value];
+				object = [NSNumber numberWithDouble:value];
 				object = [floatFormatter stringForObjectValue:object];
 				break;
 			
 			case CENTIMETERS_ROW_INDEX:
-				object = [NSNumber numberWithFloat:value];
+				object = [NSNumber numberWithDouble:value];
 				object = [floatFormatter stringForObjectValue:object];
 				break;
 			
@@ -271,7 +271,7 @@
 				break;
 			
 			case LDU_ROW_INDEX:
-				object = [NSNumber numberWithInt:ceil(value)];
+				object = [NSNumber numberWithInteger:ceil(value)];
 				break;
 		}
 		

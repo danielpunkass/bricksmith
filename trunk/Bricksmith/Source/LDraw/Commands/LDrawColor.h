@@ -62,9 +62,9 @@ typedef enum LDrawColorMaterial
 - (NSString *)			name;
 
 - (void) setColorCode:(LDrawColorT)newCode;
-- (void) setColorRGBA:(float *)newComponents;
+- (void) setColorRGBA:(GLfloat *)newComponents;
 - (void) setEdgeColorCode:(LDrawColorT)newCode;
-- (void) setEdgeColorRGBA:(float *)newComponents;
+- (void) setEdgeColorRGBA:(GLfloat *)newComponents;
 - (void) setLuminance:(uint8_t)newValue;
 - (void) setMaterial:(LDrawColorMaterialT)newValue;
 - (void) setMaterialParameters:(NSString *)newValue;
@@ -72,7 +72,7 @@ typedef enum LDrawColorMaterial
 
 // Utilities
 - (NSComparisonResult) HSVACompare:(LDrawColor *)otherColor;
-- (NSString *) hexStringForRGB:(float *)components;
-- (BOOL) scanHexString:(NSScanner *)hexScanner intoRGB:(float *)components;
+- (NSString *) hexStringForRGB:(GLfloat *)components;
+- (BOOL) scanHexString:(NSScanner *)hexScanner intoRGB:(GLfloat *)components;
 
 @end

@@ -79,13 +79,13 @@
 	// Unnecessary under Leopard
 	if([NSSplitView instancesRespondToSelector:@selector(setAutosaveName:)] == NO)
 	{
-		NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-		NSArray			*subviews		= [self subviews];
-		NSView			*currentSubview	= nil;
-		NSRect			 currentRect	= NSZeroRect;
-		NSString		*rectString		= nil;
-		NSMutableArray	*frameSizes		= [NSMutableArray array];
-		int				 counter		= 0;
+		NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+		NSArray         *subviews       = [self subviews];
+		NSView          *currentSubview = nil;
+		NSRect          currentRect     = NSZeroRect;
+		NSString        *rectString     = nil;
+		NSMutableArray  *frameSizes     = [NSMutableArray array];
+		NSInteger       counter         = 0;
 		
 		if(self->autosaveName != nil)
 		{
@@ -145,13 +145,13 @@
 	// Unnecessary under Leopard
 	if([NSSplitView instancesRespondToSelector:@selector(setAutosaveName:)] == NO)
 	{
-		NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-		NSArray			*subviews		= [self subviews];
-		NSView			*currentSubview	= nil;
-		NSRect			 currentRect	= NSZeroRect;
-		NSString		*rectString		= nil;
-		NSMutableArray	*frameSizes		= [NSMutableArray array];
-		int				 counter		= 0;
+		NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+		NSArray         *subviews       = [self subviews];
+		NSView          *currentSubview = nil;
+		NSRect          currentRect     = NSZeroRect;
+		NSString        *rectString     = nil;
+		NSMutableArray  *frameSizes     = [NSMutableArray array];
+		NSInteger       counter         = 0;
 		
 		for(counter = 0; counter < [subviews count]; counter++)
 		{

@@ -27,8 +27,8 @@
 {
 	self = [super init];
 	
-	image = nil;
-	imagePadding = 3.0;
+	image           = nil;
+	imagePadding    = 3.0;
 	
 	return self;
 	
@@ -44,8 +44,8 @@
 {
 	self = [super initWithCoder:decoder];
 	
-	image = nil;
-	imagePadding = 3.0;
+	image           = nil;
+	imagePadding    = 3.0;
 	
 	return self;
 	
@@ -156,8 +156,8 @@
 				 inView:(NSView *)controlView
 				 editor:(NSText *)textObject
 			   delegate:(id)anObject
-				  start:(int)selectionStart
-				 length:(int)selectionLength
+				  start:(NSInteger)selectionStart
+				 length:(NSInteger)selectionLength
 {
 	NSRect	textFrame = cellFrame;
 
@@ -236,6 +236,18 @@
 }//end image
 
 
+//========== imagePadding ======================================================
+//
+// Purpose:		Returns the horizontal margin of the image.
+//
+//==============================================================================
+- (CGFloat) imagePadding
+{
+	return imagePadding;
+	
+}//end imagePadding
+
+
 //========== setImage: =========================================================
 //
 // Purpose:		Changes the image displayed along with the text in this cell.
@@ -250,25 +262,13 @@
 }//end setImage:
 
 
-//========== imagePadding ======================================================
-//
-// Purpose:		Returns the horizontal margin of the image.
-//
-//==============================================================================
-- (float) imagePadding
-{
-	return imagePadding;
-	
-}//end imagePadding
-
-
 //========== setImagePadding: ==================================================
 //
 // Purpose:		Sets the number of pixels left blank on the left and right of 
 //				the cell's image.
 //
 //==============================================================================
-- (void) setImagePadding:(float)newAmount
+- (void) setImagePadding:(CGFloat)newAmount
 {
 	imagePadding = newAmount;
 	

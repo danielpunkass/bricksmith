@@ -46,7 +46,7 @@
 - (void) updateSelectionWithObjects:(NSArray *)selectedObjects;
 
 //Utilities
-- (int) indexOfColorCode:(LDrawColorT)colorCodeSought;
+- (NSInteger) indexOfColorCode:(LDrawColorT)colorCodeSought;
 - (void) loadInitialSortDescriptors;
 - (NSPredicate *) predicateForSearchString:(NSString *)searchString;
 

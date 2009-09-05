@@ -89,11 +89,11 @@
 //------------------------------------------------------------------------------
 + (Box3) boundingBox3ForDirectives:(NSArray *)directives
 {
-	Box3	bounds				= InvalidBox;
-	Box3	partBounds			= InvalidBox;
-	id		currentDirective	= nil;
-	int		numberOfDirectives	= [directives count];
-	int		counter				= 0;
+	Box3        bounds              = InvalidBox;
+	Box3        partBounds          = InvalidBox;
+	id          currentDirective    = nil;
+	NSUInteger  numberOfDirectives  = [directives count];
+	NSUInteger  counter             = 0;
 	
 	for(counter = 0; counter < numberOfDirectives; counter++)
 	{
@@ -116,7 +116,7 @@
 //				found at the beginning of an LDraw line.
 //
 //------------------------------------------------------------------------------
-+ (Class) classForLineType:(int)lineType
++ (Class) classForLineType:(NSInteger)lineType
 {
 	Class classForType = nil;
 	
@@ -140,7 +140,7 @@
 			classForType = [LDrawConditionalLine class];
 			break;
 		default:
-			NSLog(@"unrecognized LDraw line type: %d", lineType);
+			NSLog(@"unrecognized LDraw line type: %ld", (long)lineType);
 	}
 	
 	return classForType;
@@ -159,7 +159,7 @@
 + (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset
 {
 	NSImage	*brickImage			= [NSImage imageNamed:@"Brick"];
-	float	 border				= 3;
+	CGFloat	 border				= 3;
 	NSSize	 dragImageSize		= NSMakeSize([brickImage size].width + border*2, [brickImage size].height + border*2);
 	NSImage	*dragImage			= [[NSImage alloc] initWithSize:dragImageSize];
 	NSImage *arrowCursorImage	= [[NSCursor arrowCursor] image];
@@ -326,8 +326,8 @@
 //------------------------------------------------------------------------------
 + (NSString *) stringFromFile:(NSString *)path
 {
-	NSData *fileData = [NSData dataWithContentsOfFile:path];
-	NSString *fileString = nil;
+	NSData      *fileData   = [NSData dataWithContentsOfFile:path];
+	NSString    *fileString = nil;
 	
 	//try UTF-8 first, because it's so nice.
 	fileString = [[NSString alloc] initWithData:fileData
@@ -379,19 +379,19 @@
 //------------------------------------------------------------------------------
 + (ViewOrientationT) viewOrientationForAngle:(Tuple3)rotationAngle
 {
-	ViewOrientationT	viewOrientation		= ViewOrientation3D;
-	int					counter				= 0;
-	Tuple3				testAngle			= ZeroPoint3;
-	ViewOrientationT	testOrientation		= ViewOrientation3D;
+	ViewOrientationT    viewOrientation     = ViewOrientation3D;
+	NSUInteger          counter             = 0;
+	Tuple3              testAngle           = ZeroPoint3;
+	ViewOrientationT    testOrientation     = ViewOrientation3D;
 	
-	ViewOrientationT	orientations[]		= {	ViewOrientationFront,
+	ViewOrientationT    orientations[]      = {	ViewOrientationFront,
 												ViewOrientationBack,
 												ViewOrientationLeft,
 												ViewOrientationRight,
 												ViewOrientationTop,
 												ViewOrientationBottom
 											  };
-	int					orientationCount	= sizeof(orientations)/sizeof(ViewOrientationT);
+	NSUInteger          orientationCount    = sizeof(orientations)/sizeof(ViewOrientationT);
 	
 	// See if the angle matches any of the head-on orientations.
 	for(counter = 0; viewOrientation == ViewOrientation3D && counter < orientationCount; counter++)

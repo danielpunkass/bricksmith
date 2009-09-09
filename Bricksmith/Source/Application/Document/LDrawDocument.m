@@ -187,10 +187,6 @@
 	[horizontalSplitView		setAutosaveName:@"HorizontalLDrawSplitview2.1"];
 	[verticalDetailSplitView	setAutosaveName:@"Vertical LDraw Splitview"];
 	
-	[fileContentsSplitView		restoreConfiguration];
-	[horizontalSplitView		restoreConfiguration];
-	[verticalDetailSplitView	restoreConfiguration];
-	
 	// update scope step display controls
 	[self setStepDisplay:NO];
 	
@@ -3361,6 +3357,37 @@
 
 
 //**** NSWindow ****
+//========== windowDidResize: ==================================================
+//
+// Purpose:		As the window changes size, we must record the new dimensions 
+//				for autosaving purposes. 
+//
+// Notes:		Snow Leopard adds windowDidEndLiveResize which may be more 
+//				appropriate. 
+//
+//==============================================================================
+- (void) windowDidResize:(NSNotification *)notification
+{
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	NSWindow		*window			= [notification object];
+	
+	// Don't do anything for the resizing that happens during awakeFromNib.
+	if([window isVisible])
+	{
+		// In Leopard, we don't have any control over split view autosaving. It 
+		// is saved every time the split view resizes. Since the split view size 
+		// is dependent on the window size, we must save it at the same time. 
+		// Otherwise, we could open a new document after resizing another one 
+		// and the split views would not match the window size. 
+	
+		[userDefaults setObject:NSStringFromSize([window frame].size)
+						 forKey:DOCUMENT_WINDOW_SIZE];
+	}
+	
+}//end windowDidResize:
+
+
+//**** NSWindow ****
 //========== windowWillClose: ==================================================
 //
 // Purpose:		The window is about to close; let's save some state info.
@@ -3373,14 +3400,11 @@
 	
 	[userDefaults setInteger:[partBrowserDrawer state]	forKey:PART_BROWSER_DRAWER_STATE];
 	
-	[userDefaults setObject:NSStringFromSize([window frame].size) forKey:DOCUMENT_WINDOW_SIZE];
-	[userDefaults synchronize]; //because we may be quitting, we have to force this here.
-	
 	//Un-inspect everything
 	[[LDrawApplication sharedInspector] inspectObjects:nil];
 
-	//Bug: if this document isn't the foremost window, this will botch up the menu!
-	// remember, we can close windows in the background.
+	// Bug: if this document isn't the foremost window, this will botch up the 
+	//		menu! Remember, we can close windows in the background. 
 	if([window isMainWindow] == YES){
 		[self clearModelMenus];
 	}

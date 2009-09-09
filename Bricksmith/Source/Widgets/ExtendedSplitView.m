@@ -58,6 +58,24 @@
 		[self->autosaveName release];
 		
 		autosaveName = newName;
+		
+		// Automatically restore. This is what Apple is doing in Leopard.
+		[self restoreConfiguration];
+		
+		// Start watching subviews here so we can autosave when the change size. 
+		// They do not go through -didAddSubview: when being unarchived from a 
+		// nib! 
+		NSArray                 *subviews           = [self subviews];
+		NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
+		NSUInteger              counter             = 0;
+		for(counter = 0; counter < [subviews count]; counter++)
+		{
+			[notificationCenter addObserver:self
+								   selector:@selector(subviewFrameDidChange:)
+									   name:NSViewFrameDidChangeNotification
+									 object:[subviews objectAtIndex:counter]];
+		}
+		
 	}
 }//end setAutosaveName:
 
@@ -103,7 +121,7 @@
 					// off this experimentally-verified result that the origin 
 					// of a collapsed subview gets set to (1,000,000 , 1,000,000).
 					// But if we just restore that frame, it WON'T WORK! Sooooo...
-					// we set the size to 0, which forcesit it out of view.
+					// we set the size to 0, which forces it it out of view.
 					if(NSMinX(currentRect) == 1e6 && NSMinY(currentRect) == 1e6)
 					{
 						currentRect.size.height = 0;
@@ -142,31 +160,90 @@
 //==============================================================================
 - (void) saveConfiguration
 {
-	// Unnecessary under Leopard
-	if([NSSplitView instancesRespondToSelector:@selector(setAutosaveName:)] == NO)
+	if(self->autosaveName != nil)
 	{
-		NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
-		NSArray         *subviews       = [self subviews];
-		NSView          *currentSubview = nil;
-		NSRect          currentRect     = NSZeroRect;
-		NSString        *rectString     = nil;
-		NSMutableArray  *frameSizes     = [NSMutableArray array];
-		NSInteger       counter         = 0;
-		
-		for(counter = 0; counter < [subviews count]; counter++)
+		// Unnecessary under Leopard
+		if([NSSplitView instancesRespondToSelector:@selector(setAutosaveName:)] == NO)
 		{
-			currentSubview	= [subviews objectAtIndex:counter];
-			currentRect		= [currentSubview frame];
-			rectString		= NSStringFromRect(currentRect);
-			[frameSizes addObject:rectString];
-		}
-		
-		if(self->autosaveName != nil){
-			[userDefaults setObject:frameSizes forKey:self->autosaveName];
+			NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+			NSArray         *subviews       = [self subviews];
+			NSView          *currentSubview = nil;
+			NSRect          currentRect     = NSZeroRect;
+			NSString        *rectString     = nil;
+			NSMutableArray  *frameSizes     = [NSMutableArray array];
+			NSInteger       counter         = 0;
+			
+			for(counter = 0; counter < [subviews count]; counter++)
+			{
+				currentSubview	= [subviews objectAtIndex:counter];
+				currentRect		= [currentSubview frame];
+				rectString		= NSStringFromRect(currentRect);
+				[frameSizes addObject:rectString];
+			}
+			
+			if(self->autosaveName != nil){
+				[userDefaults setObject:frameSizes forKey:self->autosaveName];
+			}
 		}
 	}
 	
 }//end saveConfiguration
+
+
+#pragma mark -
+#pragma mark TRACKING THESE WRETCHED THINGS
+#pragma mark -
+
+//========== subviewFrameDidChange: ============================================
+//
+// Purpose:		Split view autosaving in Leopard is triggered every time the 
+//				view changes sizes, but not when it is deallocated. We need to 
+//				mimic that behavior for Tiger in order to be compatible.
+//
+// Notes:		Other likely candidates, such as -adjustSubviews, don't work.
+//
+//==============================================================================
+- (void) subviewFrameDidChange:(NSNotification *)notification
+{
+	[self saveConfiguration];
+	
+}//end subviewFrameDidChange:
+
+
+//========== didAddSubview: ====================================================
+//
+// Purpose:		Hah! This won't be called when unpacking from a nib, but it's 
+//				here for completeness! 
+//
+//==============================================================================
+- (void) didAddSubview:(NSView *)subview
+{
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+	
+	[super didAddSubview:subview];
+	
+	[notificationCenter addObserver:self
+						   selector:@selector(subviewFrameDidChange:)
+							   name:NSViewFrameDidChangeNotification
+							 object:subview];
+}//end didAddSubview:
+
+
+//========== willRemoveSubview: ================================================
+//
+// Purpose:		If this class were used as a general-purpose object, this would 
+//				be very important. I hope this class doesn't live that long.
+//
+//==============================================================================
+- (void) willRemoveSubview:(NSView *)subview
+{
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+	
+	[super willRemoveSubview:subview];
+	
+	[notificationCenter removeObserver:self name:NSViewFrameDidChangeNotification object:subview];
+	
+}//end willRemoveSubview:
 
 
 #pragma mark -
@@ -175,14 +252,13 @@
 
 //========== dealloc ===========================================================
 //
-// Purpose:		We're sloughing off our mortal coil.
+// Purpose:		Let's split!
 //
 //==============================================================================
 - (void) dealloc
 {
-	if(self->autosaveName != nil)
-		[self saveConfiguration];
-		
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+
 	[super dealloc];
 	
 }//end dealloc

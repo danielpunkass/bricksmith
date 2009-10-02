@@ -17,6 +17,7 @@
 #import "RotationPanel.h"
 
 @class DocumentToolbarController;
+@class ExtendedScrollView;
 @class ExtendedSplitView;
 @class LDrawContainer;
 @class LDrawDirective;
@@ -62,14 +63,11 @@ typedef enum insertionMode {
 	// Window contents
 	IBOutlet ExtendedSplitView			*fileContentsSplitView;
 	IBOutlet LDrawFileOutlineView		*fileContentsOutline;
+	IBOutlet NSView						*longPlacardPrototype;
+	IBOutlet NSView						*shortPlacardPrototype;
 	
 	// LDraw graphic view
 	IBOutlet ExtendedSplitView			*horizontalSplitView;
-	IBOutlet ExtendedSplitView			*verticalDetailSplitView;
-	IBOutlet LDrawGLView				*fileGraphicView;
-	IBOutlet LDrawGLView				*fileDetailView1;
-	IBOutlet LDrawGLView				*fileDetailView2;
-	IBOutlet LDrawGLView				*fileDetailView3;
 	
 	@private
 		LDrawFile		*documentContents;
@@ -80,7 +78,7 @@ typedef enum insertionMode {
 		LDrawGLView		*mostRecentLDrawView; //file graphic view which most recently had focus. Weak link.
 }
 
-//Accessors
+// Accessors
 - (LDrawFile *) documentContents;
 - (NSWindow *)foremostWindow;
 - (gridSpacingModeT) gridSpacingMode;
@@ -94,7 +92,7 @@ typedef enum insertionMode {
 - (void) setLastSelectedPart:(LDrawPart *)newPart;
 - (void) setStepDisplay:(BOOL)showStepsFlag;
 
-//Activities
+// Activities
 - (void) moveSelectionBy:(Vector3) movementVector;
 - (void) nudgeSelectionBy:(Vector3) nudgeVector;
 - (void) rotateSelectionAround:(Vector3)rotationAxis;
@@ -103,7 +101,7 @@ typedef enum insertionMode {
 - (void) setSelectionToHidden:(BOOL)hideFlag;
 - (void) setZoomPercentage:(CGFloat)newPercentage;
 
-//Actions
+// Actions
 - (void) changeLDrawColor:(id)sender;
 - (void) insertLDrawPart:(id)sender;
 - (void) panelMoveParts:(id)sender;
@@ -119,6 +117,10 @@ typedef enum insertionMode {
 - (IBAction) viewSteps:(id)sender;
 - (IBAction) stepFieldChanged:(id)sender;
 - (IBAction) stepNavigatorClicked:(id)sender;
+
+// - Viewport Placards
+- (IBAction) splitViewportClicked:(id)sender;
+- (IBAction) closeViewportClicked:(id)sender;
 
 // - File menu
 - (IBAction) exportSteps:(id)sender;
@@ -164,7 +166,7 @@ typedef enum insertionMode {
 - (IBAction) addRawCommandClicked:(id)sender;
 - (void) modelSelected:(id)sender;
 
-//Undoable Activities
+// Undoable Activities
 - (void) addDirective:(LDrawDirective *)newDirective toParent:(LDrawContainer * )parent;
 - (void) addDirective:(LDrawDirective *)newDirective toParent:(LDrawContainer * )parent atIndex:(NSInteger)index;
 - (void) deleteDirective:(LDrawDirective *)doomedDirective;
@@ -182,14 +184,23 @@ typedef enum insertionMode {
 - (void) addModelsToMenus;
 - (void) clearModelMenus;
 
-//Utilites
+// Viewport Management
+- (NSArray *) all3DViewports;
+- (void) connectLDrawGLView:(LDrawGLView *)glView;
+- (LDrawGLView *) main3DViewport;
+- (ExtendedScrollView *) newViewport;
+- (void) restore3DViewports;
+- (void) store3DViewports;
+- (void) updateViewportAutosaveNamesAndRestore:(BOOL)shouldRestore;
+- (void) updatePlacardsForViewports;
+
+// Utilites
 - (void) addModel:(LDrawMPDModel *)newModel preventNameCollisions:(BOOL)flag;
 - (void) addStep:(LDrawStep *)newStep;
 - (void) addPartNamed:(NSString *)partName;
 - (void) addStepComponent:(LDrawDirective *)newDirective;
 
 - (BOOL) canDeleteDirective:(LDrawDirective *)directive displayErrors:(BOOL)errorFlag;
-- (void) connectLDrawGLView:(LDrawGLView *)glView;
 - (BOOL) elementsAreSelectedOfVisibility:(BOOL)visibleFlag;
 - (NSAttributedString *) formatDirective:(LDrawDirective *)item withStringRepresentation:(NSString *)representation;
 - (void) loadDataIntoDocumentUI;

@@ -75,19 +75,6 @@
 		[superview setCopiesOnScroll:NO];
 	}
 	
-	
-	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-	
-	[notificationCenter addObserver:self
-						   selector:@selector(mouseToolDidChange:)
-							   name:LDrawMouseToolDidChangeNotification
-							 object:nil ];
-	
-	[notificationCenter addObserver:self
-						   selector:@selector(backgroundColorDidChange:)
-							   name:LDrawViewBackgroundColorDidChangeNotification
-							 object:nil ];
-	
 	//Machinery needed to draw Quartz overtop OpenGL. Sadly, it caused our view 
 	// to become transparent when minimizing to the dock. In the end, I didn't 
 	// need it anyway.
@@ -110,18 +97,49 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
+//========== initWithFrame: ====================================================
+//
+// Purpose:		For programmatically-created GL views.
+//
+//==============================================================================
+- (id) initWithFrame:(NSRect)frameRect pixelFormat:(NSOpenGLPixelFormat *)format
+{
+	self = [super initWithFrame:frameRect pixelFormat:format];
+	
+	[self internalInit];
+	
+	return self;
+	
+}//end initWithFrame:
+
+
 //========== initWithCoder: ====================================================
 //
-// Purpose:		Set up the beatiful OpenGL view.
+// Purpose:		For GL views loaded from Interface Builder.
 //
 //==============================================================================
 - (id) initWithCoder: (NSCoder *) coder
 {	
-	NSOpenGLContext					*context			= nil;
-	NSOpenGLPixelFormat				*pixelFormat		= [LDrawApplication openGLPixelFormat];
-	GLint							 swapInterval		= 1;
-	
 	self = [super initWithCoder: coder];
+	
+	// Ignore any settings defined in Interface Builder's lame-o inspector panel.
+	[self internalInit];
+	
+	return self;
+	
+}//end initWithCoder:
+
+
+//========== internalInit ======================================================
+//
+// Purpose:		Set up the beatiful OpenGL view.
+//
+//==============================================================================
+- (void) internalInit
+{
+	NSOpenGLContext     *context        = nil;
+	NSOpenGLPixelFormat *pixelFormat    = [LDrawApplication openGLPixelFormat];
+	GLint               swapInterval    = 1;
 	
 	// Yes, we have a nib file. Don't laugh. This view has accessories.
 	[NSBundle loadNibNamed:@"LDrawGLViewAccessories" owner:self];
@@ -151,9 +169,19 @@
 			
 	[self setViewOrientation:ViewOrientation3D];
 	
-	return self;
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 	
-}//end initWithCoder:
+	[notificationCenter addObserver:self
+						   selector:@selector(mouseToolDidChange:)
+							   name:LDrawMouseToolDidChangeNotification
+							 object:nil ];
+	
+	[notificationCenter addObserver:self
+						   selector:@selector(backgroundColorDidChange:)
+							   name:LDrawViewBackgroundColorDidChangeNotification
+							 object:nil ];
+	
+}//end internalInit
 
 
 //========== prepareOpenGL =====================================================

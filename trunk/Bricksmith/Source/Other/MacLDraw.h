@@ -35,6 +35,7 @@
 #define DONATION_SCREEN_LAST_VERSION_DISPLAYED		@"DonationRequestLastVersion"
 #define FAVORITE_PARTS_KEY							@"FavoriteParts"
 #define FILE_CONTENTS_DRAWER_STATE					@"File Contents Drawer State" //obsolete
+#define FILE_DETAIL_VIEWS_PER_COLUMN				@"FileDetailViewsPerColumn"
 #define GRID_SPACING_COARSE							@"Grid Spacing: Coarse"
 #define GRID_SPACING_FINE							@"Grid Spacing: Fine"
 #define GRID_SPACING_MEDIUM							@"Grid Spacing: Medium"

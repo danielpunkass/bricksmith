@@ -34,8 +34,10 @@
 #import "LDrawTriangle.h"
 
 #import <AMSProgressBar/AMSProgressBar.h>
+
 #import "DimensionsPanel.h"
 #import "DocumentToolbarController.h"
+#import "ExtendedScrollView.h"
 #import "ExtendedSplitView.h"
 #import "IconTextCell.h"
 #import "Inspector.h"
@@ -53,6 +55,7 @@
 #import "PartReport.h"
 #import "PieceCountPanel.h"
 #import "RotationPanel.h"
+#import "ScrollViewCategory.h"
 #import "StringUtilities.h"
 #import "UserDefaultsCategory.h"
 #import "WindowCategory.h"
@@ -115,6 +118,8 @@
 	NSToolbar               *toolbar            = nil;
 	NSString                *savedSizeString    = nil;
 	NSInteger               drawerState         = 0;
+	ExtendedSplitView       *currentColumn      = nil;
+	NSUInteger              counter             = 0;
 
     [super windowControllerDidLoadNib:aController];
 	
@@ -153,39 +158,46 @@
 	[fileContentsOutline registerForDraggedTypes:[NSArray arrayWithObject:LDrawDirectivePboardType]];
 	
 	
-	//Restore the state of our 3D viewers.
-	[fileGraphicView	setAutosaveName:@"fileGraphicView"];
-	[fileDetailView1	setAutosaveName:@"fileDetailView1"];
-	[fileDetailView2	setAutosaveName:@"fileDetailView2"];
-	[fileDetailView3	setAutosaveName:@"fileDetailView3"];
+	//Restore the state/layout of our 3D viewers.
+	[self restore3DViewports];
 	
-	[fileGraphicView	restoreConfiguration];
-	[fileDetailView1	restoreConfiguration];
-	[fileDetailView2	restoreConfiguration];
-	[fileDetailView3	restoreConfiguration];
+	// Set opening zoom percentages
+	{
+		// For reasons I have not sufficiently investigated, setting the zoom 
+		// percentage on a collapsed (0 width/height) view causes the view to 
+		// get stuck at 0 width/height. The easiest fix was to move this call 
+		// above the splitview restoration so the view's panes will never be 
+		// collapsed. 
+		NSArray     *allViewports       = [self all3DViewports];
+		LDrawGLView *mainViewport       = [self main3DViewport];
+		LDrawGLView *currentViewport    = nil;
+		
+		for(counter = 0; counter < [allViewports count]; counter++)
+		{
+			currentViewport = [allViewports objectAtIndex:counter];
+			
+			if(currentViewport == mainViewport)
+				[currentViewport setZoomPercentage:100];
+			else
+				[currentViewport setZoomPercentage:75];
+ 		}
+	}
 	
-		//For reasons I have not sufficiently investigated, setting the 
-		// zoom percentage on a collapsed (0 width/height) view causes 
-		// the view to get stuck at 0 width/height. The easiest fix was 
-		// to move this call above the splitview restoration so the 
-		// view's panes will never be collapsed.
-	[fileDetailView1	setZoomPercentage:75];
-	[fileDetailView2	setZoomPercentage:75];
-	[fileDetailView3	setZoomPercentage:75];
-	
-	[self connectLDrawGLView:fileGraphicView];
-	[self connectLDrawGLView:fileDetailView1];
-	[self connectLDrawGLView:fileDetailView2];
-	[self connectLDrawGLView:fileDetailView3];
-
-	[[self foremostWindow] makeFirstResponder:fileGraphicView]; //so we can move it immediately.
+	[[self foremostWindow] makeFirstResponder:[self main3DViewport]]; //so we can move it immediately.
 
 	// We have to do the splitview saving manually. C'mon Apple, get with it!
 	// Note: They did in Leopard. These calls will use the system function 
 	//		 there. 
-	[fileContentsSplitView		setAutosaveName:@"fileContentsSplitView"];
-	[horizontalSplitView		setAutosaveName:@"HorizontalLDrawSplitview2.1"];
-	[verticalDetailSplitView	setAutosaveName:@"Vertical LDraw Splitview"];
+	[fileContentsSplitView	setAutosaveName:@"fileContentsSplitView"];
+	[horizontalSplitView	setAutosaveName:@"HorizontalLDrawSplitview2.1"];
+	
+	// Dynamically generate the autosave names for each column
+	for(counter = 0; counter < [[horizontalSplitView subviews] count]; counter++)
+	{
+		currentColumn = [[horizontalSplitView subviews] objectAtIndex:counter];
+		
+		[currentColumn setAutosaveName:[NSString stringWithFormat:@"LDrawSplitView_Column%d", counter]];
+	}
 	
 	// update scope step display controls
 	[self setStepDisplay:NO];
@@ -589,25 +601,18 @@
 //==============================================================================
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode
 {
+	NSArray     *graphicViews   = [self all3DViewports];
+	NSUInteger  counter         = 0;
+	
 	self->gridMode = newMode;
 	
 	// Update bits of UI
 	[self->toolbarController setGridSpacingMode:newMode];
 	
-	[fileGraphicView setGridSpacingMode:newMode];
-	[fileDetailView1 setGridSpacingMode:newMode];
-	[fileDetailView2 setGridSpacingMode:newMode];
-	[fileDetailView3 setGridSpacingMode:newMode];
-	
-//	NSUInteger  columnCounter   = 0;
-//	NSUInteger  rowCounter      = 0;
-//	NSArray		*rowViews		= nil;
-//	for(columnCounter = 0; columnCounter < [[self->horizontalSplitView subviews] count]; counter++)
-//	{
-//		rowViews = [[self->horizontalSplitView subviews] objectAtIndex:columnCounter];
-//		
-//		for(rowCounter = 0; rowCounter < [rowViews 
-//	}
+	for(counter = 0; counter < [graphicViews count]; counter++)
+	{
+		[[graphicViews objectAtIndex:counter] setGridSpacingMode:newMode];
+	}
 	
 }//end setGridSpacingMode:
 
@@ -1246,6 +1251,179 @@
 		[self advanceOneStep:sender];
 	
 }//end stepNavigatorClicked:
+
+
+#pragma mark -
+#pragma mark Viewport Placards
+
+//========== splitViewportClicked: =============================================
+//
+// Purpose:		Cleave the viewport in half, and add a new viewport in the new 
+//				half. 
+//
+// Notes:		Option-click the button to split horizontally instead of 
+//				vertically. 
+//
+//==============================================================================
+- (IBAction) splitViewportClicked:(id)sender
+{
+	NSView              *placardView        = [sender superview];
+	ExtendedScrollView  *sourceViewport     = (ExtendedScrollView*)[placardView superview]; // enclosingScrollView won't work here.
+	NSSplitView         *sourceColumn       = (NSSplitView*)[sourceViewport superview];
+	NSSplitView         *arrangementView    = (NSSplitView*)[sourceColumn superview];
+	
+	ExtendedSplitView   *newColumn          = nil;
+	ExtendedScrollView  *newViewport        = [[self newViewport] autorelease];
+	
+	NSRect              sourceViewFrame     = NSZeroRect;
+	NSRect              newViewFrame        = NSZeroRect;
+	BOOL                makeNewColumn       = (([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0);
+	
+	if(makeNewColumn == YES)
+	{
+		sourceViewFrame = [sourceColumn frame];
+		newColumn       = [[[ExtendedSplitView alloc] initWithFrame:NSMakeRect(0,0,12,12)] autorelease];
+		
+		
+		// Split the current viewport frame in two.
+		newViewFrame                = sourceViewFrame;
+		newViewFrame.size.width     = (NSWidth(sourceViewFrame) - [arrangementView dividerThickness]) / 2;
+		newViewFrame.origin.x       += NSWidth(newViewFrame) + [arrangementView dividerThickness];
+		
+		sourceViewFrame.size.width  = NSWidth(newViewFrame);
+		
+		[sourceColumn	setFrame:sourceViewFrame];
+		[newColumn		setFrame:newViewFrame];
+		
+		// Add Views
+		[newColumn addSubview:newViewport];
+		[arrangementView addSubview:newColumn positioned:NSWindowAbove relativeTo:sourceColumn];
+		[arrangementView adjustSubviews];
+	}
+	// Make a new row within the column.
+	else
+	{
+		sourceViewFrame = [sourceViewport frame];
+		
+		// Split the current viewport frame in two.
+		newViewFrame                = sourceViewFrame;
+		newViewFrame.size.height    = (NSHeight(sourceViewFrame) - [sourceColumn dividerThickness]) / 2;
+		
+		sourceViewFrame.origin.y    += NSHeight(newViewFrame) + [sourceColumn dividerThickness];
+		sourceViewFrame.size.height = NSHeight(newViewFrame);
+		
+		[sourceViewport	setFrame:sourceViewFrame];
+		[newViewport	setFrame:newViewFrame];
+		
+		// Add the new viewport.
+		// (Note that "Above" ordering means spatially below in a split view.)
+		[sourceColumn addSubview:newViewport positioned:NSWindowAbove relativeTo:sourceViewport];
+		[sourceColumn adjustSubviews];
+	}
+
+	[self updateViewportAutosaveNamesAndRestore:NO];
+	[self updatePlacardsForViewports];
+	[self store3DViewports];
+	[self loadDataIntoDocumentUI];
+	
+}//end splitViewportClicked:
+
+
+//========== closeViewportClicked: =============================================
+//
+// Purpose:		Remove the current viewport. If it is the last viewport in its 
+//				column, removes the entire column. 
+//
+//==============================================================================
+- (IBAction) closeViewportClicked:(id)sender
+{
+	NSView              *placardView        = [sender superview];
+	ExtendedScrollView  *sourceViewport     = (ExtendedScrollView*)[placardView superview]; // enclosingScrollView won't work here.
+	NSSplitView         *sourceColumn       = (NSSplitView*)[sourceViewport superview];
+	NSSplitView         *arrangementView    = (NSSplitView*)[sourceColumn superview];
+	
+	NSArray             *columns            = [arrangementView subviews];
+	NSArray             *rows               = [sourceColumn subviews];
+	NSUInteger          sourceViewIndex     = 0;
+	NSSplitView         *preceedingColumn   = nil;
+	ExtendedScrollView  *preceedingRow      = nil;
+	
+	NSRect              newViewFrame        = NSZeroRect;
+	BOOL                removingColumn      = [rows count] == 1; // last row in column?
+	BOOL                isFirstResponder    = NO;
+	NSResponder         *newFirstResponder  = nil;
+	
+	// If the doomed viewport is the first responder, then the view which 
+	// inherits the source's real estate should also inherit responder status. 
+	// (In Bricksmith, the first responder gl view is observed via KVO, so it is 
+	// doubly important to relinquish responder status before deallocation.) 
+	isFirstResponder    = ([[sourceViewport window] firstResponder] == [sourceViewport documentView]);
+	
+	if(removingColumn == YES)
+	{
+		sourceViewIndex     = [columns indexOfObjectIdenticalTo:sourceColumn];
+		
+		// If removing the first column, the column to the right grows leftward 
+		// to fill the empty space. Otherwise, the column to the left grows 
+		// rightward. 
+		if(sourceViewIndex == 0)
+		{
+			preceedingColumn	= [columns objectAtIndex:(sourceViewIndex + 1)];
+		}
+		else
+		{
+			preceedingColumn	= [columns objectAtIndex:(sourceViewIndex - 1)];
+		}
+
+		newViewFrame            = [preceedingColumn frame];
+		newViewFrame.size.width += [arrangementView dividerThickness] + NSWidth([sourceColumn frame]);
+		
+		if(isFirstResponder == YES)
+		{
+			// Bequeath responder status to the first view in the column which 
+			// inherits the real estate.
+			newFirstResponder = [[[preceedingColumn subviews] objectAtIndex:0] documentView];
+			[[sourceViewport window] makeFirstResponder:newFirstResponder];
+		}
+		
+		[sourceColumn removeFromSuperview];
+		[preceedingColumn setFrame:newViewFrame];
+	}
+	else
+	{
+		sourceViewIndex = [rows indexOfObjectIdenticalTo:sourceViewport];
+		
+		// If removing the first row, the row underneath it grows upward to fill 
+		// the empty space. Otherwise, the row above it grows downward. 
+		if(sourceViewIndex == 0)
+		{
+			preceedingRow	= [rows objectAtIndex:(sourceViewIndex + 1)];
+		}
+		else
+		{
+			preceedingRow	= [rows objectAtIndex:(sourceViewIndex - 1)];
+		}
+				
+		newViewFrame                = [preceedingRow frame];
+		newViewFrame.size.height	+= NSHeight([sourceViewport frame]) + [sourceColumn dividerThickness];
+		
+		if(isFirstResponder == YES)
+		{
+			// Bequeath responder status to the view which inherits the real 
+			// estate. 
+			newFirstResponder = [preceedingRow documentView];
+			[[sourceViewport window] makeFirstResponder:newFirstResponder];
+		}
+		
+		[sourceViewport removeFromSuperview];
+		[preceedingRow setFrame:newViewFrame];
+	}
+	
+	[self updateViewportAutosaveNamesAndRestore:NO];
+	[self updatePlacardsForViewports];
+	[self store3DViewports];
+
+}//end closeViewportClicked:
 
 
 #pragma mark -
@@ -2901,8 +3079,8 @@
 //
 //==============================================================================
 - (void) LDrawGLViewBecameFirstResponder:(LDrawGLView *)glView
-{	
-	//We used bindings to sync up the ever-in-limbo zoom control. Since 
+{
+	// We used bindings to sync up the ever-in-limbo zoom control. Since 
 	// mostRecentLDrawView is a private variable, we manually trigger the 
 	// key-value observing updates for it.
 	[self willChangeValueForKey:@"mostRecentLDrawView"];
@@ -3151,7 +3329,7 @@
 //				behave, and it is good. 
 //
 //==============================================================================
-- (void)splitView:(NSSplitView *)sender resizeSubviewsWithOldSize:(NSSize)oldSize
+- (void) splitView:(NSSplitView *)sender resizeSubviewsWithOldSize:(NSSize)oldSize
 {
 	// Make sure the width of the File Contents column remains constant during 
 	// live window resize. 
@@ -3171,10 +3349,13 @@
 		[graphicPane setFrameSize:graphicPaneSize];
 	}
 	
-	// Make sure the width of the OpenGL detail views column remains constant 
-	// during live window resize. 
+	// If there are only two view columns configured, make sure the rightmost 
+	// column remains constant during live window resize. This fit's Allen's 
+	// Preferred Viewport Layout, in which there is a set of detail views on the 
+	// right. People who prefer otherwise are up a creek.
 	if(		sender == self->horizontalSplitView
-		&&	[[[sender window] contentView] inLiveResize] == YES )
+		&&	[[[sender window] contentView] inLiveResize] == YES
+		&&	[[sender subviews] count] == 2 )
 	{
 		NSView	*mainViewPane		= [[sender subviews] objectAtIndex:0];
 		NSView	*detailViewsPane	= [[sender subviews] objectAtIndex:1];
@@ -3393,7 +3574,7 @@
 // Purpose:		The window is about to close; let's save some state info.
 //
 //==============================================================================
-- (void)windowWillClose:(NSNotification *)notification
+- (void) windowWillClose:(NSNotification *)notification
 {
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
 	NSWindow		*window			= [notification object];
@@ -3402,7 +3583,7 @@
 	
 	//Un-inspect everything
 	[[LDrawApplication sharedInspector] inspectObjects:nil];
-
+	
 	// Bug: if this document isn't the foremost window, this will botch up the 
 	//		menu! Remember, we can close windows in the background. 
 	if([window isMainWindow] == YES){
@@ -3690,6 +3871,309 @@
 
 
 #pragma mark -
+#pragma mark VIEWPORT MANAGEMENT
+#pragma mark -
+
+//========== all3DViewports ====================================================
+//
+// Purpose:		Returns an array of all the LDrawGLViews managed by the 
+//				document and displaying the document contents. 
+//
+//==============================================================================
+- (NSArray *) all3DViewports
+{
+	NSUInteger      columnCounter   = 0;
+	NSUInteger      rowCounter      = 0;
+	NSArray         *columns        = [self->horizontalSplitView subviews];
+	NSArray         *rows           = nil;
+	NSSplitView     *column         = nil;
+	NSScrollView    *row            = nil;
+	NSMutableArray  *viewports      = [NSMutableArray array];
+
+	// Count up all the GL views in each column
+	for(columnCounter = 0; columnCounter < [columns count]; columnCounter++)
+	{
+		column  = [columns objectAtIndex:columnCounter];
+		rows    = [column subviews];
+		
+		for(rowCounter = 0; rowCounter < [rows count]; rowCounter++)
+		{
+			row = [rows objectAtIndex:rowCounter];
+			[viewports addObject:[row documentView]];
+		}
+	}
+	
+	return viewports;
+	
+}//end all3DViewports
+
+
+//========== connectLDrawGLView: ===============================================
+//
+// Purpose:		Associates the given LDrawGLView with this document.
+//
+//==============================================================================
+- (void) connectLDrawGLView:(LDrawGLView *)glView
+{
+	[glView setDelegate:self];
+	
+	[glView setTarget:self];
+	[glView setForwardAction:@selector(advanceOneStep:)];
+	[glView setBackAction:@selector(backOneStep:)];
+	[glView setNudgeAction:@selector(nudge:)];
+	
+	[glView setGridSpacingMode:[self gridSpacingMode]];
+	
+}//end connectLDrawGLView:
+
+
+//========== main3DViewport ====================================================
+//
+// Purpose:		This is the viewport annointed "main", where we reflect things 
+//				like the current step orientation. 
+//
+//==============================================================================
+- (LDrawGLView *) main3DViewport
+{
+	NSArray	*allViewports = [self all3DViewports];
+	LDrawGLView *mainViewport = nil;
+	
+	if([allViewports count] > 0)
+		mainViewport = [allViewports objectAtIndex:0];
+		
+	return mainViewport;
+	
+}//end main3DViewport
+
+
+//========== newViewport =======================================================
+//
+// Purpose:		Creates a new 3D viewport nested in a scroll view.
+//
+// Notes:		Per Cocoa naming conventions, the caller is responsible for 
+//				releasing the returned object. 
+//
+//==============================================================================
+- (ExtendedScrollView *) newViewport
+{
+	ExtendedScrollView  *rowView            = nil;
+	LDrawGLView         *glView             = nil;
+	
+	// container scrollview
+	rowView = [[ExtendedScrollView alloc] initWithFrame:NSMakeRect(0, 0, 256, 256)];
+	[rowView setHasHorizontalScroller:YES];
+	[rowView setHasVerticalScroller:YES];
+	[rowView setDrawsBackground:YES];
+	[rowView setBorderType:NSBezelBorder];
+	[[rowView horizontalScroller] setControlSize:NSSmallControlSize];
+	[[rowView verticalScroller]   setControlSize:NSSmallControlSize];
+	[[rowView contentView] setCopiesOnScroll:NO];
+	
+	// 3D view
+	glView = [[[LDrawGLView alloc] initWithFrame:NSMakeRect(0, 0, 512, 512) pixelFormat:[NSOpenGLView defaultPixelFormat]] autorelease];
+	[self connectLDrawGLView:glView];
+	
+	// Tie them together
+	[rowView setDocumentView:glView];
+	[rowView centerDocumentView];
+	[glView scrollCenterToPoint:NSMakePoint( NSWidth([glView frame])/2, NSHeight([glView frame])/2 )];
+	
+	return rowView;
+	
+}//end newViewport
+
+
+//========== restore3DViewports ================================================
+//
+// Purpose:		Restores the number, layout, and sizes of the user-configurable 
+//				LDrawGLViews displayed on the document. 
+//
+//==============================================================================
+- (void) restore3DViewports
+{
+	NSUserDefaults      *userDefaults       = [NSUserDefaults standardUserDefaults];
+	NSArray             *viewCountPerColumn = [userDefaults objectForKey:FILE_DETAIL_VIEWS_PER_COLUMN];
+	ExtendedSplitView   *columnView         = nil;
+	ExtendedScrollView  *rowView            = nil;
+	NSUInteger          rows                = 0;
+	NSUInteger          columnCounter       = 0;
+	NSUInteger          rowCounter          = 0;
+	
+	// Defaults: 1 main viewer; 3 detail views to the right
+	if(viewCountPerColumn == nil || [viewCountPerColumn count] == 0)
+	{
+		viewCountPerColumn = [NSArray arrayWithObjects:
+								  [NSNumber numberWithInt:1],
+								  [NSNumber numberWithInt:3],
+								  nil ];
+	}
+	
+	// Remove all existing views
+	while([[self->horizontalSplitView subviews] count] > 0)
+		[[[horizontalSplitView subviews] objectAtIndex:0] removeFromSuperview];
+	
+	// Recreate whatever was in use last
+	for(columnCounter = 0; columnCounter < [viewCountPerColumn count]; columnCounter++)
+	{
+		rows = [[viewCountPerColumn objectAtIndex:columnCounter] integerValue];
+		
+		// The Column. 
+		columnView = [[[ExtendedSplitView alloc] initWithFrame:NSMakeRect(0, 0, 256, 256)] autorelease];
+		[horizontalSplitView addSubview:columnView];
+		
+		// The Rows
+		for(rowCounter = 0; rowCounter < rows; rowCounter++)
+		{
+			rowView = [[self newViewport] autorelease];
+			[columnView addSubview:rowView];
+		}
+		[columnView adjustSubviews];
+	}
+	
+	[self updateViewportAutosaveNamesAndRestore:YES];
+
+	
+	// The default initial view should have one viewport occupying 2/3rds of the 
+	// viewing area. (This code will get overridden if the splitviews have been 
+	// autosaved, which is good.)
+	if([[horizontalSplitView subviews] count] >= 2)
+	{
+		NSRect  firstColumnFrame    = [[[horizontalSplitView subviews] objectAtIndex:0] frame];
+		NSRect  secondColumnFrame   = [[[horizontalSplitView subviews] objectAtIndex:1] frame];
+		
+		firstColumnFrame.size.width     = NSWidth([horizontalSplitView frame]) * 0.66;
+		secondColumnFrame.size.width    = NSWidth([horizontalSplitView frame]) * 0.34;
+		
+		[[[horizontalSplitView subviews] objectAtIndex:0] setFrame:firstColumnFrame];
+		[[[horizontalSplitView subviews] objectAtIndex:1] setFrame:secondColumnFrame];
+	}
+	
+	[horizontalSplitView adjustSubviews];
+	[self updatePlacardsForViewports];
+	
+}//end restore3DViewports
+
+
+//========== store3DViewports ==================================================
+//
+// Purpose:		Stores the layout of the 3D viewports so it can be restored next 
+//				time. 
+//
+//==============================================================================
+- (void) store3DViewports
+{
+	NSUserDefaults  *userDefaults       = [NSUserDefaults standardUserDefaults];
+	NSMutableArray  *viewCountPerColumn = [NSMutableArray array];
+	NSArray         *columns            = [self->horizontalSplitView subviews];
+	NSSplitView     *currentColumn      = nil;
+	NSUInteger      rowCount            = 0;
+	NSUInteger      counter             = 0;
+	
+	// Save rows per column
+	for(counter = 0; counter < [columns count]; counter++)
+	{
+		currentColumn   = [columns objectAtIndex:counter];
+		rowCount        = [[currentColumn subviews] count];
+		[viewCountPerColumn addObject:[NSNumber numberWithInteger:rowCount]];
+	}
+	
+	[userDefaults setObject:viewCountPerColumn forKey:FILE_DETAIL_VIEWS_PER_COLUMN];
+	
+}//end store3DViewports
+
+
+//========== updateViewportAutosaveNamesAndRestore: ============================
+//
+// Purpose:		Sets the autosave names for all the viewports. Call this after 
+//				the viewport configuration changes. 
+//
+// Parameters:	shouldRestore	- pass YES to also read settings from prefs.
+//
+//==============================================================================
+- (void) updateViewportAutosaveNamesAndRestore:(BOOL)shouldRestore
+{
+	NSArray             *columns        = [self->horizontalSplitView subviews];
+	NSArray             *rows           = nil;
+	NSSplitView         *currentColumn  = nil;
+	ExtendedScrollView  *currentRow     = nil;
+	LDrawGLView         *glView         = nil;
+	NSUInteger          columnCount     = [columns count];
+	NSUInteger          rowCount        = 0;
+	NSUInteger          columnCounter   = 0;
+	NSUInteger          rowCounter      = 0;
+	
+	// Recreate whatever was in use last
+	for(columnCounter = 0; columnCounter < columnCount; columnCounter++)
+	{
+		currentColumn   = [columns objectAtIndex:columnCounter];
+		rows            = [currentColumn subviews];
+		rowCount        = [rows count];
+		
+		// Set the correct placard for each viewport
+		for(rowCounter = 0; rowCounter < rowCount; rowCounter++)
+		{
+			currentRow  = [rows objectAtIndex:rowCounter];
+			glView      = [currentRow documentView];
+			
+			[glView setAutosaveName:[NSString stringWithFormat:@"fileGraphicView_Column%d_Row%d", columnCounter, rowCounter]];
+			
+			if(shouldRestore == YES)
+				[glView restoreConfiguration];
+		}
+	}
+
+}//end updateViewportAutosaveNamesAndRestore:
+
+
+//========== updatePlacardsForViewports ========================================
+//
+// Purpose:		Sets the appropriate spliting control buttons in the scrollbar 
+//				area for each viewport. 
+//
+//==============================================================================
+- (void) updatePlacardsForViewports
+{
+	NSArray             *columns                = [self->horizontalSplitView subviews];
+	NSArray             *rows                   = nil;
+	NSSplitView         *currentColumn          = nil;
+	ExtendedScrollView  *currentRow             = nil;
+	NSData              *longPlacardSourceData  = [NSKeyedArchiver archivedDataWithRootObject:self->longPlacardPrototype];
+	NSData              *shortPlacardSourceData = [NSKeyedArchiver archivedDataWithRootObject:self->shortPlacardPrototype];
+	NSView              *placard                = nil;
+	NSUInteger			columnCount				= [columns count];
+	NSUInteger          rowCount                = 0;
+	NSUInteger          columnCounter           = 0;
+	NSUInteger          rowCounter              = 0;
+	
+	for(columnCounter = 0; columnCounter < columnCount; columnCounter++)
+	{
+		currentColumn   = [columns objectAtIndex:columnCounter];
+		rows            = [currentColumn subviews];
+		rowCount        = [rows count];
+		
+		// Set the correct placard for each viewport
+		for(rowCounter = 0; rowCounter < rowCount; rowCounter++)
+		{
+			currentRow = [rows objectAtIndex:rowCounter];
+			
+			// If there only one viewport in the column, disable the close box.
+			// Note: Archiving-Unarchiving is the only way to copy a view
+			if(columnCount == 1 && rowCount == 1)
+			{
+				placard = [NSKeyedUnarchiver unarchiveObjectWithData:shortPlacardSourceData];
+			}
+			else
+			{
+				placard = [NSKeyedUnarchiver unarchiveObjectWithData:longPlacardSourceData];
+			}
+			
+			[currentRow setVerticalPlacard:placard];
+		}
+	}
+}//end updatePlacardsForViewports
+
+
+#pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
 
@@ -3938,25 +4422,6 @@
 }//end canDeleteDirective:displayErrors:
 
 
-//========== connectLDrawGLView:(LDrawGLView*) =================================
-//
-// Purpose:		Associates the given LDrawGLView with this document.
-//
-//==============================================================================
-- (void) connectLDrawGLView:(LDrawGLView *)glView
-{
-	[glView setDelegate:self];
-
-	[glView setTarget:self];
-	[glView setForwardAction:@selector(advanceOneStep:)];
-	[glView setBackAction:@selector(backOneStep:)];
-	[glView setNudgeAction:@selector(nudge:)];
-	
-	[glView setGridSpacingMode:[self gridSpacingMode]];
-	
-}//end connectLDrawGLView:
-
-
 //========== elementsAreSelectedOfVisibility: ==================================
 //
 // Purpose:		Returns YES if there are elements selected which have the 
@@ -4076,12 +4541,15 @@
 //						(in revertToSavedFromFile:ofType:)
 //
 //==============================================================================
-- (void) loadDataIntoDocumentUI {
+- (void) loadDataIntoDocumentUI
+{
+	NSArray     *graphicViews   = [self all3DViewports];
+	NSUInteger  counter         = 0;
 	
-	[self->fileGraphicView		setLDrawDirective:[self documentContents]];
-	[self->fileDetailView1		setLDrawDirective:[self documentContents]];
-	[self->fileDetailView2		setLDrawDirective:[self documentContents]];
-	[self->fileDetailView3		setLDrawDirective:[self documentContents]];
+	for(counter = 0; counter < [graphicViews count]; counter++)
+	{
+		[[graphicViews objectAtIndex:counter] setLDrawDirective:[self documentContents]];
+	}
 	[self->fileContentsOutline	reloadData];
 	
 	[self addModelsToMenus];
@@ -4253,19 +4721,20 @@
 //==============================================================================
 - (void) updateViewingAngleToMatchStep
 {
-	LDrawMPDModel       *activeModel    = [[self documentContents] activeModel];
-	NSInteger           requestedStep   = [activeModel maximumStepIndexForStepDisplay];
-	Tuple3              viewingAngle    = [activeModel rotationAngleForStepAtIndex:requestedStep];
-	ViewOrientationT    viewOrientation = [LDrawUtilities viewOrientationForAngle:viewingAngle];
+	LDrawMPDModel       *activeModel        = [[self documentContents] activeModel];
+	NSInteger           requestedStep       = [activeModel maximumStepIndexForStepDisplay];
+	Tuple3              viewingAngle        = [activeModel rotationAngleForStepAtIndex:requestedStep];
+	ViewOrientationT    viewOrientation     = [LDrawUtilities viewOrientationForAngle:viewingAngle];
+	LDrawGLView         *affectedViewport   = [self main3DViewport];
 	
 	// Set the Viewing angle
 	if(viewOrientation != ViewOrientation3D)
-		[self->fileGraphicView setProjectionMode:ProjectionModeOrthographic];
+		[affectedViewport setProjectionMode:ProjectionModeOrthographic];
 	else
-		[self->fileGraphicView setProjectionMode:ProjectionModePerspective];
+		[affectedViewport setProjectionMode:ProjectionModePerspective];
 	
-	[self->fileGraphicView setViewOrientation:viewOrientation];
-	[self->fileGraphicView setViewingAngle:viewingAngle];
+	[affectedViewport setViewOrientation:viewOrientation];
+	[affectedViewport setViewingAngle:viewingAngle];
 	
 }//end updateViewingAngleToMatchStep
 

@@ -45,6 +45,7 @@
 		0B356A9808D371EE00695EEB /* PartReport.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356A9608D371EE00695EEB /* PartReport.m */; };
 		0B356AF008D385B900695EEB /* PieceCountPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356AEE08D385B900695EEB /* PieceCountPanel.m */; };
 		0B356AF108D385B900695EEB /* PieceCountPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B356AEF08D385B900695EEB /* PieceCountPanel.h */; };
+		0B3822DF1075C5880027224B /* LDrawDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B3822DD1075C5880027224B /* LDrawDocument.xib */; };
 		0B45A9BC0F009165006FF538 /* Colors.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B45A9BB0F009165006FF538 /* Colors.tiff */; };
 		0B491DA407F5555B00AC0C10 /* MatrixMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B491DA207F5555B00AC0C10 /* MatrixMath.h */; };
 		0B491DA507F5555B00AC0C10 /* MatrixMath.c in Sources */ = {isa = PBXBuildFile; fileRef = 0B491DA307F5555B00AC0C10 /* MatrixMath.c */; };
@@ -52,6 +53,10 @@
 		0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */; };
 		0B4F5E110F31632C00355631 /* PartLibraryController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B4F5E0F0F31632C00355631 /* PartLibraryController.h */; };
 		0B4F5E120F31632C00355631 /* PartLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4F5E100F31632C00355631 /* PartLibraryController.m */; };
+		0B639758106F3CF800C93F6E /* PlacardButtonClose12.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B639756106F3CF700C93F6E /* PlacardButtonClose12.pdf */; };
+		0B639759106F3CF800C93F6E /* PlacardButtonSplit12.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B639757106F3CF800C93F6E /* PlacardButtonSplit12.pdf */; };
+		0B639768106F408500C93F6E /* ExtendedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B639766106F408500C93F6E /* ExtendedScrollView.m */; };
+		0B63976F106F40CA00C93F6E /* ExtendedScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B63976E106F40CA00C93F6E /* ExtendedScrollView.h */; };
 		0B65543A081367E800EA7F4F /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B655439081367E800EA7F4F /* GLUT.framework */; };
 		0B6770EE0817588D0044A0E0 /* Mac LDraw_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32DBCF750370BD2300C91783 /* Mac LDraw_Prefix.pch */; };
 		0B6771AA081764E60044A0E0 /* LDrawDrawableElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6771A8081764E60044A0E0 /* LDrawDrawableElement.h */; };
@@ -92,7 +97,6 @@
 		0B8EBD6C09383CBB00D87E0C /* InspectorQuadrilateral.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD5209383CBB00D87E0C /* InspectorQuadrilateral.nib */; };
 		0B8EBD6D09383CBB00D87E0C /* InspectorTriangle.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD5409383CBB00D87E0C /* InspectorTriangle.nib */; };
 		0B8EBD6E09383CBB00D87E0C /* InspectorUnknownCommand.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD5609383CBB00D87E0C /* InspectorUnknownCommand.nib */; };
-		0B8EBD6F09383CBB00D87E0C /* LDrawDocument.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD5809383CBB00D87E0C /* LDrawDocument.nib */; };
 		0B8EBD7009383CBB00D87E0C /* LDrawGLViewAccessories.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD5A09383CBB00D87E0C /* LDrawGLViewAccessories.nib */; };
 		0B8EBD7109383CBB00D87E0C /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD5C09383CBB00D87E0C /* MainMenu.nib */; };
 		0B8EBD7209383CBB00D87E0C /* PartChooser.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD5E09383CBB00D87E0C /* PartChooser.nib */; };
@@ -321,6 +325,7 @@
 		0B356A9608D371EE00695EEB /* PartReport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartReport.m; sourceTree = "<group>"; };
 		0B356AEE08D385B900695EEB /* PieceCountPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieceCountPanel.m; sourceTree = "<group>"; };
 		0B356AEF08D385B900695EEB /* PieceCountPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PieceCountPanel.h; sourceTree = "<group>"; };
+		0B3822DE1075C5880027224B /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Resources/English.lproj/LDrawDocument.xib; sourceTree = "<group>"; };
 		0B45A9BB0F009165006FF538 /* Colors.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Colors.tiff; sourceTree = "<group>"; };
 		0B491DA207F5555B00AC0C10 /* MatrixMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixMath.h; sourceTree = "<group>"; };
 		0B491DA307F5555B00AC0C10 /* MatrixMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MatrixMath.c; sourceTree = "<group>"; };
@@ -328,6 +333,10 @@
 		0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ColorDroplet.tiff; sourceTree = "<group>"; };
 		0B4F5E0F0F31632C00355631 /* PartLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartLibraryController.h; sourceTree = "<group>"; };
 		0B4F5E100F31632C00355631 /* PartLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartLibraryController.m; sourceTree = "<group>"; };
+		0B639756106F3CF700C93F6E /* PlacardButtonClose12.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PlacardButtonClose12.pdf; sourceTree = "<group>"; };
+		0B639757106F3CF800C93F6E /* PlacardButtonSplit12.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PlacardButtonSplit12.pdf; sourceTree = "<group>"; };
+		0B639766106F408500C93F6E /* ExtendedScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtendedScrollView.m; sourceTree = "<group>"; };
+		0B63976E106F40CA00C93F6E /* ExtendedScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtendedScrollView.h; sourceTree = "<group>"; };
 		0B655439081367E800EA7F4F /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		0B6771A8081764E60044A0E0 /* LDrawDrawableElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawDrawableElement.h; sourceTree = "<group>"; };
 		0B6771A9081764E60044A0E0 /* LDrawDrawableElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawDrawableElement.m; sourceTree = "<group>"; };
@@ -379,7 +388,6 @@
 		0B8EBD5309383CBB00D87E0C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/InspectorQuadrilateral.nib; sourceTree = "<group>"; };
 		0B8EBD5509383CBB00D87E0C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/InspectorTriangle.nib; sourceTree = "<group>"; };
 		0B8EBD5709383CBB00D87E0C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/InspectorUnknownCommand.nib; sourceTree = "<group>"; };
-		0B8EBD5909383CBB00D87E0C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/LDrawDocument.nib; sourceTree = "<group>"; };
 		0B8EBD5B09383CBB00D87E0C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/LDrawGLViewAccessories.nib; sourceTree = "<group>"; };
 		0B8EBD5D09383CBB00D87E0C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		0B8EBD5F09383CBB00D87E0C /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PartChooser.nib; sourceTree = "<group>"; };
@@ -637,6 +645,8 @@
 				0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */,
 				0BC71FC60E738C4D0007F10D /* GoBack.tiff */,
 				0BC71FC70E738C4D0007F10D /* GoForward.tiff */,
+				0B639756106F3CF700C93F6E /* PlacardButtonClose12.pdf */,
+				0B639757106F3CF800C93F6E /* PlacardButtonSplit12.pdf */,
 				0B9FE5AA08AD97770046511D /* Badges */,
 				0B8EBCEE0938383000D87E0C /* Cursors */,
 				0B9FE56F08AD97670046511D /* Toolbar Items */,
@@ -682,6 +692,8 @@
 				0B2FAE2E10196F8C007BA948 /* BackgroundColorView.m */,
 				0B8EBE6B093C100100D87E0C /* DialogPanel.h */,
 				0B8EBE6C093C100100D87E0C /* DialogPanel.m */,
+				0B63976E106F40CA00C93F6E /* ExtendedScrollView.h */,
+				0B639766106F408500C93F6E /* ExtendedScrollView.m */,
 				0B8EBE6D093C100100D87E0C /* ExtendedSplitView.h */,
 				0B8EBE6E093C100100D87E0C /* ExtendedSplitView.m */,
 				0B06F7150F633FD2004E7DD7 /* ExtendedTableView.h */,
@@ -725,7 +737,7 @@
 				0B76F2FF0E74DF8B00349D03 /* InspectorStep.xib */,
 				0B8EBD5409383CBB00D87E0C /* InspectorTriangle.nib */,
 				0B8EBD5609383CBB00D87E0C /* InspectorUnknownCommand.nib */,
-				0B8EBD5809383CBB00D87E0C /* LDrawDocument.nib */,
+				0B3822DD1075C5880027224B /* LDrawDocument.xib */,
 				0B8EBD5A09383CBB00D87E0C /* LDrawGLViewAccessories.nib */,
 				0B8EBD5C09383CBB00D87E0C /* MainMenu.nib */,
 				2BF2E2D90AB0FC030026D5DB /* MinifigureGenerator.nib */,
@@ -1089,6 +1101,7 @@
 				0B06F7170F633FD2004E7DD7 /* ExtendedTableView.h in Headers */,
 				0B2FADD310196C2E007BA948 /* DonationDialogController.h in Headers */,
 				0B2FAE2F10196F8C007BA948 /* BackgroundColorView.h in Headers */,
+				0B63976F106F40CA00C93F6E /* ExtendedScrollView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1204,7 +1217,6 @@
 				0B8EBD6C09383CBB00D87E0C /* InspectorQuadrilateral.nib in Resources */,
 				0B8EBD6D09383CBB00D87E0C /* InspectorTriangle.nib in Resources */,
 				0B8EBD6E09383CBB00D87E0C /* InspectorUnknownCommand.nib in Resources */,
-				0B8EBD6F09383CBB00D87E0C /* LDrawDocument.nib in Resources */,
 				0B8EBD7009383CBB00D87E0C /* LDrawGLViewAccessories.nib in Resources */,
 				0B8EBD7109383CBB00D87E0C /* MainMenu.nib in Resources */,
 				0B8EBD7209383CBB00D87E0C /* PartChooser.nib in Resources */,
@@ -1241,6 +1253,9 @@
 				0B06F6890F60F534004E7DD7 /* PartBrowserAccessories.xib in Resources */,
 				0B2FADD810196D39007BA948 /* Donation.xib in Resources */,
 				0B2FAE60101972DF007BA948 /* Bum.ldr in Resources */,
+				0B639758106F3CF800C93F6E /* PlacardButtonClose12.pdf in Resources */,
+				0B639759106F3CF800C93F6E /* PlacardButtonSplit12.pdf in Resources */,
+				0B3822DF1075C5880027224B /* LDrawDocument.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1323,6 +1338,7 @@
 				0B06F7180F633FD2004E7DD7 /* ExtendedTableView.m in Sources */,
 				0B2FADD410196C2E007BA948 /* DonationDialogController.m in Sources */,
 				0B2FAE3010196F8C007BA948 /* BackgroundColorView.m in Sources */,
+				0B639768106F408500C93F6E /* ExtendedScrollView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1368,6 +1384,15 @@
 				0B34306608B2E93D00A06A40 /* Localizable.strings */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		0B3822DD1075C5880027224B /* LDrawDocument.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0B3822DE1075C5880027224B /* English */,
+			);
+			name = LDrawDocument.xib;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		0B76F2FF0E74DF8B00349D03 /* InspectorStep.xib */ = {
@@ -1465,14 +1490,6 @@
 				0B8EBD5709383CBB00D87E0C /* English */,
 			);
 			name = InspectorUnknownCommand.nib;
-			sourceTree = "<group>";
-		};
-		0B8EBD5809383CBB00D87E0C /* LDrawDocument.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0B8EBD5909383CBB00D87E0C /* English */,
-			);
-			name = LDrawDocument.nib;
 			sourceTree = "<group>";
 		};
 		0B8EBD5A09383CBB00D87E0C /* LDrawGLViewAccessories.nib */ = {

@@ -95,6 +95,8 @@ typedef enum
 	Vector3					nudgeVector;			// direction of nudge action (valid only in nudgeAction callback)
 }
 
+- (void) internalInit;
+
 // Drawing
 - (void) draw;
 - (void) drawFocusRing;

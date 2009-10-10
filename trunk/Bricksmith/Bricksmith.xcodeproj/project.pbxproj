@@ -232,6 +232,9 @@
 		0BF729C508AD849300E3DA53 /* PartLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF729B508AD849300E3DA53 /* PartLibrary.m */; };
 		0BF729C608AD849300E3DA53 /* PreferencesDialogController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BF729B608AD849300E3DA53 /* PreferencesDialogController.h */; };
 		0BF729C708AD849300E3DA53 /* PreferencesDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF729B708AD849300E3DA53 /* PreferencesDialogController.m */; };
+		0BFC4CFD1076F61900293B60 /* ViewportArranger.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BFC4CFB1076F61900293B60 /* ViewportArranger.h */; };
+		0BFC4CFE1076F61900293B60 /* ViewportArranger.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BFC4CFC1076F61900293B60 /* ViewportArranger.m */; };
+		0BFC4D43107840CF00293B60 /* ViewportArrangerAccessories.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0BFC4D41107840CF00293B60 /* ViewportArrangerAccessories.xib */; };
 		0BFD363A0EEA49E100A1AAF5 /* PartBrowser.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */; };
 		2B1C603B09FF00B3001EE8FA /* AMSProgressBar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1C603A09FF00B3001EE8FA /* AMSProgressBar.framework */; };
 		2BB59F4309FEFE960077A885 /* AMSProgressBar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BB5975E09FEFD250077A885 /* AMSProgressBar.framework */; };
@@ -508,6 +511,9 @@
 		0BF729B508AD849300E3DA53 /* PartLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartLibrary.m; sourceTree = "<group>"; };
 		0BF729B608AD849300E3DA53 /* PreferencesDialogController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesDialogController.h; sourceTree = "<group>"; };
 		0BF729B708AD849300E3DA53 /* PreferencesDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesDialogController.m; sourceTree = "<group>"; };
+		0BFC4CFB1076F61900293B60 /* ViewportArranger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewportArranger.h; sourceTree = "<group>"; };
+		0BFC4CFC1076F61900293B60 /* ViewportArranger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewportArranger.m; sourceTree = "<group>"; };
+		0BFC4D42107840CF00293B60 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Resources/English.lproj/ViewportArrangerAccessories.xib; sourceTree = "<group>"; };
 		0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PartBrowser.pdf; sourceTree = "<group>"; };
 		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -716,6 +722,8 @@
 				0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */,
 				0BC71D630E6CB26A0007F10D /* ScopeBar.h */,
 				0BC71D640E6CB26A0007F10D /* ScopeBar.m */,
+				0BFC4CFB1076F61900293B60 /* ViewportArranger.h */,
+				0BFC4CFC1076F61900293B60 /* ViewportArranger.m */,
 			);
 			name = Widgets;
 			path = Source/Widgets;
@@ -749,6 +757,7 @@
 				0B8EBD6209383CBB00D87E0C /* Preferences.nib */,
 				2BF2E2F70AB0FC300026D5DB /* RotationPanel.nib */,
 				0B2700BE098200CC0058A7BE /* ToolPalette.nib */,
+				0BFC4D41107840CF00293B60 /* ViewportArrangerAccessories.xib */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
@@ -1102,6 +1111,7 @@
 				0B2FADD310196C2E007BA948 /* DonationDialogController.h in Headers */,
 				0B2FAE2F10196F8C007BA948 /* BackgroundColorView.h in Headers */,
 				0B63976F106F40CA00C93F6E /* ExtendedScrollView.h in Headers */,
+				0BFC4CFD1076F61900293B60 /* ViewportArranger.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1256,6 +1266,7 @@
 				0B639758106F3CF800C93F6E /* PlacardButtonClose12.pdf in Resources */,
 				0B639759106F3CF800C93F6E /* PlacardButtonSplit12.pdf in Resources */,
 				0B3822DF1075C5880027224B /* LDrawDocument.xib in Resources */,
+				0BFC4D43107840CF00293B60 /* ViewportArrangerAccessories.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1339,6 +1350,7 @@
 				0B2FADD410196C2E007BA948 /* DonationDialogController.m in Sources */,
 				0B2FAE3010196F8C007BA948 /* BackgroundColorView.m in Sources */,
 				0B639768106F408500C93F6E /* ExtendedScrollView.m in Sources */,
+				0BFC4CFE1076F61900293B60 /* ViewportArranger.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1562,6 +1574,15 @@
 				0BDC14550B9D04E1001D1FF1 /* English */,
 			);
 			name = PartBrowser.nib;
+			sourceTree = "<group>";
+		};
+		0BFC4D41107840CF00293B60 /* ViewportArrangerAccessories.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0BFC4D42107840CF00293B60 /* English */,
+			);
+			name = ViewportArrangerAccessories.xib;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		2BF2E2D90AB0FC030026D5DB /* MinifigureGenerator.nib */ = {

@@ -58,6 +58,7 @@
 #import "ScrollViewCategory.h"
 #import "StringUtilities.h"
 #import "UserDefaultsCategory.h"
+#import "ViewportArranger.h"
 #import "WindowCategory.h"
 
 
@@ -118,7 +119,6 @@
 	NSToolbar               *toolbar            = nil;
 	NSString                *savedSizeString    = nil;
 	NSInteger               drawerState         = 0;
-	ExtendedSplitView       *currentColumn      = nil;
 	NSUInteger              counter             = 0;
 
     [super windowControllerDidLoadNib:aController];
@@ -158,8 +158,12 @@
 	[fileContentsOutline registerForDraggedTypes:[NSArray arrayWithObject:LDrawDirectivePboardType]];
 	
 	
-	//Restore the state/layout of our 3D viewers.
-	[self restore3DViewports];
+	// We have to do the splitview saving manually. C'mon Apple, get with it!
+	// Note: They did in Leopard. These calls will use the system function 
+	//		 there. 
+	[fileContentsSplitView	setAutosaveName:@"fileContentsSplitView"];
+	[viewportArranger		setAutosaveName:@"HorizontalLDrawSplitview2.1"];
+	[self updateViewportAutosaveNamesAndRestore:YES];
 	
 	// Set opening zoom percentages
 	{
@@ -180,25 +184,15 @@
 				[currentViewport setZoomPercentage:100];
 			else
 				[currentViewport setZoomPercentage:75];
+			
+			// Scrolling to center doesn't seem to work at restoration time, so 
+			// do it again here. 
+			[currentViewport scrollCenterToPoint:NSMakePoint( NSMidX([currentViewport frame]), NSMidY([currentViewport frame]) )];
  		}
 	}
 	
 	[[self foremostWindow] makeFirstResponder:[self main3DViewport]]; //so we can move it immediately.
 
-	// We have to do the splitview saving manually. C'mon Apple, get with it!
-	// Note: They did in Leopard. These calls will use the system function 
-	//		 there. 
-	[fileContentsSplitView	setAutosaveName:@"fileContentsSplitView"];
-	[horizontalSplitView	setAutosaveName:@"HorizontalLDrawSplitview2.1"];
-	
-	// Dynamically generate the autosave names for each column
-	for(counter = 0; counter < [[horizontalSplitView subviews] count]; counter++)
-	{
-		currentColumn = [[horizontalSplitView subviews] objectAtIndex:counter];
-		
-		[currentColumn setAutosaveName:[NSString stringWithFormat:@"LDrawSplitView_Column%d", counter]];
-	}
-	
 	// update scope step display controls
 	[self setStepDisplay:NO];
 	
@@ -258,12 +252,12 @@
 	// The result on Tiger is a view which is too wide, so I shrink it here. 
 	// Notes: The split view subview defies all attempts to shink it correctly; 
 	//		  that's why I'm manually shrinking the subview's subviews. 
-	NSRect newFrame = [horizontalSplitView frame];
+	NSRect newFrame = [self->viewportArranger frame];
 	newFrame.size.width =		NSWidth([[window contentView] frame])
 							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
 							-	[fileContentsSplitView dividerThickness];
-	[horizontalSplitView		setFrame:newFrame];
-	[horizontalSplitView		adjustSubviews];
+	[self->viewportArranger setFrame:newFrame];
+	[self->viewportArranger adjustSubviews];
 	
 	[[[fileContentsSplitView subviews] objectAtIndex:1] setFrame:newFrame];
 	[fileContentsSplitView		adjustSubviews];
@@ -272,7 +266,7 @@
 	NSRect scopeFrame = [scopeBar frame];
 	scopeFrame.size.width = NSWidth(newFrame);
 	[scopeBar setFrame:scopeFrame];
-	
+
 }//end windowControllerDidLoadNib:
 
 
@@ -1251,179 +1245,6 @@
 		[self advanceOneStep:sender];
 	
 }//end stepNavigatorClicked:
-
-
-#pragma mark -
-#pragma mark Viewport Placards
-
-//========== splitViewportClicked: =============================================
-//
-// Purpose:		Cleave the viewport in half, and add a new viewport in the new 
-//				half. 
-//
-// Notes:		Option-click the button to split horizontally instead of 
-//				vertically. 
-//
-//==============================================================================
-- (IBAction) splitViewportClicked:(id)sender
-{
-	NSView              *placardView        = [sender superview];
-	ExtendedScrollView  *sourceViewport     = (ExtendedScrollView*)[placardView superview]; // enclosingScrollView won't work here.
-	NSSplitView         *sourceColumn       = (NSSplitView*)[sourceViewport superview];
-	NSSplitView         *arrangementView    = (NSSplitView*)[sourceColumn superview];
-	
-	ExtendedSplitView   *newColumn          = nil;
-	ExtendedScrollView  *newViewport        = [[self newViewport] autorelease];
-	
-	NSRect              sourceViewFrame     = NSZeroRect;
-	NSRect              newViewFrame        = NSZeroRect;
-	BOOL                makeNewColumn       = (([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0);
-	
-	if(makeNewColumn == YES)
-	{
-		sourceViewFrame = [sourceColumn frame];
-		newColumn       = [[[ExtendedSplitView alloc] initWithFrame:NSMakeRect(0,0,12,12)] autorelease];
-		
-		
-		// Split the current viewport frame in two.
-		newViewFrame                = sourceViewFrame;
-		newViewFrame.size.width     = (NSWidth(sourceViewFrame) - [arrangementView dividerThickness]) / 2;
-		newViewFrame.origin.x       += NSWidth(newViewFrame) + [arrangementView dividerThickness];
-		
-		sourceViewFrame.size.width  = NSWidth(newViewFrame);
-		
-		[sourceColumn	setFrame:sourceViewFrame];
-		[newColumn		setFrame:newViewFrame];
-		
-		// Add Views
-		[newColumn addSubview:newViewport];
-		[arrangementView addSubview:newColumn positioned:NSWindowAbove relativeTo:sourceColumn];
-		[arrangementView adjustSubviews];
-	}
-	// Make a new row within the column.
-	else
-	{
-		sourceViewFrame = [sourceViewport frame];
-		
-		// Split the current viewport frame in two.
-		newViewFrame                = sourceViewFrame;
-		newViewFrame.size.height    = (NSHeight(sourceViewFrame) - [sourceColumn dividerThickness]) / 2;
-		
-		sourceViewFrame.origin.y    += NSHeight(newViewFrame) + [sourceColumn dividerThickness];
-		sourceViewFrame.size.height = NSHeight(newViewFrame);
-		
-		[sourceViewport	setFrame:sourceViewFrame];
-		[newViewport	setFrame:newViewFrame];
-		
-		// Add the new viewport.
-		// (Note that "Above" ordering means spatially below in a split view.)
-		[sourceColumn addSubview:newViewport positioned:NSWindowAbove relativeTo:sourceViewport];
-		[sourceColumn adjustSubviews];
-	}
-
-	[self updateViewportAutosaveNamesAndRestore:NO];
-	[self updatePlacardsForViewports];
-	[self store3DViewports];
-	[self loadDataIntoDocumentUI];
-	
-}//end splitViewportClicked:
-
-
-//========== closeViewportClicked: =============================================
-//
-// Purpose:		Remove the current viewport. If it is the last viewport in its 
-//				column, removes the entire column. 
-//
-//==============================================================================
-- (IBAction) closeViewportClicked:(id)sender
-{
-	NSView              *placardView        = [sender superview];
-	ExtendedScrollView  *sourceViewport     = (ExtendedScrollView*)[placardView superview]; // enclosingScrollView won't work here.
-	NSSplitView         *sourceColumn       = (NSSplitView*)[sourceViewport superview];
-	NSSplitView         *arrangementView    = (NSSplitView*)[sourceColumn superview];
-	
-	NSArray             *columns            = [arrangementView subviews];
-	NSArray             *rows               = [sourceColumn subviews];
-	NSUInteger          sourceViewIndex     = 0;
-	NSSplitView         *preceedingColumn   = nil;
-	ExtendedScrollView  *preceedingRow      = nil;
-	
-	NSRect              newViewFrame        = NSZeroRect;
-	BOOL                removingColumn      = [rows count] == 1; // last row in column?
-	BOOL                isFirstResponder    = NO;
-	NSResponder         *newFirstResponder  = nil;
-	
-	// If the doomed viewport is the first responder, then the view which 
-	// inherits the source's real estate should also inherit responder status. 
-	// (In Bricksmith, the first responder gl view is observed via KVO, so it is 
-	// doubly important to relinquish responder status before deallocation.) 
-	isFirstResponder    = ([[sourceViewport window] firstResponder] == [sourceViewport documentView]);
-	
-	if(removingColumn == YES)
-	{
-		sourceViewIndex     = [columns indexOfObjectIdenticalTo:sourceColumn];
-		
-		// If removing the first column, the column to the right grows leftward 
-		// to fill the empty space. Otherwise, the column to the left grows 
-		// rightward. 
-		if(sourceViewIndex == 0)
-		{
-			preceedingColumn	= [columns objectAtIndex:(sourceViewIndex + 1)];
-		}
-		else
-		{
-			preceedingColumn	= [columns objectAtIndex:(sourceViewIndex - 1)];
-		}
-
-		newViewFrame            = [preceedingColumn frame];
-		newViewFrame.size.width += [arrangementView dividerThickness] + NSWidth([sourceColumn frame]);
-		
-		if(isFirstResponder == YES)
-		{
-			// Bequeath responder status to the first view in the column which 
-			// inherits the real estate.
-			newFirstResponder = [[[preceedingColumn subviews] objectAtIndex:0] documentView];
-			[[sourceViewport window] makeFirstResponder:newFirstResponder];
-		}
-		
-		[sourceColumn removeFromSuperview];
-		[preceedingColumn setFrame:newViewFrame];
-	}
-	else
-	{
-		sourceViewIndex = [rows indexOfObjectIdenticalTo:sourceViewport];
-		
-		// If removing the first row, the row underneath it grows upward to fill 
-		// the empty space. Otherwise, the row above it grows downward. 
-		if(sourceViewIndex == 0)
-		{
-			preceedingRow	= [rows objectAtIndex:(sourceViewIndex + 1)];
-		}
-		else
-		{
-			preceedingRow	= [rows objectAtIndex:(sourceViewIndex - 1)];
-		}
-				
-		newViewFrame                = [preceedingRow frame];
-		newViewFrame.size.height	+= NSHeight([sourceViewport frame]) + [sourceColumn dividerThickness];
-		
-		if(isFirstResponder == YES)
-		{
-			// Bequeath responder status to the view which inherits the real 
-			// estate. 
-			newFirstResponder = [preceedingRow documentView];
-			[[sourceViewport window] makeFirstResponder:newFirstResponder];
-		}
-		
-		[sourceViewport removeFromSuperview];
-		[preceedingRow setFrame:newViewFrame];
-	}
-	
-	[self updateViewportAutosaveNamesAndRestore:NO];
-	[self updatePlacardsForViewports];
-	[self store3DViewports];
-
-}//end closeViewportClicked:
 
 
 #pragma mark -
@@ -3305,7 +3126,7 @@
 	// strange: specify a maximum position for the main graphic view pane. When 
 	// the divider is dragged more than halfway beyond that maximum point, the 
 	// detail column (view index 1) automatically collapses. Weird...
-	if(		sender == self->horizontalSplitView
+	if(		sender == self->viewportArranger
 		&&	offset == 0 ) // yes, that offset is correct. This method is NEVER called with offset == 1.
 	{
 		actualMax = NSMaxX([sender frame]) - 80; // min size of 80 for the detail column
@@ -3353,7 +3174,7 @@
 	// column remains constant during live window resize. This fit's Allen's 
 	// Preferred Viewport Layout, in which there is a set of detail views on the 
 	// right. People who prefer otherwise are up a creek.
-	if(		sender == self->horizontalSplitView
+	if(		sender == self->viewportArranger
 		&&	[[[sender window] contentView] inLiveResize] == YES
 		&&	[[sender subviews] count] == 2 )
 	{
@@ -3882,25 +3703,19 @@
 //==============================================================================
 - (NSArray *) all3DViewports
 {
-	NSUInteger      columnCounter   = 0;
-	NSUInteger      rowCounter      = 0;
-	NSArray         *columns        = [self->horizontalSplitView subviews];
-	NSArray         *rows           = nil;
-	NSSplitView     *column         = nil;
-	NSScrollView    *row            = nil;
-	NSMutableArray  *viewports      = [NSMutableArray array];
+	NSArray         *scrollViews        = [self->viewportArranger allViewports];
+	NSMutableArray  *viewports          = [NSMutableArray array];
+	NSScrollView    *currentScrollView  = nil;
+	LDrawGLView     *currentGLView      = nil;
+	NSUInteger      counter             = 0;
 
 	// Count up all the GL views in each column
-	for(columnCounter = 0; columnCounter < [columns count]; columnCounter++)
+	for(counter = 0; counter < [scrollViews count]; counter++)
 	{
-		column  = [columns objectAtIndex:columnCounter];
-		rows    = [column subviews];
+		currentScrollView   = [scrollViews objectAtIndex:counter];
+		currentGLView       = [currentScrollView documentView];
 		
-		for(rowCounter = 0; rowCounter < [rows count]; rowCounter++)
-		{
-			row = [rows objectAtIndex:rowCounter];
-			[viewports addObject:[row documentView]];
-		}
+		[viewports addObject:currentGLView];
 	}
 	
 	return viewports;
@@ -3929,14 +3744,14 @@
 
 //========== main3DViewport ====================================================
 //
-// Purpose:		This is the viewport annointed "main", where we reflect things 
+// Purpose:		This is the viewport anointed "main", where we reflect things 
 //				like the current step orientation. 
 //
 //==============================================================================
 - (LDrawGLView *) main3DViewport
 {
-	NSArray	*allViewports = [self all3DViewports];
-	LDrawGLView *mainViewport = nil;
+	NSArray     *allViewports   = [self all3DViewports];
+	LDrawGLView *mainViewport   = nil;
 	
 	if([allViewports count] > 0)
 		mainViewport = [allViewports objectAtIndex:0];
@@ -3944,142 +3759,6 @@
 	return mainViewport;
 	
 }//end main3DViewport
-
-
-//========== newViewport =======================================================
-//
-// Purpose:		Creates a new 3D viewport nested in a scroll view.
-//
-// Notes:		Per Cocoa naming conventions, the caller is responsible for 
-//				releasing the returned object. 
-//
-//==============================================================================
-- (ExtendedScrollView *) newViewport
-{
-	ExtendedScrollView  *rowView            = nil;
-	LDrawGLView         *glView             = nil;
-	
-	// container scrollview
-	rowView = [[ExtendedScrollView alloc] initWithFrame:NSMakeRect(0, 0, 256, 256)];
-	[rowView setHasHorizontalScroller:YES];
-	[rowView setHasVerticalScroller:YES];
-	[rowView setDrawsBackground:YES];
-	[rowView setBorderType:NSBezelBorder];
-	[[rowView horizontalScroller] setControlSize:NSSmallControlSize];
-	[[rowView verticalScroller]   setControlSize:NSSmallControlSize];
-	[[rowView contentView] setCopiesOnScroll:NO];
-	
-	// 3D view
-	glView = [[[LDrawGLView alloc] initWithFrame:NSMakeRect(0, 0, 512, 512) pixelFormat:[NSOpenGLView defaultPixelFormat]] autorelease];
-	[self connectLDrawGLView:glView];
-	
-	// Tie them together
-	[rowView setDocumentView:glView];
-	[rowView centerDocumentView];
-	[glView scrollCenterToPoint:NSMakePoint( NSWidth([glView frame])/2, NSHeight([glView frame])/2 )];
-	
-	return rowView;
-	
-}//end newViewport
-
-
-//========== restore3DViewports ================================================
-//
-// Purpose:		Restores the number, layout, and sizes of the user-configurable 
-//				LDrawGLViews displayed on the document. 
-//
-//==============================================================================
-- (void) restore3DViewports
-{
-	NSUserDefaults      *userDefaults       = [NSUserDefaults standardUserDefaults];
-	NSArray             *viewCountPerColumn = [userDefaults objectForKey:FILE_DETAIL_VIEWS_PER_COLUMN];
-	ExtendedSplitView   *columnView         = nil;
-	ExtendedScrollView  *rowView            = nil;
-	NSUInteger          rows                = 0;
-	NSUInteger          columnCounter       = 0;
-	NSUInteger          rowCounter          = 0;
-	
-	// Defaults: 1 main viewer; 3 detail views to the right
-	if(viewCountPerColumn == nil || [viewCountPerColumn count] == 0)
-	{
-		viewCountPerColumn = [NSArray arrayWithObjects:
-								  [NSNumber numberWithInt:1],
-								  [NSNumber numberWithInt:3],
-								  nil ];
-	}
-	
-	// Remove all existing views
-	while([[self->horizontalSplitView subviews] count] > 0)
-		[[[horizontalSplitView subviews] objectAtIndex:0] removeFromSuperview];
-	
-	// Recreate whatever was in use last
-	for(columnCounter = 0; columnCounter < [viewCountPerColumn count]; columnCounter++)
-	{
-		rows = [[viewCountPerColumn objectAtIndex:columnCounter] integerValue];
-		
-		// The Column. 
-		columnView = [[[ExtendedSplitView alloc] initWithFrame:NSMakeRect(0, 0, 256, 256)] autorelease];
-		[horizontalSplitView addSubview:columnView];
-		
-		// The Rows
-		for(rowCounter = 0; rowCounter < rows; rowCounter++)
-		{
-			rowView = [[self newViewport] autorelease];
-			[columnView addSubview:rowView];
-		}
-		[columnView adjustSubviews];
-	}
-	
-	[self updateViewportAutosaveNamesAndRestore:YES];
-
-	
-	// The default initial view should have one viewport occupying 2/3rds of the 
-	// viewing area. (This code will get overridden if the splitviews have been 
-	// autosaved, which is good.)
-	if([[horizontalSplitView subviews] count] >= 2)
-	{
-		NSRect  firstColumnFrame    = [[[horizontalSplitView subviews] objectAtIndex:0] frame];
-		NSRect  secondColumnFrame   = [[[horizontalSplitView subviews] objectAtIndex:1] frame];
-		
-		firstColumnFrame.size.width     = NSWidth([horizontalSplitView frame]) * 0.66;
-		secondColumnFrame.size.width    = NSWidth([horizontalSplitView frame]) * 0.34;
-		
-		[[[horizontalSplitView subviews] objectAtIndex:0] setFrame:firstColumnFrame];
-		[[[horizontalSplitView subviews] objectAtIndex:1] setFrame:secondColumnFrame];
-	}
-	
-	[horizontalSplitView adjustSubviews];
-	[self updatePlacardsForViewports];
-	
-}//end restore3DViewports
-
-
-//========== store3DViewports ==================================================
-//
-// Purpose:		Stores the layout of the 3D viewports so it can be restored next 
-//				time. 
-//
-//==============================================================================
-- (void) store3DViewports
-{
-	NSUserDefaults  *userDefaults       = [NSUserDefaults standardUserDefaults];
-	NSMutableArray  *viewCountPerColumn = [NSMutableArray array];
-	NSArray         *columns            = [self->horizontalSplitView subviews];
-	NSSplitView     *currentColumn      = nil;
-	NSUInteger      rowCount            = 0;
-	NSUInteger      counter             = 0;
-	
-	// Save rows per column
-	for(counter = 0; counter < [columns count]; counter++)
-	{
-		currentColumn   = [columns objectAtIndex:counter];
-		rowCount        = [[currentColumn subviews] count];
-		[viewCountPerColumn addObject:[NSNumber numberWithInteger:rowCount]];
-	}
-	
-	[userDefaults setObject:viewCountPerColumn forKey:FILE_DETAIL_VIEWS_PER_COLUMN];
-	
-}//end store3DViewports
 
 
 //========== updateViewportAutosaveNamesAndRestore: ============================
@@ -4092,85 +3771,64 @@
 //==============================================================================
 - (void) updateViewportAutosaveNamesAndRestore:(BOOL)shouldRestore
 {
-	NSArray             *columns        = [self->horizontalSplitView subviews];
-	NSArray             *rows           = nil;
-	NSSplitView         *currentColumn  = nil;
-	ExtendedScrollView  *currentRow     = nil;
-	LDrawGLView         *glView         = nil;
-	NSUInteger          columnCount     = [columns count];
-	NSUInteger          rowCount        = 0;
-	NSUInteger          columnCounter   = 0;
-	NSUInteger          rowCounter      = 0;
+	NSArray             *viewports          = [self all3DViewports];
+	LDrawGLView         *glView             = nil;
+	NSUInteger          viewportCount       = [viewports count];
+	NSUInteger          counter             = 0;
 	
 	// Recreate whatever was in use last
-	for(columnCounter = 0; columnCounter < columnCount; columnCounter++)
+	for(counter = 0; counter < viewportCount; counter++)
 	{
-		currentColumn   = [columns objectAtIndex:columnCounter];
-		rows            = [currentColumn subviews];
-		rowCount        = [rows count];
+		glView          = [viewports objectAtIndex:counter];
 		
-		// Set the correct placard for each viewport
-		for(rowCounter = 0; rowCounter < rowCount; rowCounter++)
-		{
-			currentRow  = [rows objectAtIndex:rowCounter];
-			glView      = [currentRow documentView];
-			
-			[glView setAutosaveName:[NSString stringWithFormat:@"fileGraphicView_Column%d_Row%d", columnCounter, rowCounter]];
-			
-			if(shouldRestore == YES)
-				[glView restoreConfiguration];
-		}
+		[glView setAutosaveName:[NSString stringWithFormat:@"fileGraphicView_%d", counter]];
+		
+		if(shouldRestore == YES)
+			[glView restoreConfiguration];
 	}
 
 }//end updateViewportAutosaveNamesAndRestore:
 
 
-//========== updatePlacardsForViewports ========================================
+#pragma mark -
+
+//========== viewportArranger:didAddViewport: ==================================
 //
-// Purpose:		Sets the appropriate spliting control buttons in the scrollbar 
-//				area for each viewport. 
+// Purpose:		A new viewport has been added. Time to update the world!
 //
 //==============================================================================
-- (void) updatePlacardsForViewports
+- (void) viewportArranger:(ViewportArranger *)viewportArranger
+		   didAddViewport:(ExtendedScrollView *)newViewport;
 {
-	NSArray             *columns                = [self->horizontalSplitView subviews];
-	NSArray             *rows                   = nil;
-	NSSplitView         *currentColumn          = nil;
-	ExtendedScrollView  *currentRow             = nil;
-	NSData              *longPlacardSourceData  = [NSKeyedArchiver archivedDataWithRootObject:self->longPlacardPrototype];
-	NSData              *shortPlacardSourceData = [NSKeyedArchiver archivedDataWithRootObject:self->shortPlacardPrototype];
-	NSView              *placard                = nil;
-	NSUInteger			columnCount				= [columns count];
-	NSUInteger          rowCount                = 0;
-	NSUInteger          columnCounter           = 0;
-	NSUInteger          rowCounter              = 0;
+	LDrawGLView *glView = nil;
 	
-	for(columnCounter = 0; columnCounter < columnCount; columnCounter++)
-	{
-		currentColumn   = [columns objectAtIndex:columnCounter];
-		rows            = [currentColumn subviews];
-		rowCount        = [rows count];
-		
-		// Set the correct placard for each viewport
-		for(rowCounter = 0; rowCounter < rowCount; rowCounter++)
-		{
-			currentRow = [rows objectAtIndex:rowCounter];
-			
-			// If there only one viewport in the column, disable the close box.
-			// Note: Archiving-Unarchiving is the only way to copy a view
-			if(columnCount == 1 && rowCount == 1)
-			{
-				placard = [NSKeyedUnarchiver unarchiveObjectWithData:shortPlacardSourceData];
-			}
-			else
-			{
-				placard = [NSKeyedUnarchiver unarchiveObjectWithData:longPlacardSourceData];
-			}
-			
-			[currentRow setVerticalPlacard:placard];
-		}
-	}
-}//end updatePlacardsForViewports
+	glView = [[[LDrawGLView alloc] initWithFrame:NSMakeRect(0, 0, 512, 512) pixelFormat:[NSOpenGLView defaultPixelFormat]] autorelease];
+	[self connectLDrawGLView:glView];
+	
+	// Tie them together
+	[newViewport setDocumentView:glView];
+	[newViewport centerDocumentView];
+
+	[self updateViewportAutosaveNamesAndRestore:NO];
+	[self loadDataIntoDocumentUI];
+	
+//	[glView scrollCenterToPoint:NSMakePoint( NSMidX([glView frame]), NSMidY([glView frame]) )];
+
+}//end viewportArranger:didAddViewport:
+
+
+//========== viewportArrangerDidRemoveViewports: ===============================
+//
+// Purpose:		A viewport (or maybe a whole bunch of them) has been removed. We 
+//				don't get told which one, but that's because we don't need to 
+//				know. 
+//
+//==============================================================================
+- (void) viewportArrangerDidRemoveViewports:(ViewportArranger *)viewportArranger
+{
+	[self updateViewportAutosaveNamesAndRestore:NO];
+	
+}//end viewportArrangerDidRemoveViewports:
 
 
 #pragma mark -

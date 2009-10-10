@@ -15,6 +15,7 @@
 #import "LDrawUtilities.h"
 #import "MatrixMath.h"
 #import "RotationPanel.h"
+#import "ViewportArranger.h"
 
 @class DocumentToolbarController;
 @class ExtendedScrollView;
@@ -31,6 +32,7 @@
 @class LDrawPart;
 @class PartBrowserDataSource;
 
+
 //Where new parts are inserted in the abscence of a peer selection.
 typedef enum insertionMode {
 	insertAtEnd,
@@ -43,7 +45,7 @@ typedef enum insertionMode {
 // class LDrawDocument
 //
 ////////////////////////////////////////////////////////////////////////////////
-@interface LDrawDocument : NSDocument
+@interface LDrawDocument : NSDocument <ViewportArrangerDelegate>
 {
 	IBOutlet DocumentToolbarController	*toolbarController;
 	IBOutlet NSObjectController			*bindingsController;
@@ -63,11 +65,9 @@ typedef enum insertionMode {
 	// Window contents
 	IBOutlet ExtendedSplitView			*fileContentsSplitView;
 	IBOutlet LDrawFileOutlineView		*fileContentsOutline;
-	IBOutlet NSView						*longPlacardPrototype;
-	IBOutlet NSView						*shortPlacardPrototype;
 	
 	// LDraw graphic view
-	IBOutlet ExtendedSplitView			*horizontalSplitView;
+	IBOutlet ViewportArranger			*viewportArranger;
 	
 	@private
 		LDrawFile		*documentContents;
@@ -117,10 +117,6 @@ typedef enum insertionMode {
 - (IBAction) viewSteps:(id)sender;
 - (IBAction) stepFieldChanged:(id)sender;
 - (IBAction) stepNavigatorClicked:(id)sender;
-
-// - Viewport Placards
-- (IBAction) splitViewportClicked:(id)sender;
-- (IBAction) closeViewportClicked:(id)sender;
 
 // - File menu
 - (IBAction) exportSteps:(id)sender;
@@ -188,11 +184,7 @@ typedef enum insertionMode {
 - (NSArray *) all3DViewports;
 - (void) connectLDrawGLView:(LDrawGLView *)glView;
 - (LDrawGLView *) main3DViewport;
-- (ExtendedScrollView *) newViewport;
-- (void) restore3DViewports;
-- (void) store3DViewports;
 - (void) updateViewportAutosaveNamesAndRestore:(BOOL)shouldRestore;
-- (void) updatePlacardsForViewports;
 
 // Utilites
 - (void) addModel:(LDrawMPDModel *)newModel preventNameCollisions:(BOOL)flag;

@@ -3,7 +3,7 @@
 // File:		ExtendedScrollView.m
 //
 // Purpose:		A scroll view which supports displaying placards in the 
-//				scrollbar regions. 
+//				scrollbar regions, and other nice things.
 //
 // Modified:	04/19/2009 Allen Smith. Creation Date.
 //
@@ -12,6 +12,73 @@
 
 
 @implementation ExtendedScrollView
+
+#pragma mark -
+#pragma mark INITIALIZATION
+#pragma mark -
+
+//========== initWithFrame: ====================================================
+//
+// Purpose:		Create one.
+//
+//==============================================================================
+- (id) initWithFrame:(NSRect)frame
+{
+	self = [super initWithFrame:frame];
+	
+	preservesScrollCenterDuringLiveResize = NO; // normal Cocoa scroll views don't.
+	
+	return self;
+	
+}//end initWithFrame:
+
+
+#pragma mark -
+#pragma mark ACCESSORS
+#pragma mark -
+
+//========== setFrame: =========================================================
+//
+// Purpose:		The size of the scrollview is to be changed, which means that 
+//				the scrollbars will also move somehow too. 
+//
+//==============================================================================
+- (void) setFrame:(NSRect)frameRect
+{
+	[super setFrame:frameRect];
+	
+	// If we are supposed to be keeping the scroll rect's center in the middle 
+	// of the scroll view, then we'll need to rescroll it there now. 
+	if(		self->preservesScrollCenterDuringLiveResize == YES
+	   &&	[self inLiveResize] == YES )
+	{
+		NSView  *documentView   = [self documentView];
+		NSRect  newVisibleRect  = [documentView visibleRect];
+		
+		newVisibleRect.origin.x = documentScrollCenterPoint.x - NSWidth(newVisibleRect)/2;
+		newVisibleRect.origin.y = documentScrollCenterPoint.y - NSHeight(newVisibleRect)/2;
+		
+		newVisibleRect = NSIntegralRect(newVisibleRect);
+		
+		[documentView scrollRectToVisible:newVisibleRect];
+	}
+	
+}//end setFrame:
+
+
+//========== setKeepsScrollCenterDuringLiveResize: =============================
+//
+// Purpose:		Ordinarily, scroll views maintain the origin of the scroll area 
+//				as they expand and contract. If this flag is set, the scroll 
+//				view will instead keep the center of the document view's scroll 
+//				rect at the center of the scroll view during live resize. 
+//
+//==============================================================================
+- (void) setPreservesScrollCenterDuringLiveResize:(BOOL)flag
+{
+	self->preservesScrollCenterDuringLiveResize = flag;
+}
+
 
 //========== setVerticalPlacard: ===============================================
 //
@@ -39,6 +106,33 @@
 	[self setNeedsDisplay:YES];
 	
 }//end setVerticalPlacard:
+
+
+#pragma mark -
+#pragma mark LAYOUT
+#pragma mark -
+
+//========== reflectScrolledClipView: ==========================================
+//
+// Purpose:		Scrolling is happening, either by the user directly or by 
+//				automatic view resizing. 
+//
+//==============================================================================
+- (void) reflectScrolledClipView:(NSClipView *)aClipView
+{
+	[super reflectScrolledClipView:aClipView];
+	
+	// If the USER just scrolled the view, memorize his scrolled center so that 
+	// we can preserve it during live resize if we are supposed to. 
+	if([self inLiveResize] == NO)
+	{
+		NSView  *documentView       = [self documentView];
+		NSRect  documentVisibleRect = [documentView visibleRect];
+		NSPoint visibleCenter       = NSMakePoint(NSMidX(documentVisibleRect), NSMidY(documentVisibleRect));
+
+		self->documentScrollCenterPoint = visibleCenter;
+	}
+}//end reflectScrolledClipView:
 
 
 //========== tile ==============================================================

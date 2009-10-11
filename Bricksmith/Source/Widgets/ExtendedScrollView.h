@@ -18,9 +18,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface ExtendedScrollView : NSScrollView
 {
-	NSView	*verticalPlacard;
+	NSPoint documentScrollCenterPoint;
+	BOOL    preservesScrollCenterDuringLiveResize;
+	NSView  *verticalPlacard;
 }
 
+// Accessors
+- (void) setPreservesScrollCenterDuringLiveResize:(BOOL)flag;
 - (void) setVerticalPlacard:(NSView *)placardView;
 
 @end

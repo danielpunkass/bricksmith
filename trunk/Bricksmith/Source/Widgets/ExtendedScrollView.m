@@ -50,13 +50,15 @@
 	// If we are supposed to be keeping the scroll rect's center in the middle 
 	// of the scroll view, then we'll need to rescroll it there now. 
 	if(		self->preservesScrollCenterDuringLiveResize == YES
-	   &&	[self inLiveResize] == YES )
+	   &&	[self inLiveResize] == YES 
+	   &&	NSEqualPoints(self->documentScrollCenterPoint, NSZeroPoint)
+	  )
 	{
 		NSView  *documentView   = [self documentView];
 		NSRect  newVisibleRect  = [documentView visibleRect];
 		
-		newVisibleRect.origin.x = documentScrollCenterPoint.x - NSWidth(newVisibleRect)/2;
-		newVisibleRect.origin.y = documentScrollCenterPoint.y - NSHeight(newVisibleRect)/2;
+		newVisibleRect.origin.x = self->documentScrollCenterPoint.x - NSWidth(newVisibleRect)/2;
+		newVisibleRect.origin.y = self->documentScrollCenterPoint.y - NSHeight(newVisibleRect)/2;
 		
 		newVisibleRect = NSIntegralRect(newVisibleRect);
 		
@@ -129,8 +131,13 @@
 		NSView  *documentView       = [self documentView];
 		NSRect  documentVisibleRect = [documentView visibleRect];
 		NSPoint visibleCenter       = NSMakePoint(NSMidX(documentVisibleRect), NSMidY(documentVisibleRect));
-
-		self->documentScrollCenterPoint = visibleCenter;
+		
+		// Careful. Collapsed split views have no visible rect, and we don't 
+		// want to save THAT! 
+		if( NSEqualPoints(visibleCenter, NSZeroPoint) == NO)
+		{
+			self->documentScrollCenterPoint = visibleCenter;
+		}
 	}
 }//end reflectScrolledClipView:
 

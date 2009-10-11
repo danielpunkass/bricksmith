@@ -684,17 +684,17 @@ PreferencesDialogController *preferencesDialog = nil;
 	//
 	
 	//OpenGL viewer settings -- see -restoreConfiguration in LDrawGLView.
-	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientation3D]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_Column0_Row0"]];
-	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModePerspective]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_Column0_Row0"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientation3D]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_0"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModePerspective]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_0"]];
 	
-	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_Column1_Row0"]];
-	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_Column1_Row0"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationFront]		forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_1"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_1"]];
 	
-	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_Column1_Row1"]];
-	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_Column1_Row1"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationLeft]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_2"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_2"]];
 
-	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationTop]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_Column1_Row2"]];
-	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_Column1_Row2"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ViewOrientationTop]			forKey:[LDRAW_GL_VIEW_ANGLE			stringByAppendingString:@" fileGraphicView_3"]];
+	[initialDefaults setObject:[NSNumber numberWithInteger:ProjectionModeOrthographic]	forKey:[LDRAW_GL_VIEW_PROJECTION	stringByAppendingString:@" fileGraphicView_3"]];
 	
 	//
 	// Part Browser

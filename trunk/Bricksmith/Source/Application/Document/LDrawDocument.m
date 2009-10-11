@@ -262,8 +262,8 @@
 	[[[fileContentsSplitView subviews] objectAtIndex:1] setFrame:newFrame];
 	[fileContentsSplitView		adjustSubviews];
 
-	NSView *scopeBar = [self->scopeStepControlsContainer superview];
-	NSRect scopeFrame = [scopeBar frame];
+	NSView  *scopeBar   = [self->scopeStepControlsContainer superview];
+	NSRect  scopeFrame  = [scopeBar frame];
 	scopeFrame.size.width = NSWidth(newFrame);
 	[scopeBar setFrame:scopeFrame];
 
@@ -3808,6 +3808,7 @@
 	// Tie them together
 	[newViewport setDocumentView:glView];
 	[newViewport centerDocumentView];
+	[newViewport setPreservesScrollCenterDuringLiveResize:YES];
 
 	[self updateViewportAutosaveNamesAndRestore:NO];
 	[self loadDataIntoDocumentUI];

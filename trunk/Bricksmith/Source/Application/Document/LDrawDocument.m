@@ -167,11 +167,6 @@
 	
 	// Set opening zoom percentages
 	{
-		// For reasons I have not sufficiently investigated, setting the zoom 
-		// percentage on a collapsed (0 width/height) view causes the view to 
-		// get stuck at 0 width/height. The easiest fix was to move this call 
-		// above the splitview restoration so the view's panes will never be 
-		// collapsed. 
 		NSArray     *allViewports       = [self all3DViewports];
 		LDrawGLView *mainViewport       = [self main3DViewport];
 		LDrawGLView *currentViewport    = nil;

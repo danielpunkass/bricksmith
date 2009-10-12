@@ -1138,7 +1138,10 @@
 			// effect of zooming us in and out. 
 			clipBounds.size.width	= NSWidth(clipFrame)  / scaleFactor;
 			clipBounds.size.height	= NSHeight(clipFrame) / scaleFactor;
-			[clipView setBounds:clipBounds]; //BREAKS AUTORESIZING. What to do?
+			// Note: must use -setBoundsSize:, not -setBounds:. The latter 
+			//		 causes bad things to happen when called on a collapsed 
+			//		 split view. 
+			[clipView setBoundsSize:clipBounds.size];
 			
 			//Preserve the original view centerpoint. Note that the visible 
 			// area has changed because we changed our zoom level.

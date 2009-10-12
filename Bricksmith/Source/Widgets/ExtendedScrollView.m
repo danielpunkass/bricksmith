@@ -51,7 +51,7 @@
 	// of the scroll view, then we'll need to rescroll it there now. 
 	if(		self->preservesScrollCenterDuringLiveResize == YES
 	   &&	[self inLiveResize] == YES 
-	   &&	NSEqualPoints(self->documentScrollCenterPoint, NSZeroPoint)
+	   &&	NSEqualPoints(self->documentScrollCenterPoint, NSZeroPoint) == NO
 	  )
 	{
 		NSView  *documentView   = [self documentView];

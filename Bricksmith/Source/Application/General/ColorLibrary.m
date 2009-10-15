@@ -272,7 +272,8 @@ void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
 	int		brightestIndex	= 0;
 	float	brightness		= 0.0;
 	
-	//Isolate the color's brightness -- that is, its biggest component
+	// Isolate the color's brightness -- that is, its biggest component
+	// (This is hacky math. Real HSB does NOT work this way!)
 	if(		originalColor[1] > originalColor[0]
 		&&	originalColor[1] > originalColor[2])
 		brightestIndex = 1;
@@ -294,9 +295,9 @@ void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
 	else
 	{
 		// Lighten
-		complimentColor[0] = originalColor[0] * 1.75;
-		complimentColor[1] = originalColor[1] * 1.75;
-		complimentColor[2] = originalColor[2] * 1.75;
+		complimentColor[0] = originalColor[0] * 3.0;
+		complimentColor[1] = originalColor[1] * 3.0;
+		complimentColor[2] = originalColor[2] * 3.0;
 	}
 	
 }//end complimentColor

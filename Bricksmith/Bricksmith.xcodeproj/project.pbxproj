@@ -81,6 +81,7 @@
 		0B76F2F90E74CC1700349D03 /* InspectionStep.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B76F2F70E74CC1700349D03 /* InspectionStep.h */; };
 		0B76F2FA0E74CC1700349D03 /* InspectionStep.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B76F2F80E74CC1700349D03 /* InspectionStep.m */; };
 		0B76F3010E74DF8B00349D03 /* InspectorStep.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B76F2FF0E74DF8B00349D03 /* InspectorStep.xib */; };
+		0B8079511086C1BA005FFC17 /* PartBrowser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B80794F1086C1BA005FFC17 /* PartBrowser.xib */; };
 		0B83E9B907E3BB0D009C2384 /* LDrawComment.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B83E9B707E3BB0D009C2384 /* LDrawComment.h */; };
 		0B83E9BA07E3BB0D009C2384 /* LDrawComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B83E9B807E3BB0D009C2384 /* LDrawComment.m */; };
 		0B8EBCF10938383000D87E0C /* ZoomInCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBCEF0938383000D87E0C /* ZoomInCursor.tiff */; };
@@ -213,7 +214,6 @@
 		0BC71FC90E738C4D0007F10D /* GoForward.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71FC70E738C4D0007F10D /* GoForward.tiff */; };
 		0BCD0C6507FD0BA10066A536 /* LDrawContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */; };
 		0BCD0C6607FD0BA10066A536 /* LDrawContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */; };
-		0BDC145A0B9D04E2001D1FF1 /* PartBrowser.nib in Resources */ = {isa = PBXBuildFile; fileRef = 0BDC14540B9D04E1001D1FF1 /* PartBrowser.nib */; };
 		0BDC146F0B9D0502001D1FF1 /* PartBrowserPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */; };
 		0BDC14700B9D0502001D1FF1 /* PartBrowserPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */; };
 		0BF729B808AD849300E3DA53 /* DocumentToolbarController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BF729A708AD849300E3DA53 /* DocumentToolbarController.h */; };
@@ -375,6 +375,7 @@
 		0B76F2F70E74CC1700349D03 /* InspectionStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InspectionStep.h; sourceTree = "<group>"; };
 		0B76F2F80E74CC1700349D03 /* InspectionStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectionStep.m; sourceTree = "<group>"; };
 		0B76F3000E74DF8B00349D03 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Resources/English.lproj/InspectorStep.xib; sourceTree = "<group>"; };
+		0B8079501086C1BA005FFC17 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = Resources/English.lproj/PartBrowser.xib; sourceTree = "<group>"; };
 		0B83E9B707E3BB0D009C2384 /* LDrawComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawComment.h; sourceTree = "<group>"; };
 		0B83E9B807E3BB0D009C2384 /* LDrawComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawComment.m; sourceTree = "<group>"; };
 		0B8EBCEF0938383000D87E0C /* ZoomInCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomInCursor.tiff; sourceTree = "<group>"; };
@@ -492,7 +493,6 @@
 		0BC71FC70E738C4D0007F10D /* GoForward.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GoForward.tiff; sourceTree = "<group>"; };
 		0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LDrawContainer.h; path = Source/LDraw/Files/LDrawContainer.h; sourceTree = SOURCE_ROOT; };
 		0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LDrawContainer.m; path = Source/LDraw/Files/LDrawContainer.m; sourceTree = SOURCE_ROOT; };
-		0BDC14550B9D04E1001D1FF1 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/PartBrowser.nib; sourceTree = "<group>"; };
 		0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserPanel.h; sourceTree = "<group>"; };
 		0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserPanel.m; sourceTree = "<group>"; };
 		0BF729A708AD849300E3DA53 /* DocumentToolbarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentToolbarController.h; sourceTree = "<group>"; };
@@ -750,7 +750,7 @@
 				0B8EBD5C09383CBB00D87E0C /* MainMenu.nib */,
 				2BF2E2D90AB0FC030026D5DB /* MinifigureGenerator.nib */,
 				2BF2E2F00AB0FC1E0026D5DB /* MovePanel.nib */,
-				0BDC14540B9D04E1001D1FF1 /* PartBrowser.nib */,
+				0B80794F1086C1BA005FFC17 /* PartBrowser.xib */,
 				0B06F6870F60F534004E7DD7 /* PartBrowserAccessories.xib */,
 				0B8EBD5E09383CBB00D87E0C /* PartChooser.nib */,
 				0B8EBD6009383CBB00D87E0C /* PieceCountPanel.nib */,
@@ -1241,7 +1241,6 @@
 				2BF2E2F60AB0FC1E0026D5DB /* MovePanel.nib in Resources */,
 				2BF2E2FD0AB0FC300026D5DB /* RotationPanel.nib in Resources */,
 				0B14DB940B94D4710002C053 /* GeneralPreferences.tiff in Resources */,
-				0BDC145A0B9D04E2001D1FF1 /* PartBrowser.nib in Resources */,
 				0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */,
 				0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */,
 				0B9907630DD7EDBB003F6B13 /* ldconfig.ldr in Resources */,
@@ -1267,6 +1266,7 @@
 				0B639759106F3CF800C93F6E /* PlacardButtonSplit12.pdf in Resources */,
 				0B3822DF1075C5880027224B /* LDrawDocument.xib in Resources */,
 				0BFC4D43107840CF00293B60 /* ViewportArrangerAccessories.xib in Resources */,
+				0B8079511086C1BA005FFC17 /* PartBrowser.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1413,6 +1413,15 @@
 				0B76F3000E74DF8B00349D03 /* English */,
 			);
 			name = InspectorStep.xib;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		0B80794F1086C1BA005FFC17 /* PartBrowser.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0B8079501086C1BA005FFC17 /* English */,
+			);
+			name = PartBrowser.xib;
 			path = ..;
 			sourceTree = "<group>";
 		};
@@ -1566,14 +1575,6 @@
 				0BC6AACD0987296700505A88 /* English */,
 			);
 			name = Help;
-			sourceTree = "<group>";
-		};
-		0BDC14540B9D04E1001D1FF1 /* PartBrowser.nib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0BDC14550B9D04E1001D1FF1 /* English */,
-			);
-			name = PartBrowser.nib;
 			sourceTree = "<group>";
 		};
 		0BFC4D41107840CF00293B60 /* ViewportArrangerAccessories.xib */ = {

@@ -1025,6 +1025,8 @@
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	
+	[self saveConfiguration];
+
 } //end setProjectionMode:
 
 
@@ -1102,6 +1104,8 @@
 		
 	// Apply the angle itself.
 	[self setViewingAngle:newAngle];
+	
+	[self saveConfiguration];
 	
 }//end setViewOrientation:
 

@@ -513,17 +513,19 @@
 	LDrawMPDModel	*oldActiveModel		= [[self documentContents] activeModel];
 	BOOL			stepDisplayMode		= [oldActiveModel stepDisplay];
 	
-	// Allow the old model to draw in its entirety if it is referenced by the 
-	// new model. 
-	[oldActiveModel setStepDisplay:NO];
-	
-	// Set the new model and make sure its step display state matches the 
-	// previous step display state. 
-	[[self documentContents] setActiveModel:newActiveModel];
-	[self setStepDisplay:stepDisplayMode];;
-	
-	//A notification will be generated that updates the models menu.
-	
+	if(newActiveModel != oldActiveModel)
+	{
+		// Allow the old model to draw in its entirety if it is referenced by the 
+		// new model. 
+		[oldActiveModel setStepDisplay:NO];
+		
+		// Set the new model and make sure its step display state matches the 
+		// previous step display state. 
+		[[self documentContents] setActiveModel:newActiveModel];
+		[self setStepDisplay:stepDisplayMode];;
+		
+		//A notification will be generated that updates the models menu.
+	}
 }//end setActiveModel:
 
 
@@ -533,6 +535,7 @@
 //				updates the UI. 
 //
 // Notes:		This does not activate step display if it isn't on.
+//				This also does not do anything if the step is not changing.
 //
 // Parameters:	requestedStep	- the 0-relative step number. Does not do 
 //								  bounds-checking. 
@@ -540,16 +543,20 @@
 //==============================================================================
 - (void) setCurrentStep:(NSInteger)requestedStep
 {
-	LDrawMPDModel		*activeModel	= [[self documentContents] activeModel];
+	LDrawMPDModel   *activeModel    = [[self documentContents] activeModel];
+	NSInteger       currentStep     = [activeModel maximumStepIndexForStepDisplay];
 	
-	[activeModel setMaximumStepIndexForStepDisplay:requestedStep];
-	
-	// Update UI
-	[self->stepField setIntegerValue:(requestedStep + 1)]; // make 1-relative
-	if([activeModel stepDisplay] == YES)
+	if(currentStep != requestedStep)
 	{
-		[self updateViewingAngleToMatchStep];
-		[[self documentContents] setNeedsDisplay];
+		[activeModel setMaximumStepIndexForStepDisplay:requestedStep];
+		
+		// Update UI
+		[self->stepField setIntegerValue:(requestedStep + 1)]; // make 1-relative
+		if([activeModel stepDisplay] == YES)
+		{
+			[self updateViewingAngleToMatchStep];
+			[[self documentContents] setNeedsDisplay];
+		}
 	}
 	
 }//end setCurrentStep:
@@ -640,6 +647,10 @@
 		{
 			[activeModel setStepDisplay:YES];
 			[self setCurrentStep:0];
+			
+			// Force viewing angle update when turning on step display. 
+			// -setCurrentStep only does this if the step has actually changed. 
+			[self updateViewingAngleToMatchStep];
 		}
 		else // turn it off now
 		{
@@ -653,7 +664,7 @@
 	// toggle buttons which call this method; if you click "Steps" and step 
 	// display is already on, you want the button to *stay* selected. This makes 
 	// sure that happens. 
-	[self->viewAllButton setState:(showStepsFlag == NO)];
+	[self->viewAllButton   setState:(showStepsFlag == NO)];
 	[self->viewStepsButton setState:(showStepsFlag == YES)];
 	
 	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
@@ -2787,6 +2798,7 @@
 	id              lastSelectedItem    = [outlineView itemAtRow:[outlineView selectedRow]];
 	LDrawMPDModel   *selectedModel      = [self selectedModel];
 	LDrawStep       *selectedStep       = [self selectedStep];
+	NSInteger		selectedStepIndex	= 0;
 	NSInteger       counter             = 0;
 	
 	//Deselect all the previously-selected directives
@@ -2807,8 +2819,17 @@
 	{
 		// Put the selection on screen (if we need to)
 		[self setActiveModel:selectedModel];
-		[selectedModel makeStepVisible:selectedStep];
-		[self setCurrentStep:[selectedModel maximumStepIndexForStepDisplay]]; // update document UI
+		
+		// Advance to the current step (if we need to)
+		if(selectedStep != nil)
+		{
+			selectedStepIndex = [selectedModel indexOfDirective:selectedStep];
+			
+			if(selectedStepIndex > [selectedModel maxStepIndexToOutput])
+			{
+				[self setCurrentStep:selectedStepIndex]; // update document UI
+			}
+		}
 	}
 	[[self documentContents] setNeedsDisplay];
 	
@@ -3795,7 +3816,7 @@
 - (void) viewportArranger:(ViewportArranger *)viewportArranger
 		   didAddViewport:(ExtendedScrollView *)newViewport;
 {
-	LDrawGLView *glView = nil;
+	LDrawGLView *glView         = nil;
 	
 	glView = [[[LDrawGLView alloc] initWithFrame:NSMakeRect(0, 0, 512, 512) pixelFormat:[NSOpenGLView defaultPixelFormat]] autorelease];
 	[self connectLDrawGLView:glView];
@@ -3809,7 +3830,7 @@
 	[self loadDataIntoDocumentUI];
 	
 //	[glView scrollCenterToPoint:NSMakePoint( NSMidX([glView frame]), NSMidY([glView frame]) )];
-
+	
 }//end viewportArranger:didAddViewport:
 
 

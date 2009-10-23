@@ -191,8 +191,8 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 		[sourceColumn adjustSubviews];
 	}
 	
-	if([self->delegate respondsToSelector:@selector(viewportArranger:didAddViewport:)])
-		[self->delegate viewportArranger:self didAddViewport:newViewport];
+	if([self->delegate respondsToSelector:@selector(viewportArranger:didAddViewport:sourceViewport:)])
+		[self->delegate viewportArranger:self didAddViewport:newViewport sourceViewport:sourceViewport];
 		
 	[self updatePlacardsForViewports];
 	[self storeViewports];
@@ -414,8 +414,8 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 			rowView = [[self newViewport] autorelease];
 			[columnView addSubview:rowView];
 			
-			if([self->delegate respondsToSelector:@selector(viewportArranger:didAddViewport:)])
-				[self->delegate viewportArranger:self didAddViewport:rowView];
+			if([self->delegate respondsToSelector:@selector(viewportArranger:didAddViewport:sourceViewport:)])
+				[self->delegate viewportArranger:self didAddViewport:rowView sourceViewport:nil];
 		}
 		[columnView adjustSubviews];
 	}

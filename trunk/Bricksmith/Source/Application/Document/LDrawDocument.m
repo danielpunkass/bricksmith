@@ -168,17 +168,11 @@
 	// Set opening zoom percentages
 	{
 		NSArray     *allViewports       = [self all3DViewports];
-		LDrawGLView *mainViewport       = [self main3DViewport];
 		LDrawGLView *currentViewport    = nil;
 		
 		for(counter = 0; counter < [allViewports count]; counter++)
 		{
 			currentViewport = [allViewports objectAtIndex:counter];
-			
-			if(currentViewport == mainViewport)
-				[currentViewport setZoomPercentage:100];
-			else
-				[currentViewport setZoomPercentage:75];
 			
 			// Scrolling to center doesn't seem to work at restoration time, so 
 			// do it again here. 
@@ -3812,13 +3806,20 @@
 //
 // Purpose:		A new viewport has been added. Time to update the world!
 //
+// Parameters:	sourceView	- the view the newViewport is being split from. Will 
+//				be nil if this is called during restoring the viewports from 
+//				preferences. 
+//
 //==============================================================================
-- (void) viewportArranger:(ViewportArranger *)viewportArranger
-		   didAddViewport:(ExtendedScrollView *)newViewport;
+- (void) viewportArranger:(ViewportArranger *)viewportArrangerIn
+		   didAddViewport:(ExtendedScrollView *)newViewport
+		   sourceViewport:(ExtendedScrollView *)sourceView
 {
 	LDrawGLView *glView         = nil;
+	LDrawGLView *sourceGLView   = nil;
 	
-	glView = [[[LDrawGLView alloc] initWithFrame:NSMakeRect(0, 0, 512, 512) pixelFormat:[NSOpenGLView defaultPixelFormat]] autorelease];
+	glView = [[[LDrawGLView alloc] initWithFrame:NSMakeRect(0, 0, 512, 512)
+									 pixelFormat:[NSOpenGLView defaultPixelFormat]] autorelease];
 	[self connectLDrawGLView:glView];
 	
 	// Tie them together
@@ -3826,11 +3827,33 @@
 	[newViewport centerDocumentView];
 	[newViewport setPreservesScrollCenterDuringLiveResize:YES];
 
-	[self updateViewportAutosaveNamesAndRestore:NO];
 	[self loadDataIntoDocumentUI];
 	
+	// This doesn't work during viewport restoration. Didn't attempt to debug 
+	// it; just moved the code to -windowControllerDidLoadNib: 
 //	[glView scrollCenterToPoint:NSMakePoint( NSMidX([glView frame]), NSMidY([glView frame]) )];
 	
+	// Opening zoom level
+	if(sourceView == nil)
+	{
+		if([self main3DViewport] == glView)
+			[glView setZoomPercentage:100];
+		else
+			[glView setZoomPercentage:75];
+	}
+	else
+	{
+		// Make the new view look like the old one.
+		sourceGLView = [sourceView documentView];
+		
+		[glView setViewOrientation:[sourceGLView viewOrientation]];
+		[glView setProjectionMode:[sourceGLView projectionMode]];
+		[glView setZoomPercentage:[sourceGLView zoomPercentage]];
+	}
+	
+	[self updateViewportAutosaveNamesAndRestore:NO];
+
+
 }//end viewportArranger:didAddViewport:
 
 

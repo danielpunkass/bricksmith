@@ -57,7 +57,7 @@
 @protocol ViewportArrangerDelegate <NSObject>
 
 @optional
-- (void) viewportArranger:(ViewportArranger *)viewportArranger didAddViewport:(ExtendedScrollView *)newViewport;
+- (void) viewportArranger:(ViewportArranger *)viewportArranger didAddViewport:(ExtendedScrollView *)newViewport sourceViewport:(ExtendedScrollView *)sourceViewport;
 - (void) viewportArrangerDidRemoveViewports:(ViewportArranger *)viewportArranger;
 
 @end

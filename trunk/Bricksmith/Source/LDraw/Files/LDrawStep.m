@@ -139,6 +139,46 @@
 }//end init
 
 
+//========== initWithCoder: ====================================================
+//
+// Purpose:		Reads a representation of this object from the given coder,
+//				which is assumed to always be a keyed decoder. This allows us to 
+//				read and write LDraw objects as NSData.
+//
+//==============================================================================
+- (id)initWithCoder:(NSCoder *)decoder
+{
+	const uint8_t *temporary = NULL; //pointer to a temporary buffer returned by the decoder.
+
+	self = [super initWithCoder:decoder];
+	
+	temporary = [decoder decodeBytesForKey:@"rotationAngle" returnedLength:NULL];
+	memcpy(&rotationAngle, temporary, sizeof(Tuple3));
+	
+	stepRotationType = [decoder decodeIntForKey:@"stepRotationType"];
+	
+	return self;
+	
+}//end initWithCoder:
+
+
+//========== encodeWithCoder: ==================================================
+//
+// Purpose:		Writes a representation of this object to the given coder,
+//				which is assumed to always be a keyed decoder. This allows us to 
+//				read and write LDraw objects as NSData.
+//
+//==============================================================================
+- (void) encodeWithCoder:(NSCoder *)encoder
+{
+	[super encodeWithCoder:encoder];
+	
+	[encoder encodeBytes:(void *)&rotationAngle length:sizeof(Tuple3)	forKey:@"rotationAngle"];
+	[encoder encodeInt:stepRotationType									forKey:@"stepRotationType"];
+
+}//end encodeWithCoder:
+
+
 //========== copyWithZone: =====================================================
 //
 // Purpose:		Returns a duplicate of this file.
@@ -149,6 +189,8 @@
 	LDrawStep	*copied	= (LDrawStep *)[super copyWithZone:zone];
 	
 	[copied setStepFlavor:self->stepFlavor];
+	[copied setStepRotationType:self->stepRotationType];
+	[copied setRotationAngle:self->rotationAngle];
 	
 	return copied;
 	
@@ -552,7 +594,7 @@
 	if(FloatsApproximatelyEqual(newAngleXYZ.z, -180.0))
 		newAngleXYZ.z = 180;
 
-	self->rotationAngle = newAngleXYZ;
+	[self setRotationAngle:newAngleXYZ];
 	
 }//end setRotationAngleZYX:
 

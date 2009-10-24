@@ -606,8 +606,8 @@ static MLCadIni *sharedIniFile = nil;
 //				LDraw/MLCad.ini. 
 //
 //				Because MLCad.ini is a third-party add-on not distributed with 
-//				LDraw, Bricksmith comes bundled with its own copy. It will 
-//				attempt to copy that file to the LDraw folder. 
+//				LDraw, Bricksmith comes bundled with its own copy. But it will 
+//				use the one in LDraw/ if it exists. 
 //
 //------------------------------------------------------------------------------
 + (NSString *) preferredPath
@@ -627,14 +627,22 @@ static MLCadIni *sharedIniFile = nil;
 		//we have to fish it out of the application bundle and install it.
 		NSBundle	*mainBundle		= [NSBundle mainBundle];
 		NSString	*builtInPath	= [mainBundle pathForResource:@"MLCad" ofType:@"ini"];
-		BOOL		 installSuccess	= NO;
+
+		actualPath = builtInPath;
 		
-		installSuccess = [fileManager copyPath:builtInPath toPath:preferredPath handler:nil];
+		// Bricksmith used to install MLCad.ini if the user didn't have it. But 
+		// I decided that didn't make a lot of since, since MLCad.ini is not 
+		// part of the official LDraw distribution. People probably wouldn't 
+		// realize they had to upgrade this file. 
+//		BOOL		 installSuccess	= NO;
+//		
+//		installSuccess = [fileManager copyPath:builtInPath toPath:preferredPath handler:nil];
+//		
+//		if(installSuccess == YES)
+//			actualPath = preferredPath;
+//		else
+//			actualPath = builtInPath; //couldn't install; just use our internal copy.
 		
-		if(installSuccess == YES)
-			actualPath = preferredPath;
-		else
-			actualPath = builtInPath; //couldn't install; just use our internal copy.
 	}
 	
 	return actualPath;

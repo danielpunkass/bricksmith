@@ -166,6 +166,7 @@
 	[self updateViewportAutosaveNamesAndRestore:YES];
 	
 	// Set opening zoom percentages
+	LDrawGLView	*mainViewport = [self main3DViewport];
 	{
 		NSArray     *allViewports       = [self all3DViewports];
 		LDrawGLView *currentViewport    = nil;
@@ -174,13 +175,22 @@
 		{
 			currentViewport = [allViewports objectAtIndex:counter];
 			
+			if(currentViewport == mainViewport)
+			{
+				[currentViewport setZoomPercentage:100];
+			}
+			else
+			{
+				[currentViewport setZoomPercentage:75];
+			}
+
 			// Scrolling to center doesn't seem to work at restoration time, so 
 			// do it again here. 
 			[currentViewport scrollCenterToPoint:NSMakePoint( NSMidX([currentViewport frame]), NSMidY([currentViewport frame]) )];
  		}
 	}
 	
-	[[self foremostWindow] makeFirstResponder:[self main3DViewport]]; //so we can move it immediately.
+	[[self foremostWindow] makeFirstResponder:mainViewport]; //so we can move it immediately.
 
 	// update scope step display controls
 	[self setStepDisplay:NO];
@@ -3760,13 +3770,27 @@
 //==============================================================================
 - (LDrawGLView *) main3DViewport
 {
-	NSArray     *allViewports   = [self all3DViewports];
-	LDrawGLView *mainViewport   = nil;
+	NSArray     *allViewports       = [self all3DViewports];
+	CGFloat     largestArea         = 0.0;
+	CGFloat     currentArea         = 0.0;
+	NSSize      currentSize         = NSZeroSize;
+	LDrawGLView *largestViewport    = nil;
 	
-	if([allViewports count] > 0)
-		mainViewport = [allViewports objectAtIndex:0];
+	// Find the largest viewport. We'll assume that's the one the user wants to 
+	// be the main one. 
+	for(LDrawGLView *currentViewport in allViewports)
+	{
+		currentSize = [[currentViewport enclosingScrollView] contentSize];
+		currentArea = currentSize.width * currentSize.height;
 		
-	return mainViewport;
+		if(currentArea > largestArea)
+		{
+			largestArea     = currentArea;
+			largestViewport = currentViewport;
+		}
+	}
+		
+	return largestViewport;
 	
 }//end main3DViewport
 
@@ -3834,14 +3858,11 @@
 //	[glView scrollCenterToPoint:NSMakePoint( NSMidX([glView frame]), NSMidY([glView frame]) )];
 	
 	// Opening zoom level
-	if(sourceView == nil)
-	{
-		if([self main3DViewport] == glView)
-			[glView setZoomPercentage:100];
-		else
-			[glView setZoomPercentage:75];
-	}
-	else
+	// Note: The zoom level when first opening the document is set to default 
+	//		 values. But we aren't able to determine which views get what values 
+	//		 until *all* the views have been fully restored. So we can't do it 
+	//		 here. 
+	if(sourceView != nil)
 	{
 		// Make the new view look like the old one.
 		sourceGLView = [sourceView documentView];

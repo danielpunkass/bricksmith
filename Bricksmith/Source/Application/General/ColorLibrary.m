@@ -224,7 +224,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 	NSFileManager	*fileManager	= [NSFileManager defaultManager];
 	NSBundle		*mainBundle		= nil;
 	NSString		*ldrawPath		= [userDefaults objectForKey:LDRAW_PATH_KEY];
-	NSString		*installedPath	= [ldrawPath stringByAppendingPathComponent:@"ldconfig.ldr"];
+	NSString		*installedPath	= [ldrawPath stringByAppendingPathComponent:@"LDConfig.ldr"];
 	NSString		*builtInPath	= nil;
 	NSString		*ldconfigPath	= nil;
 	BOOL			 installSuccess	= NO;
@@ -240,7 +240,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 	if(ldconfigPath == nil)
 	{
 		mainBundle	= [NSBundle mainBundle];
-		builtInPath	= [mainBundle pathForResource:@"ldconfig" ofType:@"ldr"];
+		builtInPath	= [mainBundle pathForResource:@"LDConfig" ofType:@"ldr"];
 		
 		// Attempt to install it
 		if(installedPath != nil)

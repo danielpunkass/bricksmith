@@ -153,7 +153,7 @@
 		0B8EBEA3093C102E00D87E0C /* UserDefaultsCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B8EBE9B093C102E00D87E0C /* UserDefaultsCategory.m */; };
 		0B8EBEA4093C102E00D87E0C /* WindowCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B8EBE9C093C102E00D87E0C /* WindowCategory.h */; };
 		0B8EBEA5093C102E00D87E0C /* WindowCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B8EBE9D093C102E00D87E0C /* WindowCategory.m */; };
-		0B9907630DD7EDBB003F6B13 /* ldconfig.ldr in Resources */ = {isa = PBXBuildFile; fileRef = 0B9907620DD7EDBB003F6B13 /* ldconfig.ldr */; };
+		0B9907630DD7EDBB003F6B13 /* LDConfig.ldr in Resources */ = {isa = PBXBuildFile; fileRef = 0B9907620DD7EDBB003F6B13 /* LDConfig.ldr */; };
 		0B9907D70DDD540C003F6B13 /* LDrawColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B7588DB0D8DC4EF00357703 /* LDrawColor.m */; };
 		0B9907D80DDD540D003F6B13 /* LDrawColor.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B7588DA0D8DC4EF00357703 /* LDrawColor.h */; };
 		0B9FE55008AD971E0046511D /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE54E08AD971E0046511D /* InfoPlist.strings */; };
@@ -447,7 +447,7 @@
 		0B8EBE9B093C102E00D87E0C /* UserDefaultsCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserDefaultsCategory.m; sourceTree = "<group>"; };
 		0B8EBE9C093C102E00D87E0C /* WindowCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowCategory.h; sourceTree = "<group>"; };
 		0B8EBE9D093C102E00D87E0C /* WindowCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WindowCategory.m; sourceTree = "<group>"; };
-		0B9907620DD7EDBB003F6B13 /* ldconfig.ldr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ldconfig.ldr; sourceTree = "<group>"; };
+		0B9907620DD7EDBB003F6B13 /* LDConfig.ldr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LDConfig.ldr; sourceTree = "<group>"; };
 		0B9FE54F08AD971E0046511D /* InfoPlist.strings */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0B9FE56508AD97280046511D /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Credits.rtf; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		0B9FE57108AD97670046511D /* ArrowE+.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "ArrowE+.tiff"; sourceTree = "<group>"; };
@@ -998,7 +998,7 @@
 			isa = PBXGroup;
 			children = (
 				0B2FAE5F101972DF007BA948 /* Bum.ldr */,
-				0B9907620DD7EDBB003F6B13 /* ldconfig.ldr */,
+				0B9907620DD7EDBB003F6B13 /* LDConfig.ldr */,
 				2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */,
 				0BC6AACC0987296700505A88 /* Help */,
 				0B04E9461093BB4200E201EE /* Interface */,
@@ -1223,7 +1223,7 @@
 				0B14DB940B94D4710002C053 /* GeneralPreferences.tiff in Resources */,
 				0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */,
 				0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */,
-				0B9907630DD7EDBB003F6B13 /* ldconfig.ldr in Resources */,
+				0B9907630DD7EDBB003F6B13 /* LDConfig.ldr in Resources */,
 				0BC71E440E6E51F20007F10D /* GridCoarseTemplate.tiff in Resources */,
 				0BC71E450E6E51F20007F10D /* GridFineTemplate.tiff in Resources */,
 				0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */,

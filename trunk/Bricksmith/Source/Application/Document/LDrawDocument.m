@@ -251,20 +251,20 @@
 	// The result on Tiger is a view which is too wide, so I shrink it here. 
 	// Notes: The split view subview defies all attempts to shink it correctly; 
 	//		  that's why I'm manually shrinking the subview's subviews. 
-	NSRect newFrame = [self->viewportArranger frame];
-	newFrame.size.width =		NSWidth([[window contentView] frame])
-							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
-							-	[fileContentsSplitView dividerThickness];
-	[self->viewportArranger setFrame:newFrame];
-	[self->viewportArranger adjustSubviews];
-	
-	[[[fileContentsSplitView subviews] objectAtIndex:1] setFrame:newFrame];
-	[fileContentsSplitView		adjustSubviews];
-
-	NSView  *scopeBar   = [self->scopeStepControlsContainer superview];
-	NSRect  scopeFrame  = [scopeBar frame];
-	scopeFrame.size.width = NSWidth(newFrame);
-	[scopeBar setFrame:scopeFrame];
+//	NSRect newFrame = [self->viewportArranger frame];
+//	newFrame.size.width =		NSWidth([[window contentView] frame])
+//							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
+//							-	[fileContentsSplitView dividerThickness];
+//	[self->viewportArranger setFrame:newFrame];
+//	[self->viewportArranger adjustSubviews];
+//	
+//	[[[fileContentsSplitView subviews] objectAtIndex:1] setFrame:newFrame];
+//	[fileContentsSplitView		adjustSubviews];
+//
+//	NSView  *scopeBar   = [self->scopeStepControlsContainer superview];
+//	NSRect  scopeFrame  = [scopeBar frame];
+//	scopeFrame.size.width = NSWidth(newFrame);
+//	[scopeBar setFrame:scopeFrame];
 
 }//end windowControllerDidLoadNib:
 

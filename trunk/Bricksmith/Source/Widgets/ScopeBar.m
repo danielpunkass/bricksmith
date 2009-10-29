@@ -54,29 +54,14 @@
 //==============================================================================
 - (void) drawRect:(NSRect)rect
 {
-	NSColor			*topColor		= [NSColor colorWithCalibratedWhite:0.91 alpha:1.0];
-	NSColor			*bottomColor	= [NSColor colorWithCalibratedWhite:0.82 alpha:1.0];
-	NSColor			*borderColor	= [NSColor colorWithCalibratedWhite:0.58 alpha:1.0];
-	NSRect			 bounds			= [self bounds];
-	NSBezierPath	*bottomLine		= [NSBezierPath bezierPath];
+	NSColor         *topColor       = [NSColor colorWithCalibratedWhite:0.91 alpha:1.0];
+	NSColor         *bottomColor    = [NSColor colorWithCalibratedWhite:0.82 alpha:1.0];
+	NSColor         *borderColor    = [NSColor colorWithCalibratedWhite:0.58 alpha:1.0];
+	NSRect          bounds          = [self bounds];
+	NSBezierPath    *bottomLine     = [NSBezierPath bezierPath];
+	NSGradient      *gradient       = [[[NSGradient alloc] initWithStartingColor:bottomColor endingColor:topColor] autorelease];
 	
-	// Test for Leopard-only NSGradient class. Since we support Tiger, it may 
-	// not be there! 
-	if(NSClassFromString(@"NSGradient") != Nil)
-	{
-		NSGradient	*gradient		= [[[NSGradient alloc] initWithStartingColor:bottomColor endingColor:topColor] autorelease];
-		[gradient drawInRect:bounds angle:90];
-	}
-	else
-	{
-		// Prior to Leopard, we have no convienient NSGradient. Instead we are 
-		// stuck with a nasty welter of CGShading calls, which, while not 
-		// particularly difficult, are definitely verbose. I don't really feel 
-		// like typing them all in here. So we'll fall back on a solid color in 
-		// Tiger. 
-		[topColor set];
-		NSRectFill(bounds);
-	}
+	[gradient drawInRect:bounds angle:90];
 	
 	// bottom line border
 	[bottomLine moveToPoint:NSMakePoint( NSMinX(bounds) - 0.5, NSMinY(bounds) )];

@@ -219,52 +219,7 @@
 	//---------- Cleanup for legacy systems ------------------------------------
 	// Ewww!
 	
-	SInt32			systemVersion	= 0;
-	
-	Gestalt(gestaltSystemVersion, &systemVersion);
-	
-	if(systemVersion < 0x1050)
-	{
-		// Scope-bar-style Round Rect appearance does not draw correctly on Tiger.
-		[self->submodelPopUpMenu setBordered:NO];
-		
-		// Tiger segmented controls don't support styles, so it will 
-		// automatically appear in the push-button style. That makes it too 
-		// tall, so we use the small control size in this case. 
-		[[self->stepNavigator cell] setControlSize:NSSmallControlSize];
-	}
-
-	// Tiger does not have the system-provided template images we use on 
-	// Leopard. Fall back on some internal images. 
-	if([self->stepNavigator imageForSegment:0] == nil || [[[self->stepNavigator imageForSegment:0] representations] count] == 0)
-	{
-		[self->stepNavigator setImage:[NSImage imageNamed:@"GoBack"] forSegment:0];
-		[self->stepNavigator setLabel:nil forSegment:0]; // Tiger won't draw images in center unless label is nil.
-	}
-	if([self->stepNavigator imageForSegment:1] == nil || [[[self->stepNavigator imageForSegment:1] representations] count] == 0)
-	{
-		[self->stepNavigator setImage:[NSImage imageNamed:@"GoForward"] forSegment:1];
-		[self->stepNavigator setLabel:nil forSegment:1];
-	}
-
-	// I'm using a thin divider on Leopard, but that isn't available on Tiger. 
-	// The result on Tiger is a view which is too wide, so I shrink it here. 
-	// Notes: The split view subview defies all attempts to shink it correctly; 
-	//		  that's why I'm manually shrinking the subview's subviews. 
-//	NSRect newFrame = [self->viewportArranger frame];
-//	newFrame.size.width =		NSWidth([[window contentView] frame])
-//							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
-//							-	[fileContentsSplitView dividerThickness];
-//	[self->viewportArranger setFrame:newFrame];
-//	[self->viewportArranger adjustSubviews];
-//	
-//	[[[fileContentsSplitView subviews] objectAtIndex:1] setFrame:newFrame];
-//	[fileContentsSplitView		adjustSubviews];
-//
-//	NSView  *scopeBar   = [self->scopeStepControlsContainer superview];
-//	NSRect  scopeFrame  = [scopeBar frame];
-//	scopeFrame.size.width = NSWidth(newFrame);
-//	[scopeBar setFrame:scopeFrame];
+	// (none currently necessary!)
 
 }//end windowControllerDidLoadNib:
 
@@ -1606,24 +1561,20 @@
 	NSView	*firstSubview	= [[self->fileContentsSplitView subviews] objectAtIndex:0];
 	CGFloat	maxPosition		= 0.0;
 	
-	// We collapse or un-collapse the split view. The API to do this does not 
-	// exist on Tiger. Grr... 
-	if([self->fileContentsSplitView respondsToSelector:@selector(setPosition:ofDividerAtIndex:)])
+	// We collapse or un-collapse the split view.
+	if([self->fileContentsSplitView isSubviewCollapsed:firstSubview])
 	{
-		if([self->fileContentsSplitView isSubviewCollapsed:firstSubview])
-		{
-			// Un-collapse the view
-			maxPosition = [[self->fileContentsSplitView delegate] splitView:self->fileContentsSplitView
-													 constrainMinCoordinate:0.0
-																ofSubviewAt:0];
-																
-			[self->fileContentsSplitView setPosition:maxPosition ofDividerAtIndex:0];
-		}
-		else
-		{
-			// Collapse the view
-			[self->fileContentsSplitView setPosition:0.0 ofDividerAtIndex:0];
-		}
+		// Un-collapse the view
+		maxPosition = [[self->fileContentsSplitView delegate] splitView:self->fileContentsSplitView
+												 constrainMinCoordinate:0.0
+															ofSubviewAt:0];
+															
+		[self->fileContentsSplitView setPosition:maxPosition ofDividerAtIndex:0];
+	}
+	else
+	{
+		// Collapse the view
+		[self->fileContentsSplitView setPosition:0.0 ofDividerAtIndex:0];
 	}
 	
 }//end toggleFileContentsDrawer:

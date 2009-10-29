@@ -568,7 +568,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[newItem setLabel:NSLocalizedString(itemIdentifier, nil)];
 	
 	if([itemIdentifier isEqualToString:PREFS_GENERAL_TAB_IDENTIFIER])
-		[newItem setImage:[NSImage imageNamed:@"GeneralPreferences"]];
+		[newItem setImage:[NSImage imageNamed:NSImageNamePreferencesGeneral]];
 	
 	else if([itemIdentifier isEqualToString:PREFS_LDRAW_TAB_IDENTFIER])
 		[newItem setImage:[NSImage imageNamed:@"LDrawLogo"]];

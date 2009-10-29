@@ -46,18 +46,6 @@
 	[nudgeZToolView			removeFromSuperview];
 	[zoomToolTextField		removeFromSuperview];
 	
-	// Tiger won't draw images in center unless label is nil.
-	SInt32			systemVersion	= 0;
-	
-	Gestalt(gestaltSystemVersion, &systemVersion);
-	
-	if(systemVersion < 0x1050)
-	{
-		[self->gridSegmentedControl setLabel:nil forSegment:0];
-		[self->gridSegmentedControl setLabel:nil forSegment:1];
-		[self->gridSegmentedControl setLabel:nil forSegment:2];
-	}
-
 }//end awakeFromNib
 
 #pragma mark -
@@ -426,23 +414,9 @@
 //==============================================================================
 - (NSToolbarItem *) makeShowColorsItem
 {
-	NSToolbarItem	*newItem			= [[NSToolbarItem alloc]
+	NSToolbarItem   *newItem    = [[NSToolbarItem alloc]
 													initWithItemIdentifier:TOOLBAR_SHOW_COLORS];
-	NSImage			*image			= nil;
-	SInt32			systemVersion	= 0;
-	
-	// System-provided images only available in Leopard.
-	Gestalt(gestaltSystemVersion, &systemVersion);
-	
-	if(systemVersion >= 0x1050)
-	{
-		image = [NSImage imageNamed:NSImageNameColorPanel];
-	}
-	else
-	{
-		// use fallback image
-		image = [NSImage imageNamed:@"Colors.tiff"];
-	}
+	NSImage         *image      = [NSImage imageNamed:NSImageNameColorPanel];
 	
 	[newItem setLabel:NSLocalizedString(@"ShowColors", nil)];
 	[newItem setPaletteLabel:NSLocalizedString(@"ShowColors", nil)];
@@ -463,24 +437,10 @@
 //==============================================================================
 - (NSToolbarItem *) makeShowInspectorItem
 {
-	NSToolbarItem	*newItem			= [[NSToolbarItem alloc]
+	NSToolbarItem   *newItem    = [[NSToolbarItem alloc]
 														initWithItemIdentifier:TOOLBAR_SHOW_INSPECTOR];
-	NSImage			*image			= nil;
-	SInt32			systemVersion	= 0;
+	NSImage         *image      = [NSImage imageNamed:NSImageNameInfo];
 	
-	// System-provided images only available in Leopard.
-	Gestalt(gestaltSystemVersion, &systemVersion);
-	
-	if(systemVersion >= 0x1050)
-	{
-		image = [NSImage imageNamed:NSImageNameInfo];
-	}
-	else
-	{
-		// use fallback image
-		image = [NSImage imageNamed:@"Info.tiff"];
-	}
-
 	[newItem setLabel:NSLocalizedString(@"ShowInspector", nil)];
 	[newItem setPaletteLabel:NSLocalizedString(@"ShowInspector", nil)];
 	[newItem setImage:image];

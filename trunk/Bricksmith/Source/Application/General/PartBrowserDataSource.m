@@ -797,18 +797,9 @@
 		[self->addRemoveFavoriteButton	setImage:[NSImage imageNamed:@"FavoriteAdd"]];
 	}
 	
-	// Leopard only: hide inapplicable menu items.
-	if([NSMenuItem instancesRespondToSelector:@selector(setHidden:)] == YES)
-	{
-		[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setHidden:(partIsInFavorites == YES)];
-		[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setHidden:(partIsInFavorites == NO)];
-	}
-	else
-	{
-		// On Tiger, it's too much work to "hide" items. So just disable them.
-		[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setEnabled:(partIsInFavorites == NO)];
-		[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setEnabled:(partIsInFavorites == YES)];
-	}
+	// Hide inapplicable menu items.
+	[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setHidden:(partIsInFavorites == YES)];
+	[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setHidden:(partIsInFavorites == NO)];
 	
 }//end setConstraints
 

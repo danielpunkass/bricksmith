@@ -38,10 +38,8 @@
 		0B06F6240F5D0588004E7DD7 /* FavoriteRemove.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */; };
 		0B06F7170F633FD2004E7DD7 /* ExtendedTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B06F7150F633FD2004E7DD7 /* ExtendedTableView.h */; };
 		0B06F7180F633FD2004E7DD7 /* ExtendedTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B06F7160F633FD2004E7DD7 /* ExtendedTableView.m */; };
-		0B096AE30F00913100D7A642 /* Info.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B096AE20F00913100D7A642 /* Info.tiff */; };
 		0B0DD7C709B5772200F8EBAA /* LDrawUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */; };
 		0B0DD7C809B5772200F8EBAA /* LDrawUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */; };
-		0B14DB940B94D4710002C053 /* GeneralPreferences.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */; };
 		0B17D2490ECE89C000F8B5FA /* RotationStep.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */; };
 		0B17D2FF0ED0D4C400F8B5FA /* RotationStepEnd.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */; };
 		0B25F040093D5F960099D85E /* BricksmithApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B25F03E093D5F960099D85E /* BricksmithApplication.h */; };
@@ -68,7 +66,6 @@
 		0B356A9808D371EE00695EEB /* PartReport.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356A9608D371EE00695EEB /* PartReport.m */; };
 		0B356AF008D385B900695EEB /* PieceCountPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356AEE08D385B900695EEB /* PieceCountPanel.m */; };
 		0B356AF108D385B900695EEB /* PieceCountPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B356AEF08D385B900695EEB /* PieceCountPanel.h */; };
-		0B45A9BC0F009165006FF538 /* Colors.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B45A9BB0F009165006FF538 /* Colors.tiff */; };
 		0B491DA407F5555B00AC0C10 /* MatrixMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B491DA207F5555B00AC0C10 /* MatrixMath.h */; };
 		0B491DA507F5555B00AC0C10 /* MatrixMath.c in Sources */ = {isa = PBXBuildFile; fileRef = 0B491DA307F5555B00AC0C10 /* MatrixMath.c */; };
 		0B491FF707F64B5800AC0C10 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B491FF607F64B5800AC0C10 /* OpenGL.framework */; };
@@ -214,8 +211,6 @@
 		0BC71E440E6E51F20007F10D /* GridCoarseTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */; };
 		0BC71E450E6E51F20007F10D /* GridFineTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */; };
 		0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */; };
-		0BC71FC80E738C4D0007F10D /* GoBack.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71FC60E738C4D0007F10D /* GoBack.tiff */; };
-		0BC71FC90E738C4D0007F10D /* GoForward.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71FC70E738C4D0007F10D /* GoForward.tiff */; };
 		0BCD0C6507FD0BA10066A536 /* LDrawContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */; };
 		0BCD0C6607FD0BA10066A536 /* LDrawContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */; };
 		0BDC146F0B9D0502001D1FF1 /* PartBrowserPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */; };
@@ -319,10 +314,8 @@
 		0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = FavoriteRemove.pdf; sourceTree = "<group>"; };
 		0B06F7150F633FD2004E7DD7 /* ExtendedTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtendedTableView.h; sourceTree = "<group>"; };
 		0B06F7160F633FD2004E7DD7 /* ExtendedTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtendedTableView.m; sourceTree = "<group>"; };
-		0B096AE20F00913100D7A642 /* Info.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Info.tiff; sourceTree = "<group>"; };
 		0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawUtilities.h; sourceTree = "<group>"; };
 		0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawUtilities.m; sourceTree = "<group>"; };
-		0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GeneralPreferences.tiff; sourceTree = "<group>"; };
 		0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = RotationStep.pdf; sourceTree = "<group>"; };
 		0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = RotationStepEnd.pdf; sourceTree = "<group>"; };
 		0B25F03E093D5F960099D85E /* BricksmithApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BricksmithApplication.h; sourceTree = "<group>"; };
@@ -351,7 +344,6 @@
 		0B356A9608D371EE00695EEB /* PartReport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartReport.m; sourceTree = "<group>"; };
 		0B356AEE08D385B900695EEB /* PieceCountPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieceCountPanel.m; sourceTree = "<group>"; };
 		0B356AEF08D385B900695EEB /* PieceCountPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PieceCountPanel.h; sourceTree = "<group>"; };
-		0B45A9BB0F009165006FF538 /* Colors.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Colors.tiff; sourceTree = "<group>"; };
 		0B491DA207F5555B00AC0C10 /* MatrixMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixMath.h; sourceTree = "<group>"; };
 		0B491DA307F5555B00AC0C10 /* MatrixMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MatrixMath.c; sourceTree = "<group>"; };
 		0B491FF607F64B5800AC0C10 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -493,8 +485,6 @@
 		0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridCoarseTemplate.tiff; sourceTree = "<group>"; };
 		0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridFineTemplate.tiff; sourceTree = "<group>"; };
 		0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridMediumTemplate.tiff; sourceTree = "<group>"; };
-		0BC71FC60E738C4D0007F10D /* GoBack.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GoBack.tiff; sourceTree = "<group>"; };
-		0BC71FC70E738C4D0007F10D /* GoForward.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GoForward.tiff; sourceTree = "<group>"; };
 		0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LDrawContainer.h; path = Source/LDraw/Files/LDrawContainer.h; sourceTree = SOURCE_ROOT; };
 		0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LDrawContainer.m; path = Source/LDraw/Files/LDrawContainer.m; sourceTree = SOURCE_ROOT; };
 		0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserPanel.h; sourceTree = "<group>"; };
@@ -682,8 +672,6 @@
 				0B9FE5BC08AD977F0046511D /* OneBrick.tiff */,
 				0B06F61F0F5BB425004E7DD7 /* FavoriteAdd.pdf */,
 				0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */,
-				0BC71FC60E738C4D0007F10D /* GoBack.tiff */,
-				0BC71FC70E738C4D0007F10D /* GoForward.tiff */,
 				0B639756106F3CF700C93F6E /* PlacardButtonClose12.pdf */,
 				0B639757106F3CF800C93F6E /* PlacardButtonSplit12.pdf */,
 				0B9FE5AA08AD97770046511D /* Badges */,
@@ -780,10 +768,7 @@
 			isa = PBXGroup;
 			children = (
 				0B9FE57008AD97670046511D /* Arrows */,
-				0B45A9BB0F009165006FF538 /* Colors.tiff */,
-				0B14DB930B94D4710002C053 /* GeneralPreferences.tiff */,
 				0B9FE57D08AD97670046511D /* Grid */,
-				0B096AE20F00913100D7A642 /* Info.tiff */,
 				0B9FE58108AD97670046511D /* LDrawLogo.tiff */,
 				0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */,
 				0B9FE58208AD97670046511D /* Rotation */,
@@ -1220,22 +1205,17 @@
 				0B2700E8098203320058A7BE /* Arrow.tiff in Resources */,
 				0B05899C09849F5A0089FD81 /* Crosshair.tiff in Resources */,
 				2BF2E2CD0AB0FBB50026D5DB /* MLCad.ini in Resources */,
-				0B14DB940B94D4710002C053 /* GeneralPreferences.tiff in Resources */,
 				0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */,
 				0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */,
 				0B9907630DD7EDBB003F6B13 /* LDConfig.ldr in Resources */,
 				0BC71E440E6E51F20007F10D /* GridCoarseTemplate.tiff in Resources */,
 				0BC71E450E6E51F20007F10D /* GridFineTemplate.tiff in Resources */,
 				0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */,
-				0BC71FC80E738C4D0007F10D /* GoBack.tiff in Resources */,
-				0BC71FC90E738C4D0007F10D /* GoForward.tiff in Resources */,
 				0B17D2490ECE89C000F8B5FA /* RotationStep.pdf in Resources */,
 				0B17D2FF0ED0D4C400F8B5FA /* RotationStepEnd.pdf in Resources */,
 				0B30E08B0ED90D3000470615 /* Triangle.pdf in Resources */,
 				0B30E0D40EDA746900470615 /* Quadrilateral.pdf in Resources */,
 				0BFD363A0EEA49E100A1AAF5 /* PartBrowser.pdf in Resources */,
-				0B096AE30F00913100D7A642 /* Info.tiff in Resources */,
-				0B45A9BC0F009165006FF538 /* Colors.tiff in Resources */,
 				0B06F6200F5BB425004E7DD7 /* FavoriteAdd.pdf in Resources */,
 				0B06F6240F5D0588004E7DD7 /* FavoriteRemove.pdf in Resources */,
 				0B2FAE60101972DF007BA948 /* Bum.ldr in Resources */,
@@ -1611,7 +1591,7 @@
 		2BB5974E09FEFD180077A885 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(NATIVE_ARCH)";
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1627,6 +1607,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = Bricksmith;
@@ -1638,10 +1619,8 @@
 		2BB5974F09FEFD180077A885 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;

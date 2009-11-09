@@ -26,7 +26,8 @@
 {
 	self = [super initWithFrame:frame];
 	
-	preservesScrollCenterDuringLiveResize = NO; // normal Cocoa scroll views don't.
+	preservesScrollCenterDuringLiveResize   = NO; // normal Cocoa scroll views don't.
+	storesScrollCenterAsFraction            = NO;
 	
 	return self;
 	
@@ -54,11 +55,24 @@
 	   &&	NSEqualPoints(self->documentScrollCenterPoint, NSZeroPoint) == NO
 	  )
 	{
-		NSView  *documentView   = [self documentView];
-		NSRect  newVisibleRect  = [documentView visibleRect];
+		NSView  *documentView               = [self documentView];
+		NSRect	documentFrame = [documentView frame];
+		NSRect  newVisibleRect              = [documentView visibleRect];
+		NSPoint absoluteScrollCenterPoint   = NSZeroPoint;
 		
-		newVisibleRect.origin.x = self->documentScrollCenterPoint.x - NSWidth(newVisibleRect)/2;
-		newVisibleRect.origin.y = self->documentScrollCenterPoint.y - NSHeight(newVisibleRect)/2;
+		if(self->storesScrollCenterAsFraction == YES)
+		{
+			absoluteScrollCenterPoint.x = self->documentScrollCenterPoint.x * NSWidth(documentFrame);
+			absoluteScrollCenterPoint.y = self->documentScrollCenterPoint.y * NSHeight(documentFrame);
+		}
+		else
+		{
+			absoluteScrollCenterPoint	= self->documentScrollCenterPoint;
+		}
+
+		
+		newVisibleRect.origin.x = absoluteScrollCenterPoint.x - NSWidth(newVisibleRect)/2;
+		newVisibleRect.origin.y = absoluteScrollCenterPoint.y - NSHeight(newVisibleRect)/2;
 		
 		newVisibleRect = NSIntegralRect(newVisibleRect);
 		
@@ -80,6 +94,29 @@
 {
 	self->preservesScrollCenterDuringLiveResize = flag;
 }
+
+
+//========== setTreatsScrollCenterAsFraction: ==================================
+//
+// Purpose:		If set to YES, the view will track the scroll center as a 
+//				proportion of the document rect, rather than an absolute point 
+//				within it. 
+//
+//				This makes sense for views whose content is always drawn 
+//				radiating out from their center point. If the view's frame 
+//				changes size, it will remain scrolled to the same point in the 
+//				drawn image. 
+//
+// Example:		Stored Center = (0.5, 0.75)
+//				View Size = (512, 512)
+//				Effective maintained center = (256, 384)
+//
+//==============================================================================
+- (void) setStoresScrollCenterAsFraction:(BOOL)flag
+{
+	self->storesScrollCenterAsFraction = flag;
+	
+}//end setTreatsScrollCenterAsFraction:
 
 
 //========== setVerticalPlacard: ===============================================
@@ -130,15 +167,25 @@
 	{
 		NSView  *documentView       = [self documentView];
 		NSRect  documentVisibleRect = [documentView visibleRect];
+		NSRect	documentFrame		= [documentView frame];
 		NSPoint visibleCenter       = NSMakePoint(NSMidX(documentVisibleRect), NSMidY(documentVisibleRect));
 		
 		// Careful. Collapsed split views have no visible rect, and we don't 
 		// want to save THAT! 
 		if( NSEqualPoints(visibleCenter, NSZeroPoint) == NO)
 		{
-			self->documentScrollCenterPoint = visibleCenter;
+			if(self->storesScrollCenterAsFraction == YES)
+			{
+				self->documentScrollCenterPoint = NSMakePoint(visibleCenter.x / NSWidth(documentFrame),
+															  visibleCenter.y / NSHeight(documentFrame));
+			}
+			else
+			{
+				self->documentScrollCenterPoint = visibleCenter;
+			}
 		}
 	}
+
 }//end reflectScrolledClipView:
 
 
@@ -171,6 +218,7 @@
 		[verticalScroller		setFrame:scrollerFrame];
 		[self->verticalPlacard	setFrame:placardFrame];
 	}
+
 }//end tile
 
 

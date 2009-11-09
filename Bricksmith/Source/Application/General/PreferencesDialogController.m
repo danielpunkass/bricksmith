@@ -659,6 +659,8 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:[NSNumber numberWithInteger:NSDrawerClosedState]	forKey:PART_BROWSER_DRAWER_STATE];
 	[initialDefaults setObject:(id)kCFBooleanTrue								forKey:PART_BROWSER_PANEL_SHOW_AT_LAUNCH];
 	
+	[initialDefaults setObject:(id)kCFBooleanTrue								forKey:VIEWPORTS_EXPAND_TO_AVAILABLE_SIZE];
+	
 	//
 	// Syntax Colors
 	//

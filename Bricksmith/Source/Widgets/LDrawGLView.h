@@ -70,11 +70,12 @@ typedef enum
 	// Threading
 	NSConditionLock			*canDrawLock;			// when condition is YES, render thread will wake up and draw.
 	BOOL					keepDrawThreadAlive;	// when it has no items in it, the thread will die
-	NSUInteger                numberDrawRequests;		// how many threaded draws are piling up in the queue.
+	NSUInteger              numberDrawRequests;		// how many threaded draws are piling up in the queue.
 	BOOL					hasThread;
 	
 	// Drawing Environment
 	GLfloat                 cameraDistance;			// location of camera on the z-axis; distance from (0,0,0);
+	NSSize					snugFrameSize;
 	LDrawColorT             color;					// default color to draw parts if none is specified
 	GLfloat                 glBackgroundColor[4];
 	GLfloat                 glColor[4];				// OpenGL equivalent of the LDrawColor.

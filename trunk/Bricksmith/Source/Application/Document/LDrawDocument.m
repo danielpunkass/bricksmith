@@ -3801,6 +3801,7 @@
 	[newViewport setDocumentView:glView];
 	[newViewport centerDocumentView];
 	[newViewport setPreservesScrollCenterDuringLiveResize:YES];
+	[newViewport setStoresScrollCenterAsFraction:YES];
 
 	[self loadDataIntoDocumentUI];
 	

@@ -159,6 +159,7 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 		newViewFrame                = sourceViewFrame;
 		newViewFrame.size.width     = (NSWidth(sourceViewFrame) - [arrangementView dividerThickness]) / 2;
 		newViewFrame.origin.x       += NSWidth(newViewFrame) + [arrangementView dividerThickness];
+		newViewFrame				= NSIntegralRect(newViewFrame);
 		
 		sourceViewFrame.size.width  = NSWidth(newViewFrame);
 		
@@ -178,6 +179,7 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 		// Split the current viewport frame in two.
 		newViewFrame                = sourceViewFrame;
 		newViewFrame.size.height    = (NSHeight(sourceViewFrame) - [sourceColumn dividerThickness]) / 2;
+		newViewFrame				= NSIntegralRect(newViewFrame);
 		
 		sourceViewFrame.origin.y    += NSHeight(newViewFrame) + [sourceColumn dividerThickness];
 		sourceViewFrame.size.height = NSHeight(newViewFrame);
@@ -430,6 +432,9 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 		
 		firstColumnFrame.size.width     = NSWidth([self frame]) * 0.66;
 		secondColumnFrame.size.width    = NSWidth([self frame]) * 0.34;
+		
+		firstColumnFrame    = NSIntegralRect(firstColumnFrame);
+		secondColumnFrame   = NSIntegralRect(secondColumnFrame);
 		
 		[[[self subviews] objectAtIndex:0] setFrame:firstColumnFrame];
 		[[[self subviews] objectAtIndex:1] setFrame:secondColumnFrame];

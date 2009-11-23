@@ -33,6 +33,8 @@
 		0B04E9921093BB4200E201EE /* RotationPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9751093BB4200E201EE /* RotationPanel.xib */; };
 		0B04E9931093BB4200E201EE /* ToolPalette.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9771093BB4200E201EE /* ToolPalette.xib */; };
 		0B04E9941093BB4200E201EE /* ViewportArrangerAccessories.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9791093BB4200E201EE /* ViewportArrangerAccessories.xib */; };
+		0B04EF3710A6A38E00E201EE /* FocusRingView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B04EF3510A6A38E00E201EE /* FocusRingView.h */; };
+		0B04EF3810A6A38E00E201EE /* FocusRingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B04EF3610A6A38E00E201EE /* FocusRingView.m */; };
 		0B05899C09849F5A0089FD81 /* Crosshair.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B05899B09849F5A0089FD81 /* Crosshair.tiff */; };
 		0B06F6200F5BB425004E7DD7 /* FavoriteAdd.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B06F61F0F5BB425004E7DD7 /* FavoriteAdd.pdf */; };
 		0B06F6240F5D0588004E7DD7 /* FavoriteRemove.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */; };
@@ -66,6 +68,7 @@
 		0B356A9808D371EE00695EEB /* PartReport.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356A9608D371EE00695EEB /* PartReport.m */; };
 		0B356AF008D385B900695EEB /* PieceCountPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356AEE08D385B900695EEB /* PieceCountPanel.m */; };
 		0B356AF108D385B900695EEB /* PieceCountPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B356AEF08D385B900695EEB /* PieceCountPanel.h */; };
+		0B3E7BA010AF9E5A00AFBCF4 /* OverlayViewCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B3E7B9F10AF9E5A00AFBCF4 /* OverlayViewCategory.m */; };
 		0B491DA407F5555B00AC0C10 /* MatrixMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B491DA207F5555B00AC0C10 /* MatrixMath.h */; };
 		0B491DA507F5555B00AC0C10 /* MatrixMath.c in Sources */ = {isa = PBXBuildFile; fileRef = 0B491DA307F5555B00AC0C10 /* MatrixMath.c */; };
 		0B491FF707F64B5800AC0C10 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B491FF607F64B5800AC0C10 /* OpenGL.framework */; };
@@ -101,6 +104,11 @@
 		0B76F2FA0E74CC1700349D03 /* InspectionStep.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B76F2F80E74CC1700349D03 /* InspectionStep.m */; };
 		0B83E9B907E3BB0D009C2384 /* LDrawComment.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B83E9B707E3BB0D009C2384 /* LDrawComment.h */; };
 		0B83E9BA07E3BB0D009C2384 /* LDrawComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B83E9B807E3BB0D009C2384 /* LDrawComment.m */; };
+		0B8C096810BA532F00BEB111 /* OverlayHelperView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B8C096610BA532F00BEB111 /* OverlayHelperView.h */; };
+		0B8C096910BA532F00BEB111 /* OverlayHelperView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B8C096710BA532F00BEB111 /* OverlayHelperView.m */; };
+		0B8C097310BA550500BEB111 /* OverlayHelperWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B8C097110BA550500BEB111 /* OverlayHelperWindow.h */; };
+		0B8C097410BA550500BEB111 /* OverlayHelperWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B8C097210BA550500BEB111 /* OverlayHelperWindow.m */; };
+		0B8C0A2610BA623700BEB111 /* OverlayViewCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B8C0A2510BA623700BEB111 /* OverlayViewCategory.h */; };
 		0B8EBCF10938383000D87E0C /* ZoomInCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBCEF0938383000D87E0C /* ZoomInCursor.tiff */; };
 		0B8EBCF20938383000D87E0C /* ZoomOutCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBCF00938383000D87E0C /* ZoomOutCursor.tiff */; };
 		0B8EBD010938393800D87E0C /* ZoomCursor.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B8EBD000938393800D87E0C /* ZoomCursor.tiff */; };
@@ -309,6 +317,8 @@
 		0B04E9761093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/RotationPanel.xib; sourceTree = "<group>"; };
 		0B04E9781093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/ToolPalette.xib; sourceTree = "<group>"; };
 		0B04E97A1093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/ViewportArrangerAccessories.xib; sourceTree = "<group>"; };
+		0B04EF3510A6A38E00E201EE /* FocusRingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FocusRingView.h; sourceTree = "<group>"; };
+		0B04EF3610A6A38E00E201EE /* FocusRingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FocusRingView.m; sourceTree = "<group>"; };
 		0B05899B09849F5A0089FD81 /* Crosshair.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Crosshair.tiff; sourceTree = "<group>"; };
 		0B06F61F0F5BB425004E7DD7 /* FavoriteAdd.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = FavoriteAdd.pdf; sourceTree = "<group>"; };
 		0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = FavoriteRemove.pdf; sourceTree = "<group>"; };
@@ -344,6 +354,7 @@
 		0B356A9608D371EE00695EEB /* PartReport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartReport.m; sourceTree = "<group>"; };
 		0B356AEE08D385B900695EEB /* PieceCountPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieceCountPanel.m; sourceTree = "<group>"; };
 		0B356AEF08D385B900695EEB /* PieceCountPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PieceCountPanel.h; sourceTree = "<group>"; };
+		0B3E7B9F10AF9E5A00AFBCF4 /* OverlayViewCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewCategory.m; sourceTree = "<group>"; };
 		0B491DA207F5555B00AC0C10 /* MatrixMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixMath.h; sourceTree = "<group>"; };
 		0B491DA307F5555B00AC0C10 /* MatrixMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MatrixMath.c; sourceTree = "<group>"; };
 		0B491FF607F64B5800AC0C10 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -390,6 +401,11 @@
 		0B76F2F80E74CC1700349D03 /* InspectionStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectionStep.m; sourceTree = "<group>"; };
 		0B83E9B707E3BB0D009C2384 /* LDrawComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawComment.h; sourceTree = "<group>"; };
 		0B83E9B807E3BB0D009C2384 /* LDrawComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawComment.m; sourceTree = "<group>"; };
+		0B8C096610BA532F00BEB111 /* OverlayHelperView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayHelperView.h; sourceTree = "<group>"; };
+		0B8C096710BA532F00BEB111 /* OverlayHelperView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayHelperView.m; sourceTree = "<group>"; };
+		0B8C097110BA550500BEB111 /* OverlayHelperWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayHelperWindow.h; sourceTree = "<group>"; };
+		0B8C097210BA550500BEB111 /* OverlayHelperWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayHelperWindow.m; sourceTree = "<group>"; };
+		0B8C0A2510BA623700BEB111 /* OverlayViewCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverlayViewCategory.h; sourceTree = "<group>"; };
 		0B8EBCEF0938383000D87E0C /* ZoomInCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomInCursor.tiff; sourceTree = "<group>"; };
 		0B8EBCF00938383000D87E0C /* ZoomOutCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomOutCursor.tiff; sourceTree = "<group>"; };
 		0B8EBD000938393800D87E0C /* ZoomCursor.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomCursor.tiff; sourceTree = "<group>"; };
@@ -653,6 +669,8 @@
 				0B2DD14D0CD810F20093E8E5 /* BezierPathCategory.m */,
 				0B8EBE96093C102E00D87E0C /* FormCategory.h */,
 				0B8EBE97093C102E00D87E0C /* FormCategory.m */,
+				0B8C0A2510BA623700BEB111 /* OverlayViewCategory.h */,
+				0B3E7B9F10AF9E5A00AFBCF4 /* OverlayViewCategory.m */,
 				0B74F28B0D0BB5AD00ED8419 /* ScrollViewCategory.h */,
 				0B74F28C0D0BB5AD00ED8419 /* ScrollViewCategory.m */,
 				0B8EBE98093C102E00D87E0C /* StringCategory.h */,
@@ -725,6 +743,8 @@
 				0B8EBE6E093C100100D87E0C /* ExtendedSplitView.m */,
 				0B06F7150F633FD2004E7DD7 /* ExtendedTableView.h */,
 				0B06F7160F633FD2004E7DD7 /* ExtendedTableView.m */,
+				0B04EF3510A6A38E00E201EE /* FocusRingView.h */,
+				0B04EF3610A6A38E00E201EE /* FocusRingView.m */,
 				0B8EBE6F093C100100D87E0C /* IconTextCell.h */,
 				0B8EBE70093C100100D87E0C /* IconTextCell.m */,
 				0B8EBE71093C100100D87E0C /* LDrawColorBar.h */,
@@ -739,6 +759,10 @@
 				0B8EBE7A093C100100D87E0C /* LDrawFileOutlineView.m */,
 				0B8EBE7B093C100100D87E0C /* LDrawGLView.h */,
 				0B8EBE7C093C100100D87E0C /* LDrawGLView.m */,
+				0B8C096610BA532F00BEB111 /* OverlayHelperView.h */,
+				0B8C096710BA532F00BEB111 /* OverlayHelperView.m */,
+				0B8C097110BA550500BEB111 /* OverlayHelperWindow.h */,
+				0B8C097210BA550500BEB111 /* OverlayHelperWindow.m */,
 				0B2DD1480CD810DC0093E8E5 /* PartBrowserTableView.h */,
 				0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */,
 				0BC71D630E6CB26A0007F10D /* ScopeBar.h */,
@@ -1097,6 +1121,10 @@
 				0B2FAE2F10196F8C007BA948 /* BackgroundColorView.h in Headers */,
 				0B63976F106F40CA00C93F6E /* ExtendedScrollView.h in Headers */,
 				0BFC4CFD1076F61900293B60 /* ViewportArranger.h in Headers */,
+				0B04EF3710A6A38E00E201EE /* FocusRingView.h in Headers */,
+				0B8C096810BA532F00BEB111 /* OverlayHelperView.h in Headers */,
+				0B8C097310BA550500BEB111 /* OverlayHelperWindow.h in Headers */,
+				0B8C0A2610BA623700BEB111 /* OverlayViewCategory.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1331,6 +1359,10 @@
 				0B2FAE3010196F8C007BA948 /* BackgroundColorView.m in Sources */,
 				0B639768106F408500C93F6E /* ExtendedScrollView.m in Sources */,
 				0BFC4CFE1076F61900293B60 /* ViewportArranger.m in Sources */,
+				0B04EF3810A6A38E00E201EE /* FocusRingView.m in Sources */,
+				0B3E7BA010AF9E5A00AFBCF4 /* OverlayViewCategory.m in Sources */,
+				0B8C096910BA532F00BEB111 /* OverlayHelperView.m in Sources */,
+				0B8C097410BA550500BEB111 /* OverlayHelperWindow.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

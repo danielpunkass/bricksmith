@@ -31,7 +31,7 @@
 {
 	// Use the Leopard implementation if we can.
 	if([NSSplitView instancesRespondToSelector:@selector(autosaveName)])
-	   return [(id)super autosaveName];
+	   return [super autosaveName];
 	else
 	   return self->autosaveName;
 	   
@@ -51,7 +51,7 @@
 {
 	// Use the Leopard implementation if we can.
 	if([NSSplitView instancesRespondToSelector:@selector(setAutosaveName:)])
-	   [(id)super setAutosaveName:newName];
+	   [super setAutosaveName:newName];
 	else
 	{
 		[newName retain];

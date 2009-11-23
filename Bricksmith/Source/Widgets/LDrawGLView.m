@@ -2995,6 +2995,33 @@
 }//end scrollViewFrameDidChange:
 
 
+//========== renewGState =======================================================
+//
+// Purpose:		NSOpenGLViews' content is drawn directly by a hardware surface 
+//				that, when being moved, is moved before the surrounding regular 
+//				window content gets drawn and flushed. This causes an annoying 
+//				flicker, especially with NSSplitViews. Overriding this method 
+//				gives us a chance to compensate for this problem. 
+//
+//==============================================================================
+- (void) renewGState
+{
+    NSWindow *window = [self window];
+	
+	// Disabling screen updates should allow the redrawing of the surrounding 
+	// window to catch up with the new position of the OpenGL hardware surface. 
+	//
+	// Note: In Apple's "GLChildWindow" sample code, Apple put this in 
+	//		 -splitViewWillResizeSubviews:. But that doesn't actually solve the 
+	//		 problem. Putting it here *does*. 
+	//
+	[window disableScreenUpdatesUntilFlush];
+	
+    [super renewGState];
+	
+}//end renewGState
+
+
 //========== reshape ===========================================================
 //
 // Purpose:		Something changed in the viewing department; we need to adjust 

@@ -3170,29 +3170,6 @@
 }//end splitView:resizeSubviewsWithOldSize:
 
 
-//**** NSSplitView ****
-//========== splitViewWillResizeSubviews: ======================================
-//
-// Purpose:		A splitview is about to resize. Since we are displaying OpenGL 
-//				in our split-view, we have to do some special graphics flushing.
-//
-//==============================================================================
-- (void)splitViewWillResizeSubviews:(NSNotification *)notification
-{
-	//Quoting Apple's comments in its GLChildWindow sample code:
-	//
-	// Resizing the [OpenGL-bearing] split view causes some flicker.  So, as 
-	// soon as we know the resize is going to happen we use a Carbon call to 
-	// disable screen updates.
-	//
-	// Later when the parent window finally flushes we re-enable updates
-	// so that everything hits the screen at once.
-		
-//	[[self foremostWindow] disableScreenUpdatesUntilFlush];
-	
-}//end splitViewWillResizeSubviews:
-
-
 #pragma mark -
 #pragma mark NOTIFICATIONS
 #pragma mark -

@@ -4,8 +4,8 @@
 //
 // Purpose:		Draws an LDrawFile with OpenGL.
 //
-//  Created by Allen Smith on 4/17/05.
-//  Copyright 2005. All rights reserved.
+// Modified:	4/17/05 Allen Smith. Creation Date.
+//
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/OpenGL.h>
@@ -16,6 +16,7 @@
 #import "ToolPalette.h"
 
 //Forward declarations
+@class FocusRingView;
 @class LDrawDirective;
 
 
@@ -54,6 +55,8 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawGLView : NSOpenGLView <LDrawColorable>
 {
+	FocusRingView			*focusRingView;
+	
 	IBOutlet id             delegate;
 	id                      target;
 	SEL                     backAction;
@@ -83,6 +86,8 @@ typedef enum
 	ProjectionModeT         projectionMode;
 	RotationDrawModeT       rotationDrawMode;		// drawing detail while rotating.
 	ViewOrientationT        viewOrientation;		// our orientation
+	NSTimeInterval			fpsStartTime;
+	NSInteger				framesSinceStartTime;
 	
 	// Event Tracking
 	BOOL                    isGesturing;			// true if performing a multitouch trackpad gesture.

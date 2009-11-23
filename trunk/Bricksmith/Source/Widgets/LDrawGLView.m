@@ -35,6 +35,7 @@
 #import <GLUT/glut.h>
 #import <OpenGL/glu.h>
 
+#import "FocusRingView.h"
 #import "LDrawApplication.h"
 #import "LDrawColor.h"
 #import "LDrawDirective.h"
@@ -45,8 +46,10 @@
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
+#import "OverlayViewCategory.h"
 #import "ScrollViewCategory.h"
 #import "UserDefaultsCategory.h"
+
 
 @implementation LDrawGLView
 
@@ -137,12 +140,24 @@
 //==============================================================================
 - (void) internalInit
 {
-	NSOpenGLContext     *context        = nil;
-	NSOpenGLPixelFormat *pixelFormat    = [LDrawApplication openGLPixelFormat];
-	GLint               swapInterval    = 1;
+	NSOpenGLContext         *context            = nil;
+	NSOpenGLPixelFormat     *pixelFormat        = [LDrawApplication openGLPixelFormat];
+	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
+	
+	
+	//---------- Load UI -------------------------------------------------------
 	
 	// Yes, we have a nib file. Don't laugh. This view has accessories.
 	[NSBundle loadNibNamed:@"LDrawGLViewAccessories" owner:self];
+	
+	self->focusRingView = [[[FocusRingView alloc] initWithFrame:[self bounds]] autorelease];
+	[focusRingView setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
+	[focusRingView setFocusSource:self];
+	
+	[self addOverlayView:focusRingView];
+	
+	
+	//---------- Initialize instance variables ---------------------------------
 	
 	[self setAcceptsFirstResponder:YES];
 	[self setLDrawColor:LDrawCurrentColor];
@@ -155,7 +170,7 @@
 	projectionMode			= ProjectionModePerspective;
 	rotationDrawMode		= LDrawGLDrawNormal;
 	
-	//Set up our OpenGL context. We need to base it on a shared context so that 
+	// Set up our OpenGL context. We need to base it on a shared context so that 
 	// display-list names can be shared globally throughout the application.
 	context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat
 										 shareContext:[LDrawApplication sharedOpenGLContext]];
@@ -164,12 +179,22 @@
 	[[self openGLContext] makeCurrentContext];
 	
 	[self setPixelFormat:pixelFormat];
-	[[self openGLContext] setValues: &swapInterval // prevent "tearing"
+	
+	// Prevent "tearing"
+	GLint   swapInterval    = 1;
+	[[self openGLContext] setValues: &swapInterval
 					   forParameter: NSOpenGLCPSwapInterval ];
+	
+	// GL surface should be under window to allow Cocoa overtop.
+	// Huge FPS hit--over 40%! Don't do it!
+//	GLint   surfaceOrder    = -1;
+//	[[self openGLContext] setValues: &surfaceOrder
+//					   forParameter: NSOpenGLCPSurfaceOrder ];
 			
 	[self setViewOrientation:ViewOrientation3D];
 	
-	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+	
+	//---------- Register notifications ----------------------------------------
 	
 	[notificationCenter addObserver:self
 						   selector:@selector(mouseToolDidChange:)
@@ -413,9 +438,6 @@
 			// DRAW!
 			[self->fileBeingDrawn draw:options parentColor:glColor];
 			
-			if([[self window] firstResponder] == self)
-				[self drawFocusRing];
-				
 			//glFlush(); //implicit in -flushBuffer
 			[[self openGLContext] flushBuffer];
 		
@@ -431,8 +453,11 @@
 					rotationDrawMode = LDrawGLDrawNormal;
 			}
 
+			// Timing info
+			framesSinceStartTime++;
 		#if DEBUG_DRAWING
-			NSLog(@"draw time: %f", drawTime);
+			CGFloat framesPerSecond = framesSinceStartTime / ([NSDate timeIntervalSinceReferenceDate] - fpsStartTime);
+			NSLog(@"fps = %f, draw time: %f", framesPerSecond, drawTime);
 		#endif //DEBUG_DRAWING
 			
 		}
@@ -453,6 +478,9 @@
 //
 // Purpose:		Draws a focus ring around the view, which indicates that this 
 //				view is the first responder.
+//
+// Notes:		This is obsolete; the focus ring can (and is) now drawn in 
+//				Cocoa. 
 //
 //==============================================================================
 - (void) drawFocusRing
@@ -542,13 +570,6 @@
 }//end strokeInsideRect:thickness:
 
 
-//========== isOpaque ==========================================================
-//==============================================================================
-//- (BOOL) isOpaque
-//{
-//	return NO;
-//}
-
 //========== isFlipped =========================================================
 //
 // Purpose:		This lets us appear in the upper-left of scroll views rather 
@@ -561,6 +582,18 @@
 	return YES;
 	
 }//end isFlipped
+
+
+//========== isOpaque ==========================================================
+//
+// Note:		Our content completely covers this view. (This is just here as a 
+//				reminder; NSOpenGLViews are opaque by default.) 
+//
+//==============================================================================
+- (BOOL) isOpaque
+{
+	return YES;
+}
 
 
 #pragma mark -
@@ -1339,7 +1372,7 @@
 			[self->delegate LDrawGLViewBecameFirstResponder:self];
 		
 		//need to draw the focus ring now
-		[self setNeedsDisplay:YES];
+		[self->focusRingView setNeedsDisplay:YES];
 	}
 	
 	return success;
@@ -1351,14 +1384,14 @@
 // Purpose:		We are losing key status.
 //
 //==============================================================================
-- (BOOL)resignFirstResponder
+- (BOOL) resignFirstResponder
 {
 	BOOL success = [super resignFirstResponder];
 	
 	if(success == YES)
 	{
 		//need to lose the focus ring
-		[self setNeedsDisplay:YES];
+		[self->focusRingView setNeedsDisplay:YES];
 	}
 	
 	return success;
@@ -1711,6 +1744,10 @@
 	
 	[self resetCursor];
 	
+	// This might be the start of a new drag; start collecting frames per second
+	fpsStartTime = [NSDate timeIntervalSinceReferenceDate];
+	framesSinceStartTime = 0;
+
 	if(toolMode == SmoothZoomTool)
 	{
 		[self mouseCenterClick:theEvent];
@@ -3058,11 +3095,12 @@
 	// (otherwise, we're probably being deallocated).
 	if([self window] != nil)
 	{
-		[self->canDrawLock lockWhenCondition:NO]; // wait for other thread to finish
-		self->keepDrawThreadAlive = YES;
-		[self->canDrawLock unlockWithCondition:NO];
-		[NSThread detachNewThreadSelector:@selector(threadDrawLoop:) toTarget:self withObject:nil];
-		hasThread = YES;
+		// Multithreading didn't work out too hot; it was incompatible with nested display lists.
+//		[self->canDrawLock lockWhenCondition:NO]; // wait for other thread to finish
+//		self->keepDrawThreadAlive = YES;
+//		[self->canDrawLock unlockWithCondition:NO];
+//		[NSThread detachNewThreadSelector:@selector(threadDrawLoop:) toTarget:self withObject:nil];
+//		hasThread = YES;
 	}
 	
 }//end viewDidMoveToWindow

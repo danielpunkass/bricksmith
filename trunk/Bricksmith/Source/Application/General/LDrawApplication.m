@@ -66,7 +66,9 @@
 + (NSOpenGLPixelFormat *) openGLPixelFormat
 {
 	NSOpenGLPixelFormat				*pixelFormat		= nil;
-	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= { NSOpenGLPFADoubleBuffer,
+	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= {
+															NSOpenGLPFANoRecovery, // Enable automatic use of OpenGL "share" contexts for Core Animation.
+															NSOpenGLPFADoubleBuffer,
 															NSOpenGLPFADepthSize,		32,
 															NSOpenGLPFASampleBuffers,	1, // enable line antialiasing
 															NSOpenGLPFASamples,			3, // antialiasing beauty

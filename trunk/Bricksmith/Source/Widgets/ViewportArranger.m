@@ -291,6 +291,9 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 		[sourceViewport removeFromSuperview];
 		[preceedingRow setFrame:newViewFrame];
 	}
+	// For some reason, setting the frame isn't enough to retile scrollviews 
+	// contained within, but this is. 
+	[self adjustSubviews];
 	
 	if([self->delegate respondsToSelector:@selector(viewportArrangerDidRemoveViewports:)])
 		[self->delegate viewportArrangerDidRemoveViewports:self];

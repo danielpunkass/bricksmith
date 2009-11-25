@@ -197,41 +197,32 @@
 //==============================================================================
 - (void) registerNotifications
 {
-	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
+	NSView                  *currentView        = nil;
 	
 	// Unregister existing cruft
 	[notificationCenter removeObserver:self name:NSViewFrameDidChangeNotification object:nil];
 	[notificationCenter removeObserver:self name:NSViewBoundsDidChangeNotification object:nil];
 	
-	//---------- Parent view ---------------------------------------------------
+	// Watch EVERY single superview for frame-change notifications, because any 
+	// one of them could result in different viewport occlusions. Since we need 
+	// to watch the visible rect of our view, we must be ready for *anything.* 
+	currentView = self->parentView;
+	while(currentView)
 	{
 		[notificationCenter addObserver:self
 							   selector:@selector(parentViewChanged:)
 								   name:NSViewFrameDidChangeNotification
-								 object:self->parentView];
+								 object:currentView];
 		
 		[notificationCenter addObserver:self
 							   selector:@selector(parentViewChanged:)
 								   name:NSViewBoundsDidChangeNotification
-								 object:self->parentView];
+								 object:currentView];
+								 
+		currentView = [currentView superview];
 	}
-	
-	
-	//---------- Parent view's superview ---------------------------------------
-	// This catches things like scroll views.
-	
-	if([self->parentView superview] != nil)
-	{
-		[notificationCenter addObserver:self
-							   selector:@selector(parentViewChanged:)
-								   name:NSViewFrameDidChangeNotification
-								 object:[parentView superview]];
-		
-		[notificationCenter addObserver:self
-							   selector:@selector(parentViewChanged:)
-								   name:NSViewBoundsDidChangeNotification
-								 object:[parentView superview]];
-	}
+
 }//end registerNotifications
 
 

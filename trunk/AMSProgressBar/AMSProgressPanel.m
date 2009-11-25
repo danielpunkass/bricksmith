@@ -30,7 +30,9 @@
 {
 	AMSProgressPanel *progressWindow = [[[AMSProgressPanel alloc] init] autorelease];
 	
+	return progressWindow;
 }
+
 
 //========== doProgressBarWithMax:forWindow:parentWindow =======================
 //

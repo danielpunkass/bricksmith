@@ -28,8 +28,8 @@
 //==============================================================================
 - (void) awakeFromNib
 {
-	LDrawColorCell	*colorCell = [[LDrawColorCell alloc] init];
-	NSTableColumn	*colorColumn = [pieceCountTable tableColumnWithIdentifier:LDRAW_COLOR_CODE];
+	LDrawColorCell  *colorCell      = [[[LDrawColorCell alloc] init] autorelease];
+	NSTableColumn   *colorColumn    = [pieceCountTable tableColumnWithIdentifier:LDRAW_COLOR_CODE];
 	
 	[colorColumn setDataCell:colorCell];
 	

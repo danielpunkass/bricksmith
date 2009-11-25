@@ -460,6 +460,8 @@
 		[donation runModal];
 	}
 	
+	[donation release];
+	
 	return NSTerminateNow;
 	
 }//end applicationShouldTerminate:

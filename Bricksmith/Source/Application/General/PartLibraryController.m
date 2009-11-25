@@ -124,6 +124,8 @@
 		[error setInformativeText:NSLocalizedString(@"LDrawFolderChooserErrorInformative", nil)];
 		
 		[error runModal];
+		
+		[error release];
 	}
 	
 	return folderIsValid;

@@ -20,7 +20,7 @@
 	
 }
 
-+ (id) newModel;
++ (id) model;
 + (id) modelWithLines:(NSArray *)lines;
 - (id) initWithLines:(NSArray *)lines;
 

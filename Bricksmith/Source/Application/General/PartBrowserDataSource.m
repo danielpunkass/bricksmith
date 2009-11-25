@@ -45,7 +45,7 @@
 	NSUserDefaults  *userDefaults       = [NSUserDefaults standardUserDefaults];
 	NSString        *startingCategory   = [userDefaults stringForKey:PART_BROWSER_PREVIOUS_CATEGORY];
 	NSInteger       startingRow         = [userDefaults integerForKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
-	NSMenu          *searchMenuTemplate = [[NSMenu alloc] initWithTitle:@"Search template"];
+	NSMenu          *searchMenuTemplate = nil;
 	NSMenuItem      *recentsItem        = nil;
 	NSMenuItem      *noRecentsItem      = nil;
 	
@@ -76,17 +76,20 @@
 		[self->insertButton setTarget:self];
 		[self->insertButton setAction:@selector(addPartClicked:)];
 		
-		//Configure the search field's menu
+		// Configure the search field's menu
+		searchMenuTemplate = [[NSMenu alloc] initWithTitle:@"Search template"];
+		
 		noRecentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
 												   action:NULL
 											keyEquivalent:@"" ];
 		[noRecentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
-		[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
 		
 		recentsItem = [[NSMenuItem alloc] initWithTitle:@"recent items placeholder"
 												 action:NULL
 										  keyEquivalent:@"" ];
 		[recentsItem setTag:NSSearchFieldRecentsMenuItemTag];
+		
+		[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
 		[searchMenuTemplate insertItem:recentsItem atIndex:1];
 		
 		[[self->searchField cell] setSearchMenuTemplate:searchMenuTemplate];
@@ -725,7 +728,7 @@
 	NSString        *partNumber             = nil;
 	NSString        *partDescription        = nil;
 	NSString        *partSansWhitespace     = nil;
-	NSMutableArray  *matchingParts          = [NSMutableArray array];
+	NSMutableArray  *matchingParts          = nil;
 	NSString        *searchSansWhitespace   = [searchString stringByRemovingWhitespace];
 	
 	if([searchString length] == 0)
@@ -832,7 +835,7 @@
 {
 	NSMutableArray	*archivedParts		= [NSMutableArray array];
 	NSString		*partName			= [self selectedPartName];
-	LDrawPart		*newPart			= [[[LDrawPart alloc] init] autorelease];
+	LDrawPart		*newPart			= nil;
 	NSData			*partData			= nil;
 	LDrawColorT		 selectedColor		= [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	BOOL			 success			= NO;

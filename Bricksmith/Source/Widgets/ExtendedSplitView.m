@@ -102,7 +102,7 @@
 		NSView          *currentSubview = nil;
 		NSRect          currentRect     = NSZeroRect;
 		NSString        *rectString     = nil;
-		NSMutableArray  *frameSizes     = [NSMutableArray array];
+		NSMutableArray  *frameSizes     = nil;
 		NSInteger       counter         = 0;
 		
 		if(self->autosaveName != nil)

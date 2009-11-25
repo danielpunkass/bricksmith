@@ -65,8 +65,8 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 		// context. But we still need to create entries for them in the library 
 		// so that they can be selected in the color palette. 
 		
-		LDrawColor	*currentColor			= [[LDrawColor alloc] init];
-		LDrawColor	*edgeColor				= [[LDrawColor alloc] init];
+		LDrawColor	*currentColor			= [[[LDrawColor alloc] init] autorelease];
+		LDrawColor	*edgeColor				= [[[LDrawColor alloc] init] autorelease];
 		GLfloat		 currentColorRGBA[4]	= {1.0, 1.0, 0.81, 1.0};
 		GLfloat		 edgeColorRGBA[4]		= {0.75, 0.75, 0.75, 1.0};
 		

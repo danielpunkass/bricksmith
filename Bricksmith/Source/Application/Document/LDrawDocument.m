@@ -74,7 +74,7 @@
     self = [super init];
     if (self)
 	{
-		[self setDocumentContents:[LDrawFile newFile]];
+		[self setDocumentContents:[LDrawFile file]];
         insertionMode = insertAtEnd;
 		[self setGridSpacingMode:gridModeMedium];
 		
@@ -1096,6 +1096,8 @@
 		[alert addButtonWithTitle:NSLocalizedString(@"OKButtonName", nil)];
 		
 		[alert runModal];
+		
+		[alert release];
 	}
 	
 }//end doMissingPiecesCheck:
@@ -1137,6 +1139,8 @@
 			//mark document as modified.
 			[self updateChangeCount:NSChangeDone];
 		}
+		
+		[alert release];
 	}
 	
 }//end doMovedPiecesCheck:
@@ -1270,7 +1274,6 @@
 	
 	if(returnCode == NSOKButton)
 	{
-		fileCopy	= [[self documentContents] copy];
 		saveName	= [savePanel filename];
 		
 		//If we got this far, we need to replace any prexisting file.
@@ -1860,7 +1863,7 @@
 //==============================================================================
 - (IBAction) addModelClicked:(id)sender
 {
-	LDrawMPDModel	*newModel		= [LDrawMPDModel newModel];
+	LDrawMPDModel	*newModel		= [LDrawMPDModel model];
 
 	[self addModel:newModel preventNameCollisions:YES];
 	[self setActiveModel:newModel];
@@ -2077,6 +2080,8 @@
 	result = [minifigDialog runModal];
 	if(result == NSOKButton)
 		[self addModel:[minifigDialog minifigure] preventNameCollisions:YES];
+	
+	[minifigDialog release];
 	
 }//end addMinifigure:
 
@@ -4032,7 +4037,7 @@
 {
 	LDrawContainer	*parentDirective	= [directive enclosingDirective];
 	BOOL			 isLastDirective	= ([[parentDirective subdirectives] count] <= 1);
-	NSAlert			*alert				= [NSAlert new];
+	NSAlert			*alert				= [[NSAlert alloc] init];
 	NSString		*message			= nil;
 	NSString		*informative		= nil;
 	BOOL			 canDelete			= YES;
@@ -4064,6 +4069,8 @@
 							contextInfo:NULL ];
 		
 	}
+	
+	[alert release];
 	
 	return canDelete;
 	

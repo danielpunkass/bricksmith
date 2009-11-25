@@ -44,7 +44,7 @@ typedef enum {
 }
 
 //Initialization
-+ (id) newModel;
++ (id) model;
 + (id) modelWithLines:(NSArray *)lines;
 - (id) initNew;
 - (id) initWithLines:(NSArray *)lines;

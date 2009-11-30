@@ -177,6 +177,13 @@
 		}
 	}
 	
+	// Degenerate case: utterly empty file. Create one empty step, because it is 
+	// illegal to have a 0-step model in Bricksmith. 
+	if([[self steps] count] == 0)
+	{
+		[self addStep];
+	}
+	
 	return self;
 	
 }//end initWithLines:
@@ -888,9 +895,10 @@
 
 //========== maxStepIndexToOutput ==============================================
 //
-// Purpose:		Returns the index of the last step which should be displayed,
-//				or -1 if there are no steps to display. (The latter 
-//				case should never happen.)
+// Purpose:		Returns the index of the last step which should be displayed.
+//
+// Notes:		This is always supposed to return an index >= 0, simply because 
+//				it is illegal for a model to have no steps in Bricksmith. 
 //
 //==============================================================================
 - (NSUInteger) maxStepIndexToOutput

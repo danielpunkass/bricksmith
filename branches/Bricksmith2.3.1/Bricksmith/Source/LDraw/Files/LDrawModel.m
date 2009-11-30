@@ -316,8 +316,9 @@
 	{
 		currentStep = [steps objectAtIndex:counter];
 		
-		//Skip the 0 STEP command for the last step; it is implied.
-		if(counter == numberSteps - 1)
+		// Omit the 0 STEP command for 1-step models, which probably aren't 
+		// being built with steps in mind anyway. 
+		if(numberSteps == 1)
 			stepOutput = [currentStep writeWithStepCommand:NO];
 		else
 			stepOutput = [currentStep write];

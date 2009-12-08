@@ -13,6 +13,7 @@
 
 #import "ExtendedScrollView.h"
 
+
 const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 
 
@@ -35,8 +36,6 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 - (id) initWithFrame:(NSRect)frame
 {
 	self = [super initWithFrame:frame];
-	
-	[NSBundle loadNibNamed:@"ViewportArrangerAccessories" owner:self];
 	
 	[self setVertical:YES];
 	
@@ -336,6 +335,102 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 #pragma mark UTILITIES
 #pragma mark -
 
+//========== newCloseButton ====================================================
+//
+// Purpose:		Returns a new button for closing the current viewport. The 
+//				caller is responsible for releasing the button. 
+//
+//==============================================================================
+- (NSButton *) newCloseButton
+{
+	NSButton    *closeButton    = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 12, 12)];
+	
+	[closeButton setBezelStyle:NSShadowlessSquareBezelStyle];
+	[closeButton setButtonType:NSMomentaryPushInButton];
+	[closeButton setBordered:NO];
+	[closeButton setImagePosition:NSImageOnly];
+	[closeButton setImage:[NSImage imageNamed:@"PlacardButtonClose12"]];
+	[closeButton setToolTip:NSLocalizedString(@"ViewportArrangerCloseButtonTooltip", nil)];
+	[closeButton setTarget:self];
+	[closeButton setAction:@selector(closeViewportClicked:)];
+	
+	return closeButton;
+	
+}//end newCloseButton
+
+
+//========== newSplitButton ====================================================
+//
+// Purpose:		Returns a new button to split the current viewport. The caller 
+//				is responsible for releasing it. 
+//
+//==============================================================================
+- (NSButton *) newSplitButton
+{
+	NSButton    *splitButton    = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 12, 12)];
+	
+	[splitButton setBezelStyle:NSShadowlessSquareBezelStyle];
+	[splitButton setButtonType:NSMomentaryPushInButton];
+	[splitButton setBordered:NO];
+	[splitButton setImagePosition:NSImageOnly];
+	[splitButton setImage:[NSImage imageNamed:@"PlacardButtonSplit12"]];
+	[splitButton setToolTip:NSLocalizedString(@"ViewportArrangerSplitButtonTooltip", nil)];
+	[splitButton setTarget:self];
+	[splitButton setAction:@selector(splitViewportClicked:)];
+	
+	return splitButton;
+	
+}//end newSplitButton
+
+
+//========== newSplitPlacard ===================================================
+//
+// Purpose:		Create a view containing a pane-splitter button.
+//
+// Notes:		We do this programmatically rather than by a prototype from a 
+//				nib file because it's not possible to fully duplicate views by 
+//				archiving/unarchiving--the target and tooltip are getting lost. 
+//
+//==============================================================================
+- (NSView *) newSplitPlacard
+{
+	NSButton    *splitButton        = [[self newSplitButton] autorelease];
+	NSView      *placardContainer   = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 12, 12)];
+	
+	[placardContainer addSubview:splitButton];
+	
+	return placardContainer;
+	
+}//end newSplitPlacard
+
+
+//========== newSplitClosePlacard ==============================================
+//
+// Purpose:		Create a view containing a pane-splitter button and a close 
+//				button. 
+//
+// Notes:		We do this programmatically rather than by a prototype from a 
+//				nib file because it's not possible to fully duplicate views by 
+//				archiving/unarchiving--the target and tooltip are getting lost. 
+//
+//==============================================================================
+- (NSView *) newSplitClosePlacard
+{
+	NSButton    *splitButton        = [[self newSplitButton] autorelease];
+	NSButton    *closeButton        = [[self newCloseButton] autorelease];
+	NSView      *placardContainer   = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 12, 24)];
+	
+	[placardContainer addSubview:splitButton];
+	[placardContainer addSubview:closeButton];
+	
+	[splitButton setFrameOrigin:NSMakePoint(0, NSMaxY([closeButton frame]))];
+	[closeButton setFrameOrigin:NSMakePoint(0, 0)];
+	
+	return placardContainer;
+	
+}//end newSplitClosePlacard
+
+
 //========== newViewport =======================================================
 //
 // Purpose:		Creates a new 3D viewport nested in a scroll view.
@@ -362,6 +457,8 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 	
 }//end newViewport
 
+
+#pragma mark -
 
 //========== restoreViewports ==================================================
 //
@@ -509,8 +606,6 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 	NSArray             *rows                   = nil;
 	NSSplitView         *currentColumn          = nil;
 	ExtendedScrollView  *currentRow             = nil;
-	NSData              *longPlacardSourceData  = [NSKeyedArchiver archivedDataWithRootObject:self->splitAndClosePlacardPrototype];
-	NSData              *shortPlacardSourceData = [NSKeyedArchiver archivedDataWithRootObject:self->closePlacardPrototype];
 	NSView              *placard                = nil;
 	NSUInteger			columnCount				= [columns count];
 	NSUInteger          rowCount                = 0;
@@ -529,14 +624,13 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 			currentRow = [rows objectAtIndex:rowCounter];
 			
 			// If there only one viewport in the column, disable the close box.
-			// Note: Archiving-Unarchiving is the only way to copy a view
 			if(columnCount == 1 && rowCount == 1)
 			{
-				placard = [NSKeyedUnarchiver unarchiveObjectWithData:shortPlacardSourceData];
+				placard = [[self newSplitPlacard] autorelease];
 			}
 			else
 			{
-				placard = [NSKeyedUnarchiver unarchiveObjectWithData:longPlacardSourceData];
+				placard = [[self newSplitClosePlacard] autorelease];
 			}
 			
 			[currentRow setVerticalPlacard:placard];
@@ -556,9 +650,6 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 //==============================================================================
 - (void) dealloc
 {
-	[splitAndClosePlacardPrototype	release];
-	[closePlacardPrototype			release];
-	
 	[super dealloc];
 	
 }//end dealloc

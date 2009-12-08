@@ -24,8 +24,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface ViewportArranger : ExtendedSplitView
 {
-	IBOutlet NSView                 *splitAndClosePlacardPrototype;	// split and close buttons
-	IBOutlet NSView                 *closePlacardPrototype;			// close button only
 	id<ViewportArrangerDelegate>    delegate;
 }
 
@@ -40,6 +38,10 @@
 - (IBAction) closeViewportClicked:(id)sender;
 
 // Utilities
+- (NSButton *) newCloseButton;
+- (NSButton *) newSplitButton;
+- (NSView *) newSplitPlacard;
+- (NSView *) newSplitClosePlacard;
 - (ExtendedScrollView *) newViewport;
 - (void) restoreViewportsWithAutosaveName:(NSString *)autosaveName;
 - (void) storeViewports;

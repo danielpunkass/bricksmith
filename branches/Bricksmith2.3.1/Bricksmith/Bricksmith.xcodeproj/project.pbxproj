@@ -32,7 +32,6 @@
 		0B04E9911093BB4200E201EE /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9731093BB4200E201EE /* Preferences.xib */; };
 		0B04E9921093BB4200E201EE /* RotationPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9751093BB4200E201EE /* RotationPanel.xib */; };
 		0B04E9931093BB4200E201EE /* ToolPalette.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9771093BB4200E201EE /* ToolPalette.xib */; };
-		0B04E9941093BB4200E201EE /* ViewportArrangerAccessories.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9791093BB4200E201EE /* ViewportArrangerAccessories.xib */; };
 		0B05899C09849F5A0089FD81 /* Crosshair.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B05899B09849F5A0089FD81 /* Crosshair.tiff */; };
 		0B06F6200F5BB425004E7DD7 /* FavoriteAdd.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B06F61F0F5BB425004E7DD7 /* FavoriteAdd.pdf */; };
 		0B06F6240F5D0588004E7DD7 /* FavoriteRemove.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */; };
@@ -313,7 +312,6 @@
 		0B04E9741093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/Preferences.xib; sourceTree = "<group>"; };
 		0B04E9761093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/RotationPanel.xib; sourceTree = "<group>"; };
 		0B04E9781093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/ToolPalette.xib; sourceTree = "<group>"; };
-		0B04E97A1093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/ViewportArrangerAccessories.xib; sourceTree = "<group>"; };
 		0B05899B09849F5A0089FD81 /* Crosshair.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Crosshair.tiff; sourceTree = "<group>"; };
 		0B06F61F0F5BB425004E7DD7 /* FavoriteAdd.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = FavoriteAdd.pdf; sourceTree = "<group>"; };
 		0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = FavoriteRemove.pdf; sourceTree = "<group>"; };
@@ -586,7 +584,6 @@
 				0B04E9731093BB4200E201EE /* Preferences.xib */,
 				0B04E9751093BB4200E201EE /* RotationPanel.xib */,
 				0B04E9771093BB4200E201EE /* ToolPalette.xib */,
-				0B04E9791093BB4200E201EE /* ViewportArrangerAccessories.xib */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -1266,7 +1263,6 @@
 				0B04E9911093BB4200E201EE /* Preferences.xib in Resources */,
 				0B04E9921093BB4200E201EE /* RotationPanel.xib in Resources */,
 				0B04E9931093BB4200E201EE /* ToolPalette.xib in Resources */,
-				0B04E9941093BB4200E201EE /* ViewportArrangerAccessories.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1563,14 +1559,6 @@
 				0B04E9781093BB4200E201EE /* English */,
 			);
 			name = ToolPalette.xib;
-			sourceTree = "<group>";
-		};
-		0B04E9791093BB4200E201EE /* ViewportArrangerAccessories.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0B04E97A1093BB4200E201EE /* English */,
-			);
-			name = ViewportArrangerAccessories.xib;
 			sourceTree = "<group>";
 		};
 		0B34306508B2E93D00A06A40 /* Localizable.strings */ = {

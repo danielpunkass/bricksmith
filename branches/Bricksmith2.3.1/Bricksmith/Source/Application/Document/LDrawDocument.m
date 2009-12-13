@@ -635,7 +635,23 @@
 }//end setLastSelectedPart:
 
 
-//========== toggleStepDisplay: ================================================
+//========== setMostRecentLDrawView: ===========================================
+//
+// Purpose:		Sets the 3D view with which we interacted the most recently. 
+//
+// Note:		This accessor method is mainly here to provide KVO compliance so 
+//				Cocoa will automatically generate the necessary change messages 
+//				for binding which observe the most recent view. 
+//
+//==============================================================================
+- (void) setMostRecentLDrawView:(LDrawGLView *)viewIn
+{
+	self->mostRecentLDrawView = viewIn;
+	
+}//end setMostRecentLDrawView:
+
+
+//========== setStepDisplay: ===================================================
 //
 // Purpose:		Turns step display (like Lego instructions) on or off for the 
 //				active model.
@@ -674,7 +690,7 @@
 	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
 	[self->stepField setIntegerValue:[activeModel maximumStepIndexForStepDisplay] + 1];
 	
-}//end toggleStepDisplay:
+}//end setStepDisplay:
 
 
 #pragma mark -
@@ -2921,12 +2937,8 @@
 //==============================================================================
 - (void) LDrawGLViewBecameFirstResponder:(LDrawGLView *)glView
 {
-	// We used bindings to sync up the ever-in-limbo zoom control. Since 
-	// mostRecentLDrawView is a private variable, we manually trigger the 
-	// key-value observing updates for it.
-	[self willChangeValueForKey:@"mostRecentLDrawView"];
-	self->mostRecentLDrawView = glView;
-	[self didChangeValueForKey:@"mostRecentLDrawView"];
+	// We used bindings to sync up the ever-in-limbo zoom control.
+	[self setMostRecentLDrawView:glView];
 
 }//end LDrawGLViewBecameFirstResponder:
 
@@ -3876,6 +3888,39 @@
 
 
 }//end viewportArranger:didAddViewport:
+
+
+//========== viewportArranger:willRemoveViewports: =============================
+//
+// Purpose:		3D viewports are about to be removed (but they haven't been 
+//				quite yet). 
+//
+//==============================================================================
+- (void) viewportArranger:(ViewportArranger *)viewportArranger
+	  willRemoveViewports:(NSSet *)removingViewports;
+{
+	NSScrollView        *mostRecentViewport = [self->mostRecentLDrawView enclosingScrollView];
+	NSArray             *allViewports       = [self->viewportArranger allViewports];
+	ExtendedScrollView  *currentViewport    = nil;
+	
+	// If the current most-recent viewport is being removed, we need to make a 
+	// new viewport "most-recent." That's because we have bindings observers 
+	// watching the most recent view, and we'll crash if they're still observing 
+	// when the view deallocates. 
+	if([removingViewports containsObject:mostRecentViewport])
+	{
+		// Make the first viewport not being removed the most recent.
+		for(currentViewport in allViewports)
+		{
+			if([removingViewports containsObject:currentViewport] == NO)
+			{
+				[self setMostRecentLDrawView:[currentViewport documentView]];
+				break;
+			}
+		}
+	}
+	
+}//end viewportArranger:willRemoveViewports:
 
 
 //========== viewportArrangerDidRemoveViewports: ===============================

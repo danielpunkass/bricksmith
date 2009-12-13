@@ -60,6 +60,7 @@
 
 @optional
 - (void) viewportArranger:(ViewportArranger *)viewportArranger didAddViewport:(ExtendedScrollView *)newViewport sourceViewport:(ExtendedScrollView *)sourceViewport;
+- (void) viewportArranger:(ViewportArranger *)viewportArranger willRemoveViewports:(NSSet *)removingViewports;
 - (void) viewportArrangerDidRemoveViewports:(ViewportArranger *)viewportArranger;
 
 @end

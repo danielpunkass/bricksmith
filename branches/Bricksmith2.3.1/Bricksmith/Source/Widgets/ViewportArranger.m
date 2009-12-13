@@ -222,6 +222,7 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 	BOOL                removingColumn      = [rows count] == 1; // last row in column?
 	BOOL                isFirstResponder    = NO;
 	NSResponder         *newFirstResponder  = nil;
+	NSSet				*viewportsToRemove	= nil;
 	
 	// If the doomed viewport is the first responder, then the view which 
 	// inherits the source's real estate should also inherit responder status. 
@@ -232,6 +233,7 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 	if(removingColumn == YES)
 	{
 		sourceViewIndex     = [columns indexOfObjectIdenticalTo:sourceColumn];
+		viewportsToRemove   = [NSSet setWithArray:[sourceColumn subviews]];
 		
 		// If removing the first column, the column to the right grows leftward 
 		// to fill the empty space. Otherwise, the column to the left grows 
@@ -256,12 +258,18 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 			[[sourceViewport window] makeFirstResponder:newFirstResponder];
 		}
 		
+		// Remove the View
+		if([self->delegate respondsToSelector:@selector(viewportArranger:willRemoveViewports:)])
+		{
+			[self->delegate viewportArranger:self willRemoveViewports:viewportsToRemove];
+		}
 		[sourceColumn removeFromSuperview];
 		[preceedingColumn setFrame:newViewFrame];
 	}
-	else
+	else // removing row
 	{
-		sourceViewIndex = [rows indexOfObjectIdenticalTo:sourceViewport];
+		sourceViewIndex     = [rows indexOfObjectIdenticalTo:sourceViewport];
+		viewportsToRemove   = [NSSet setWithObject:sourceViewport];
 		
 		// If removing the first row, the row underneath it grows upward to fill 
 		// the empty space. Otherwise, the row above it grows downward. 
@@ -285,6 +293,11 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 			[[sourceViewport window] makeFirstResponder:newFirstResponder];
 		}
 		
+		// Remove the View
+		if([self->delegate respondsToSelector:@selector(viewportArranger:willRemoveViewports:)])
+		{
+			[self->delegate viewportArranger:self willRemoveViewports:viewportsToRemove];
+		}
 		[sourceViewport removeFromSuperview];
 		[preceedingRow setFrame:newViewFrame];
 	}

@@ -238,8 +238,9 @@
 			  ofType:(NSString *)typeName
 			   error:(NSError **)outError
 {
-	AMSProgressPanel	*progressPanel	= [AMSProgressPanel progressPanel];
-	NSString			*openMessage	= nil;
+	AMSProgressPanel    *progressPanel  = [AMSProgressPanel progressPanel];
+	NSString            *openMessage    = nil;
+	BOOL                success         = NO;
 	
 	openMessage = [NSString stringWithFormat:	NSLocalizedString(@"OpeningFileX", nil), 
 		[self displayName] ];
@@ -250,23 +251,26 @@
 	[progressPanel showProgressPanel];
 
 	//do the actual loading.
-	[super readFromURL:absoluteURL ofType:typeName error:outError];
-	
-	// Track the path. I'm not sure what a non-file URL means, and I'm basically 
-	// hoping we never encounter one. 
-	if([absoluteURL isFileURL] == YES)
-		[[self documentContents] setPath:[absoluteURL path]];
-	else
-		[[self documentContents] setPath:nil];
+	success = [super readFromURL:absoluteURL ofType:typeName error:outError];
 	
 	[progressPanel close];
 	
-	//Postflight: find missing and moved parts.
-	[self doMissingPiecesCheck:self];
-	[self doMovedPiecesCheck:self];
-	[self doMissingModelnameExtensionCheck:self];
+	if(success == YES)
+	{
+		// Track the path. I'm not sure what a non-file URL means, and I'm basically 
+		// hoping we never encounter one. 
+		if([absoluteURL isFileURL] == YES)
+			[[self documentContents] setPath:[absoluteURL path]];
+		else
+			[[self documentContents] setPath:nil];
+
+		//Postflight: find missing and moved parts.
+		[self doMissingPiecesCheck:self];
+		[self doMovedPiecesCheck:self];
+		[self doMissingModelnameExtensionCheck:self];
+	}
 	
-	return YES;
+	return success;
 	
 }//end readFromFile:ofType:
 
@@ -307,8 +311,9 @@
 			   ofType:(NSString *)typeName
 				error:(NSError **)outError
 {
-	NSString			*fileContents	= nil;
-	LDrawFile			*newFile		= nil;
+	NSString    *fileContents   = nil;
+	LDrawFile   *newFile        = nil;
+	BOOL        success         = NO;
 	
 	//LDraw files are plain text.
 	fileContents = [[NSString alloc] initWithData:data
@@ -327,15 +332,29 @@
 	CGLLockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	{
 		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
-	
-		newFile = [LDrawFile parseFromFileContents:fileContents];
-		[self setDocumentContents:newFile];
+		
+		@try
+		{
+			newFile = [LDrawFile parseFromFileContents:fileContents];
+			if(newFile != nil)
+			{
+				[self setDocumentContents:newFile];
+				success = YES;
+			}
+		}
+		@catch(NSException * e)
+		{
+			*outError = [NSError errorWithDomain:NSCocoaErrorDomain
+											code:NSFileReadCorruptFileError
+										userInfo:nil];
+		}
 	}
 	CGLUnlockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	
 	[fileContents release];
 	
-    return YES;
+    return success;
+	
 }//end loadDataRepresentation:ofType:
 
 
@@ -590,7 +609,23 @@
 }//end setLastSelectedPart:
 
 
-//========== toggleStepDisplay: ================================================
+//========== setMostRecentLDrawView: ===========================================
+//
+// Purpose:		Sets the 3D view with which we interacted the most recently. 
+//
+// Note:		This accessor method is mainly here to provide KVO compliance so 
+//				Cocoa will automatically generate the necessary change messages 
+//				for binding which observe the most recent view. 
+//
+//==============================================================================
+- (void) setMostRecentLDrawView:(LDrawGLView *)viewIn
+{
+	self->mostRecentLDrawView = viewIn;
+	
+}//end setMostRecentLDrawView:
+
+
+//========== setStepDisplay: ===================================================
 //
 // Purpose:		Turns step display (like Lego instructions) on or off for the 
 //				active model.
@@ -629,7 +664,7 @@
 	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
 	[self->stepField setIntegerValue:[activeModel maximumStepIndexForStepDisplay] + 1];
 	
-}//end toggleStepDisplay:
+}//end setStepDisplay:
 
 
 #pragma mark -
@@ -2877,12 +2912,8 @@
 //==============================================================================
 - (void) LDrawGLViewBecameFirstResponder:(LDrawGLView *)glView
 {
-	// We used bindings to sync up the ever-in-limbo zoom control. Since 
-	// mostRecentLDrawView is a private variable, we manually trigger the 
-	// key-value observing updates for it.
-	[self willChangeValueForKey:@"mostRecentLDrawView"];
-	self->mostRecentLDrawView = glView;
-	[self didChangeValueForKey:@"mostRecentLDrawView"];
+	// We used bindings to sync up the ever-in-limbo zoom control.
+	[self setMostRecentLDrawView:glView];
 
 }//end LDrawGLViewBecameFirstResponder:
 
@@ -3810,6 +3841,39 @@
 
 
 }//end viewportArranger:didAddViewport:
+
+
+//========== viewportArranger:willRemoveViewports: =============================
+//
+// Purpose:		3D viewports are about to be removed (but they haven't been 
+//				quite yet). 
+//
+//==============================================================================
+- (void) viewportArranger:(ViewportArranger *)viewportArranger
+	  willRemoveViewports:(NSSet *)removingViewports;
+{
+	NSScrollView        *mostRecentViewport = [self->mostRecentLDrawView enclosingScrollView];
+	NSArray             *allViewports       = [self->viewportArranger allViewports];
+	ExtendedScrollView  *currentViewport    = nil;
+	
+	// If the current most-recent viewport is being removed, we need to make a 
+	// new viewport "most-recent." That's because we have bindings observers 
+	// watching the most recent view, and we'll crash if they're still observing 
+	// when the view deallocates. 
+	if([removingViewports containsObject:mostRecentViewport])
+	{
+		// Make the first viewport not being removed the most recent.
+		for(currentViewport in allViewports)
+		{
+			if([removingViewports containsObject:currentViewport] == NO)
+			{
+				[self setMostRecentLDrawView:[currentViewport documentView]];
+				break;
+			}
+		}
+	}
+	
+}//end viewportArranger:willRemoveViewports:
 
 
 //========== viewportArrangerDidRemoveViewports: ===============================

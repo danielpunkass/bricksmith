@@ -90,6 +90,7 @@ typedef enum insertionMode {
 - (void) setDocumentContents:(LDrawFile *)newContents;
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;
 - (void) setLastSelectedPart:(LDrawPart *)newPart;
+- (void) setMostRecentLDrawView:(LDrawGLView *)viewIn;
 - (void) setStepDisplay:(BOOL)showStepsFlag;
 
 // Activities

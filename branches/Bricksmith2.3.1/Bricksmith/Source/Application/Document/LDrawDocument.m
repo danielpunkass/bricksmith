@@ -283,8 +283,9 @@
 			  ofType:(NSString *)typeName
 			   error:(NSError **)outError
 {
-	AMSProgressPanel	*progressPanel	= [AMSProgressPanel progressPanel];
-	NSString			*openMessage	= nil;
+	AMSProgressPanel    *progressPanel  = [AMSProgressPanel progressPanel];
+	NSString            *openMessage    = nil;
+	BOOL                success         = NO;
 	
 	openMessage = [NSString stringWithFormat:	NSLocalizedString(@"OpeningFileX", nil), 
 		[self displayName] ];
@@ -295,23 +296,26 @@
 	[progressPanel showProgressPanel];
 
 	//do the actual loading.
-	[super readFromURL:absoluteURL ofType:typeName error:outError];
-	
-	// Track the path. I'm not sure what a non-file URL means, and I'm basically 
-	// hoping we never encounter one. 
-	if([absoluteURL isFileURL] == YES)
-		[[self documentContents] setPath:[absoluteURL path]];
-	else
-		[[self documentContents] setPath:nil];
+	success = [super readFromURL:absoluteURL ofType:typeName error:outError];
 	
 	[progressPanel close];
 	
-	//Postflight: find missing and moved parts.
-	[self doMissingPiecesCheck:self];
-	[self doMovedPiecesCheck:self];
-	[self doMissingModelnameExtensionCheck:self];
+	if(success == YES)
+	{
+		// Track the path. I'm not sure what a non-file URL means, and I'm basically 
+		// hoping we never encounter one. 
+		if([absoluteURL isFileURL] == YES)
+			[[self documentContents] setPath:[absoluteURL path]];
+		else
+			[[self documentContents] setPath:nil];
+
+		//Postflight: find missing and moved parts.
+		[self doMissingPiecesCheck:self];
+		[self doMovedPiecesCheck:self];
+		[self doMissingModelnameExtensionCheck:self];
+	}
 	
-	return YES;
+	return success;
 	
 }//end readFromFile:ofType:
 
@@ -352,8 +356,9 @@
 			   ofType:(NSString *)typeName
 				error:(NSError **)outError
 {
-	NSString			*fileContents	= nil;
-	LDrawFile			*newFile		= nil;
+	NSString    *fileContents   = nil;
+	LDrawFile   *newFile        = nil;
+	BOOL        success         = NO;
 	
 	//LDraw files are plain text.
 	fileContents = [[NSString alloc] initWithData:data
@@ -372,15 +377,29 @@
 	CGLLockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	{
 		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
-	
-		newFile = [LDrawFile parseFromFileContents:fileContents];
-		[self setDocumentContents:newFile];
+		
+		@try
+		{
+			newFile = [LDrawFile parseFromFileContents:fileContents];
+			if(newFile != nil)
+			{
+				[self setDocumentContents:newFile];
+				success = YES;
+			}
+		}
+		@catch(NSException * e)
+		{
+			*outError = [NSError errorWithDomain:NSCocoaErrorDomain
+											code:NSFileReadCorruptFileError
+										userInfo:nil];
+		}
 	}
 	CGLUnlockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	
 	[fileContents release];
 	
-    return YES;
+    return success;
+	
 }//end loadDataRepresentation:ofType:
 
 

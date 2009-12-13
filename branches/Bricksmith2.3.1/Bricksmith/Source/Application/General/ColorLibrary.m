@@ -269,7 +269,6 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 //==============================================================================
 void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
 {
-	int		brightestIndex	= 0;
 	float	brightness		= 0.0;
 	
 	// Isolate the color's grayscale intensity http://en.wikipedia.org/wiki/Grayscale

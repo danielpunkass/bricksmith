@@ -269,35 +269,27 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 //==============================================================================
 void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
 {
-	int		brightestIndex	= 0;
 	float	brightness		= 0.0;
 	
-	// Isolate the color's brightness -- that is, its biggest component
-	// (This is hacky math. Real HSB does NOT work this way!)
-	if(		originalColor[1] > originalColor[0]
-		&&	originalColor[1] > originalColor[2])
-		brightestIndex = 1;
-		
-	else if(	originalColor[2] > originalColor[0]
-			&&	originalColor[2] > originalColor[1])
-		brightestIndex = 2;
-	
-	brightness = originalColor[brightestIndex];
+	// Isolate the color's grayscale intensity http://en.wikipedia.org/wiki/Grayscale
+	brightness =	originalColor[0] * 0.30
+				+	originalColor[0] * 0.59
+				+	originalColor[0] * 0.11;
 	
 	//compliment dark colors with light ones and light colors with dark ones.
 	if(brightness > 0.5)
 	{
 		// Darken
-		complimentColor[0] = originalColor[0] * 0.25;
-		complimentColor[1] = originalColor[1] * 0.25;
-		complimentColor[2] = originalColor[2] * 0.25;
+		complimentColor[0] = originalColor[0] - 0.40;
+		complimentColor[1] = originalColor[1] - 0.40;
+		complimentColor[2] = originalColor[2] - 0.40;
 	}
 	else
 	{
 		// Lighten
-		complimentColor[0] = originalColor[0] * 3.0;
-		complimentColor[1] = originalColor[1] * 3.0;
-		complimentColor[2] = originalColor[2] * 3.0;
+		complimentColor[0] = originalColor[0] + 0.40;
+		complimentColor[1] = originalColor[1] + 0.40;
+		complimentColor[2] = originalColor[2] + 0.40;
 	}
 	
 }//end complimentColor

@@ -32,7 +32,6 @@
 		0B04E9911093BB4200E201EE /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9731093BB4200E201EE /* Preferences.xib */; };
 		0B04E9921093BB4200E201EE /* RotationPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9751093BB4200E201EE /* RotationPanel.xib */; };
 		0B04E9931093BB4200E201EE /* ToolPalette.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9771093BB4200E201EE /* ToolPalette.xib */; };
-		0B04E9941093BB4200E201EE /* ViewportArrangerAccessories.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9791093BB4200E201EE /* ViewportArrangerAccessories.xib */; };
 		0B04EF3710A6A38E00E201EE /* FocusRingView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B04EF3510A6A38E00E201EE /* FocusRingView.h */; };
 		0B04EF3810A6A38E00E201EE /* FocusRingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B04EF3610A6A38E00E201EE /* FocusRingView.m */; };
 		0B05899C09849F5A0089FD81 /* Crosshair.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B05899B09849F5A0089FD81 /* Crosshair.tiff */; };
@@ -72,6 +71,7 @@
 		0B491DA407F5555B00AC0C10 /* MatrixMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B491DA207F5555B00AC0C10 /* MatrixMath.h */; };
 		0B491DA507F5555B00AC0C10 /* MatrixMath.c in Sources */ = {isa = PBXBuildFile; fileRef = 0B491DA307F5555B00AC0C10 /* MatrixMath.c */; };
 		0B491FF707F64B5800AC0C10 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B491FF607F64B5800AC0C10 /* OpenGL.framework */; };
+		0B4BFB4B10D46C2E0002D482 /* DragAndDrop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B4BFB4A10D46C2E0002D482 /* DragAndDrop.tiff */; };
 		0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */; };
 		0B4F5E110F31632C00355631 /* PartLibraryController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B4F5E0F0F31632C00355631 /* PartLibraryController.h */; };
 		0B4F5E120F31632C00355631 /* PartLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4F5E100F31632C00355631 /* PartLibraryController.m */; };
@@ -316,7 +316,6 @@
 		0B04E9741093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/Preferences.xib; sourceTree = "<group>"; };
 		0B04E9761093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/RotationPanel.xib; sourceTree = "<group>"; };
 		0B04E9781093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/ToolPalette.xib; sourceTree = "<group>"; };
-		0B04E97A1093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/ViewportArrangerAccessories.xib; sourceTree = "<group>"; };
 		0B04EF3510A6A38E00E201EE /* FocusRingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FocusRingView.h; sourceTree = "<group>"; };
 		0B04EF3610A6A38E00E201EE /* FocusRingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FocusRingView.m; sourceTree = "<group>"; };
 		0B05899B09849F5A0089FD81 /* Crosshair.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Crosshair.tiff; sourceTree = "<group>"; };
@@ -358,6 +357,7 @@
 		0B491DA207F5555B00AC0C10 /* MatrixMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixMath.h; sourceTree = "<group>"; };
 		0B491DA307F5555B00AC0C10 /* MatrixMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MatrixMath.c; sourceTree = "<group>"; };
 		0B491FF607F64B5800AC0C10 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		0B4BFB4A10D46C2E0002D482 /* DragAndDrop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = DragAndDrop.tiff; sourceTree = "<group>"; };
 		0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ColorDroplet.tiff; sourceTree = "<group>"; };
 		0B4F5E0F0F31632C00355631 /* PartLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartLibraryController.h; sourceTree = "<group>"; };
 		0B4F5E100F31632C00355631 /* PartLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartLibraryController.m; sourceTree = "<group>"; };
@@ -592,7 +592,6 @@
 				0B04E9731093BB4200E201EE /* Preferences.xib */,
 				0B04E9751093BB4200E201EE /* RotationPanel.xib */,
 				0B04E9771093BB4200E201EE /* ToolPalette.xib */,
-				0B04E9791093BB4200E201EE /* ViewportArrangerAccessories.xib */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -687,6 +686,7 @@
 		0B6F427107CDAE8C007B1075 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
+				0B4BFB4A10D46C2E0002D482 /* DragAndDrop.tiff */,
 				0B9FE5BC08AD977F0046511D /* OneBrick.tiff */,
 				0B06F61F0F5BB425004E7DD7 /* FavoriteAdd.pdf */,
 				0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */,
@@ -1274,7 +1274,7 @@
 				0B04E9911093BB4200E201EE /* Preferences.xib in Resources */,
 				0B04E9921093BB4200E201EE /* RotationPanel.xib in Resources */,
 				0B04E9931093BB4200E201EE /* ToolPalette.xib in Resources */,
-				0B04E9941093BB4200E201EE /* ViewportArrangerAccessories.xib in Resources */,
+				0B4BFB4B10D46C2E0002D482 /* DragAndDrop.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1575,14 +1575,6 @@
 				0B04E9781093BB4200E201EE /* English */,
 			);
 			name = ToolPalette.xib;
-			sourceTree = "<group>";
-		};
-		0B04E9791093BB4200E201EE /* ViewportArrangerAccessories.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0B04E97A1093BB4200E201EE /* English */,
-			);
-			name = ViewportArrangerAccessories.xib;
 			sourceTree = "<group>";
 		};
 		0B34306508B2E93D00A06A40 /* Localizable.strings */ = {

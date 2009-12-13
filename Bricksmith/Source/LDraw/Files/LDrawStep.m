@@ -84,37 +84,48 @@
 	Class       CommandClass        = Nil;
 	id          newDirective        = nil;
 	NSUInteger  counter             = 0;
-	NSUInteger  lastLineIndex       = [lines count] - 1; // index of last subdirective line.
-	NSString    *lastLine           = [lines objectAtIndex:lastLineIndex];
+	NSUInteger	subdirectiveCount	= [lines count];
+	NSString    *lastLine           = nil;
 	
-	if([lastLine hasPrefix:LDRAW_STEP])
+	if(subdirectiveCount > 0)
 	{
-		lastLineIndex -= 1;
-	}
-	else if([lastLine hasPrefix:LDRAW_ROTATION_STEP])
-	{
-		// Parse the rotation step.
-		if( [newStep parseRotationStepFromLine:lastLine] == YES)
-			lastLineIndex -= 1;
-	}
-	
-	//Convert each line into a directive, and add it to this step.
-	for(counter = 0; counter <= lastLineIndex; counter++)
-	{
-		currentLine = [lines objectAtIndex:counter];
-		if([currentLine length] > 0)
-		{
-			commandCodeString = [LDrawUtilities readNextField:currentLine remainder:NULL];
-			//We may need to check for nil here someday.
-			commandCode = [commandCodeString integerValue];
+		lastLine    = [lines lastObject];
 		
-			CommandClass = [LDrawUtilities classForLineType:commandCode];
+		// See if the last line is a step delimiter. If the delimiter doesn't 
+		// exist, it's implied (such as in a 1-step model). Otherwise, it's 
+		// always at the end -- but it is part of the step, not a subdirective, 
+		// so we'll parse it separately. 
+		if([lastLine hasPrefix:LDRAW_STEP])
+		{
+			// Nothing to parse. Just ignore it.
+			subdirectiveCount -= 1;
+		}
+		else if([lastLine hasPrefix:LDRAW_ROTATION_STEP])
+		{
+			// Parse the rotation step.
+			if( [newStep parseRotationStepFromLine:lastLine] == YES)
+				subdirectiveCount -= 1;
+		}
+		
+		// Convert each non-step-delimiter line into a directive, and add it to 
+		// this step. 
+		for(counter = 0; counter < subdirectiveCount; counter++)
+		{
+			currentLine = [lines objectAtIndex:counter];
+			if([currentLine length] > 0)
+			{
+				commandCodeString = [LDrawUtilities readNextField:currentLine remainder:NULL];
+				//We may need to check for nil here someday.
+				commandCode = [commandCodeString integerValue];
 			
-			newDirective = [CommandClass directiveWithString:currentLine];
-			if(newDirective != nil)
-				[newStep addDirective:newDirective];
-		}//end has line data check
-	}//end for
+				CommandClass = [LDrawUtilities classForLineType:commandCode];
+				
+				newDirective = [CommandClass directiveWithString:currentLine];
+				if(newDirective != nil)
+					[newStep addDirective:newDirective];
+			}//end has line data check
+		}
+	}
 	
 	return [newStep autorelease];
 	

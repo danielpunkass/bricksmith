@@ -71,6 +71,7 @@
 		0B491DA407F5555B00AC0C10 /* MatrixMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B491DA207F5555B00AC0C10 /* MatrixMath.h */; };
 		0B491DA507F5555B00AC0C10 /* MatrixMath.c in Sources */ = {isa = PBXBuildFile; fileRef = 0B491DA307F5555B00AC0C10 /* MatrixMath.c */; };
 		0B491FF707F64B5800AC0C10 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B491FF607F64B5800AC0C10 /* OpenGL.framework */; };
+		0B4BFB4B10D46C2E0002D482 /* DragAndDrop.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B4BFB4A10D46C2E0002D482 /* DragAndDrop.tiff */; };
 		0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */; };
 		0B4F5E110F31632C00355631 /* PartLibraryController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B4F5E0F0F31632C00355631 /* PartLibraryController.h */; };
 		0B4F5E120F31632C00355631 /* PartLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4F5E100F31632C00355631 /* PartLibraryController.m */; };
@@ -353,6 +354,7 @@
 		0B491DA207F5555B00AC0C10 /* MatrixMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixMath.h; sourceTree = "<group>"; };
 		0B491DA307F5555B00AC0C10 /* MatrixMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MatrixMath.c; sourceTree = "<group>"; };
 		0B491FF607F64B5800AC0C10 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		0B4BFB4A10D46C2E0002D482 /* DragAndDrop.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = DragAndDrop.tiff; sourceTree = "<group>"; };
 		0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ColorDroplet.tiff; sourceTree = "<group>"; };
 		0B4F5E0F0F31632C00355631 /* PartLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartLibraryController.h; sourceTree = "<group>"; };
 		0B4F5E100F31632C00355631 /* PartLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartLibraryController.m; sourceTree = "<group>"; };
@@ -676,6 +678,7 @@
 		0B6F427107CDAE8C007B1075 /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
+				0B4BFB4A10D46C2E0002D482 /* DragAndDrop.tiff */,
 				0B9FE5BC08AD977F0046511D /* OneBrick.tiff */,
 				0B06F61F0F5BB425004E7DD7 /* FavoriteAdd.pdf */,
 				0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */,
@@ -1263,6 +1266,7 @@
 				0B04E9911093BB4200E201EE /* Preferences.xib in Resources */,
 				0B04E9921093BB4200E201EE /* RotationPanel.xib in Resources */,
 				0B04E9931093BB4200E201EE /* ToolPalette.xib in Resources */,
+				0B4BFB4B10D46C2E0002D482 /* DragAndDrop.tiff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

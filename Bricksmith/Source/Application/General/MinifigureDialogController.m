@@ -62,8 +62,6 @@
 	
 	[dialog runModal];
 	
-	[dialog release];
-	
 }//end doMinifigureGenerator
 
 
@@ -264,7 +262,7 @@
 //==============================================================================
 - (IBAction) generateMinifigure:(id)sender
 {
-	LDrawMPDModel	*newMinifigure	= [LDrawMPDModel model];
+	LDrawMPDModel	*newMinifigure	= [LDrawMPDModel newModel];
 	LDrawStep		*firstStep		= [[newMinifigure steps] objectAtIndex:0];
 	
 	[newMinifigure setModelDisplayName:self->minifigureName];

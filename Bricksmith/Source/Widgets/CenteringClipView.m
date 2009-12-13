@@ -31,8 +31,6 @@
 //==============================================================================
 #import "CenteringClipView.h"
 
-#import <math.h>
-
 
 @implementation CenteringClipView
 
@@ -54,11 +52,7 @@
 	if(NSHeight(docRect) < NSHeight(clipRect))
 		clipRect.origin.y = docRect.origin.y - (NSHeight(clipRect) - NSHeight(docRect))/2;
 	
-	// Align to pixel boundaries. But don't use NSIntegralRect, because it will 
-	// alter the width/height. 
-//	NSIntegralRect(clipRect);
-	clipRect.origin.x = floor(clipRect.origin.x);
-	clipRect.origin.y = floor(clipRect.origin.y);
+	NSIntegralRect(clipRect);
 	
 	[self scrollToPoint:clipRect.origin];
 	

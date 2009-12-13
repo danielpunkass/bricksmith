@@ -30,7 +30,7 @@
 }
 
 // Initialization
-+ (LDrawFile *) file;
++ (LDrawFile *) newFile;
 + (LDrawFile *) fileFromContentsAtPath:(NSString *)path;
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents;
 + (NSArray *) parseModelsFromLines:(NSArray *) linesFromFile;

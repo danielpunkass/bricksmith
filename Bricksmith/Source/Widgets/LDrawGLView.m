@@ -35,7 +35,6 @@
 #import <GLUT/glut.h>
 #import <OpenGL/glu.h>
 
-#import "FocusRingView.h"
 #import "LDrawApplication.h"
 #import "LDrawColor.h"
 #import "LDrawDirective.h"
@@ -46,10 +45,8 @@
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
-#import "OverlayViewCategory.h"
 #import "ScrollViewCategory.h"
 #import "UserDefaultsCategory.h"
-
 
 @implementation LDrawGLView
 
@@ -140,24 +137,12 @@
 //==============================================================================
 - (void) internalInit
 {
-	NSOpenGLContext         *context            = nil;
-	NSOpenGLPixelFormat     *pixelFormat        = [LDrawApplication openGLPixelFormat];
-	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
-	
-	
-	//---------- Load UI -------------------------------------------------------
+	NSOpenGLContext     *context        = nil;
+	NSOpenGLPixelFormat *pixelFormat    = [LDrawApplication openGLPixelFormat];
+	GLint               swapInterval    = 1;
 	
 	// Yes, we have a nib file. Don't laugh. This view has accessories.
 	[NSBundle loadNibNamed:@"LDrawGLViewAccessories" owner:self];
-	
-	self->focusRingView = [[[FocusRingView alloc] initWithFrame:[self bounds]] autorelease];
-	[focusRingView setAutoresizingMask:(NSViewWidthSizable | NSViewHeightSizable)];
-	[focusRingView setFocusSource:self];
-	
-	[self addOverlayView:focusRingView];
-	
-	
-	//---------- Initialize instance variables ---------------------------------
 	
 	[self setAcceptsFirstResponder:YES];
 	[self setLDrawColor:LDrawCurrentColor];
@@ -170,7 +155,7 @@
 	projectionMode			= ProjectionModePerspective;
 	rotationDrawMode		= LDrawGLDrawNormal;
 	
-	// Set up our OpenGL context. We need to base it on a shared context so that 
+	//Set up our OpenGL context. We need to base it on a shared context so that 
 	// display-list names can be shared globally throughout the application.
 	context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat
 										 shareContext:[LDrawApplication sharedOpenGLContext]];
@@ -179,22 +164,12 @@
 	[[self openGLContext] makeCurrentContext];
 	
 	[self setPixelFormat:pixelFormat];
-	
-	// Prevent "tearing"
-	GLint   swapInterval    = 1;
-	[[self openGLContext] setValues: &swapInterval
+	[[self openGLContext] setValues: &swapInterval // prevent "tearing"
 					   forParameter: NSOpenGLCPSwapInterval ];
-	
-	// GL surface should be under window to allow Cocoa overtop.
-	// Huge FPS hit--over 40%! Don't do it!
-//	GLint   surfaceOrder    = -1;
-//	[[self openGLContext] setValues: &surfaceOrder
-//					   forParameter: NSOpenGLCPSurfaceOrder ];
 			
 	[self setViewOrientation:ViewOrientation3D];
 	
-	
-	//---------- Register notifications ----------------------------------------
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 	
 	[notificationCenter addObserver:self
 						   selector:@selector(mouseToolDidChange:)
@@ -438,6 +413,9 @@
 			// DRAW!
 			[self->fileBeingDrawn draw:options parentColor:glColor];
 			
+			if([[self window] firstResponder] == self)
+				[self drawFocusRing];
+				
 			//glFlush(); //implicit in -flushBuffer
 			[[self openGLContext] flushBuffer];
 		
@@ -453,11 +431,8 @@
 					rotationDrawMode = LDrawGLDrawNormal;
 			}
 
-			// Timing info
-			framesSinceStartTime++;
 		#if DEBUG_DRAWING
-			CGFloat framesPerSecond = framesSinceStartTime / ([NSDate timeIntervalSinceReferenceDate] - fpsStartTime);
-			NSLog(@"fps = %f, draw time: %f", framesPerSecond, drawTime);
+			NSLog(@"draw time: %f", drawTime);
 		#endif //DEBUG_DRAWING
 			
 		}
@@ -478,9 +453,6 @@
 //
 // Purpose:		Draws a focus ring around the view, which indicates that this 
 //				view is the first responder.
-//
-// Notes:		This is obsolete; the focus ring can (and is) now drawn in 
-//				Cocoa. 
 //
 //==============================================================================
 - (void) drawFocusRing
@@ -570,6 +542,13 @@
 }//end strokeInsideRect:thickness:
 
 
+//========== isOpaque ==========================================================
+//==============================================================================
+//- (BOOL) isOpaque
+//{
+//	return NO;
+//}
+
 //========== isFlipped =========================================================
 //
 // Purpose:		This lets us appear in the upper-left of scroll views rather 
@@ -582,18 +561,6 @@
 	return YES;
 	
 }//end isFlipped
-
-
-//========== isOpaque ==========================================================
-//
-// Note:		Our content completely covers this view. (This is just here as a 
-//				reminder; NSOpenGLViews are opaque by default.) 
-//
-//==============================================================================
-- (BOOL) isOpaque
-{
-	return YES;
-}
 
 
 #pragma mark -
@@ -1160,22 +1127,11 @@
 	
 	if(scrollView != nil)
 	{
-		NSRect      frame           = [self frame];
-		NSClipView  *clipView       = [scrollView contentView];
-		NSRect      clipFrame       = [clipView frame];
-		NSRect      clipBounds      = [clipView bounds];
-		NSPoint     originalCenter  = [self centerPoint];
-		NSPoint     newCenter       = NSZeroPoint;
-		NSPoint     centerFraction  = NSZeroPoint;
-		CGFloat     scaleFactor     = 0;
-		
-		// We want to maintain the visual center as we zoom. However, if the 
-		// view is set to expand to its entire viewport, the frame may change 
-		// size after zooming. That means we can't use the scroll center 
-		// directly, but must instead calculate the proportion of the view it 
-		// represents. 
-		centerFraction.x = originalCenter.x / NSWidth(frame);
-		centerFraction.y = originalCenter.y / NSHeight(frame);
+		NSClipView	*clipView		= [scrollView contentView];
+		NSRect		 clipFrame		= [clipView frame];
+		NSRect		 clipBounds		= [clipView bounds];
+		NSPoint		 originalCenter	= [self centerPoint];
+		CGFloat		scaleFactor		= 0;
 		
 		// Don't go below a certain zoom
 		if(newPercentage >= 1)
@@ -1190,14 +1146,11 @@
 			//		 causes bad things to happen when called on a collapsed 
 			//		 split view. 
 			[clipView setBoundsSize:clipBounds.size];
-			[self resetFrameSize];
 			
-			// Restore the original scroll center using proportions, because the 
-			// size of the frame may have changed. 
-			frame       = [self frame];
-			newCenter.x = centerFraction.x * NSWidth(frame);
-			newCenter.y = centerFraction.y * NSHeight(frame);
-			[self scrollCenterToPoint:newCenter];
+			//Preserve the original view centerpoint. Note that the visible 
+			// area has changed because we changed our zoom level.
+			[self scrollCenterToPoint:originalCenter];
+			[self resetFrameSize]; //ensures the canvas fills the whole scroll view
 		}
 	}
 
@@ -1372,7 +1325,7 @@
 			[self->delegate LDrawGLViewBecameFirstResponder:self];
 		
 		//need to draw the focus ring now
-		[self->focusRingView setNeedsDisplay:YES];
+		[self setNeedsDisplay:YES];
 	}
 	
 	return success;
@@ -1384,14 +1337,14 @@
 // Purpose:		We are losing key status.
 //
 //==============================================================================
-- (BOOL) resignFirstResponder
+- (BOOL)resignFirstResponder
 {
 	BOOL success = [super resignFirstResponder];
 	
 	if(success == YES)
 	{
 		//need to lose the focus ring
-		[self->focusRingView setNeedsDisplay:YES];
+		[self setNeedsDisplay:YES];
 	}
 	
 	return success;
@@ -1744,10 +1697,6 @@
 	
 	[self resetCursor];
 	
-	// This might be the start of a new drag; start collecting frames per second
-	fpsStartTime = [NSDate timeIntervalSinceReferenceDate];
-	framesSinceStartTime = 0;
-
 	if(toolMode == SmoothZoomTool)
 	{
 		[self mouseCenterClick:theEvent];
@@ -2978,66 +2927,22 @@
 }//end mouseToolDidChange
 
 
-
-//========== scrollViewFrameDidChange: =========================================
-//
-// Purpose:		This view supposed to fill its entire scrollview even when 
-//				zoomed out, to maintain the illusion of being a viewport into 
-//				limitless space. However, we get no -reshape message when the 
-//				scrollview expands to a size larger than our frame. So we have 
-//				to snoop on the scroll view instead.
-//
-//==============================================================================
-- (void) scrollViewFrameDidChange:(NSNotification *)notification
-{
-	[self resetFrameSize];
-	
-}//end scrollViewFrameDidChange:
-
-
-//========== renewGState =======================================================
-//
-// Purpose:		NSOpenGLViews' content is drawn directly by a hardware surface 
-//				that, when being moved, is moved before the surrounding regular 
-//				window content gets drawn and flushed. This causes an annoying 
-//				flicker, especially with NSSplitViews. Overriding this method 
-//				gives us a chance to compensate for this problem. 
-//
-//==============================================================================
-- (void) renewGState
-{
-    NSWindow *window = [self window];
-	
-	// Disabling screen updates should allow the redrawing of the surrounding 
-	// window to catch up with the new position of the OpenGL hardware surface. 
-	//
-	// Note: In Apple's "GLChildWindow" sample code, Apple put this in 
-	//		 -splitViewWillResizeSubviews:. But that doesn't actually solve the 
-	//		 problem. Putting it here *does*. 
-	//
-	[window disableScreenUpdatesUntilFlush];
-	
-    [super renewGState];
-	
-}//end renewGState
-
-
 //========== reshape ===========================================================
 //
 // Purpose:		Something changed in the viewing department; we need to adjust 
 //				our projection and viewing area.
 //
 //==============================================================================
-- (void) reshape
+- (void)reshape
 {
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
 		[[self openGLContext] makeCurrentContext];
-		
+
 		NSRect	visibleRect	= [self visibleRect];
 		CGFloat	scaleFactor	= [self zoomPercentage] / 100;
 		
-//		NSLog(@"GL view(%p) reshaping; frame %@", self, NSStringFromRect([self frame]));
+	//	NSLog(@"GL view(0x%X) reshaping; frame %@", self, NSStringFromRect(frame));
 		
 		//Make a new view based on the current viewable area
 		[self makeProjection];
@@ -3069,36 +2974,6 @@
 }//end update
 
 
-//========== viewDidMoveToSuperview ============================================
-//
-// Purpose:		Moving to a new superview. We can use this message to catch when 
-//				we are being enclosed in a scroll view, so we can watch when the 
-//				scrollview frame changes and we need to resize to artificially 
-//				fill it. 
-//
-//==============================================================================
-- (void) viewDidMoveToSuperview
-{
-	NSScrollView            *scrollView         = [self enclosingScrollView];
-	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
-	
-	if(scrollView != nil)
-	{
-		[notificationCenter addObserver:self
-							   selector:@selector(scrollViewFrameDidChange:)
-								   name:NSViewFrameDidChangeNotification
-								 object:scrollView];
-	}
-	else
-	{
-		[notificationCenter removeObserver:self
-									  name:NSViewFrameDidChangeNotification
-									object:nil];
-	}
-
-}//end viewDidMoveToSuperview
-
-
 //========== viewDidMoveToWindow ===============================================
 //
 // Purpose:		The view is either being added to a window (on creation) or 
@@ -3122,12 +2997,11 @@
 	// (otherwise, we're probably being deallocated).
 	if([self window] != nil)
 	{
-		// Multithreading didn't work out too hot; it was incompatible with nested display lists.
-//		[self->canDrawLock lockWhenCondition:NO]; // wait for other thread to finish
-//		self->keepDrawThreadAlive = YES;
-//		[self->canDrawLock unlockWithCondition:NO];
-//		[NSThread detachNewThreadSelector:@selector(threadDrawLoop:) toTarget:self withObject:nil];
-//		hasThread = YES;
+		[self->canDrawLock lockWhenCondition:NO]; // wait for other thread to finish
+		self->keepDrawThreadAlive = YES;
+		[self->canDrawLock unlockWithCondition:NO];
+		[NSThread detachNewThreadSelector:@selector(threadDrawLoop:) toTarget:self withObject:nil];
+		hasThread = YES;
 	}
 	
 }//end viewDidMoveToWindow
@@ -3401,103 +3275,77 @@
 			// Determine whether the canvas size needs to change.
 			Point3	origin			= {0,0,0};
 			NSPoint	centerPoint		= [self centerPoint];
-			Box3	newBounds		= InvalidBox;
+			Box3	newBounds		= [(id)fileBeingDrawn boundingBox3]; //cast to silence warning.
 			
-			if([self->fileBeingDrawn respondsToSelector:@selector(boundingBox3)])
+			if(V3EqualBoxes(newBounds, InvalidBox) == NO)
 			{
-				newBounds = [(id)fileBeingDrawn boundingBox3]; //cast to silence warning.
-			}
+				//
+				// Find bounds size, based on model dimensions.
+				//
+				
+				float	distance1		= V3DistanceBetween2Points(origin, newBounds.min );
+				float	distance2		= V3DistanceBetween2Points(origin, newBounds.max );
+				float	newSize			= MAX(distance1, distance2) + 40; //40 is just to provide a margin.
+				NSSize	contentSize		= [[self enclosingScrollView] contentSize];
+				GLfloat	currentMatrix[16];
+				
+				contentSize = [self convertSize:contentSize fromView:[self enclosingScrollView]];
+				
+				// The canvas resizing is set to a fairly large granularity so 
+				// it doesn't constantly change on people. 
+				newSize = ceil(newSize / 384) * 384;
+				
+				//
+				// Reposition the Camera
+				//
+				
+				[[self openGLContext] makeCurrentContext];
+				
+				// As the size of the model changes, we must move the camera in 
+				// and out so as to view the entire model in the right 
+				// perspective. Moving the camera is equivalent to translating 
+				// the modelview matrix. (That's what gluLookAt does.) 
+				// Note:	glTranslatef() doesn't work here. If M is the current matrix, 
+				//			and T is the translation, it performs M = M x T. But we need 
+				//			M = T x M, because OpenGL uses transposed matrices.
+				//			Solution: set matrix manually. Is there a better one?
+				glMatrixMode(GL_MODELVIEW);
+				glGetFloatv(GL_MODELVIEW_MATRIX, currentMatrix);
 
-			if(V3EqualBoxes(newBounds, InvalidBox) == YES)
-			{
-				newBounds = V3BoundsFromPoints(V3Make(-1, -1, -1), V3Make(1, 1, 1));
-			}
-			
-			//
-			// Find bounds size, based on model dimensions.
-			//
-			
-			float	distance1		= V3DistanceBetween2Points(origin, newBounds.min );
-			float	distance2		= V3DistanceBetween2Points(origin, newBounds.max );
-			float	newSize			= MAX(distance1, distance2) + 40; //40 is just to provide a margin.
-			NSSize	contentSize		= [[self enclosingScrollView] contentSize];
-			GLfloat	currentMatrix[16];
-			
-			contentSize = [self convertSize:contentSize fromView:[self enclosingScrollView]];
-			
-			// The canvas resizing is set to a fairly large granularity so 
-			// it doesn't constantly change on people. 
-			newSize = ceil(newSize / 384) * 384;
-			
-			//
-			// Reposition the Camera
-			//
-			
-			[[self openGLContext] makeCurrentContext];
-			
-			// As the size of the model changes, we must move the camera in 
-			// and out so as to view the entire model in the right 
-			// perspective. Moving the camera is equivalent to translating 
-			// the modelview matrix. (That's what gluLookAt does.) 
-			// Note:	glTranslatef() doesn't work here. If M is the current matrix, 
-			//			and T is the translation, it performs M = M x T. But we need 
-			//			M = T x M, because OpenGL uses transposed matrices.
-			//			Solution: set matrix manually. Is there a better one?
-			glMatrixMode(GL_MODELVIEW);
-			glGetFloatv(GL_MODELVIEW_MATRIX, currentMatrix);
+				// As cameraDistance approaches infinity, the view approximates 
+				// an orthographic projection. We want a fairly large number 
+				// here to produce a small, only slightly-noticable perspective. 
+				self->cameraDistance = - (newSize) * CAMERA_DISTANCE_FACTOR;
+				currentMatrix[12] = 0; //reset the camera location. Positions 12-14 of 
+				currentMatrix[13] = 0; // the matrix hold the translation values.
+				currentMatrix[14] = cameraDistance;
+				glLoadMatrixf(currentMatrix); // It's easiest to set them directly.
 
-			// As cameraDistance approaches infinity, the view approximates 
-			// an orthographic projection. We want a fairly large number 
-			// here to produce a small, only slightly-noticable perspective. 
-			self->cameraDistance = - (newSize) * CAMERA_DISTANCE_FACTOR;
-			currentMatrix[12] = 0; //reset the camera location. Positions 12-14 of 
-			currentMatrix[13] = 0; // the matrix hold the translation values.
-			currentMatrix[14] = cameraDistance;
-			glLoadMatrixf(currentMatrix); // It's easiest to set them directly.
-
-			//
-			// Resize the Frame
-			//
-			
-			NSSize	oldFrameSize	= [self frame].size;
-			NSSize	newFrameSize	= NSZeroSize;
-			
-			self->snugFrameSize	= NSMakeSize( newSize*2, newSize*2 );
-			
-			if([[NSUserDefaults standardUserDefaults] boolForKey:VIEWPORTS_EXPAND_TO_AVAILABLE_SIZE] == YES)
-			{
-				// Make the frame either just a little bit bigger than the 
-				// size of the model, or the same as the scroll view, 
-				// whichever is larger. 
-				newFrameSize	= NSMakeSize( MAX(snugFrameSize.width,  contentSize.width),
-											  MAX(snugFrameSize.height, contentSize.height) );
-			}
-			else
-			{
-				newFrameSize	= snugFrameSize;
-			}
-
-			
-			// The canvas size changes will effectively be distributed equally 
-			// on all sides, because the model is always drawn in the center of 
-			// the canvas. So, our effective viewing center will only change by 
-			// half the size difference. 
-			centerPoint.x += (newFrameSize.width  - oldFrameSize.width)/2;
-			centerPoint.y += (newFrameSize.height - oldFrameSize.height)/2;
-			
-//			NSLog(@"frame %f %f; camera %f", newFrameSize.width, newFrameSize.height, cameraDistance);
-			[self setFrameSize:newFrameSize];
-			[self scrollCenterToPoint:centerPoint]; //must preserve this; otherwise, viewing is funky.
-			
-			// Make *sure* the projection matches the frame. Ordinarily, this 
-			// happens automatically in -reshape. But when the view is set to 
-			// fill its entire scroll view, the frame *may not actualy change*, 
-			// even though the camera distance DOES! If we didn't force the 
-			// projection to be remade here, the model would just vanish in that 
-			// case. 
-			[self makeProjection];
-			
-			//NSLog(@"minimum (%f, %f, %f); maximum (%f, %f, %f)", newBounds.min.x, newBounds.min.y, newBounds.min.z, newBounds.max.x, newBounds.max.y, newBounds.max.z);
+				//
+				// Resize the Frame
+				//
+				
+				NSSize	oldFrameSize	= [self frame].size;
+//				NSSize	newFrameSize	= NSMakeSize( newSize*2, newSize*2 );
+				//Make the frame either just a little bit bigger than the size 
+				// of the model, or the same as the scroll view, whichever is larger.
+//					NSSize	newFrameSize	= NSMakeSize( MAX(newSize*2, contentSize.width),
+//														  MAX(newSize*2, contentSize.height) );
+				NSSize	newFrameSize	= NSMakeSize( newSize*2, newSize*2 );
+				
+				//The canvas size changes will effectively be distributed equally on 
+				// all sides, because the model is always drawn in the center of the 
+				// canvas. So, our effective viewing center will only change by half 
+				// the size difference.
+				centerPoint.x += (newFrameSize.width  - oldFrameSize.width)/2;
+				centerPoint.y += (newFrameSize.height - oldFrameSize.height)/2;
+				
+				[self setFrameSize:newFrameSize];
+				[self scrollCenterToPoint:centerPoint]; //must preserve this; otherwise, viewing is funky.
+				
+				//NSLog(@"minimum (%f, %f, %f); maximum (%f, %f, %f)", newBounds.min.x, newBounds.min.y, newBounds.min.z, newBounds.max.x, newBounds.max.y, newBounds.max.z);
+				
+			}//end valid bounds check
 		}
 		CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	}
@@ -3686,9 +3534,6 @@
 					  glBackgroundColor[3] );
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
-	
-//	[[self enclosingScrollView] setDrawsBackground:YES];
-//	[[self enclosingScrollView] setBackgroundColor:rgbColor];
 
 	[self setNeedsDisplay:YES];
 	
@@ -3711,10 +3556,11 @@
 //==============================================================================
 - (float) fieldDepth
 {
+	NSRect	frame			= [self frame];
 	float	fieldDepth		= 0;
 	
 	// This is effectively equivalent to infinite field depth
-	fieldDepth = MAX(snugFrameSize.height, snugFrameSize.width);
+	fieldDepth = MAX(NSHeight(frame), NSWidth(frame));
 	fieldDepth *= 2;
 	
 	return fieldDepth;

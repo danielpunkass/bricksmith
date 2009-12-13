@@ -50,6 +50,22 @@
 //==============================================================================
 - (void) awakeFromNib
 {
+	SInt32 systemVersion	= 0;
+	
+	Gestalt(gestaltSystemVersion, &systemVersion);
+	
+	// We don't support hiding the file contents via a menu item on Tiger. The 
+	// reason it is now nested inside a split view, and the API for 
+	// programmatically collapsing a Split View did not appear until Leopard. I 
+	// seriously do not feel like coming up with a Tiger solution to that mess. 
+	if(systemVersion < 0x1050)
+	{
+		NSMenu      *mainMenu           = [NSApp mainMenu];
+		NSMenu      *toolsMenu          = [[mainMenu itemWithTag:toolsMenuTag] submenu];
+		NSInteger   fileContentsIndex   = [toolsMenu indexOfItemWithTag:fileContentsMenuTag];
+		
+		[toolsMenu removeItemAtIndex:fileContentsIndex];
+	}
 	
 }//end awakeFromNib
 
@@ -66,9 +82,7 @@
 + (NSOpenGLPixelFormat *) openGLPixelFormat
 {
 	NSOpenGLPixelFormat				*pixelFormat		= nil;
-	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= {
-															NSOpenGLPFANoRecovery, // Enable automatic use of OpenGL "share" contexts for Core Animation.
-															NSOpenGLPFADoubleBuffer,
+	NSOpenGLPixelFormatAttribute	pixelAttributes[]	= { NSOpenGLPFADoubleBuffer,
 															NSOpenGLPFADepthSize,		32,
 															NSOpenGLPFASampleBuffers,	1, // enable line antialiasing
 															NSOpenGLPFASamples,			3, // antialiasing beauty
@@ -459,8 +473,6 @@
 	{
 		[donation runModal];
 	}
-	
-	[donation release];
 	
 	return NSTerminateNow;
 	

@@ -31,7 +31,7 @@
 {
 	// Use the Leopard implementation if we can.
 	if([NSSplitView instancesRespondToSelector:@selector(autosaveName)])
-	   return [super autosaveName];
+	   return [(id)super autosaveName];
 	else
 	   return self->autosaveName;
 	   
@@ -51,7 +51,7 @@
 {
 	// Use the Leopard implementation if we can.
 	if([NSSplitView instancesRespondToSelector:@selector(setAutosaveName:)])
-	   [super setAutosaveName:newName];
+	   [(id)super setAutosaveName:newName];
 	else
 	{
 		[newName retain];
@@ -102,7 +102,7 @@
 		NSView          *currentSubview = nil;
 		NSRect          currentRect     = NSZeroRect;
 		NSString        *rectString     = nil;
-		NSMutableArray  *frameSizes     = nil;
+		NSMutableArray  *frameSizes     = [NSMutableArray array];
 		NSInteger       counter         = 0;
 		
 		if(self->autosaveName != nil)

@@ -265,7 +265,7 @@
 //==============================================================================
 - (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
 {
-	LDrawModel  *modelToDraw    = nil;
+	LDrawModel  *modelToDraw    = [[LDrawApplication sharedPartLibrary] modelForPart:self];
 	BOOL        drawBoundsOnly  = ((optionsMask & DRAW_BOUNDS_ONLY) != 0);
 	
 	if( hasDisplayList == YES && drawBoundsOnly == NO)

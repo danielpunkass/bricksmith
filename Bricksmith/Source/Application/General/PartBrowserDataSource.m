@@ -45,7 +45,7 @@
 	NSUserDefaults  *userDefaults       = [NSUserDefaults standardUserDefaults];
 	NSString        *startingCategory   = [userDefaults stringForKey:PART_BROWSER_PREVIOUS_CATEGORY];
 	NSInteger       startingRow         = [userDefaults integerForKey:PART_BROWSER_PREVIOUS_SELECTED_ROW];
-	NSMenu          *searchMenuTemplate = nil;
+	NSMenu          *searchMenuTemplate = [[NSMenu alloc] initWithTitle:@"Search template"];
 	NSMenuItem      *recentsItem        = nil;
 	NSMenuItem      *noRecentsItem      = nil;
 	
@@ -76,20 +76,17 @@
 		[self->insertButton setTarget:self];
 		[self->insertButton setAction:@selector(addPartClicked:)];
 		
-		// Configure the search field's menu
-		searchMenuTemplate = [[NSMenu alloc] initWithTitle:@"Search template"];
-		
+		//Configure the search field's menu
 		noRecentsItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"NoRecentSearches", nil)
 												   action:NULL
 											keyEquivalent:@"" ];
 		[noRecentsItem setTag:NSSearchFieldNoRecentsMenuItemTag];
+		[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
 		
 		recentsItem = [[NSMenuItem alloc] initWithTitle:@"recent items placeholder"
 												 action:NULL
 										  keyEquivalent:@"" ];
 		[recentsItem setTag:NSSearchFieldRecentsMenuItemTag];
-		
-		[searchMenuTemplate insertItem:noRecentsItem atIndex:0];
 		[searchMenuTemplate insertItem:recentsItem atIndex:1];
 		
 		[[self->searchField cell] setSearchMenuTemplate:searchMenuTemplate];
@@ -728,7 +725,7 @@
 	NSString        *partNumber             = nil;
 	NSString        *partDescription        = nil;
 	NSString        *partSansWhitespace     = nil;
-	NSMutableArray  *matchingParts          = nil;
+	NSMutableArray  *matchingParts          = [NSMutableArray array];
 	NSString        *searchSansWhitespace   = [searchString stringByRemovingWhitespace];
 	
 	if([searchString length] == 0)
@@ -800,9 +797,18 @@
 		[self->addRemoveFavoriteButton	setImage:[NSImage imageNamed:@"FavoriteAdd"]];
 	}
 	
-	// Hide inapplicable menu items.
-	[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setHidden:(partIsInFavorites == YES)];
-	[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setHidden:(partIsInFavorites == NO)];
+	// Leopard only: hide inapplicable menu items.
+	if([NSMenuItem instancesRespondToSelector:@selector(setHidden:)] == YES)
+	{
+		[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setHidden:(partIsInFavorites == YES)];
+		[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setHidden:(partIsInFavorites == NO)];
+	}
+	else
+	{
+		// On Tiger, it's too much work to "hide" items. So just disable them.
+		[[self->contextualMenu itemWithTag:partBrowserAddFavoriteTag]		setEnabled:(partIsInFavorites == NO)];
+		[[self->contextualMenu itemWithTag:partBrowserRemoveFavoriteTag]	setEnabled:(partIsInFavorites == YES)];
+	}
 	
 }//end setConstraints
 
@@ -835,7 +841,7 @@
 {
 	NSMutableArray	*archivedParts		= [NSMutableArray array];
 	NSString		*partName			= [self selectedPartName];
-	LDrawPart		*newPart			= nil;
+	LDrawPart		*newPart			= [[[LDrawPart alloc] init] autorelease];
 	NSData			*partData			= nil;
 	LDrawColorT		 selectedColor		= [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	BOOL			 success			= NO;

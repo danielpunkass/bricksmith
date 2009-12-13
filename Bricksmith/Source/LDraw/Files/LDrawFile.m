@@ -34,17 +34,17 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- file ----------------------------------------------------[static]--
+//---------- newFile -------------------------------------------------[static]--
 //
 // Purpose:		Creates a new LDraw document ready for editing. It should 
 //				include one submodel with one step inside it.
 //
 //------------------------------------------------------------------------------
-+ (LDrawFile *) file
++ (LDrawFile *) newFile
 {
 	return [[[LDrawFile alloc] initNew] autorelease];
 	
-}//end file
+}//end newFile
 
 
 //---------- fileFromContentsAtPath: ---------------------------------[static]--
@@ -177,7 +177,7 @@
 	[self init];
 	
 	//Fill it with one empty model.
-	LDrawMPDModel *firstModel = [LDrawMPDModel model];
+	LDrawMPDModel *firstModel = [LDrawMPDModel newModel];
 	[self addSubmodel:firstModel];
 	
 	[self setActiveModel:firstModel];

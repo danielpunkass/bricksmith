@@ -74,7 +74,7 @@
     self = [super init];
     if (self)
 	{
-		[self setDocumentContents:[LDrawFile file]];
+		[self setDocumentContents:[LDrawFile newFile]];
         insertionMode = insertAtEnd;
 		[self setGridSpacingMode:gridModeMedium];
 		
@@ -219,7 +219,52 @@
 	//---------- Cleanup for legacy systems ------------------------------------
 	// Ewww!
 	
-	// (none currently necessary!)
+	SInt32			systemVersion	= 0;
+	
+	Gestalt(gestaltSystemVersion, &systemVersion);
+	
+	if(systemVersion < 0x1050)
+	{
+		// Scope-bar-style Round Rect appearance does not draw correctly on Tiger.
+		[self->submodelPopUpMenu setBordered:NO];
+		
+		// Tiger segmented controls don't support styles, so it will 
+		// automatically appear in the push-button style. That makes it too 
+		// tall, so we use the small control size in this case. 
+		[[self->stepNavigator cell] setControlSize:NSSmallControlSize];
+	}
+
+	// Tiger does not have the system-provided template images we use on 
+	// Leopard. Fall back on some internal images. 
+	if([self->stepNavigator imageForSegment:0] == nil || [[[self->stepNavigator imageForSegment:0] representations] count] == 0)
+	{
+		[self->stepNavigator setImage:[NSImage imageNamed:@"GoBack"] forSegment:0];
+		[self->stepNavigator setLabel:nil forSegment:0]; // Tiger won't draw images in center unless label is nil.
+	}
+	if([self->stepNavigator imageForSegment:1] == nil || [[[self->stepNavigator imageForSegment:1] representations] count] == 0)
+	{
+		[self->stepNavigator setImage:[NSImage imageNamed:@"GoForward"] forSegment:1];
+		[self->stepNavigator setLabel:nil forSegment:1];
+	}
+
+	// I'm using a thin divider on Leopard, but that isn't available on Tiger. 
+	// The result on Tiger is a view which is too wide, so I shrink it here. 
+	// Notes: The split view subview defies all attempts to shink it correctly; 
+	//		  that's why I'm manually shrinking the subview's subviews. 
+//	NSRect newFrame = [self->viewportArranger frame];
+//	newFrame.size.width =		NSWidth([[window contentView] frame])
+//							-	NSWidth([[[fileContentsSplitView subviews] objectAtIndex:0] frame])
+//							-	[fileContentsSplitView dividerThickness];
+//	[self->viewportArranger setFrame:newFrame];
+//	[self->viewportArranger adjustSubviews];
+//	
+//	[[[fileContentsSplitView subviews] objectAtIndex:1] setFrame:newFrame];
+//	[fileContentsSplitView		adjustSubviews];
+//
+//	NSView  *scopeBar   = [self->scopeStepControlsContainer superview];
+//	NSRect  scopeFrame  = [scopeBar frame];
+//	scopeFrame.size.width = NSWidth(newFrame);
+//	[scopeBar setFrame:scopeFrame];
 
 }//end windowControllerDidLoadNib:
 
@@ -238,8 +283,9 @@
 			  ofType:(NSString *)typeName
 			   error:(NSError **)outError
 {
-	AMSProgressPanel	*progressPanel	= [AMSProgressPanel progressPanel];
-	NSString			*openMessage	= nil;
+	AMSProgressPanel    *progressPanel  = [AMSProgressPanel progressPanel];
+	NSString            *openMessage    = nil;
+	BOOL                success         = NO;
 	
 	openMessage = [NSString stringWithFormat:	NSLocalizedString(@"OpeningFileX", nil), 
 		[self displayName] ];
@@ -250,23 +296,26 @@
 	[progressPanel showProgressPanel];
 
 	//do the actual loading.
-	[super readFromURL:absoluteURL ofType:typeName error:outError];
-	
-	// Track the path. I'm not sure what a non-file URL means, and I'm basically 
-	// hoping we never encounter one. 
-	if([absoluteURL isFileURL] == YES)
-		[[self documentContents] setPath:[absoluteURL path]];
-	else
-		[[self documentContents] setPath:nil];
+	success = [super readFromURL:absoluteURL ofType:typeName error:outError];
 	
 	[progressPanel close];
 	
-	//Postflight: find missing and moved parts.
-	[self doMissingPiecesCheck:self];
-	[self doMovedPiecesCheck:self];
-	[self doMissingModelnameExtensionCheck:self];
+	if(success == YES)
+	{
+		// Track the path. I'm not sure what a non-file URL means, and I'm basically 
+		// hoping we never encounter one. 
+		if([absoluteURL isFileURL] == YES)
+			[[self documentContents] setPath:[absoluteURL path]];
+		else
+			[[self documentContents] setPath:nil];
+
+		//Postflight: find missing and moved parts.
+		[self doMissingPiecesCheck:self];
+		[self doMovedPiecesCheck:self];
+		[self doMissingModelnameExtensionCheck:self];
+	}
 	
-	return YES;
+	return success;
 	
 }//end readFromFile:ofType:
 
@@ -307,8 +356,9 @@
 			   ofType:(NSString *)typeName
 				error:(NSError **)outError
 {
-	NSString			*fileContents	= nil;
-	LDrawFile			*newFile		= nil;
+	NSString    *fileContents   = nil;
+	LDrawFile   *newFile        = nil;
+	BOOL        success         = NO;
 	
 	//LDraw files are plain text.
 	fileContents = [[NSString alloc] initWithData:data
@@ -327,15 +377,29 @@
 	CGLLockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	{
 		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
-	
-		newFile = [LDrawFile parseFromFileContents:fileContents];
-		[self setDocumentContents:newFile];
+		
+		@try
+		{
+			newFile = [LDrawFile parseFromFileContents:fileContents];
+			if(newFile != nil)
+			{
+				[self setDocumentContents:newFile];
+				success = YES;
+			}
+		}
+		@catch(NSException * e)
+		{
+			*outError = [NSError errorWithDomain:NSCocoaErrorDomain
+											code:NSFileReadCorruptFileError
+										userInfo:nil];
+		}
 	}
 	CGLUnlockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	
 	[fileContents release];
 	
-    return YES;
+    return success;
+	
 }//end loadDataRepresentation:ofType:
 
 
@@ -590,7 +654,23 @@
 }//end setLastSelectedPart:
 
 
-//========== toggleStepDisplay: ================================================
+//========== setMostRecentLDrawView: ===========================================
+//
+// Purpose:		Sets the 3D view with which we interacted the most recently. 
+//
+// Note:		This accessor method is mainly here to provide KVO compliance so 
+//				Cocoa will automatically generate the necessary change messages 
+//				for binding which observe the most recent view. 
+//
+//==============================================================================
+- (void) setMostRecentLDrawView:(LDrawGLView *)viewIn
+{
+	self->mostRecentLDrawView = viewIn;
+	
+}//end setMostRecentLDrawView:
+
+
+//========== setStepDisplay: ===================================================
 //
 // Purpose:		Turns step display (like Lego instructions) on or off for the 
 //				active model.
@@ -629,7 +709,7 @@
 	[self->scopeStepControlsContainer setHidden:(showStepsFlag == NO)];
 	[self->stepField setIntegerValue:[activeModel maximumStepIndexForStepDisplay] + 1];
 	
-}//end toggleStepDisplay:
+}//end setStepDisplay:
 
 
 #pragma mark -
@@ -1096,8 +1176,6 @@
 		[alert addButtonWithTitle:NSLocalizedString(@"OKButtonName", nil)];
 		
 		[alert runModal];
-		
-		[alert release];
 	}
 	
 }//end doMissingPiecesCheck:
@@ -1139,8 +1217,6 @@
 			//mark document as modified.
 			[self updateChangeCount:NSChangeDone];
 		}
-		
-		[alert release];
 	}
 	
 }//end doMovedPiecesCheck:
@@ -1274,6 +1350,7 @@
 	
 	if(returnCode == NSOKButton)
 	{
+		fileCopy	= [[self documentContents] copy];
 		saveName	= [savePanel filename];
 		
 		//If we got this far, we need to replace any prexisting file.
@@ -1564,20 +1641,24 @@
 	NSView	*firstSubview	= [[self->fileContentsSplitView subviews] objectAtIndex:0];
 	CGFloat	maxPosition		= 0.0;
 	
-	// We collapse or un-collapse the split view.
-	if([self->fileContentsSplitView isSubviewCollapsed:firstSubview])
+	// We collapse or un-collapse the split view. The API to do this does not 
+	// exist on Tiger. Grr... 
+	if([self->fileContentsSplitView respondsToSelector:@selector(setPosition:ofDividerAtIndex:)])
 	{
-		// Un-collapse the view
-		maxPosition = [[self->fileContentsSplitView delegate] splitView:self->fileContentsSplitView
-												 constrainMinCoordinate:0.0
-															ofSubviewAt:0];
-															
-		[self->fileContentsSplitView setPosition:maxPosition ofDividerAtIndex:0];
-	}
-	else
-	{
-		// Collapse the view
-		[self->fileContentsSplitView setPosition:0.0 ofDividerAtIndex:0];
+		if([self->fileContentsSplitView isSubviewCollapsed:firstSubview])
+		{
+			// Un-collapse the view
+			maxPosition = [[self->fileContentsSplitView delegate] splitView:self->fileContentsSplitView
+													 constrainMinCoordinate:0.0
+																ofSubviewAt:0];
+																
+			[self->fileContentsSplitView setPosition:maxPosition ofDividerAtIndex:0];
+		}
+		else
+		{
+			// Collapse the view
+			[self->fileContentsSplitView setPosition:0.0 ofDividerAtIndex:0];
+		}
 	}
 	
 }//end toggleFileContentsDrawer:
@@ -1863,7 +1944,7 @@
 //==============================================================================
 - (IBAction) addModelClicked:(id)sender
 {
-	LDrawMPDModel	*newModel		= [LDrawMPDModel model];
+	LDrawMPDModel	*newModel		= [LDrawMPDModel newModel];
 
 	[self addModel:newModel preventNameCollisions:YES];
 	[self setActiveModel:newModel];
@@ -2080,8 +2161,6 @@
 	result = [minifigDialog runModal];
 	if(result == NSOKButton)
 		[self addModel:[minifigDialog minifigure] preventNameCollisions:YES];
-	
-	[minifigDialog release];
 	
 }//end addMinifigure:
 
@@ -2877,12 +2956,8 @@
 //==============================================================================
 - (void) LDrawGLViewBecameFirstResponder:(LDrawGLView *)glView
 {
-	// We used bindings to sync up the ever-in-limbo zoom control. Since 
-	// mostRecentLDrawView is a private variable, we manually trigger the 
-	// key-value observing updates for it.
-	[self willChangeValueForKey:@"mostRecentLDrawView"];
-	self->mostRecentLDrawView = glView;
-	[self didChangeValueForKey:@"mostRecentLDrawView"];
+	// We used bindings to sync up the ever-in-limbo zoom control.
+	[self setMostRecentLDrawView:glView];
 
 }//end LDrawGLViewBecameFirstResponder:
 
@@ -3173,6 +3248,29 @@
 	[sender adjustSubviews];
 	
 }//end splitView:resizeSubviewsWithOldSize:
+
+
+//**** NSSplitView ****
+//========== splitViewWillResizeSubviews: ======================================
+//
+// Purpose:		A splitview is about to resize. Since we are displaying OpenGL 
+//				in our split-view, we have to do some special graphics flushing.
+//
+//==============================================================================
+- (void)splitViewWillResizeSubviews:(NSNotification *)notification
+{
+	//Quoting Apple's comments in its GLChildWindow sample code:
+	//
+	// Resizing the [OpenGL-bearing] split view causes some flicker.  So, as 
+	// soon as we know the resize is going to happen we use a Carbon call to 
+	// disable screen updates.
+	//
+	// Later when the parent window finally flushes we re-enable updates
+	// so that everything hits the screen at once.
+		
+//	[[self foremostWindow] disableScreenUpdatesUntilFlush];
+	
+}//end splitViewWillResizeSubviews:
 
 
 #pragma mark -
@@ -3783,7 +3881,6 @@
 	[newViewport setDocumentView:glView];
 	[newViewport centerDocumentView];
 	[newViewport setPreservesScrollCenterDuringLiveResize:YES];
-	[newViewport setStoresScrollCenterAsFraction:YES];
 
 	[self loadDataIntoDocumentUI];
 	
@@ -3810,6 +3907,39 @@
 
 
 }//end viewportArranger:didAddViewport:
+
+
+//========== viewportArranger:willRemoveViewports: =============================
+//
+// Purpose:		3D viewports are about to be removed (but they haven't been 
+//				quite yet). 
+//
+//==============================================================================
+- (void) viewportArranger:(ViewportArranger *)viewportArranger
+	  willRemoveViewports:(NSSet *)removingViewports;
+{
+	NSScrollView        *mostRecentViewport = [self->mostRecentLDrawView enclosingScrollView];
+	NSArray             *allViewports       = [self->viewportArranger allViewports];
+	ExtendedScrollView  *currentViewport    = nil;
+	
+	// If the current most-recent viewport is being removed, we need to make a 
+	// new viewport "most-recent." That's because we have bindings observers 
+	// watching the most recent view, and we'll crash if they're still observing 
+	// when the view deallocates. 
+	if([removingViewports containsObject:mostRecentViewport])
+	{
+		// Make the first viewport not being removed the most recent.
+		for(currentViewport in allViewports)
+		{
+			if([removingViewports containsObject:currentViewport] == NO)
+			{
+				[self setMostRecentLDrawView:[currentViewport documentView]];
+				break;
+			}
+		}
+	}
+	
+}//end viewportArranger:willRemoveViewports:
 
 
 //========== viewportArrangerDidRemoveViewports: ===============================
@@ -4037,7 +4167,7 @@
 {
 	LDrawContainer	*parentDirective	= [directive enclosingDirective];
 	BOOL			 isLastDirective	= ([[parentDirective subdirectives] count] <= 1);
-	NSAlert			*alert				= [[NSAlert alloc] init];
+	NSAlert			*alert				= [NSAlert new];
 	NSString		*message			= nil;
 	NSString		*informative		= nil;
 	BOOL			 canDelete			= YES;
@@ -4069,8 +4199,6 @@
 							contextInfo:NULL ];
 		
 	}
-	
-	[alert release];
 	
 	return canDelete;
 	

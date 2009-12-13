@@ -4,8 +4,8 @@
 //
 // Purpose:		Draws an LDrawFile with OpenGL.
 //
-// Modified:	4/17/05 Allen Smith. Creation Date.
-//
+//  Created by Allen Smith on 4/17/05.
+//  Copyright 2005. All rights reserved.
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/OpenGL.h>
@@ -16,7 +16,6 @@
 #import "ToolPalette.h"
 
 //Forward declarations
-@class FocusRingView;
 @class LDrawDirective;
 
 
@@ -55,8 +54,6 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawGLView : NSOpenGLView <LDrawColorable>
 {
-	FocusRingView			*focusRingView;
-	
 	IBOutlet id             delegate;
 	id                      target;
 	SEL                     backAction;
@@ -73,12 +70,11 @@ typedef enum
 	// Threading
 	NSConditionLock			*canDrawLock;			// when condition is YES, render thread will wake up and draw.
 	BOOL					keepDrawThreadAlive;	// when it has no items in it, the thread will die
-	NSUInteger              numberDrawRequests;		// how many threaded draws are piling up in the queue.
+	NSUInteger                numberDrawRequests;		// how many threaded draws are piling up in the queue.
 	BOOL					hasThread;
 	
 	// Drawing Environment
 	GLfloat                 cameraDistance;			// location of camera on the z-axis; distance from (0,0,0);
-	NSSize					snugFrameSize;
 	LDrawColorT             color;					// default color to draw parts if none is specified
 	GLfloat                 glBackgroundColor[4];
 	GLfloat                 glColor[4];				// OpenGL equivalent of the LDrawColor.
@@ -86,8 +82,6 @@ typedef enum
 	ProjectionModeT         projectionMode;
 	RotationDrawModeT       rotationDrawMode;		// drawing detail while rotating.
 	ViewOrientationT        viewOrientation;		// our orientation
-	NSTimeInterval			fpsStartTime;
-	NSInteger				framesSinceStartTime;
 	
 	// Event Tracking
 	BOOL                    isGesturing;			// true if performing a multitouch trackpad gesture.

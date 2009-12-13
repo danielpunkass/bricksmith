@@ -568,7 +568,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[newItem setLabel:NSLocalizedString(itemIdentifier, nil)];
 	
 	if([itemIdentifier isEqualToString:PREFS_GENERAL_TAB_IDENTIFIER])
-		[newItem setImage:[NSImage imageNamed:NSImageNamePreferencesGeneral]];
+		[newItem setImage:[NSImage imageNamed:@"GeneralPreferences"]];
 	
 	else if([itemIdentifier isEqualToString:PREFS_LDRAW_TAB_IDENTFIER])
 		[newItem setImage:[NSImage imageNamed:@"LDrawLogo"]];
@@ -658,8 +658,6 @@ PreferencesDialogController *preferencesDialog = nil;
 
 	[initialDefaults setObject:[NSNumber numberWithInteger:NSDrawerClosedState]	forKey:PART_BROWSER_DRAWER_STATE];
 	[initialDefaults setObject:(id)kCFBooleanTrue								forKey:PART_BROWSER_PANEL_SHOW_AT_LAUNCH];
-	
-	[initialDefaults setObject:(id)kCFBooleanTrue								forKey:VIEWPORTS_EXPAND_TO_AVAILABLE_SIZE];
 	
 	//
 	// Syntax Colors

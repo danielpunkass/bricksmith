@@ -36,18 +36,18 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- model ---------------------------------------------------[static]--
+//---------- newModel ------------------------------------------------[static]--
 //
 // Purpose:		Creates a new model ready to be edited.
 //
 //------------------------------------------------------------------------------
-+ (id) model
++ (id) newModel
 {
 	LDrawMPDModel *newModel = [[LDrawMPDModel alloc] initNew];
 	
 	return [newModel autorelease];
 	
-}//end model
+}//end newModel
 
 
 //---------- modelWithLines: -----------------------------------------[static]--

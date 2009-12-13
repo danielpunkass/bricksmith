@@ -220,15 +220,14 @@ bool V3EqualPoints(Point3 point1, Point3 point2)
 //==============================================================================
 bool V3PointsWithinTolerance(Point3 point1, Point3 point2)
 {
-	bool xEqual = false;
-	bool yEqual = false;
-	bool zEqual = false;
+	bool test = false;
+	test = FloatsApproximatelyEqual(point1.x, point2.x);
+	test = FloatsApproximatelyEqual(point1.y, point2.y);
+	test = FloatsApproximatelyEqual(point1.z, point2.z);
 	
-	xEqual = FloatsApproximatelyEqual(point1.x, point2.x);
-	yEqual = FloatsApproximatelyEqual(point1.y, point2.y);
-	zEqual = FloatsApproximatelyEqual(point1.z, point2.z);
-	
-	if( xEqual && yEqual && zEqual )
+	if(		FloatsApproximatelyEqual(point1.x, point2.x)
+	   &&	FloatsApproximatelyEqual(point1.y, point2.y)
+	   &&	FloatsApproximatelyEqual(point1.z, point2.z) )
 		return true;
 	else
 		return false;

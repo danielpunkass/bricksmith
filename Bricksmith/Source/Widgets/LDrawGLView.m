@@ -1027,6 +1027,18 @@
 }//end setLDrawDirective:
 
 
+//========== setNeedsDisplay: ==================================================
+//
+// Purpose:		Request redraw. This is here for debugging to track down extra 
+//				draws. 
+//
+//==============================================================================
+- (void) setNeedsDisplay:(BOOL)flag
+{
+	[super setNeedsDisplay:flag];
+}
+
+
 //========== setNudgeAction: ===================================================
 //
 // Purpose:		Sets the action sent when the GLView wants to nudge a part.
@@ -2291,7 +2303,7 @@
 //				six times faster than just drawing the whole model.
 //
 //==============================================================================
-- (void)mousePartSelection:(NSEvent *)theEvent
+- (void) mousePartSelection:(NSEvent *)theEvent
 {
 	NSArray			*fastDrawParts		= nil;
 	NSArray			*fineDrawParts		= nil;
@@ -3187,77 +3199,85 @@
 							 fastDraw:(BOOL)fastDraw
 {
 	NSArray	*clickedDirectives	= nil;
-
-	CGLLockContext([[self openGLContext] CGLContextObj]);
-	{
-		[[self openGLContext] makeCurrentContext];
-		
-		NSPoint			 viewClickedPoint			= [theEvent locationInWindow]; //window coordinates
-		NSRect			 visibleRect				= [self convertRect:[self visibleRect] toView:nil]; //window coordinates.
-		GLuint			 nameBuffer			[512]	= {0};
-		GLint			 viewport			[4]		= {0};
-		GLfloat			 projectionMatrix	[16]	= {0.0};
-		NSUInteger		 numberOfHits				= 0;
-		NSUInteger		 counter					= 0;
-		NSUInteger		 drawOptions				= DRAW_HIT_TEST_MODE;
-		
-		if(fastDraw == YES)
-			drawOptions |= DRAW_BOUNDS_ONLY;
-		
-		glGetIntegerv(GL_VIEWPORT, viewport);
-		glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
-		
-		//Prepare OpenGL to record hits in the viewing area. We need to feed it 
-		// a buffer which will be filled with the tags of things that got hit.
-		glSelectBuffer(512, nameBuffer);
-		glRenderMode(GL_SELECT); //switch to hit-testing mode.
-		{
-			//Prepare for recording names. These functions must be called 
-			// *after* switching to render mode.
-			glInitNames();
-			glPushName(UINT_MAX); //0 would be a valid choice, after all...
-			
-			//Restrict our rendering area (and thus our hit-testing region) to 
-			// a very small rectangle around the mouse position.
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			{
-				glLoadIdentity();
-				
-				//Lastly, convert to viewport coordinates:
-				GLdouble pickX = viewClickedPoint.x - NSMinX(visibleRect);
-				GLdouble pickY = viewClickedPoint.y - NSMinY(visibleRect);
-				
-				gluPickMatrix(pickX,
-							  pickY,
-							  1, //width
-							  1, //height
-							  viewport);
-				
-				// Now re-apply the original camera matrix
-				glMultMatrixf(projectionMatrix);
-				
-				glMatrixMode(GL_MODELVIEW);
-				
-				//draw all the requested directives
-				for(counter = 0; counter < [directives count]; counter++)
-					[[directives objectAtIndex:counter] draw:drawOptions parentColor:glColor];
-			}
-			//Restore original viewing matrix after mangling for the hit area.
-			glMatrixMode(GL_PROJECTION);
-			glPopMatrix();
-			
-			glFlush();
-			[[self openGLContext] flushBuffer];
-			
-			[self setNeedsDisplay:YES];
-		}
-		numberOfHits = glRenderMode(GL_RENDER);
-		
-		clickedDirectives = [self getPartsFromHits:nameBuffer hitCount:numberOfHits];
-	}
-	CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	
+	if([directives count] == 0)
+	{
+		// If there's nothing to test in, there's no work to do!
+		clickedDirectives = [NSArray array];
+	}
+	else
+	{
+		CGLLockContext([[self openGLContext] CGLContextObj]);
+		{
+			[[self openGLContext] makeCurrentContext];
+			
+			NSPoint			 viewClickedPoint			= [theEvent locationInWindow]; //window coordinates
+			NSRect			 visibleRect				= [self convertRect:[self visibleRect] toView:nil]; //window coordinates.
+			GLuint			 nameBuffer			[512]	= {0};
+			GLint			 viewport			[4]		= {0};
+			GLfloat			 projectionMatrix	[16]	= {0.0};
+			NSUInteger		 numberOfHits				= 0;
+			NSUInteger		 counter					= 0;
+			NSUInteger		 drawOptions				= DRAW_HIT_TEST_MODE;
+			
+			if(fastDraw == YES)
+				drawOptions |= DRAW_BOUNDS_ONLY;
+			
+			glGetIntegerv(GL_VIEWPORT, viewport);
+			glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
+			
+			//Prepare OpenGL to record hits in the viewing area. We need to feed it 
+			// a buffer which will be filled with the tags of things that got hit.
+			glSelectBuffer(512, nameBuffer);
+			glRenderMode(GL_SELECT); //switch to hit-testing mode.
+			{
+				//Prepare for recording names. These functions must be called 
+				// *after* switching to render mode.
+				glInitNames();
+				glPushName(UINT_MAX); //0 would be a valid choice, after all...
+				
+				//Restrict our rendering area (and thus our hit-testing region) to 
+				// a very small rectangle around the mouse position.
+				glMatrixMode(GL_PROJECTION);
+				glPushMatrix();
+				{
+					glLoadIdentity();
+					
+					//Lastly, convert to viewport coordinates:
+					GLdouble pickX = viewClickedPoint.x - NSMinX(visibleRect);
+					GLdouble pickY = viewClickedPoint.y - NSMinY(visibleRect);
+					
+					gluPickMatrix(pickX,
+								  pickY,
+								  1, //width
+								  1, //height
+								  viewport);
+					
+					// Now re-apply the original camera matrix
+					glMultMatrixf(projectionMatrix);
+					
+					glMatrixMode(GL_MODELVIEW);
+					
+					//draw all the requested directives
+					for(counter = 0; counter < [directives count]; counter++)
+						[[directives objectAtIndex:counter] draw:drawOptions parentColor:glColor];
+				}
+				//Restore original viewing matrix after mangling for the hit area.
+				glMatrixMode(GL_PROJECTION);
+				glPopMatrix();
+				
+				// Note that picking doesn't actually render anything, so our 
+				// framebuffer is undisturbed. But we *might* still need to 
+				// glFlush; I'm not sure. 
+				glFlush();
+			}
+			numberOfHits = glRenderMode(GL_RENDER);
+			
+			clickedDirectives = [self getPartsFromHits:nameBuffer hitCount:numberOfHits];
+		}
+		CGLUnlockContext([[self openGLContext] CGLContextObj]);
+	}
+
 	return clickedDirectives;
 	
 }//end getDirectivesUnderMouse:amongDirectives:fastDraw:

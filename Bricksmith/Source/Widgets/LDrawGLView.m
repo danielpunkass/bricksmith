@@ -180,6 +180,13 @@
 	
 	[self setPixelFormat:pixelFormat];
 	
+	// Multithreading engine
+	// It turned out to be as miserable a failure as my home-spun attempts. 
+	// Three times longer and display corruption to boot. Bricksmith is 
+	// apparently allergic to multithreading of any kind, and darn if I know 
+	// why. 
+//	CGLEnable(CGLGetCurrentContext(), kCGLCEMPEngine);
+	
 	// Prevent "tearing"
 	GLint   swapInterval    = 1;
 	[[self openGLContext] setValues: &swapInterval
@@ -1156,9 +1163,12 @@
 //==============================================================================
 - (void) setZoomPercentage:(CGFloat) newPercentage
 {
-	NSScrollView *scrollView = [self enclosingScrollView];
+	NSScrollView    *scrollView             = [self enclosingScrollView];
+	CGFloat         currentZoomPercentage   = [self zoomPercentage];
 	
-	if(scrollView != nil)
+	// Don't zoom if we aren't cabale of zooming or if the zoom level isn't 
+	// actually changing (to avoid unnecessary re-draw) 
+	if(scrollView != nil && currentZoomPercentage != newPercentage)
 	{
 		NSRect      frame           = [self frame];
 		NSClipView  *clipView       = [scrollView contentView];

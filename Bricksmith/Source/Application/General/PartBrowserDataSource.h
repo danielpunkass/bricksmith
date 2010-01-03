@@ -31,15 +31,18 @@
 	IBOutlet NSMenu			*contextualMenu;
 
 	PartLibrary     *partLibrary; //weak reference to the shared part catalog.
+	NSString		*selectedCategory;
 	NSArray         *categoryList;
 	NSMutableArray  *tableDataSource;
 
 }
 
 //Accessors
+- (NSString *) category;
 - (NSString *) selectedPartName;
+
 - (void) setPartLibrary:(PartLibrary *)partLibraryIn;
-- (BOOL) setCategory:(NSString *)newCategory;
+- (BOOL) loadCategory:(NSString *)newCategory;
 - (void) setCategoryList:(NSArray *)categoryList;
 - (void) setTableDataSource:(NSMutableArray *) partsInCategory;
 
@@ -56,6 +59,7 @@
 
 //Utilities
 - (NSMutableArray *) filterPartRecords:(NSArray *)partRecords bySearchString:(NSString *)searchString;
+- (NSUInteger) indexOfPartNamed:(NSString *)searchName;
 - (void) setConstraints;
 - (void) syncSelectionAndPartDisplayed;
 - (BOOL) writeSelectedPartToPasteboard:(NSPasteboard *)pasteboard;

@@ -110,7 +110,7 @@
 		//---------- Set Data --------------------------------------------------
 		
 		[self setPartLibrary:[LDrawApplication sharedPartLibrary]];
-		[self setCategory:startingCategory];
+		[self loadCategory:startingCategory];
 		
 		[partsTable scrollRowToVisible:startingRow];
 		[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:startingRow]
@@ -166,6 +166,18 @@
 #pragma mark ACCESSORS
 #pragma mark -
 
+//========== category ==========================================================
+//
+// Purpose:		Returns the currently-selected category.
+//
+//==============================================================================
+- (NSString *) category
+{
+	return self->selectedCategory;
+	
+}//end category
+
+
 //========== selectedPartName ==================================================
 //
 // Purpose:		Returns the name of the selected part file.
@@ -187,6 +199,85 @@
 	return partName;
 	
 }//end selectedPartName
+
+
+#pragma mark -
+
+//========== loadCategory: =====================================================
+//
+// Purpose:		Causes the parts browser to display all the parts in 
+//				newCategory. 
+//
+//==============================================================================
+- (BOOL) loadCategory:(NSString *)newCategory
+{
+	NSString        *allCategoriesString        = NSLocalizedString(@"AllCategories", nil);
+	NSString        *favoritesString            = NSLocalizedString(@"Favorites", nil);
+	NSArray         *partsInCategory            = nil;
+	NSMutableArray  *allPartRecords             = [NSMutableArray array];
+	NSDictionary    *partRecord                 = nil;
+	NSString        *partNumber                 = nil;
+	NSString        *partDescription            = nil;
+	NSUInteger      counter                     = 0;
+	BOOL            success                     = NO;
+	
+	// Get the appropriate category list.
+	if([newCategory isEqualToString:allCategoriesString])
+	{
+		// Retrieve all parts. We can do this by getting the entire (unsorted) 
+		// contents of PARTS_LIST_KEY in the partCatalog, which is actually 
+		// a dictionary of all parts.
+		partsInCategory = [self->partLibrary allPartNames];
+		success = YES;
+		
+	}
+	else if([newCategory isEqualToString:favoritesString])
+	{
+		partsInCategory = [self->partLibrary favoritePartNames];
+		success = YES;
+	}
+	else
+	{
+		// Get the part list for the category:
+		partsInCategory = [self->partLibrary partNamesInCategory:newCategory];
+		success = (partsInCategory != nil);
+	}
+	
+	if(success == YES)
+	{
+		// Build the (sortable) list of part records.
+		for(counter = 0; counter < [partsInCategory count]; counter++)
+		{
+			partNumber      = [partsInCategory objectAtIndex:counter];
+			partDescription = [self->partLibrary descriptionForPartName:partNumber];
+			
+			partRecord      = [NSDictionary dictionaryWithObjectsAndKeys:
+							   partNumber,			PART_NUMBER_KEY,
+							   partDescription,	PART_NAME_KEY,
+							   nil ];
+			
+			[allPartRecords addObject:partRecord];					
+		}
+		
+		// Update data
+		[self setTableDataSource:allPartRecords];
+		[categoryComboBox setStringValue:newCategory];
+	}
+	else
+	{	// The user entered an invalid category; display no list.
+		[self setTableDataSource:[NSMutableArray array]];
+	}
+	
+	[self setConstraints];
+	
+	// finally, assign instance variable
+	[newCategory retain];
+	[self->selectedCategory release];
+	self->selectedCategory = newCategory;
+	
+	return success;
+	
+}//end loadCategory:
 
 
 //========== setPartCatalog: ===================================================
@@ -223,87 +314,9 @@
 	[self setCategoryList:fullCategoryList];
 	
 	//And set the current category to show everything
-	[self setCategory:allCategoriesItem];
+	[self loadCategory:allCategoriesItem];
 	
 }//end setPartCatalog:
-
-
-//========== setCategory: ======================================================
-//
-// Purpose:		The parts browser should now display newCategory. This method 
-//				should be called in response to choosing a new category in the 
-//				category combo box.
-//
-//==============================================================================
-- (BOOL) setCategory:(NSString *)newCategory
-{
-	NSString        *allCategoriesString    = NSLocalizedString(@"AllCategories", nil);
-	NSString        *favoritesString        = NSLocalizedString(@"Favorites", nil);
-	NSArray         *partsInCategory        = nil;
-	NSMutableArray  *allPartRecords         = [NSMutableArray array];
-	NSDictionary    *partRecord             = nil;
-	NSString        *partNumber             = nil;
-	NSString        *partDescription        = nil;
-	NSMutableArray  *filteredParts          = nil;
-	NSUInteger      counter                 = 0;
-	BOOL            success                 = NO;
-	
-	// Get the appropriate category list.
-	if([newCategory isEqualToString:allCategoriesString])
-	{
-		// Retrieve all parts. We can do this by getting the entire (unsorted) 
-		// contents of PARTS_LIST_KEY in the partCatalog, which is actually 
-		// a dictionary of all parts.
-		partsInCategory = [self->partLibrary allPartNames];
-		success = YES;
-		
-	}
-	else if([newCategory isEqualToString:favoritesString])
-	{
-		partsInCategory = [self->partLibrary favoritePartNames];
-		success = YES;
-	}
-	else
-	{
-		// Get the part list for the category:
-		partsInCategory = [self->partLibrary partNamesInCategory:newCategory];
-		success = (partsInCategory != nil);
-	}
-	
-	if(success == YES)
-	{
-		// Build the (sortable) list of part records.
-		for(counter = 0; counter < [partsInCategory count]; counter++)
-		{
-			partNumber      = [partsInCategory objectAtIndex:counter];
-			partDescription = [self->partLibrary descriptionForPartName:partNumber];
-			
-			partRecord      = [NSDictionary dictionaryWithObjectsAndKeys:
-									partNumber,			PART_NUMBER_KEY,
-									partDescription,	PART_NAME_KEY,
-									nil ];
-									
-			[allPartRecords addObject:partRecord];					
-		}
-		
-		//Apply the search.
-		filteredParts = [self filterPartRecords:allPartRecords
-						   bySearchString:[self->searchField stringValue]];
-	
-		// Update data
-		[self setTableDataSource:filteredParts];
-		[categoryComboBox setStringValue:newCategory];		
-	}
-	else
-	{	// The user entered an invalid category; display no list.
-		[self setTableDataSource:[NSMutableArray array]];
-	}
-	
-	[self setConstraints];
-	
-	return success;
-	
-}//end setCategory:
 
 
 //========== setCategoryList: ==================================================
@@ -335,19 +348,29 @@
 //				The new parts are then displayed in the table.
 //
 //==============================================================================
-- (void) setTableDataSource:(NSMutableArray *) partsInCategory
+- (void) setTableDataSource:(NSMutableArray *)allPartRecords
 {
-	//Sort the parts based on whatever the current sort order is for the table.
-	[partsInCategory sortUsingDescriptors:[partsTable sortDescriptors]];
+	NSString        *originalSelectedPartName   = [self selectedPartName];
+	NSUInteger      newSelectedIndex            = NSNotFound;
+
+	[allPartRecords sortUsingDescriptors:[partsTable sortDescriptors]];
 	
-	//Swap out the variable
-	[partsInCategory retain];
-	[tableDataSource release];
+	// Swap out the variable
+	[allPartRecords retain];
+	[self->tableDataSource release];
 	
-	tableDataSource = partsInCategory;
-	
-	//Update the table
+	self->tableDataSource = allPartRecords;
 	[partsTable reloadData];
+	
+	// Attempt to restore the original selection (happens especially if clearing 
+	// the search field) 
+	newSelectedIndex = [self indexOfPartNamed:originalSelectedPartName];
+	if(newSelectedIndex == NSNotFound)
+		newSelectedIndex = 0;
+	
+	// Scroll to the new selection
+	[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:newSelectedIndex] byExtendingSelection:NO];
+	[partsTable scrollRowToVisible:newSelectedIndex];
 	
 }//end setTableDataSource
 
@@ -400,15 +423,21 @@
 	NSString		*newCategory	= [sender stringValue];
 	BOOL			 success		= NO;
 	
-	//Clear the search field
-	[self->searchField setStringValue:@""];
-	
-	//Proceed to set our category
-	success = [self setCategory:newCategory];
-	[self syncSelectionAndPartDisplayed];
-	
-	if(success == YES)
-		[userDefaults setObject:newCategory forKey:PART_BROWSER_PREVIOUS_CATEGORY];
+	// Only set the category if we're actually changing it. The reason is that 
+	// loading a category will cause the current selection to change. But this 
+	// action is also sent whenever focus leaves the category field, even when 
+	// that's because the user just attempted to change the part selection! 
+	if([newCategory isEqualToString:[self category]] == NO)
+	{
+		//Clear the search field
+		[self->searchField setStringValue:@""];
+		
+		success = [self loadCategory:newCategory];
+		[self syncSelectionAndPartDisplayed];
+		
+		if(success == YES)
+			[userDefaults setObject:newCategory forKey:PART_BROWSER_PREVIOUS_CATEGORY];
+	}
 
 }//end categoryComboBoxChanged:
 
@@ -450,8 +479,16 @@
 //==============================================================================
 - (IBAction) searchFieldChanged:(id)sender
 {
-	// Setting the category will filter the results.
-	[self setCategory:NSLocalizedString(@"AllCategories", nil)];
+	NSString        *searchString   = [self->searchField stringValue];
+	NSMutableArray  *filteredParts  = nil;
+
+	// Reload all available parts
+	[self loadCategory:NSLocalizedString(@"AllCategories", nil)];
+	
+	// Re-filter the records
+	filteredParts = [self filterPartRecords:self->tableDataSource bySearchString:searchString];
+	[self setTableDataSource:filteredParts];
+	
 	[self syncSelectionAndPartDisplayed];
 	[self setConstraints];
 
@@ -559,7 +596,7 @@
 	objectValueForTableColumn:(NSTableColumn *)tableColumn
 						  row:(NSInteger)rowIndex
 {
-	NSDictionary	*partRecord			= [tableDataSource objectAtIndex:rowIndex];
+	NSDictionary	*partRecord			= [self->tableDataSource objectAtIndex:rowIndex];
 	NSString		*columnIdentifier	= [tableColumn identifier];
 	
 	NSString		*cellValue			= [partRecord objectForKey:columnIdentifier];
@@ -686,7 +723,7 @@
 	[self setPartLibrary:newLibrary];
 	
 	// Restore the original selection (setting the part library wipes it out)
-	[self setCategory:currentCategory];
+	[self loadCategory:currentCategory];
 	[partsTable scrollRowToVisible:selectedRow];
 	[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:selectedRow]
 			byExtendingSelection:NO];
@@ -762,6 +799,48 @@
 	return matchingParts;
 	
 }//end filterPartRecords:bySearchString:
+
+
+//========== indexOfPartNamed: =================================================
+//
+// Purpose:		Returns the index of the part with the given name in the current 
+//				found set. 
+//
+//				Returns NSNotFound if the part is not a member of the 
+//				currently-displayed part list. 
+//
+//==============================================================================
+- (NSUInteger) indexOfPartNamed:(NSString *)searchName
+{
+	NSDictionary    *partRecord     = nil;
+	NSString        *partName       = nil;
+	NSUInteger      currentIndex    = 0;
+	NSUInteger      foundIndex      = NSNotFound;
+
+	// Find a part record with the given name
+	for(partRecord in self->tableDataSource)
+	{
+		partName = [partRecord objectForKey:PART_NUMBER_KEY];
+		if([partName isEqualToString:searchName])
+		{
+			foundIndex = currentIndex;
+			break;
+		}
+		currentIndex++;
+	}
+	
+	// In 10.6, we can do something much fancier!
+//	foundIndex = [self->tableDataSource indexOfObjectPassingTest:
+//						^(id partRecord, NSUInteger idx, BOOL *stop)
+//						{
+//							NSString    *partName   = [partRecord objectForKey:PART_NUMBER_KEY];
+//							BOOL        isMatch     = [partName isEqualToString:searchName];
+//							return isMatch;
+//						} ];
+	
+	return foundIndex;
+	
+}//end indexOfPartNamed:
 
 
 //========== setConstraints ====================================================

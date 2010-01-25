@@ -44,11 +44,9 @@
 	self->helperWindow = [[OverlayHelperWindow alloc] initWithContentRect:NSMakeRect(-10000,-10000,1,1)
 																styleMask:NSBorderlessWindowMask
 																  backing:NSBackingStoreBuffered
-																	defer:NO
+																	defer:YES
 																  ordered:NSWindowAbove];
 	[helperWindow setContentView:overlayView];
-	
-	[helperWindow orderFront:self];
 	
 	return self;
 

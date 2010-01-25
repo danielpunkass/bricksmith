@@ -112,21 +112,42 @@
 //==============================================================================
 - (void) parentViewChanged:(NSNotification *)note
 {
-	NSRect  viewRect    = NSZeroRect;
-	NSRect  windowRect  = NSZeroRect;
-	
-	// Get the "superview's" rect in window coordinates.
-	viewRect = [self->parentView convertRect:[self->parentView visibleRect] toView:nil];
-	
-	// Position ourself overtop the parentViews visible rect.
-	windowRect = [[self->parentView window] frame];
-	
-	viewRect.origin.x += windowRect.origin.x;
-	viewRect.origin.y += windowRect.origin.y;
-	
-	[self setFrame:viewRect display:YES];
+	[self updateFrameToMatchParentView];
 	
 }//end parentViewChanged:
+
+
+//========== windowDidUpdateNotification: ======================================
+//
+// Purpose:		This notification captures when the window moves onscreen. 
+//				(Cocoa does not have an NSWindowDidOpenNotification.) 
+//
+//				Due to some interplay with sheets and window groups, we 
+//				absolutely can not display the overlay window until AFTER the 
+//				parent window has opened. (Showing it before will cause some 
+//				sort of CG error and prevent the parent sheet from opening if 
+//				the parent view is in a sheet.) 
+//
+//==============================================================================
+- (void) windowDidUpdateNotification:(NSNotification *)note
+{
+	// Force synchronize with the parent view's size. If we don't do this here, 
+	// the overlay can open in the wrong location if it hasn't been 
+	// orderFront:'ed before this point. I don't know what makes this happen, 
+	// because it should be tracking the view size notifications already. 
+	[self updateFrameToMatchParentView];
+	
+	// Open the overlay window (self) now that the parent view's window is open. 
+	// Actually, it won't be open until this event loop completes, so make sure 
+	// we open on the *next* cycle, by which time the parent will be onscreen.
+	// Note: If we were using the undocumented _NSWindowDidBecomeVisible, we 
+	//		 wouldn't have to do the delay hack. 
+	[self performSelector:@selector(orderFront:) withObject:self afterDelay:0];
+	
+	// And we don't care about window updating anymore.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidUpdateNotification object:nil];
+
+}//end windowDidUpdateNotification:
 
 
 #pragma mark -
@@ -162,16 +183,19 @@
 //==============================================================================
 - (void) parentViewDidMoveToWindow
 {
-	NSView *overlayView = [self contentView];
-	if([self->parentView window])
+	NSView      *overlayView        = [self contentView];
+	NSWindow    *newParentWindow    = [self->parentView window];
+	
+	if(newParentWindow != nil)
 	{
 		if([overlayView respondsToSelector:@selector(viewWillBecomeOverlay)])
 			[overlayView viewWillBecomeOverlay];
 		
 		// Attach to the new window and move in concert with it.
-		[[self->parentView window] addChildWindow:self ordered:order];
+		if([self parentWindow] != newParentWindow)
+			[newParentWindow addChildWindow:self ordered:order];
 		
-		if([[self->parentView window] isVisible])
+		if([newParentWindow isVisible])
 			[self orderFront:nil];
 		
 		[self parentViewChanged:nil];
@@ -203,6 +227,7 @@
 	// Unregister existing cruft
 	[notificationCenter removeObserver:self name:NSViewFrameDidChangeNotification object:nil];
 	[notificationCenter removeObserver:self name:NSViewBoundsDidChangeNotification object:nil];
+	[notificationCenter removeObserver:self name:nil object:nil];
 	
 	// Watch EVERY single superview for frame-change notifications, because any 
 	// one of them could result in different viewport occlusions. Since we need 
@@ -220,10 +245,46 @@
 								   name:NSViewBoundsDidChangeNotification
 								 object:currentView];
 								 
+		// We need to know when the parent window opens so we know when to open 
+		// ourself. This seems to be the only way to do it without using the 
+		// undocumented notification _NSWindowDidBecomeVisible. 
+		if([currentView window])
+		{
+			[notificationCenter addObserver:self
+								   selector:@selector(windowDidUpdateNotification:)
+									   name:NSWindowDidUpdateNotification
+									 object:[currentView window]];
+		}
+								 
 		currentView = [currentView superview];
 	}
 
 }//end registerNotifications
+
+
+//========== updateFrameToMatchParentView ======================================
+//
+// Purpose:		Resize this overlay window in order to maintain the illusion 
+//				that our content is actually a subview of the parentView. 
+//
+//==============================================================================
+- (void) updateFrameToMatchParentView
+{
+	NSRect  viewRect    = NSZeroRect;
+	NSRect  windowRect  = NSZeroRect;
+	
+	// Get the "superview's" rect in window coordinates.
+	viewRect = [self->parentView convertRect:[self->parentView visibleRect] toView:nil];
+	
+	// Position ourself overtop the parentViews visible rect.
+	windowRect = [[self->parentView window] frame];
+	
+	viewRect.origin.x += windowRect.origin.x;
+	viewRect.origin.y += windowRect.origin.y;
+	
+	[self setFrame:viewRect display:YES];
+	
+}//end updateFrameToMatchParentView
 
 
 @end

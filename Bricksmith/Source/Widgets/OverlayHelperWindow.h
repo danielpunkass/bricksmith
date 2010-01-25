@@ -37,6 +37,7 @@
 
 // Utilities
 - (void) registerNotifications;
+- (void) updateFrameToMatchParentView;
 
 @end
 

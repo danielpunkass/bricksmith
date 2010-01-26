@@ -268,6 +268,9 @@
 		[self doMissingPiecesCheck:self];
 		[self doMovedPiecesCheck:self];
 		[self doMissingModelnameExtensionCheck:self];
+		
+		// Now that all the parts are at their final name, we can optimize.
+		[[self documentContents] optimizeOpenGL];
 	}
 	
 	return success;
@@ -561,8 +564,6 @@
 	documentContents = newContents;
 	
 	[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
-	
-	[newContents optimizeDrawing];
 		
 }//end setDocumentContents:
 
@@ -2111,10 +2112,15 @@
 {
 	MinifigureDialogController  *minifigDialog  = [MinifigureDialogController new];
 	NSInteger                   result          = NSCancelButton;
+	LDrawMPDModel               *minifigure     = nil;
 	
 	result = [minifigDialog runModal];
 	if(result == NSOKButton)
-		[self addModel:[minifigDialog minifigure] preventNameCollisions:YES];
+	{
+		minifigure = [minifigDialog minifigure];
+		[minifigure optimizeOpenGL];
+		[self addModel:minifigure preventNameCollisions:YES];
+	}
 	
 	[minifigDialog release];
 	
@@ -2250,7 +2256,7 @@
 		
 		//Do the move.
 		[object moveBy:moveVector];
-		[object optimizeDrawing];
+//		[object optimizeOpenGL];
 	}
 	
 	//our part changed; notify!
@@ -2301,7 +2307,7 @@
 	[[self documentContents] lockForEditing];
 	{
 		[part rotateByDegrees:rotationDegrees centerPoint:rotationCenter];
-		[part optimizeDrawing];
+//		[part optimizeOpenGL];
 	}
 	[[self documentContents] unlockEditor];
 
@@ -2362,8 +2368,7 @@
 	[[self documentContents] lockForEditing];
 	{
 		[object setLDrawColor:newColor];
-		if([object respondsToSelector:@selector(optimizeDrawing)])
-			[(LDrawDirective*)object optimizeDrawing];
+		[object optimizeOpenGL];
 	}
 	[[self documentContents] unlockEditor];
 	[self updateInspector];
@@ -2389,7 +2394,7 @@
 	{
 		[[self documentContents] unlockEditor];
 		[part setTransformComponents:newComponents];
-		[part optimizeDrawing];
+//		[part optimizeOpenGL];
 		
 		//Be ready to restore the old components.
 		[[undoManager prepareWithInvocationTarget:self]
@@ -4020,6 +4025,8 @@
 			[newPart setTransformComponents:transformation];
 		}
 		
+		[newPart optimizeOpenGL];
+		
 		[self addStepComponent:newPart];
 		
 		[undoManager setActionName:NSLocalizedString(@"UndoAddPart", nil)];
@@ -4591,6 +4598,7 @@
 			else
 				[self addStepComponent:currentObject];
 			
+			[currentObject optimizeOpenGL];
 			[addedObjects addObject:currentObject];
 		}
 		

@@ -59,7 +59,7 @@
 
 //Utilities
 - (BOOL) isAncestorInList:(NSArray *)containers;
-- (void) optimizeDrawing;
+- (void) optimizeOpenGL;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;
 
 @end

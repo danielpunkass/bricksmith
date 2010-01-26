@@ -308,17 +308,20 @@
 #pragma mark UTILITES
 #pragma mark -
 
-//========== optimizeDrawing ===================================================
+//========== optimizeOpenGL ====================================================
 //
 // Purpose:		Makes this part run faster by compiling its contents into a 
 //				display list if possible.
 //
 //==============================================================================
-- (void) optimizeDrawing
+- (void) optimizeOpenGL
 {
-	[self->containedObjects makeObjectsPerformSelector:@selector(optimizeDrawing)];
+	for(LDrawDirective *currentDirective in self->containedObjects)
+	{
+		[currentDirective optimizeOpenGL];
+	}
 
-}//end optimizeDrawing
+}//end optimizeOpenGL
 
 
 #pragma mark -

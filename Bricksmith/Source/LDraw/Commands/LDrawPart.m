@@ -707,9 +707,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 {
 	[super setLDrawColor:newColor];
 	
-	// Note: only one of these has any effect
 	[self removeDisplayList];
-	[self optimizeDrawingInternal];
 	
 }//end setLDrawColor:
 
@@ -738,9 +736,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	[referenceName release];
 	referenceName = newReferenceName;
 	
-	// Note: only one of these has any effect
 	[self removeDisplayList];
-	[self optimizeDrawingInternal];
 	
 }//end setDisplayName:
 
@@ -1116,7 +1112,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 }//end collectPartReport:
 
 
-//========== optimizeDrawing ===================================================
+//========== optimizeOpenGL ===================================================
 //
 // Purpose:		Makes this part run faster by compiling its contents into a 
 //				display list if possible.
@@ -1125,9 +1121,37 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //				containers which hold the part. 
 //
 //==============================================================================
-- (void) optimizeDrawing
+- (void) optimizeOpenGL
 {
-#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS == 0 //{
+#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS //{
+	// Only optimize explicitly colored parts.
+	// Uncolored parts need to know about the current color 
+	// as they are drawn, which is anathema to optimization. Rats.
+	if(self->referenceName != nil && self->color != LDrawCurrentColor)
+	{
+		LDrawModel *referencedSubmodel	= [self referencedMPDSubmodel];
+		
+		if(referencedSubmodel == nil)
+		{
+			self->displayListTag = [[LDrawApplication sharedPartLibrary]
+											retainDisplayListForPart:self
+															   color:self->glColor];
+
+			if(displayListTag != 0)
+				self->hasDisplayList = YES;
+		}
+		else
+		{
+			// Don't optimize MPD references. The user can change their 
+			// referenced contents, and I don't want to have to keep track 
+			// of invalidating display lists when he does. 
+		}
+	}
+	else
+		self->hasDisplayList = NO;
+
+// }	
+#else //{
 	if(self->hasDisplayList == YES)
 		[self removeDisplayList];
 
@@ -1155,53 +1179,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 		}
 	}
 #endif // }
-}//end optimizeDrawing
-
-
-//========== optimizeDrawingInternal ===========================================
-//
-// Purpose:		Makes this part run faster using a scheme of optimization which 
-//				the part can manage internally, all by itself. 
-//
-//				This is *incompatible* with the method using in -optimizeDrawing.
-//
-// Notes:		The performance difference between creating a single display 
-//				list for a part/color pair (as in this method) and creating a 
-//				display list for every drawn part position (as in 
-//				optimizeDrawing) was negligable, much to my great surprise. 
-//
-//==============================================================================
-- (void) optimizeDrawingInternal
-{
-#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS // {
-	// Only optimize explicitly colored parts.
-	// Obviously it would be better to optimize uncolored parts inside the 
-	// library, but alas, uncolored parts need to know about the current color 
-	// as they are drawn, which is anathema to optimization. Rats.
-	if(self->referenceName != nil && self->color != LDrawCurrentColor)
-	{
-		LDrawModel *referencedSubmodel	= [self referencedMPDSubmodel];
-		
-		if(referencedSubmodel == nil)
-		{
-			self->displayListTag = [[LDrawApplication sharedPartLibrary]
-									retainDisplayListForPart:self
-									color:self->glColor];
-			if(displayListTag != 0)
-				self->hasDisplayList = YES;
-		}
-		else
-		{
-			// Don't optimize MPD references. The user can change their 
-			// referenced contents, and I don't want to have to keep track 
-			// of invalidating display lists when he does. 
-		}
-	}
-	else
-		self->hasDisplayList = NO;
-		
-#endif // }	
-}//end optimizeDrawingInternal
+}//end optimizeOpenGL
 
 
 //========== registerUndoActions ===============================================
@@ -1216,6 +1194,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	
 	[[undoManager prepareWithInvocationTarget:self] setTransformComponents:[self transformComponents]];
 	[[undoManager prepareWithInvocationTarget:self] setDisplayName:[self displayName]];
+	[[undoManager prepareWithInvocationTarget:self] optimizeOpenGL];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAttributesPart", nil)];
 
@@ -1233,6 +1212,11 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	if(self->hasDisplayList)
 	{
 		glDeleteLists(self->displayListTag, 1);
+		self->hasDisplayList = NO;
+	}
+#else // }{
+	if(self->hasDisplayList)
+	{
 		self->hasDisplayList = NO;
 	}
 #endif // }

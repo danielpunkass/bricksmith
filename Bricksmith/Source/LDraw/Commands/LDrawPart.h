@@ -66,8 +66,7 @@
 - (void) rotateByDegrees:(Tuple3)degreesToRotate centerPoint:(Point3)center;
 
 //Utilities
-- (void) optimizeDrawing;
-- (void) optimizeDrawingInternal;
+- (void) optimizeOpenGL;
 - (void) removeDisplayList;
 
 @end

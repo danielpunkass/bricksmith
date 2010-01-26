@@ -440,19 +440,22 @@
 }//end isAncestorInList:
 
 
-//========== optimizeDrawing ===================================================
+//========== optimizeOpenGL ====================================================
 //
 // Purpose:		The caller is asking this instance to optimize itself for faster 
-//				drawing. The optimizations performed in this method are 
-//				inefficient or impossible for the part to attempt to manage 
-//				itself; it needs its caller to tell it when. 
+//				drawing. 
+//
+//				OpenGL optimization is not thread-safe. No OpenGL optimization 
+//				is ever performed during parsing because of the thread-safety 
+//				limitation, so you are responsible for calling this method on 
+//				newly-parsed models. 
 //
 //==============================================================================
-- (void) optimizeDrawing
+- (void) optimizeOpenGL
 {
 	// only meaningful in a subclass
 	
-}//end optimizeDrawing
+}//end optimizeOpenGL
 
 
 //========== registerUndoActions: ==============================================

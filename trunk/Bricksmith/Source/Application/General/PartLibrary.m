@@ -628,7 +628,13 @@
 			
 			if(modelToDraw != nil)
 			{
-				displayListTag = glGenLists(1); //create new list name
+				// Do not recursively optimize all the referenced subparts. It's 
+				// slower! (And it's even slower if you add a color parameter 
+				// and create display lists for every subpart in the glColor.) 
+//				[modelToDraw optimizeOpenGL];
+				
+				// Optimize the part itself into a display list.
+				displayListTag = glGenLists(1);
 				
 				//Don't ask the part to draw itself, either. Parts modify the 
 				//transformation matrix, and we want our display list to be 

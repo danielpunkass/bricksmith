@@ -523,6 +523,7 @@
 		[firstStep addDirective:rightLegAccessory];
 	
 	//this is it! We've got a minifigure!
+	[newMinifigure optimizeOpenGL];
 	[self setMinifigure:newMinifigure];
 	
 	

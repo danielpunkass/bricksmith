@@ -308,6 +308,34 @@
 #pragma mark UTILITES
 #pragma mark -
 
+//========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
+//
+// Purpose:		Appends the directive into the appropriate container. 
+//
+//==============================================================================
+- (void) flattenIntoLines:(LDrawStep *)lines
+				triangles:(LDrawStep *)triangles
+		   quadrilaterals:(LDrawStep *)quadrilaterals
+					other:(LDrawStep *)everythingElse
+			 currentColor:(LDrawColorT)currentColor
+		 currentTransform:(Matrix4)transform
+{
+	NSArray         *subdirectives      = [self subdirectives];
+	LDrawDirective  *currentDirective   = 0;
+	
+	for(currentDirective in subdirectives)
+	{
+		[currentDirective flattenIntoLines:lines
+								 triangles:triangles
+							quadrilaterals:quadrilaterals
+									 other:everythingElse
+							  currentColor:currentColor
+						  currentTransform:transform];
+	}
+	
+}//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
+
+
 //========== optimizeOpenGL ====================================================
 //
 // Purpose:		Makes this part run faster by compiling its contents into a 

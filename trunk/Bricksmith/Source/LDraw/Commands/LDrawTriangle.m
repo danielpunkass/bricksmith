@@ -24,6 +24,7 @@
 #include <string.h>
 
 #import "LDrawColor.h"
+#import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
 
@@ -453,6 +454,29 @@
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
+
+//========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
+//
+// Purpose:		Appends the directive into the appropriate container. 
+//
+//==============================================================================
+- (void) flattenIntoLines:(LDrawStep *)lines
+				triangles:(LDrawStep *)triangles
+		   quadrilaterals:(LDrawStep *)quadrilaterals
+					other:(LDrawStep *)everythingElse
+			 currentColor:(LDrawColorT)parentColor
+		 currentTransform:(Matrix4)transform
+{
+	[super flattenIntoLines:lines triangles:triangles quadrilaterals:quadrilaterals other:everythingElse currentColor:parentColor currentTransform:transform];
+
+	self->vertex1   = V3MulPointByProjMatrix(self->vertex1, transform);
+	self->vertex2   = V3MulPointByProjMatrix(self->vertex2, transform);
+	self->vertex3   = V3MulPointByProjMatrix(self->vertex3, transform);
+	[self recomputeNormal];
+
+	[triangles addDirective:self];
+	
+}//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
 
 
 //========== recomputeNormal ===================================================

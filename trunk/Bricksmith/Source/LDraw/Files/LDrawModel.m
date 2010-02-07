@@ -958,74 +958,64 @@
 //				file contents. It is intended only for parts read from the part  
 //				library.
 //
-//				To optimize, we separate all the directives out by the type:
-//				all triangles go in a step, all quadrilaterals go in their own 
-//				step, etc.
+//				To optimize, we flatten all the primitives referenced by a part 
+//				into a non-nested structure, then separate all the directives 
+//				out by the type: all triangles go in a step, all quadrilaterals 
+//				go in their own step, etc. 
 //
-//				Then when drawing, we need not call glBegin() each time.
+//				Then when drawing, we need not call glBegin() each time. The 
+//				result is a speed increase of over 1000%. 
+//
+//				1000%. That is not a typo.
 //
 //==============================================================================
 - (void) optimizeStructure
 {
-	NSArray         *steps          = [self subdirectives];
-	LDrawStep       *firstStep      = 0;
-	NSArray         *directives     = nil;
-	LDrawDirective  *currentObject  = 0;
+	NSArray         *steps              = [self subdirectives];
 	
-	LDrawStep       *lines          = [LDrawStep emptyStepWithFlavor:LDrawStepLines];
-	LDrawStep       *triangles      = [LDrawStep emptyStepWithFlavor:LDrawStepTriangles];
-	LDrawStep       *quadrilaterals = [LDrawStep emptyStepWithFlavor:LDrawStepQuadrilaterals];
-	LDrawStep       *everythingElse = [LDrawStep emptyStepWithFlavor:LDrawStepAnyDirectives];
+	LDrawStep       *lines              = [LDrawStep emptyStepWithFlavor:LDrawStepLines];
+	LDrawStep       *triangles          = [LDrawStep emptyStepWithFlavor:LDrawStepTriangles];
+	LDrawStep       *quadrilaterals     = [LDrawStep emptyStepWithFlavor:LDrawStepQuadrilaterals];
+	LDrawStep       *everythingElse     = [LDrawStep emptyStepWithFlavor:LDrawStepAnyDirectives];
 	
-	NSUInteger      directiveCount  = 0;
-	NSUInteger      counter         = 0;
+	NSUInteger      directiveCount      = 0;
+	NSInteger       counter             = 0;
 	
-	//If there is more than one step in the model, then we shall assume that 
-	// it has either a) already been optimized or b) been created by the user.
-	// In either case, we don't want to call this method!
-	if([steps count] == 1) 
+	// Traverse the entire hiearchy of part references and sort out each 
+	// primitive type into a flat list. This allows staggering speed increases. 
+	//
+	// If we were to only sort without flattening, we would get a 100% speed 
+	// increase. But flattening and sorting yields over 1000%. 
+	[self flattenIntoLines:lines
+				 triangles:triangles
+			quadrilaterals:quadrilaterals
+					 other:everythingElse
+			  currentColor:LDrawCurrentColor
+		  currentTransform:IdentityMatrix4];
+		  
+	// Now that we have everything separated, remove the main step (it's the one 
+	// that has the entire model in it) and . 
+	directiveCount = [steps count];
+	for(counter = (directiveCount - 1); counter >= 0; counter--)
 	{
-		firstStep		= [steps objectAtIndex:0];
-		directives		= [firstStep subdirectives];
-		directiveCount	= [directives count];
-		
-		//Sort out all the different types of directives into their own arrays.
-		for(counter = 0; counter < directiveCount; counter++)
-		{
-			currentObject = [directives objectAtIndex:counter];
-			if([currentObject isMemberOfClass:[LDrawLine class]])
-				[lines addDirective:currentObject];
-			else if([currentObject isKindOfClass:[LDrawTriangle class]])
-				[triangles addDirective:currentObject];
-			else if([currentObject isKindOfClass:[LDrawQuadrilateral class]])
-				[quadrilaterals addDirective:currentObject];
-			else if([currentObject isKindOfClass:[LDrawConditionalLine class]]) {
-				//Die, miserable directives. Die!
-			}
-			else
-				[everythingElse addDirective:currentObject];
-		}
-		
-		//Now that we have everything separated, remove the main step 
-		// (it's the one that has the entire model in it) and replace it 
-		// with the categorized steps we've created.
-		[self removeDirective:firstStep];
-		
-		if([[lines subdirectives] count] > 0)
-			[self addDirective:lines];
-		if([[triangles subdirectives] count] > 0)
-			[self addDirective:triangles];
-		if([[quadrilaterals subdirectives] count] > 0)
-			[self addDirective:quadrilaterals];
-		if([[everythingElse subdirectives] count] > 0)
-			[self addDirective:everythingElse];
-			
-			
-		//Optimizations complete; save some info.
-		Box3 bounds = [self boundingBox3];
-		self->cachedBounds = (Box3*)malloc( sizeof(Box3) );
-		memcpy( cachedBounds, &bounds, sizeof(Box3) );
+		[self removeDirectiveAtIndex:counter];
 	}
+	
+	// Replace the original directives with the categorized steps we've created 
+	if([[lines subdirectives] count] > 0)
+		[self addDirective:lines];
+	if([[triangles subdirectives] count] > 0)
+		[self addDirective:triangles];
+	if([[quadrilaterals subdirectives] count] > 0)
+		[self addDirective:quadrilaterals];
+	if([[everythingElse subdirectives] count] > 0)
+		[self addDirective:everythingElse];
+		
+	//Optimizations complete; save some info.
+	Box3 bounds = [self boundingBox3];
+	self->cachedBounds = (Box3*)malloc( sizeof(Box3) );
+	memcpy( cachedBounds, &bounds, sizeof(Box3) );
+	
 }//end optimizeStructure
 
 

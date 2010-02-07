@@ -524,6 +524,19 @@
 }//end rotationAngleZYX
 
 
+//========== stepFlavor ========================================================
+//
+// Purpose:		Returns the kind of step this is (optimized parts group like 
+//				directives into a single step). 
+//
+//==============================================================================
+- (LDrawStepFlavorT) stepFlavor
+{
+	return self->stepFlavor;
+	
+}//end stepFlavor
+
+
 //========== stepRotationType ==================================================
 //
 // Purpose:		Returns what kind of rotation is attached to this step.

@@ -463,8 +463,17 @@
 			// Timing info
 			framesSinceStartTime++;
 		#if DEBUG_DRAWING
-			CGFloat framesPerSecond = framesSinceStartTime / ([NSDate timeIntervalSinceReferenceDate] - fpsStartTime);
-			NSLog(@"fps = %f, draw time: %f", framesPerSecond, drawTime);
+			NSTimeInterval timeSinceMark = [NSDate timeIntervalSinceReferenceDate] - fpsStartTime;
+			if(timeSinceMark > 5)
+			{	// reset periodically
+				fpsStartTime = [NSDate timeIntervalSinceReferenceDate]; 
+				framesSinceStartTime = 0;
+			}
+			else
+			{
+				CGFloat framesPerSecond = framesSinceStartTime / timeSinceMark;
+				NSLog(@"fps = %f, draw time: %f", framesPerSecond, drawTime);
+			}
 		#endif //DEBUG_DRAWING
 			
 		}

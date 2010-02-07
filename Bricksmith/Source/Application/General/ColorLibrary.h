@@ -41,6 +41,7 @@
 typedef enum
 {	
 	LDrawColorBogus				= -1, //used for uninitialized colors.
+	LDrawColorCustomRGB			= -2,
 
 	LDrawBlack					= 0,
 	LDrawBlue					= 1,

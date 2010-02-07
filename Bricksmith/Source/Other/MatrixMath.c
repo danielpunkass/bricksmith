@@ -178,7 +178,7 @@ Vector3 V3FromV4(Vector4 originalVector)
 	Vector3 newVector;
 	
 	//This is very bad.
-	if(originalVector.w != 1)
+	if(originalVector.w != 1 && originalVector.w != 0)
 		printf("lossy 4D vector conversion: <%f, %f, %f, %f>\n", originalVector.x, originalVector.y, originalVector.z, originalVector.w);
 	
 	newVector.x = originalVector.x;
@@ -706,28 +706,6 @@ Point3 V3MulPointByProjMatrix(Point3 pin, Matrix4 m)
 }//end V3MulPointByProjMatrix
 
 
-//========== V3MatMul ==========================================================
-//
-// Purpose:		multiply together matrices c = ab
-//
-// Notes:		c must not point to either of the input matrices
-//
-//==============================================================================
-Matrix4 *V3MatMul(Matrix4 *a, Matrix4 *b, Matrix4 *c)
-{
-	int i, j, k;
-	for (i=0; i<4; i++) {
-		for (j=0; j<4; j++) {
-			c->element[i][j] = 0;
-			for (k=0; k<4; k++) c->element[i][j] += 
-				a->element[i][k] * b->element[k][j];
-		}
-	}
-	return(c);
-	
-}//end V3MatMul
-
-
 //========== det3x3 ============================================================
 //
 // Purpose:		Calculate the determinant of a 3x3 matrix in the form 
@@ -1198,6 +1176,95 @@ Tuple3 Matrix4DecomposeZYXRotation(Matrix4 matrix)
 }//end Matrix4DecomposeZYXRotation
 
 
+//========== Matrix4GetGLMatrix4 ===============================================
+//
+// Purpose:		Converts the row-major row-vector matrix into a flat column-
+//				major column-vector matrix understood by OpenGL.
+//
+//
+//			 +-       -+     +-       -++- -+
+//	+-     -+| a d g 0 |     | a b c x || x |
+//	|x y z 1|| b e h 0 |     | d e f y || y |     +-                           -+
+//	+-     -+| c f i 0 | --> | g h i z || z | --> |a d g 0 b e h c f i 0 x y z 1|
+//			 | x y z 1 |     | 0 0 0 1 || 1 |     +-                           -+
+//			 +-       -+     +-       -++- -+
+//		LDraw Matrix            Transpose               OpenGL Matrix Format
+//		   Format                                 (flat column-major of transpose)
+//  (also Matrix4 format)
+//
+//==============================================================================
+void Matrix4GetGLMatrix4(Matrix4 matrix, GLfloat *glTransformation)
+{
+	unsigned int row, column;
+	
+	for(row = 0; row < 4; row++)
+	{
+		for(column = 0; column < 4; column++)
+		{
+			glTransformation[row * 4 + column] = matrix.element[row][column];
+		}
+	}
+	
+}//end Matrix4GetGLMatrix4
+
+
+//========== Matrix4Multiply ==========================================================
+//
+// Purpose:		multiply together matrices c = ab
+//
+// Notes:		c must not point to either of the input matrices
+//
+//==============================================================================
+Matrix4 *Matrix4Multiply(Matrix4 *a, Matrix4 *b, Matrix4 *c)
+{
+	int row;
+	int column;
+	int k;
+	
+	for (row = 0; row < 4; row++)
+	{
+		for (column = 0; column < 4; column++)
+		{
+			c->element[row][column] = 0;
+			
+			for (k=0; k<4; k++)
+				c->element[row][column] += a->element[row][k] * b->element[k][column];
+		}
+	}
+	return(c);
+	
+}//end Matrix4Multiply
+
+
+//========== Matrix4MultiplyGLMatrices =========================================
+//
+// Purpose:		multiply together matrices c = ab
+//
+// Notes:		c must not point to either of the input matrices
+//
+//==============================================================================
+void Matrix4MultiplyGLMatrices(GLfloat *a, GLfloat *b, GLfloat *result)
+{
+	int row;
+	int column;
+	int k;
+	
+	// Zero the result
+	memset(result, 0, sizeof(GLfloat[16]));
+	
+	// Multiply
+	for (row = 0; row < 4; row++)
+	{
+		for (column = 0; column < 4; column++)
+		{
+			for (k=0; k<4; k++)
+				result[row * 4 + column] += a[row * 4 + k] * b[k * 4 + column];
+		}
+	}
+	
+}//end Matrix4Multiply
+
+
 //========== Matrix4Rotate() ===================================================
 //
 // Purpose:		Rotates the given matrix by the given number of degrees around 
@@ -1222,7 +1289,7 @@ Matrix4 Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate)
 	rotateComponents.rotate.z = radians(degreesToRotate.z);
 	addedRotation = Matrix4CreateTransformation(&rotateComponents);
 	
-	V3MatMul(&original, &addedRotation, &newMatrix); //rotate at rotationCenter
+	Matrix4Multiply(&original, &addedRotation, &newMatrix); //rotate at rotationCenter
 	
 	return newMatrix;
 

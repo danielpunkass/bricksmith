@@ -143,30 +143,28 @@
 		
 		//Draw, for goodness sake!
 		
-		if(self->color == LDrawCurrentColor)
+		switch(self->color)
 		{
-			//Just draw; don't fool with colors. A significant portion of our 
-			// drawing code probably falls into this category.
-			[self drawElement:optionsMask withColor:parentColor];
-		}
-		else
-		{
-			// We'll need to turn this on to support file-local colors.
-//			ColorLibrary	*colorLibrary	= [[[self enclosingDirective] enclosingModel] colorLibrary];
-//			LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
-			
-			if(self->color == LDrawEdgeColor)
-			{
+			case LDrawCurrentColor:
+				//Just draw; don't fool with colors. A significant portion of our 
+				// drawing code probably falls into this category.
+				[self drawElement:optionsMask withColor:parentColor];
+				break;
+				
+			case LDrawEdgeColor:
+				// We'll need to turn this on to support file-local colors.
+//				ColorLibrary	*colorLibrary	= [[[self enclosingDirective] enclosingModel] colorLibrary];
+//				LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
 				complimentColor(parentColor, self->glColor);
-			}
-//			else
-//			{
-//				[colorObject getColorRGBA:self->glColor];
-//			}
-	
-			[self drawElement:optionsMask withColor:self->glColor];
-		}
+				[self drawElement:optionsMask withColor:self->glColor];
+				break;
 			
+			case LDrawColorCustomRGB:
+			default:
+				[self drawElement:optionsMask withColor:self->glColor];
+				break;
+		}
+		
 		// Done drawing a selected part? Then switch back to normal filled 
 		// drawing. 
 		if(self->isSelected == YES)
@@ -174,7 +172,6 @@
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glEnable(GL_BLEND);
 		}
-		
 	}
 	
 }//end draw:optionsMask:
@@ -390,6 +387,20 @@
 }//end setLDrawColor:
 
 
+//========== setRGBColor: ======================================================
+//
+// Purpose:		Assigns this directive a custom-defined color rather than an 
+//				LDraw code. 
+//
+//==============================================================================
+- (void) setRGBColor:(GLfloat *)glColorIn
+{
+	self->color = LDrawColorCustomRGB;
+	memcpy(self->glColor, glColorIn, sizeof(GLfloat[4]));
+	
+}//end setRGBColor:
+
+
 #pragma mark -
 #pragma mark MOVEMENT
 #pragma mark -
@@ -452,6 +463,74 @@
 	return position;
 	
 }//end position:snappedToGrid:
+
+
+#pragma mark -
+#pragma mark UTILITIES
+#pragma mark -
+
+//========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
+//
+// Purpose:		Appends the directive into the appropriate container. 
+//
+// Notes:		This is used to flatten a complicated hiearchy of primitives and 
+//				part references to files containing yet more primitives into a 
+//				single flat list, which may be drawn to produce a shape visually 
+//				identical to the original structure. The flattened structure, 
+//				however, has the advantage that it is much faster to traverse 
+//				during drawing. 
+//
+//				This is the core of -[LDrawModel optimizeStructure].
+//
+//==============================================================================
+- (void) flattenIntoLines:(LDrawStep *)lines
+				triangles:(LDrawStep *)triangles
+		   quadrilaterals:(LDrawStep *)quadrilaterals
+					other:(LDrawStep *)everythingElse
+			 currentColor:(LDrawColorT)parentColor
+		 currentTransform:(Matrix4)transform
+{
+	// Resolve the correct color and set it. Our subclasses will be responsible 
+	// for then adding themselves to the correct list. 
+
+	// Figure out the actual color of the directive.
+	
+	if(self->color == LDrawCurrentColor)
+	{
+		if(parentColor == LDrawCurrentColor)
+		{
+			// just add
+		}
+		else
+		{
+			// set directiveCopy to parent color
+			[self setLDrawColor:parentColor];
+		}
+	}
+	else if(self->color == LDrawEdgeColor)
+	{
+		if(parentColor == LDrawCurrentColor)
+		{
+			// just add
+		}
+		else
+		{
+			// set directiveCopy to compliment color
+			GLfloat glParentColor[4];
+			LDrawColor *colorObject = [[ColorLibrary sharedColorLibrary] colorForCode:parentColor];
+			[colorObject getColorRGBA:glParentColor];
+			complimentColor(glParentColor, self->glColor);
+			[self setRGBColor:self->glColor];
+			
+			// then add.
+		}
+	}
+	else
+	{
+		// This directive is already explicitly colored. Just add.
+	}
+	
+}//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
 
 
 @end

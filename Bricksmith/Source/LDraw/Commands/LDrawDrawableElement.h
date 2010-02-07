@@ -40,6 +40,7 @@
 
 - (void) setHidden:(BOOL)flag;
 - (void) setLDrawColor:(LDrawColorT)newColor;
+- (void) setRGBColor:(GLfloat *)glColorIn;
 
 // Actions
 - (Vector3) displacementForNudge:(Vector3)nudgeVector;

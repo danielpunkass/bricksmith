@@ -76,6 +76,7 @@ typedef enum
 - (LDrawModel *) enclosingModel;
 - (Tuple3) rotationAngle;
 - (Tuple3) rotationAngleZYX;
+- (LDrawStepFlavorT) stepFlavor;
 - (LDrawStepRotationT) stepRotationType;
 
 - (void) setModel:(LDrawModel *)enclosingModel;

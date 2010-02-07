@@ -12,10 +12,13 @@
 #import <OpenGL/OpenGL.h>
 #import <OpenGL/gl.h>
 
+#import "ColorLibrary.h"
+#import "MatrixMath.h"
 #import "ObjectInspectionController.h"
 
 @class LDrawContainer;
 @class LDrawFile;
+@class LDrawStep;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +61,12 @@
 - (void) unlockEditor;
 
 //Utilities
+- (void) flattenIntoLines:(LDrawStep *)lines
+				triangles:(LDrawStep *)triangles
+		   quadrilaterals:(LDrawStep *)quadrilaterals
+					other:(LDrawStep *)everythingElse
+			 currentColor:(LDrawColorT)currentColor
+		 currentTransform:(Matrix4)transform;
 - (BOOL) isAncestorInList:(NSArray *)containers;
 - (void) optimizeOpenGL;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;

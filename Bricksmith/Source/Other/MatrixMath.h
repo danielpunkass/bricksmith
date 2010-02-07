@@ -218,7 +218,6 @@ extern Box3		V3UnionBoxAndPoint(Box3 box, Point3 point);
 
 extern Point3	V3MulPointByMatrix(Point3 pin, Matrix3 m);
 extern Vector3	V3MulPointByProjMatrix(Point3 pin, Matrix4 m);
-extern Matrix4*	V3MatMul(Matrix4 *a, Matrix4 *b, Matrix4 *c);
 extern float	det3x3( float, float, float, float, float, float, float, float, float );
 
 // 4-D
@@ -230,6 +229,9 @@ extern Matrix4	Matrix4CreateTransformation(TransformComponents *);
 extern int		Matrix4DecomposeTransformation( Matrix4 originalMatrix, TransformComponents *decomposed);
 extern Tuple3	Matrix4DecomposeXYZRotation(Matrix4 matrix);
 extern Tuple3	Matrix4DecomposeZYXRotation(Matrix4 matrix);
+extern Matrix4*	Matrix4Multiply(Matrix4 *a, Matrix4 *b, Matrix4 *result);
+extern void		Matrix4MultiplyGLMatrices(GLfloat *a, GLfloat *b, GLfloat *result);
+extern void		Matrix4GetGLMatrix4(Matrix4 matrix, GLfloat *glTransformation);
 extern Matrix4	Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate);
 extern Matrix4	Matrix4Translate(Matrix4 original, Vector3 displacement);
 extern Matrix4	Matrix4Transpose(Matrix4 a);

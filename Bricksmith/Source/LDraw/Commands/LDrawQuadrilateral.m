@@ -21,6 +21,7 @@
 //==============================================================================
 #import "LDrawQuadrilateral.h"
 
+#import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
 
@@ -573,6 +574,31 @@
 	}
 	
 }//end fixBowtie
+
+
+//========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
+//
+// Purpose:		Appends the directive into the appropriate container. 
+//
+//==============================================================================
+- (void) flattenIntoLines:(LDrawStep *)lines
+				triangles:(LDrawStep *)triangles
+		   quadrilaterals:(LDrawStep *)quadrilaterals
+					other:(LDrawStep *)everythingElse
+			 currentColor:(LDrawColorT)parentColor
+		 currentTransform:(Matrix4)transform
+{
+	[super flattenIntoLines:lines triangles:triangles quadrilaterals:quadrilaterals other:everythingElse currentColor:parentColor currentTransform:transform];
+
+	self->vertex1 = V3MulPointByProjMatrix(self->vertex1, transform);
+	self->vertex2 = V3MulPointByProjMatrix(self->vertex2, transform);
+	self->vertex3 = V3MulPointByProjMatrix(self->vertex3, transform);
+	self->vertex4 = V3MulPointByProjMatrix(self->vertex4, transform);
+	[self recomputeNormal];
+	
+	[quadrilaterals addDirective:self];
+	
+}//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
 
 
 //========== recomputeNormal ===================================================

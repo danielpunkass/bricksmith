@@ -779,15 +779,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //==============================================================================
 - (void) setTransformationMatrix:(Matrix4 *)newMatrix
 {
-	NSUInteger row, column;
-	
-	for(row = 0; row < 4; row++)
-	{
-		for(column = 0; column < 4; column++)
-		{
-			glTransformation[row * 4 + column] = newMatrix->element[row][column];
-		}
-	}
+	Matrix4GetGLMatrix4(*newMatrix, glTransformation);
 	
 	[self removeDisplayList];
 	
@@ -1087,6 +1079,48 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
+
+//========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
+//
+// Purpose:		Appends the directive into the appropriate container. 
+//
+//==============================================================================
+- (void) flattenIntoLines:(LDrawStep *)lines
+				triangles:(LDrawStep *)triangles
+		   quadrilaterals:(LDrawStep *)quadrilaterals
+					other:(LDrawStep *)everythingElse
+			 currentColor:(LDrawColorT)parentColor
+		 currentTransform:(Matrix4)transform
+{
+	LDrawModel  *modelToDraw        = nil;
+	LDrawModel  *flatCopy           = nil;
+	Matrix4		partTransform		= Matrix4CreateFromGLMatrix4(self->glTransformation);
+	Matrix4     combinedTransform   = IdentityMatrix4;
+
+	[super flattenIntoLines:lines triangles:triangles quadrilaterals:quadrilaterals other:everythingElse currentColor:parentColor currentTransform:transform];
+	
+	// Flattening involves applying the part's transform to copies of all 
+	// referenced vertices. (We are forced to make copies because you can't call 
+	// glMultMatrix inside a glBegin; the only way to draw all like geometry at 
+	// once is to have a flat, transformed copy of it.) 
+	
+	modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	flatCopy    = [modelToDraw copy];
+	
+	// concatenate the transform and pass it down
+	Matrix4Multiply(&transform, &partTransform, &combinedTransform);
+	
+	[flatCopy flattenIntoLines:lines
+					 triangles:triangles
+				quadrilaterals:quadrilaterals
+						 other:everythingElse
+				  currentColor:[self LDrawColor]
+			  currentTransform:combinedTransform ];
+	
+	[flatCopy release];
+
+}//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
+
 
 //========== collectPartReport: ================================================
 //

@@ -412,6 +412,35 @@
 }//end description
 
 
+//========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
+//
+// Purpose:		Appends the directive (or a copy of the directive) into the 
+//				appropriate container. 
+//
+// Notes:		This is used to flatten a complicated hiearchy of primitives and 
+//				part references to files containing yet more primitives into a 
+//				single flat list, which may be drawn to produce a shape visually 
+//				identical to the original structure. The flattened structure, 
+//				however, has the advantage that it is much faster to traverse 
+//				during drawing. 
+//
+//				This is the core of -[LDrawModel optimizeStructure].
+//
+//==============================================================================
+- (void) flattenIntoLines:(LDrawStep *)lines
+				triangles:(LDrawStep *)triangles
+		   quadrilaterals:(LDrawStep *)quadrilaterals
+					other:(LDrawStep *)everythingElse
+			 currentColor:(LDrawColorT)currentColor
+		 currentTransform:(Matrix4)transform
+{
+	// By default, a directive does not add itself to the list, an indication 
+	// that it is not drawn. Subclasses override this routine to add themselves 
+	// to the appropriate list. 
+
+}//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
+
+
 //========== isAncestorInList: =================================================
 //
 // Purpose:		Given a list of LDrawContainers, returns YES if any of the 

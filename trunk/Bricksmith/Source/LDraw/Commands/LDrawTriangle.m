@@ -466,14 +466,22 @@
 					other:(LDrawStep *)everythingElse
 			 currentColor:(LDrawColorT)parentColor
 		 currentTransform:(Matrix4)transform
+		  normalTransform:(Matrix3)normalTransform
 {
-	[super flattenIntoLines:lines triangles:triangles quadrilaterals:quadrilaterals other:everythingElse currentColor:parentColor currentTransform:transform];
-
+	[super flattenIntoLines:lines
+				  triangles:triangles
+			 quadrilaterals:quadrilaterals
+					  other:everythingElse
+			   currentColor:parentColor
+		   currentTransform:transform
+			normalTransform:normalTransform];
+	
 	self->vertex1   = V3MulPointByProjMatrix(self->vertex1, transform);
 	self->vertex2   = V3MulPointByProjMatrix(self->vertex2, transform);
 	self->vertex3   = V3MulPointByProjMatrix(self->vertex3, transform);
-	[self recomputeNormal];
-
+	
+	self->normal    = V3MulPointByMatrix(self->normal, normalTransform);
+	
 	[triangles addDirective:self];
 	
 }//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:

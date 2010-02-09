@@ -991,7 +991,8 @@
 			quadrilaterals:quadrilaterals
 					 other:everythingElse
 			  currentColor:LDrawCurrentColor
-		  currentTransform:IdentityMatrix4];
+		  currentTransform:IdentityMatrix4
+		   normalTransform:IdentityMatrix3];
 		  
 	// Now that we have everything separated, remove the main step (it's the one 
 	// that has the entire model in it) and . 

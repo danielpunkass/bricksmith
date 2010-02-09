@@ -517,8 +517,8 @@
 		
 		if(V3EqualBoxes(bounds, InvalidBox) == NO)
 		{
-			originalMin	= V4FromV3( bounds.min );
-			originalMax	= V4FromV3( bounds.max );
+			originalMin	= V4FromPoint3( bounds.min );
+			originalMax	= V4FromPoint3( bounds.max );
 			
 			rotatedMin	= V4MulPointByMatrix(originalMin, transformation);
 			rotatedMax	= V4MulPointByMatrix(originalMax, transformation);
@@ -1091,13 +1091,20 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 					other:(LDrawStep *)everythingElse
 			 currentColor:(LDrawColorT)parentColor
 		 currentTransform:(Matrix4)transform
+		  normalTransform:(Matrix3)normalTransform
 {
 	LDrawModel  *modelToDraw        = nil;
 	LDrawModel  *flatCopy           = nil;
 	Matrix4		partTransform		= Matrix4CreateFromGLMatrix4(self->glTransformation);
 	Matrix4     combinedTransform   = IdentityMatrix4;
 
-	[super flattenIntoLines:lines triangles:triangles quadrilaterals:quadrilaterals other:everythingElse currentColor:parentColor currentTransform:transform];
+	[super flattenIntoLines:lines
+				  triangles:triangles
+			 quadrilaterals:quadrilaterals
+					  other:everythingElse
+			   currentColor:parentColor
+		   currentTransform:transform
+			normalTransform:normalTransform];
 	
 	// Flattening involves applying the part's transform to copies of all 
 	// referenced vertices. (We are forced to make copies because you can't call 
@@ -1110,12 +1117,16 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	// concatenate the transform and pass it down
 	Matrix4Multiply(&transform, &partTransform, &combinedTransform);
 	
+	// Normals are actually transformed by a different matrix.
+	normalTransform = Matrix3MakeNormalTransformFromProjMatrix(combinedTransform);
+	
 	[flatCopy flattenIntoLines:lines
 					 triangles:triangles
 				quadrilaterals:quadrilaterals
 						 other:everythingElse
 				  currentColor:[self LDrawColor]
-			  currentTransform:combinedTransform ];
+			  currentTransform:combinedTransform
+			   normalTransform:normalTransform ];
 	
 	[flatCopy release];
 

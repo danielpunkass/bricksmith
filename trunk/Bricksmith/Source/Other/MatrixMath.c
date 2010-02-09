@@ -32,6 +32,10 @@ const TransformComponents IdentityComponents = {
 							{0, 0, 0, 0}//perspective;
 						};
 
+const Matrix3 IdentityMatrix3 = {{	{1, 0, 0},
+									{0, 1, 0},
+									{0, 0, 1} }};
+
 const Matrix4 IdentityMatrix4 = {{	{1, 0, 0, 0},
 									{0, 1, 0, 0},
 									{0, 0, 1, 0},
@@ -671,8 +675,8 @@ Point3 V3MulPointByMatrix(Point3 pin, Matrix3 m)
 //==============================================================================
 Point3 V3MulPointByProjMatrix(Point3 pin, Matrix4 m)
 {
-	Point3 pout = ZeroPoint3;
-	float	w	= 0.0;
+	Point3  pout    = ZeroPoint3;
+	float   w       = 0.0;
 	
 	pout.x =	(pin.x * m.element[0][0])
 			 +	(pin.y * m.element[1][0])
@@ -706,7 +710,7 @@ Point3 V3MulPointByProjMatrix(Point3 pin, Matrix4 m)
 }//end V3MulPointByProjMatrix
 
 
-//========== det3x3 ============================================================
+//========== Matrix3x3Determinant ==============================================
 //
 // Purpose:		Calculate the determinant of a 3x3 matrix in the form 
 //
@@ -715,7 +719,7 @@ Point3 V3MulPointByProjMatrix(Point3 pin, Matrix4 m)
 //				| a3,  b3,  c3 |
 //
 //==============================================================================
-float det3x3( float a1, float a2, float a3, float b1, float b2, float b3, float c1, float c2, float c3 )
+float Matrix3x3Determinant( float a1, float a2, float a3, float b1, float b2, float b3, float c1, float c2, float c3 )
 {
     float ans;
 	
@@ -724,7 +728,48 @@ float det3x3( float a1, float a2, float a3, float b1, float b2, float b3, float 
         + c1 * Matrix2x2Determinant( a2, a3, b2, b3 );
     return ans;
 	
-}//end det3x3
+}//end Matrix3x3Determinant
+
+
+//========== Matrix3MakeNormalTransformFromProjMatrix ==========================
+//
+// Purpose:		Normal vectors (for lighting) cannot be transformed by the same 
+//				matrix which transforms vertexes. This method returns the 
+//				correct matrix to transforming normals for the given vertex 
+//				transform (modelview) matrix. 
+//
+// Notes:		See "Matrices" notes in Bricksmith/Information for derivation.
+//
+//				Also http://www.lighthouse3d.com/opengl/glsl/index.php?normalmatrix
+//				and  http://www.songho.ca/opengl/gl_normaltransform.html
+//
+//				We only need a 3x3 matrix because the translation in the 4x4 
+//				transform (row 4) is undesirable anyway (a 4D vector should be 
+//				[x y z 0]), and column 4 isn't used. 
+//
+//==============================================================================
+Matrix3 Matrix3MakeNormalTransformFromProjMatrix(Matrix4 transformationMatrix)
+{
+	Matrix4 normalTransform     = IdentityMatrix4;
+	Matrix3 normalTransform3    = IdentityMatrix3;
+	int     row                 = 0;
+	int     column              = 0;
+	
+	// The normal transform is the inverse transpose of the vertex transform.
+	
+	normalTransform = Matrix4Invert(transformationMatrix);
+	normalTransform = Matrix4Transpose(normalTransform);
+	
+	// Convert to a 3x3 matrix, because row 4 and column 4 are unnecessary.
+	for(row = 0; row < 3; row++)
+	{
+		for(column = 0; column < 3; column++)
+			normalTransform3.element[row][column] = normalTransform.element[row][column];
+	}
+	
+	return normalTransform3;
+	
+}//end Matrix3MakeNormalTransformFromProjMatrix
 
 
 #pragma mark -
@@ -750,24 +795,29 @@ Vector4 V4Make(float x, float y, float z, float w)
 }//end V4Make
 
 
-//========== V3FromV4 ==========================================================
+//========== V4FromPoint3 ======================================================
 //
-// Purpose:		Create a new 4D vector whose components match the given 3D 
-//				vector, with a 1 in the 4th dimension.
+// Purpose:		Create a new 4D point whose components match the given 3D 
+//				point, with a 1 in the 4th dimension.
+//
+// Notes:		This method is not suitable for creating 4D vectors, whose w 
+//				value must be 0. (That will cause the translation part of a 4x4 
+//				transformation matrix to have no effect, which is what you want 
+//				for vectors.) 
 //
 //==============================================================================
-Vector4 V4FromV3(Vector3 originalVector)
+Vector4 V4FromPoint3(Vector3 originalVector)
 {
 	Vector4 newVector;
 	
 	newVector.x = originalVector.x;
 	newVector.y = originalVector.y;
 	newVector.z = originalVector.z;
-	newVector.w = 1;
+	newVector.w = 1; // By setting this to 1, the returned value is a point. Vectors would be set to 0.
 	
 	return newVector;
 	
-}//end V4FromV3
+}//end V4FromPoint3
 
 
 //========== V4MulPointByMatrix() ==============================================
@@ -1353,32 +1403,35 @@ Matrix4 Matrix4Transpose(Matrix4 a)
 //==============================================================================
 Matrix4 Matrix4Invert( Matrix4 in )
 {
-	Matrix4 out	= IdentityMatrix4;
-    int		i, j;
-    float	det	= 0.0;
-	
-    /* calculate the adjoint matrix */
+	Matrix4 out = IdentityMatrix4;
+	int     i;
+	int     j;
+	float   det = 0.0;
 	
     Matrix4Adjoint( &in, &out );
 	
-    /*  calculate the 4x4 determinant
-		*  if the determinant is zero, 
-		*  then the inverse matrix is not unique.
-		*/
-	
+    // Calculate the 4x4 determinant
+	// If the determinant is zero, then the inverse matrix is not unique.
     det = Matrix4x4Determinant( &in );
 	
     if ( fabs( det ) < SMALL_NUMBER)
 	{
+		// The result of attempting to derive the inverse of a non-invertible 
+		// matrix is undefined in OpenGL:
+		// http://www.opengl.org/documentation/specs/version1.1/glspec1.1/node26.html
+		// However, it is NOT permitted to cause program termination or 
+		// corruption! 
         printf("Non-singular matrix, no inverse!\n");
-        exit(1);
+//		exit(1);
     }
-	
-    /* scale the adjoint matrix to get the inverse */
-	
-    for (i=0; i<4; i++)
-        for(j=0; j<4; j++)
-			out.element[i][j] = out.element[i][j] / det;
+	else
+	{
+		// scale the adjoint matrix to get the inverse
+		
+		for (i=0; i<4; i++)
+			for(j=0; j<4; j++)
+				out.element[i][j] = out.element[i][j] / det;
+	}
 	
 	return out;
 	
@@ -1425,25 +1478,25 @@ void Matrix4Adjoint( Matrix4 *in, Matrix4 *out )
 	
     /* row column labeling reversed since we transpose rows & columns */
 	
-    out->element[0][0]  =   det3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4);
-    out->element[1][0]  = - det3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4);
-    out->element[2][0]  =   det3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4);
-    out->element[3][0]  = - det3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
+    out->element[0][0]  =   Matrix3x3Determinant( b2, b3, b4, c2, c3, c4, d2, d3, d4);
+    out->element[1][0]  = - Matrix3x3Determinant( a2, a3, a4, c2, c3, c4, d2, d3, d4);
+    out->element[2][0]  =   Matrix3x3Determinant( a2, a3, a4, b2, b3, b4, d2, d3, d4);
+    out->element[3][0]  = - Matrix3x3Determinant( a2, a3, a4, b2, b3, b4, c2, c3, c4);
 	
-    out->element[0][1]  = - det3x3( b1, b3, b4, c1, c3, c4, d1, d3, d4);
-    out->element[1][1]  =   det3x3( a1, a3, a4, c1, c3, c4, d1, d3, d4);
-    out->element[2][1]  = - det3x3( a1, a3, a4, b1, b3, b4, d1, d3, d4);
-    out->element[3][1]  =   det3x3( a1, a3, a4, b1, b3, b4, c1, c3, c4);
+    out->element[0][1]  = - Matrix3x3Determinant( b1, b3, b4, c1, c3, c4, d1, d3, d4);
+    out->element[1][1]  =   Matrix3x3Determinant( a1, a3, a4, c1, c3, c4, d1, d3, d4);
+    out->element[2][1]  = - Matrix3x3Determinant( a1, a3, a4, b1, b3, b4, d1, d3, d4);
+    out->element[3][1]  =   Matrix3x3Determinant( a1, a3, a4, b1, b3, b4, c1, c3, c4);
 	
-    out->element[0][2]  =   det3x3( b1, b2, b4, c1, c2, c4, d1, d2, d4);
-    out->element[1][2]  = - det3x3( a1, a2, a4, c1, c2, c4, d1, d2, d4);
-    out->element[2][2]  =   det3x3( a1, a2, a4, b1, b2, b4, d1, d2, d4);
-    out->element[3][2]  = - det3x3( a1, a2, a4, b1, b2, b4, c1, c2, c4);
+    out->element[0][2]  =   Matrix3x3Determinant( b1, b2, b4, c1, c2, c4, d1, d2, d4);
+    out->element[1][2]  = - Matrix3x3Determinant( a1, a2, a4, c1, c2, c4, d1, d2, d4);
+    out->element[2][2]  =   Matrix3x3Determinant( a1, a2, a4, b1, b2, b4, d1, d2, d4);
+    out->element[3][2]  = - Matrix3x3Determinant( a1, a2, a4, b1, b2, b4, c1, c2, c4);
 	
-    out->element[0][3]  = - det3x3( b1, b2, b3, c1, c2, c3, d1, d2, d3);
-    out->element[1][3]  =   det3x3( a1, a2, a3, c1, c2, c3, d1, d2, d3);
-    out->element[2][3]  = - det3x3( a1, a2, a3, b1, b2, b3, d1, d2, d3);
-    out->element[3][3]  =   det3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
+    out->element[0][3]  = - Matrix3x3Determinant( b1, b2, b3, c1, c2, c3, d1, d2, d3);
+    out->element[1][3]  =   Matrix3x3Determinant( a1, a2, a3, c1, c2, c3, d1, d2, d3);
+    out->element[2][3]  = - Matrix3x3Determinant( a1, a2, a3, b1, b2, b3, d1, d2, d3);
+    out->element[3][3]  =   Matrix3x3Determinant( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 	
 }//end Matrix4Adjoint
 
@@ -1475,10 +1528,10 @@ float Matrix4x4Determinant( Matrix4 *m )
 	a4 = m->element[3][0]; b4 = m->element[3][1]; 
 	c4 = m->element[3][2]; d4 = m->element[3][3];
 	
-    ans = a1 * det3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4)
-        - b1 * det3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4)
-        + c1 * det3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4)
-        - d1 * det3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
+    ans = a1 * Matrix3x3Determinant( b2, b3, b4, c2, c3, c4, d2, d3, d4)
+        - b1 * Matrix3x3Determinant( a2, a3, a4, c2, c3, c4, d2, d3, d4)
+        + c1 * Matrix3x3Determinant( a2, a3, a4, b2, b3, b4, d2, d3, d4)
+        - d1 * Matrix3x3Determinant( a2, a3, a4, b2, b3, b4, c2, c3, c4);
 		
     return ans;
 	

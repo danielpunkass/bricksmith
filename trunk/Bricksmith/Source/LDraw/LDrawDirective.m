@@ -433,6 +433,7 @@
 					other:(LDrawStep *)everythingElse
 			 currentColor:(LDrawColorT)currentColor
 		 currentTransform:(Matrix4)transform
+		  normalTransform:(Matrix3)normalTransform
 {
 	// By default, a directive does not add itself to the list, an indication 
 	// that it is not drawn. Subclasses override this routine to add themselves 

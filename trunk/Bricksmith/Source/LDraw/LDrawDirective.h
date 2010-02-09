@@ -66,7 +66,8 @@
 		   quadrilaterals:(LDrawStep *)quadrilaterals
 					other:(LDrawStep *)everythingElse
 			 currentColor:(LDrawColorT)currentColor
-		 currentTransform:(Matrix4)transform;
+		 currentTransform:(Matrix4)transform
+		  normalTransform:(Matrix3)normalTransform;
 - (BOOL) isAncestorInList:(NSArray *)containers;
 - (void) optimizeOpenGL;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;

@@ -1422,7 +1422,7 @@ Matrix4 Matrix4Invert( Matrix4 in )
 		// http://www.opengl.org/documentation/specs/version1.1/glspec1.1/node26.html
 		// However, it is NOT permitted to cause program termination or 
 		// corruption! 
-        printf("Non-singular matrix, no inverse!\n");
+//		printf("Non-singular matrix, no inverse!\n");
 //		exit(1);
     }
 	else

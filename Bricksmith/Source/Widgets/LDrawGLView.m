@@ -3613,7 +3613,7 @@
 	
 	// For the camera calculation, we need effective world coordinates, not 
 	// model coordinates. 
-	transformedPoint = V4MulPointByMatrix(V4FromV3(modelPoint), modelViewMatrix);
+	transformedPoint = V4MulPointByMatrix(V4FromPoint3(modelPoint), modelViewMatrix);
 	
 	// Perspective distortion makes this more complicated. The camera is in a 
 	// fixed position, but the frustum changes with the scrollbars. We need to 

@@ -52,7 +52,7 @@ typedef struct Box3dStruct
 // 3x3 Matrix
 typedef struct Matrix3Struct
 {
-	float element[3][3];
+	float element[3][3]; // [row][column]
 	
 } Matrix3;
 
@@ -107,6 +107,7 @@ typedef struct
 
 extern const Box3					InvalidBox;
 extern const TransformComponents	IdentityComponents;
+extern const Matrix3				IdentityMatrix3;
 extern const Matrix4				IdentityMatrix4;
 extern const Point3					ZeroPoint3;
 extern const Point4					ZeroPoint4;
@@ -218,11 +219,12 @@ extern Box3		V3UnionBoxAndPoint(Box3 box, Point3 point);
 
 extern Point3	V3MulPointByMatrix(Point3 pin, Matrix3 m);
 extern Vector3	V3MulPointByProjMatrix(Point3 pin, Matrix4 m);
-extern float	det3x3( float, float, float, float, float, float, float, float, float );
+extern float	Matrix3x3Determinant( float, float, float, float, float, float, float, float, float );
+extern Matrix3	Matrix3MakeNormalTransformFromProjMatrix(Matrix4 transformationMatrix);
 
 // 4-D
 extern Vector4	V4Make(float x, float y, float z, float w);
-extern Vector4	V4FromV3(Vector3 originalVector);
+extern Vector4	V4FromPoint3(Vector3 originalVector);
 extern Vector4	V4MulPointByMatrix(Vector4 pin, Matrix4 m);
 extern Matrix4	Matrix4CreateFromGLMatrix4(const GLfloat *glMatrix);
 extern Matrix4	Matrix4CreateTransformation(TransformComponents *);

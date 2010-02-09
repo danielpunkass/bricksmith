@@ -489,6 +489,7 @@
 					other:(LDrawStep *)everythingElse
 			 currentColor:(LDrawColorT)parentColor
 		 currentTransform:(Matrix4)transform
+		  normalTransform:(Matrix3)normalTransform
 {
 	// Resolve the correct color and set it. Our subclasses will be responsible 
 	// for then adding themselves to the correct list. 

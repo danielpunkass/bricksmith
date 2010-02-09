@@ -319,6 +319,7 @@
 					other:(LDrawStep *)everythingElse
 			 currentColor:(LDrawColorT)currentColor
 		 currentTransform:(Matrix4)transform
+		  normalTransform:(Matrix3)normalTransform
 {
 	NSArray         *subdirectives      = [self subdirectives];
 	LDrawDirective  *currentDirective   = 0;
@@ -330,7 +331,8 @@
 							quadrilaterals:quadrilaterals
 									 other:everythingElse
 							  currentColor:currentColor
-						  currentTransform:transform];
+						  currentTransform:transform
+						   normalTransform:normalTransform];
 	}
 	
 }//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:

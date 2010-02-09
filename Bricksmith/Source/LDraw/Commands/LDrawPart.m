@@ -1115,10 +1115,10 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	flatCopy    = [modelToDraw copy];
 	
 	// concatenate the transform and pass it down
-	Matrix4Multiply(&transform, &partTransform, &combinedTransform);
+	combinedTransform   = Matrix4Multiply(transform, partTransform);
 	
 	// Normals are actually transformed by a different matrix.
-	normalTransform = Matrix3MakeNormalTransformFromProjMatrix(combinedTransform);
+	normalTransform     = Matrix3MakeNormalTransformFromProjMatrix(combinedTransform);
 	
 	[flatCopy flattenIntoLines:lines
 					 triangles:triangles

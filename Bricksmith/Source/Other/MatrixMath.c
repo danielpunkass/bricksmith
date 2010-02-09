@@ -1265,20 +1265,21 @@ void Matrix4GetGLMatrix4(Matrix4 matrix, GLfloat *glTransformation)
 // Notes:		c must not point to either of the input matrices
 //
 //==============================================================================
-Matrix4 *Matrix4Multiply(Matrix4 *a, Matrix4 *b, Matrix4 *c)
+Matrix4 Matrix4Multiply(Matrix4 a, Matrix4 b)
 {
-	int row;
-	int column;
-	int k;
+	Matrix4 c       = IdentityMatrix4;
+	int     row;
+	int     column;
+	int     k;
 	
 	for (row = 0; row < 4; row++)
 	{
 		for (column = 0; column < 4; column++)
 		{
-			c->element[row][column] = 0;
+			c.element[row][column] = 0;
 			
 			for (k=0; k<4; k++)
-				c->element[row][column] += a->element[row][k] * b->element[k][column];
+				c.element[row][column] += a.element[row][k] * b.element[k][column];
 		}
 	}
 	return(c);
@@ -1339,7 +1340,7 @@ Matrix4 Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate)
 	rotateComponents.rotate.z = radians(degreesToRotate.z);
 	addedRotation = Matrix4CreateTransformation(&rotateComponents);
 	
-	Matrix4Multiply(&original, &addedRotation, &newMatrix); //rotate at rotationCenter
+	newMatrix = Matrix4Multiply(original, addedRotation); //rotate at rotationCenter
 	
 	return newMatrix;
 

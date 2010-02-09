@@ -231,7 +231,7 @@ extern Matrix4	Matrix4CreateTransformation(TransformComponents *);
 extern int		Matrix4DecomposeTransformation( Matrix4 originalMatrix, TransformComponents *decomposed);
 extern Tuple3	Matrix4DecomposeXYZRotation(Matrix4 matrix);
 extern Tuple3	Matrix4DecomposeZYXRotation(Matrix4 matrix);
-extern Matrix4*	Matrix4Multiply(Matrix4 *a, Matrix4 *b, Matrix4 *result);
+extern Matrix4	Matrix4Multiply(Matrix4 a, Matrix4 b);
 extern void		Matrix4MultiplyGLMatrices(GLfloat *a, GLfloat *b, GLfloat *result);
 extern void		Matrix4GetGLMatrix4(Matrix4 matrix, GLfloat *glTransformation);
 extern Matrix4	Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate);

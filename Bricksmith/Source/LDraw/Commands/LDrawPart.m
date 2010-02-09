@@ -500,34 +500,42 @@
 //==============================================================================
 - (Box3) boundingBox3
 {
-	LDrawModel	*modelToDraw	= [[LDrawApplication sharedPartLibrary] modelForPart:self];
-	Box3		 bounds			= InvalidBox;
-	Matrix4		 transformation	= [self transformationMatrix];
-	
-	Point4		 originalMin	= {0};
-	Point4		 originalMax	= {0};
-	Point4		 rotatedMin		= {0};
-	Point4		 rotatedMax		= {0};
+	LDrawModel  *modelToDraw        = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	Box3        bounds              = InvalidBox;
+	Box3        transformedBounds   = InvalidBox;
+	Matrix4     transformation      = [self transformationMatrix];
 	
 	// We need to have an actual model here. Blithely calling boundingBox3 will 
 	// result in most of our Box3 structure being garbage data!
 	if(modelToDraw != nil)
 	{
-		bounds		= [modelToDraw boundingBox3];
+		bounds = [modelToDraw boundingBox3];
 		
 		if(V3EqualBoxes(bounds, InvalidBox) == NO)
 		{
-			originalMin	= V4FromPoint3( bounds.min );
-			originalMax	= V4FromPoint3( bounds.max );
-			
-			rotatedMin	= V4MulPointByMatrix(originalMin, transformation);
-			rotatedMax	= V4MulPointByMatrix(originalMax, transformation);
-			
-			bounds		= V3BoundsFromPoints( V3FromV4(rotatedMin), V3FromV4(rotatedMax) );
+			// Transform all the points of the bounding box to find the new 
+			// minimum and maximum. 
+			int     counter     = 0;
+			Point3  vertices[8] = {	
+									{bounds.min.x, bounds.min.y, bounds.min.z},
+									{bounds.min.x, bounds.min.y, bounds.max.z},
+									{bounds.min.x, bounds.max.y, bounds.max.z},
+									{bounds.min.x, bounds.max.y, bounds.min.z},
+									
+									{bounds.max.x, bounds.min.y, bounds.min.z},
+									{bounds.max.x, bounds.min.y, bounds.max.z},
+									{bounds.max.x, bounds.max.y, bounds.max.z},
+									{bounds.max.x, bounds.max.y, bounds.min.z},
+								  };
+			for(counter = 0; counter < 8; counter++)
+			{
+				vertices[counter] = V3MulPointByProjMatrix(vertices[counter], transformation);
+				transformedBounds = V3UnionBoxAndPoint(transformedBounds, vertices[counter]);
+			}
 		}
 	}
 	
-	return bounds;
+	return transformedBounds;
 	
 }//end boundingBox3
 
@@ -1095,7 +1103,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 {
 	LDrawModel  *modelToDraw        = nil;
 	LDrawModel  *flatCopy           = nil;
-	Matrix4		partTransform		= Matrix4CreateFromGLMatrix4(self->glTransformation);
+	Matrix4		partTransform		= [self transformationMatrix];
 	Matrix4     combinedTransform   = IdentityMatrix4;
 
 	[super flattenIntoLines:lines

@@ -52,7 +52,11 @@
 {
 	self = [super initWithCoder:decoder];
 	
-	[self setLDrawColor:[decoder decodeIntForKey:@"color"]];
+	self->color         = [decoder decodeIntForKey:@"color"];
+	self->glColor[0]    = [decoder decodeFloatForKey:@"glColorRed"];
+	self->glColor[1]    = [decoder decodeFloatForKey:@"glColorGreen"];
+	self->glColor[2]    = [decoder decodeFloatForKey:@"glColorBlue"];
+	self->glColor[3]    = [decoder decodeFloatForKey:@"glColorAlpha"];
 	[self setHidden:[decoder decodeBoolForKey:@"hidden"]];
 	
 	return self;
@@ -71,8 +75,12 @@
 {
 	[super encodeWithCoder:encoder];
 	
-	[encoder encodeInt:color	forKey:@"color"];
-	[encoder encodeBool:hidden	forKey:@"hidden"];
+	[encoder encodeInt:color		forKey:@"color"];
+	[encoder encodeFloat:glColor[0] forKey:@"glColorRed"];
+	[encoder encodeFloat:glColor[1] forKey:@"glColorGreen"];
+	[encoder encodeFloat:glColor[2] forKey:@"glColorBlue"];
+	[encoder encodeFloat:glColor[3] forKey:@"glColorAlpha"];
+	[encoder encodeBool:hidden		forKey:@"hidden"];
 	
 }//end encodeWithCoder:
 
@@ -87,7 +95,14 @@
 {
 	LDrawDrawableElement *copied = (LDrawDrawableElement *)[super copyWithZone:zone];
 	
-	[copied setLDrawColor:[self LDrawColor]];
+	if(self->color == LDrawColorCustomRGB)
+	{
+		[copied setRGBColor:self->glColor];
+	}
+	else
+	{
+		[copied setLDrawColor:[self LDrawColor]];
+	}
 	
 	return copied;
 	
@@ -517,10 +532,12 @@
 		else
 		{
 			// set directiveCopy to compliment color
-			GLfloat glParentColor[4];
-			LDrawColor *colorObject = [[ColorLibrary sharedColorLibrary] colorForCode:parentColor];
+			GLfloat     glParentColor[4];
+			LDrawColor  *colorObject        = [[ColorLibrary sharedColorLibrary] colorForCode:parentColor];
+			
 			[colorObject getColorRGBA:glParentColor];
 			complimentColor(glParentColor, self->glColor);
+			
 			[self setRGBColor:self->glColor];
 			
 			// then add.

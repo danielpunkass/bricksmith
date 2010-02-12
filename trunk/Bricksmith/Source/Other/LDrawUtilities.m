@@ -229,6 +229,51 @@
 
 
 #pragma mark -
+#pragma mark WRITING
+#pragma mark -
+
+//---------- outputStringForColorCode:RGB: ---------------------------[static]--
+//
+// Purpose:		Returns the string representing the color code which should be 
+//				written out in a file. 
+//
+// Notes:		This supports the non-standard custom RGB extension.
+//
+//------------------------------------------------------------------------------
++ (NSString *) outputStringForColorCode:(LDrawColorT)colorCode
+									RGB:(GLfloat*)components
+{
+	NSString *stringValue = nil;
+
+	if(colorCode == LDrawColorCustomRGB)
+	{
+		// Opaque?
+		if(components[3] == 1.0)
+		{
+			stringValue = [NSString stringWithFormat:@"0x2%02X%02X%02X",
+													   (uint8_t)(components[0] * 255),
+													   (uint8_t)(components[1] * 255),
+													   (uint8_t)(components[2] * 255) ];
+		}
+		else
+		{
+			stringValue = [NSString stringWithFormat:@"0x3%02X%02X%02X",
+													   (uint8_t)(components[0] * 255),
+													   (uint8_t)(components[1] * 255),
+													   (uint8_t)(components[2] * 255) ];
+		}
+	}
+	else
+	{
+		stringValue = [NSString stringWithFormat:@"%3d", colorCode];
+	}
+	
+	return stringValue;
+
+}//end outputStringForColorCode:RGB:
+
+
+#pragma mark -
 #pragma mark MISCELLANEOUS
 #pragma mark -
 //This is stuff that didn't really go anywhere else.

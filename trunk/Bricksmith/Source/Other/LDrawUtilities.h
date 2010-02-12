@@ -38,17 +38,25 @@ typedef enum
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// LDrawUtilities
+//
+////////////////////////////////////////////////////////////////////////////////
 @interface LDrawUtilities : NSObject
 {
 
 }
 
-// Parsing utilities
+// Parsing
 + (Class) classForLineType:(NSInteger)lineType;
 + (LDrawColorT) parseColorCodeFromField:(NSString *)colorField RGB:(GLfloat*)componentsOut;
 + (NSString *) readNextField:(NSString *) partialDirective
 				   remainder:(NSString **) remainder;
 + (NSString *) stringFromFile:(NSString *)path;
+
+// Writing
++ (NSString *) outputStringForColorCode:(LDrawColorT)colorCode RGB:(GLfloat*)components;
 
 // Miscellaneous
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;

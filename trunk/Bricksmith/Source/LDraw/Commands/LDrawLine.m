@@ -53,11 +53,13 @@
 //------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile
 {
-	LDrawLine		*parsedLDrawLine = nil;
-	NSString		*workingLine = lineFromFile;
-	NSString		*parsedField;
+	LDrawLine   *parsedLDrawLine    = nil;
+	NSString    *workingLine        = lineFromFile;
+	NSString    *parsedField        = nil;
 	
-	Point3		 workingVertex;
+	Point3      workingVertex       = ZeroPoint3;
+	LDrawColorT	colorCode			= LDrawColorBogus;
+	GLfloat		customRGB[4]		= {0};
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -67,14 +69,19 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField integerValue] == 2){
+		if([parsedField integerValue] == 2)
+		{
 			parsedLDrawLine = [[LDrawLine new] autorelease];
 			
 			//Read in the color code.
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
-			[parsedLDrawLine setLDrawColor:[parsedField intValue]];
+			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
+			if(colorCode == LDrawColorCustomRGB)
+				[parsedLDrawLine setRGBColor:customRGB];
+			else
+				[parsedLDrawLine setLDrawColor:colorCode];
 			
 			//Read Vertex 1.
 			// (x1)
@@ -226,8 +233,8 @@
 - (NSString *) write
 {
 	return [NSString stringWithFormat:
-				@"2 %3d %12f %12f %12f %12f %12f %12f",
-				color,
+				@"2 %@ %12f %12f %12f %12f %12f %12f",
+				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
 				vertex1.x,
 				vertex1.y,

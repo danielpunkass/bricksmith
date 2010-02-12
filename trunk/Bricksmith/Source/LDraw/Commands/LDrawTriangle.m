@@ -58,11 +58,13 @@
 //------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile
 {
-	LDrawTriangle	*parsedTriangle = nil;
-	NSString		*workingLine = lineFromFile;
-	NSString		*parsedField;
+	LDrawTriangle   *parsedTriangle = nil;
+	NSString        *workingLine    = lineFromFile;
+	NSString        *parsedField    = nil;
 	
-	Point3		 workingVertex;
+	Point3          workingVertex   = ZeroPoint3;
+	LDrawColorT     colorCode       = LDrawColorBogus;
+	GLfloat         customRGB[4]    = {0};
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -79,7 +81,11 @@
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
-			[parsedTriangle setLDrawColor:[parsedField intValue]];
+			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
+			if(colorCode == LDrawColorCustomRGB)
+				[parsedTriangle setRGBColor:customRGB];
+			else
+				[parsedTriangle setLDrawColor:colorCode];
 			
 			//Read Vertex 1.
 			// (x1)
@@ -259,8 +265,8 @@
 - (NSString *) write
 {
 	return [NSString stringWithFormat:
-				@"3 %3d %12f %12f %12f %12f %12f %12f %12f %12f %12f",
-				color,
+				@"3 %@ %12f %12f %12f %12f %12f %12f %12f %12f %12f",
+				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
 				vertex1.x,
 				vertex1.y,

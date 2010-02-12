@@ -25,7 +25,211 @@
 @implementation LDrawUtilities
 
 #pragma mark -
-#pragma mark UTILITIES
+#pragma mark PARSING
+#pragma mark -
+
+//---------- classForLineType: ---------------------------------------[static]--
+//
+// Purpose:		Allows initializing the right kind of class based on the code 
+//				found at the beginning of an LDraw line.
+//
+//------------------------------------------------------------------------------
++ (Class) classForLineType:(NSInteger)lineType
+{
+	Class classForType = nil;
+	
+	switch(lineType){
+		case 0:
+			classForType = [LDrawMetaCommand class];
+			break;
+		case 1:
+			classForType = [LDrawPart class];
+			break;
+		case 2:
+			classForType = [LDrawLine class];
+			break;
+		case 3:
+			classForType = [LDrawTriangle class];
+			break;
+		case 4:
+			classForType = [LDrawQuadrilateral class];
+			break;
+		case 5:
+			classForType = [LDrawConditionalLine class];
+			break;
+		default:
+			NSLog(@"unrecognized LDraw line type: %ld", (long)lineType);
+	}
+	
+	return classForType;
+	
+}//end classForLineType:
+
+
+//---------- parseColorCodeFromField: --------------------------------[static]--
+//
+// Purpose:		Returns the color code which is represented by the field.
+//
+// Notes:		This supports a nonstandard but fairly widely-supported 
+//				extension which allows arbitrary RGB values to be specified in 
+//				place of color codes. (MLCad, L3P, LDView, and others support 
+//				this.) 
+//
+//------------------------------------------------------------------------------
++ (LDrawColorT) parseColorCodeFromField:(NSString *)colorField
+									RGB:(GLfloat*)componentsOut
+{
+	LDrawColorT colorCode       = LDrawColorBogus;
+	NSScanner   *scanner        = [NSScanner scannerWithString:colorField];
+	unsigned    hexBytes        = 0;
+	int         customCodeType  = 0;
+
+	// Custom RGB?
+	if([scanner scanString:@"0x" intoString:nil] == YES)
+	{
+		colorCode = LDrawColorCustomRGB;
+		
+		// The integer should be of the format:
+		// 0x2RRGGBB for opaque colors
+		// 0x3RRGGBB for transparent colors
+		// 0x4RGBRGB for a dither of two 12-bit RGB colors
+		// 0x5RGBxxx as a dither of one 12-bit RGB color with clear (for transparency).
+
+		[scanner scanHexInt:&hexBytes];
+		customCodeType = (hexBytes >> 3*8) & 0xFF;
+		
+		switch(customCodeType)
+		{
+			// Solid color
+			case 2:
+				componentsOut[0] = (GLfloat) ((hexBytes >> 2*8) & 0xFF) / 255; // Red
+				componentsOut[1] = (GLfloat) ((hexBytes >> 1*8) & 0xFF) / 255; // Green
+				componentsOut[2] = (GLfloat) ((hexBytes >> 0*8) & 0xFF) / 255; // Blue
+				componentsOut[3] = (GLfloat) 1.0; // alpha
+				break;
+			
+			// Transparent color
+			case 3:
+				componentsOut[0] = (GLfloat) ((hexBytes >> 2*8) & 0xFF) / 255; // Red
+				componentsOut[1] = (GLfloat) ((hexBytes >> 1*8) & 0xFF) / 255; // Green
+				componentsOut[2] = (GLfloat) ((hexBytes >> 0*8) & 0xFF) / 255; // Blue
+				componentsOut[3] = (GLfloat) 0.5; // alpha
+				break;
+			
+			// combined opaque color
+			case 4:
+				componentsOut[0] = (GLfloat) (((hexBytes >> 5*4) & 0xF) + ((hexBytes >> 2*4) & 0xF))/2 / 255; // Red
+				componentsOut[0] = (GLfloat) (((hexBytes >> 4*4) & 0xF) + ((hexBytes >> 1*4) & 0xF))/2 / 255; // Green
+				componentsOut[0] = (GLfloat) (((hexBytes >> 3*4) & 0xF) + ((hexBytes >> 0*4) & 0xF))/2 / 255; // Blue
+				componentsOut[3] = (GLfloat) 1.0; // alpha
+				break;
+				
+			// bad-looking transparent color
+			case 5:
+				componentsOut[0] = (GLfloat) ((hexBytes >> 5*4) & 0xF) / 15; // Red
+				componentsOut[0] = (GLfloat) ((hexBytes >> 4*4) & 0xF) / 15; // Green
+				componentsOut[0] = (GLfloat) ((hexBytes >> 3*4) & 0xF) / 15; // Blue
+				componentsOut[3] = (GLfloat) 0.5; // alpha
+				break;
+			
+			default:
+				break;
+		}
+	}
+	else
+	{
+		// Regular, standards-compliant LDraw color code
+		colorCode = [colorField intValue];
+	}
+		
+	return colorCode;
+	
+}//end parseColorCodeFromField:
+
+
+//---------- readNextField:remainder: --------------------------------[static]--
+//
+// Purpose:		Given the portion of the LDraw line, read the first available 
+//				field. Fields are separated by whitespace of any length.
+//
+//				If remainder is not NULL, return by indirection the remainder of 
+//				partialDirective after the first field has been removed. If 
+//				there is no remainder, an empty string will be returned.
+//
+//				So, given the line
+//				1 8 -150 -8 20 0 0 -1 0 1 0 1 0 0 3710.DAT
+//
+//				remainder will be set to:
+//				 8 -150 -8 20 0 0 -1 0 1 0 1 0 0 3710.DAT
+//
+// Notes:		This method is incapable of reading field strings with spaces 
+//				in them!
+//
+//				A case could be made to replace this method with an NSScanner!
+//				They don't seem to be as adept at scanning in unknown string 
+//				tags though, which would make them difficult to use to 
+//				distinguish between "0 WRITE blah" and "0 COMMENT blah".
+//
+//------------------------------------------------------------------------------
++ (NSString *) readNextField:(NSString *) partialDirective
+				   remainder:(NSString **) remainder
+{
+	NSCharacterSet	*whitespaceCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+	NSRange			 rangeOfNextWhiteSpace;
+	NSString		*fieldContents			= nil;
+	
+	//First, remove any heading whitespace.
+	partialDirective		= [partialDirective stringByTrimmingCharactersInSet:whitespaceCharacterSet];
+	//Find the beginning of the next field separation
+	rangeOfNextWhiteSpace	= [partialDirective rangeOfCharacterFromSet:whitespaceCharacterSet];
+	
+	//The text between the beginning and the next field separator is the first 
+	// field (what we are after).
+	if(rangeOfNextWhiteSpace.location != NSNotFound)
+	{
+		fieldContents = [partialDirective substringToIndex:rangeOfNextWhiteSpace.location];
+		//See if they want the rest of the line, sans the field we just parsed.
+		if(remainder != NULL)
+			*remainder = [partialDirective substringFromIndex:rangeOfNextWhiteSpace.location];
+	}
+	else
+	{
+		//There was no subsequent field separator; we must be at the end of the line.
+		fieldContents = partialDirective;
+		if(remainder != NULL)
+			*remainder = [NSString string];
+	}
+	
+	return fieldContents;
+}//end readNextField
+
+
+//---------- stringFromFile: -----------------------------------------[static]--
+//
+// Purpose:		Reads the contents of the file at the given path into a string. 
+//				We try a few different encodings.
+//
+//------------------------------------------------------------------------------
++ (NSString *) stringFromFile:(NSString *)path
+{
+	NSData      *fileData   = [NSData dataWithContentsOfFile:path];
+	NSString    *fileString = nil;
+	
+	//try UTF-8 first, because it's so nice.
+	fileString = [[NSString alloc] initWithData:fileData
+									   encoding:NSUTF8StringEncoding];
+	
+	//uh-oh. Maybe Windows Latin?
+	if(fileString == nil)
+		fileString = [[NSString alloc] initWithData:fileData
+										   encoding:NSISOLatin1StringEncoding];
+	return [fileString autorelease];
+	
+}//end stringFromFile
+
+
+#pragma mark -
+#pragma mark MISCELLANEOUS
 #pragma mark -
 //This is stuff that didn't really go anywhere else.
 
@@ -108,44 +312,6 @@
 	return bounds;
 	
 }//end boundingBox3ForDirectives
-
-
-//---------- classForLineType: ---------------------------------------[static]--
-//
-// Purpose:		Allows initializing the right kind of class based on the code 
-//				found at the beginning of an LDraw line.
-//
-//------------------------------------------------------------------------------
-+ (Class) classForLineType:(NSInteger)lineType
-{
-	Class classForType = nil;
-	
-	switch(lineType){
-		case 0:
-			classForType = [LDrawMetaCommand class];
-			break;
-		case 1:
-			classForType = [LDrawPart class];
-			break;
-		case 2:
-			classForType = [LDrawLine class];
-			break;
-		case 3:
-			classForType = [LDrawTriangle class];
-			break;
-		case 4:
-			classForType = [LDrawQuadrilateral class];
-			break;
-		case 5:
-			classForType = [LDrawConditionalLine class];
-			break;
-		default:
-			NSLog(@"unrecognized LDraw line type: %ld", (long)lineType);
-	}
-	
-	return classForType;
-	
-}//end classForLineType:
 
 
 //---------- dragImageWithOffset: ------------------------------------[static]--
@@ -259,87 +425,6 @@
 	return isValid;
 	
 }//end isLDrawFilenameValid:
-
-
-//---------- readNextField:remainder: --------------------------------[static]--
-//
-// Purpose:		Given the portion of the LDraw line, read the first available 
-//				field. Fields are separated by whitespace of any length.
-//
-//				If remainder is not NULL, return by indirection the remainder of 
-//				partialDirective after the first field has been removed. If 
-//				there is no remainder, an empty string will be returned.
-//
-//				So, given the line
-//				1 8 -150 -8 20 0 0 -1 0 1 0 1 0 0 3710.DAT
-//
-//				remainder will be set to:
-//				 8 -150 -8 20 0 0 -1 0 1 0 1 0 0 3710.DAT
-//
-// Notes:		This method is incapable of reading field strings with spaces 
-//				in them!
-//
-//				A case could be made to replace this method with an NSScanner!
-//				They don't seem to be as adept at scanning in unknown string 
-//				tags though, which would make them difficult to use to 
-//				distinguish between "0 WRITE blah" and "0 COMMENT blah".
-//
-//------------------------------------------------------------------------------
-+ (NSString *) readNextField:(NSString *) partialDirective
-				   remainder:(NSString **) remainder
-{
-	NSCharacterSet	*whitespaceCharacterSet = [NSCharacterSet whitespaceAndNewlineCharacterSet];
-	NSRange			 rangeOfNextWhiteSpace;
-	NSString		*fieldContents			= nil;
-	
-	//First, remove any heading whitespace.
-	partialDirective		= [partialDirective stringByTrimmingCharactersInSet:whitespaceCharacterSet];
-	//Find the beginning of the next field separation
-	rangeOfNextWhiteSpace	= [partialDirective rangeOfCharacterFromSet:whitespaceCharacterSet];
-	
-	//The text between the beginning and the next field separator is the first 
-	// field (what we are after).
-	if(rangeOfNextWhiteSpace.location != NSNotFound)
-	{
-		fieldContents = [partialDirective substringToIndex:rangeOfNextWhiteSpace.location];
-		//See if they want the rest of the line, sans the field we just parsed.
-		if(remainder != NULL)
-			*remainder = [partialDirective substringFromIndex:rangeOfNextWhiteSpace.location];
-	}
-	else
-	{
-		//There was no subsequent field separator; we must be at the end of the line.
-		fieldContents = partialDirective;
-		if(remainder != NULL)
-			*remainder = [NSString string];
-	}
-	
-	return fieldContents;
-}//end readNextField
-
-
-//---------- stringFromFile: -----------------------------------------[static]--
-//
-// Purpose:		Reads the contents of the file at the given path into a string. 
-//				We try a few different encodings.
-//
-//------------------------------------------------------------------------------
-+ (NSString *) stringFromFile:(NSString *)path
-{
-	NSData      *fileData   = [NSData dataWithContentsOfFile:path];
-	NSString    *fileString = nil;
-	
-	//try UTF-8 first, because it's so nice.
-	fileString = [[NSString alloc] initWithData:fileData
-									   encoding:NSUTF8StringEncoding];
-	
-	//uh-oh. Maybe Windows Latin?
-	if(fileString == nil)
-		fileString = [[NSString alloc] initWithData:fileData
-										   encoding:NSISOLatin1StringEncoding];
-	return [fileString autorelease];
-	
-}//end stringFromFile
 
 
 //---------- updateNameForMovedPart: ---------------------------------[static]--

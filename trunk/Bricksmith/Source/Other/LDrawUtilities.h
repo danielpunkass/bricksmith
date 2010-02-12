@@ -10,6 +10,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "MatrixMath.h"
+#import "ColorLibrary.h"
 
 @class LDrawPart;
 
@@ -42,15 +43,19 @@ typedef enum
 
 }
 
-+ (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;
-+ (Box3) boundingBox3ForDirectives:(NSArray *)directives;
+// Parsing utilities
 + (Class) classForLineType:(NSInteger)lineType;
-+ (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset;
-+ (float) gridSpacingForMode:(gridSpacingModeT)gridMode;
-+ (BOOL) isLDrawFilenameValid:(NSString *)fileName;
++ (LDrawColorT) parseColorCodeFromField:(NSString *)colorField RGB:(GLfloat*)componentsOut;
 + (NSString *) readNextField:(NSString *) partialDirective
 				   remainder:(NSString **) remainder;
 + (NSString *) stringFromFile:(NSString *)path;
+
+// Miscellaneous
++ (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;
++ (Box3) boundingBox3ForDirectives:(NSArray *)directives;
++ (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset;
++ (float) gridSpacingForMode:(gridSpacingModeT)gridMode;
++ (BOOL) isLDrawFilenameValid:(NSString *)fileName;
 + (void) updateNameForMovedPart:(LDrawPart *)movedPart;
 + (ViewOrientationT) viewOrientationForAngle:(Tuple3)rotationAngle;
 

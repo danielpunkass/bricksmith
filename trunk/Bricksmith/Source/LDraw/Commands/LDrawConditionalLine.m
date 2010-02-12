@@ -253,25 +253,24 @@
 - (NSString *) write
 {
 	return [NSString stringWithFormat:
-				@"5 %@ %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f",
+				@"5 %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@",
 				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
-				vertex1.x,
-				vertex1.y,
-				vertex1.z,
+				[LDrawUtilities outputStringForFloat:vertex1.x],
+				[LDrawUtilities outputStringForFloat:vertex1.y],
+				[LDrawUtilities outputStringForFloat:vertex1.z],
 				
-				vertex2.x,
-				vertex2.y,
-				vertex2.z,
+				[LDrawUtilities outputStringForFloat:vertex2.x],
+				[LDrawUtilities outputStringForFloat:vertex2.y],
+				[LDrawUtilities outputStringForFloat:vertex2.z],
 				
-				conditionalVertex1.x,
-				conditionalVertex1.y,
-				conditionalVertex1.z,
+				[LDrawUtilities outputStringForFloat:conditionalVertex1.x],
+				[LDrawUtilities outputStringForFloat:conditionalVertex1.y],
+				[LDrawUtilities outputStringForFloat:conditionalVertex1.z],
 		
-				conditionalVertex2.x,
-				conditionalVertex2.y,
-				conditionalVertex2.z
-		
+				[LDrawUtilities outputStringForFloat:conditionalVertex2.x],
+				[LDrawUtilities outputStringForFloat:conditionalVertex2.y],
+				[LDrawUtilities outputStringForFloat:conditionalVertex2.z]		
 			];
 }//end write
 

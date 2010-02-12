@@ -58,6 +58,7 @@
 #define SYNTAX_COLOR_UNKNOWN_KEY					@"Syntax Color Unknown"
 #define TOOL_PALETTE_HIDDEN							@"Tool Palette Hidden"
 #define VIEWPORTS_EXPAND_TO_AVAILABLE_SIZE			@"ViewportsExpandToAvailableSize"
+#define COLUMNIZE_OUTPUT_KEY						@"ColumnizeOutput"
 
 #define MINIFIGURE_HAS_HAT							@"Minifigure Has Hat"
 #define MINIFIGURE_HAS_HEAD							@"Minifigure Has Head"

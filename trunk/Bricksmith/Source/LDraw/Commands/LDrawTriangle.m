@@ -265,20 +265,20 @@
 - (NSString *) write
 {
 	return [NSString stringWithFormat:
-				@"3 %@ %12f %12f %12f %12f %12f %12f %12f %12f %12f",
+				@"3 %@ %@ %@ %@ %@ %@ %@ %@ %@ %@",
 				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
-				vertex1.x,
-				vertex1.y,
-				vertex1.z,
+				[LDrawUtilities outputStringForFloat:vertex1.x],
+				[LDrawUtilities outputStringForFloat:vertex1.y],
+				[LDrawUtilities outputStringForFloat:vertex1.z],
 				
-				vertex2.x,
-				vertex2.y,
-				vertex2.z,
+				[LDrawUtilities outputStringForFloat:vertex2.x],
+				[LDrawUtilities outputStringForFloat:vertex2.y],
+				[LDrawUtilities outputStringForFloat:vertex2.z],
 				
-				vertex3.x,
-				vertex3.y,
-				vertex3.z
+				[LDrawUtilities outputStringForFloat:vertex3.x],
+				[LDrawUtilities outputStringForFloat:vertex3.y],
+				[LDrawUtilities outputStringForFloat:vertex3.z]
 		
 			];
 }//end write

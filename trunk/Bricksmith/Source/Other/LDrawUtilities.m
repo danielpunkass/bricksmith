@@ -243,21 +243,23 @@
 + (NSString *) outputStringForColorCode:(LDrawColorT)colorCode
 									RGB:(GLfloat*)components
 {
-	NSString *stringValue = nil;
+	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+	BOOL            columnizeOutput = [userDefaults boolForKey:COLUMNIZE_OUTPUT_KEY];
+	NSString        *outputString   = nil;
 
 	if(colorCode == LDrawColorCustomRGB)
 	{
 		// Opaque?
 		if(components[3] == 1.0)
 		{
-			stringValue = [NSString stringWithFormat:@"0x2%02X%02X%02X",
+			outputString = [NSString stringWithFormat:@"0x2%02X%02X%02X",
 													   (uint8_t)(components[0] * 255),
 													   (uint8_t)(components[1] * 255),
 													   (uint8_t)(components[2] * 255) ];
 		}
 		else
 		{
-			stringValue = [NSString stringWithFormat:@"0x3%02X%02X%02X",
+			outputString = [NSString stringWithFormat:@"0x3%02X%02X%02X",
 													   (uint8_t)(components[0] * 255),
 													   (uint8_t)(components[1] * 255),
 													   (uint8_t)(components[2] * 255) ];
@@ -265,12 +267,90 @@
 	}
 	else
 	{
-		stringValue = [NSString stringWithFormat:@"%3d", colorCode];
+		if(columnizeOutput == YES)
+		{
+			outputString = [NSString stringWithFormat:@"%3d", colorCode];
+		}
+		else
+		{
+			outputString = [NSString stringWithFormat:@"%d", colorCode];
+		}
+
 	}
 	
-	return stringValue;
+	return outputString;
 
 }//end outputStringForColorCode:RGB:
+
+
+//---------- outputStringForFloat: -----------------------------------[static]--
+//
+// Purpose:		Returns a formatted float appropriate for inserting into an 
+//				LDraw file. 
+//
+// Notes:		Historically, LDraw programs truncate the number as much as 
+//				possible and insert exactly one space between numbers: 
+//					4 16 -40 0 -20 -40 24 -20 40 24 -20 40 0 -20
+//					4 16 40 0 20 40 24 20 -40 24 20 -40 0 20
+//
+//				Bricksmith 1.0 - 2.3 instead formatted the output into columns 
+//				for easy readability, like so: 
+//					4  16   -40.000000     0.000000   -20.000000   -40.000000    24.000000   -20.000000    40.000000    24.000000   -20.000000    40.000000     0.000000   -20.000000
+//					4  16    40.000000     0.000000    20.000000    40.000000    24.000000    20.000000   -40.000000    24.000000    20.000000   -40.000000     0.000000    20.000000
+//
+//				But LDraw traditionalists hated that.
+//
+//				This method checks preferences to see which format is specified 
+//				and outputs the chosen format. The result may be concatenated 
+//				together with exactly one space; the columnizable string will 
+//				already contain the necessary padding spaces. 
+//
+//------------------------------------------------------------------------------
++ (NSString *) outputStringForFloat:(float)number
+{
+	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+	BOOL            columnizeOutput = [userDefaults boolForKey:COLUMNIZE_OUTPUT_KEY];
+	NSString        *outputString   = nil;
+	
+	if(columnizeOutput == YES)
+	{
+		// Make a nice wide fixed-width string which will force the numbers into 
+		// columns. 
+		outputString = [NSString stringWithFormat:@"%12f", number];
+	}
+	else
+	{
+		// Remove all trailing zeroes (and the decimal point if an integer).
+		
+		char    formattedFloat[16]  = "";
+		char    *endOfString        = NULL;
+		size_t  fullLength          = 0;
+		
+		// First format the number into a string. We could wind up with 
+		// something like "50.090000".
+		snprintf(formattedFloat, sizeof(formattedFloat), "%f", number);
+		fullLength  = strlen(formattedFloat);
+		endOfString = &formattedFloat[fullLength - 1];
+		
+		// Back up past all the zeroes that may be at the end of the number
+		while(*endOfString == '0')
+		{
+			endOfString--;
+		}
+		if(*endOfString != '.')
+		{
+			// We must be pointing at a non-zero digit, so lop off the 
+			// subsequent character that is a zero. 
+			endOfString++;
+		}
+		
+		*endOfString = '\0';
+		outputString = [NSString stringWithUTF8String:formattedFloat];
+	}
+	
+	return outputString;
+
+}//end outputStringForFloat:
 
 
 #pragma mark -

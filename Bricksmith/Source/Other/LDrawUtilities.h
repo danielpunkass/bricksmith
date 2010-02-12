@@ -57,6 +57,7 @@ typedef enum
 
 // Writing
 + (NSString *) outputStringForColorCode:(LDrawColorT)colorCode RGB:(GLfloat*)components;
++ (NSString *) outputStringForFloat:(float)number;
 
 // Miscellaneous
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;

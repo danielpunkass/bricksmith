@@ -233,17 +233,16 @@
 - (NSString *) write
 {
 	return [NSString stringWithFormat:
-				@"2 %@ %12f %12f %12f %12f %12f %12f",
+				@"2 %@ %@ %@ %@ %@ %@ %@",
 				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
-				vertex1.x,
-				vertex1.y,
-				vertex1.z,
+				[LDrawUtilities outputStringForFloat:vertex1.x],
+				[LDrawUtilities outputStringForFloat:vertex1.y],
+				[LDrawUtilities outputStringForFloat:vertex1.z],
 				
-				vertex2.x,
-				vertex2.y,
-				vertex2.z
-				
+				[LDrawUtilities outputStringForFloat:vertex2.x],
+				[LDrawUtilities outputStringForFloat:vertex2.y],
+				[LDrawUtilities outputStringForFloat:vertex2.z]				
 			];
 }//end write
 

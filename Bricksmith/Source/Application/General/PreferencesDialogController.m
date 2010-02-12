@@ -660,6 +660,7 @@ PreferencesDialogController *preferencesDialog = nil;
 	[initialDefaults setObject:(id)kCFBooleanTrue								forKey:PART_BROWSER_PANEL_SHOW_AT_LAUNCH];
 	
 	[initialDefaults setObject:(id)kCFBooleanTrue								forKey:VIEWPORTS_EXPAND_TO_AVAILABLE_SIZE];
+	[initialDefaults setObject:(id)kCFBooleanFalse								forKey:COLUMNIZE_OUTPUT_KEY]; // appease LDraw traditionalists
 	
 	//
 	// Syntax Colors

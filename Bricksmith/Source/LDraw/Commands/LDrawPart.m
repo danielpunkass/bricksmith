@@ -426,24 +426,24 @@
 	Matrix4 transformation = [self transformationMatrix];
 
 	return [NSString stringWithFormat:
-				@"1 %@ %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %@",
+				@"1 %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@",
 				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
-				transformation.element[3][0], //position.x,			(x)
-				transformation.element[3][1], //position.y,			(y)
-				transformation.element[3][2], //position.z,			(z)
+				[LDrawUtilities outputStringForFloat:transformation.element[3][0]], //position.x,			(x)
+				[LDrawUtilities outputStringForFloat:transformation.element[3][1]], //position.y,			(y)
+				[LDrawUtilities outputStringForFloat:transformation.element[3][2]], //position.z,			(z)
 				
-				transformation.element[0][0], //transformationX.x,	(a)
-				transformation.element[1][0], //transformationX.y,	(b)
-				transformation.element[2][0], //transformationX.z,	(c)
+				[LDrawUtilities outputStringForFloat:transformation.element[0][0]], //transformationX.x,	(a)
+				[LDrawUtilities outputStringForFloat:transformation.element[1][0]], //transformationX.y,	(b)
+				[LDrawUtilities outputStringForFloat:transformation.element[2][0]], //transformationX.z,	(c)
 				
-				transformation.element[0][1], //transformationY.x,	(d)
-				transformation.element[1][1], //transformationY.y,	(e)
-				transformation.element[2][1], //transformationY.z,	(f)
+				[LDrawUtilities outputStringForFloat:transformation.element[0][1]], //transformationY.x,	(d)
+				[LDrawUtilities outputStringForFloat:transformation.element[1][1]], //transformationY.y,	(e)
+				[LDrawUtilities outputStringForFloat:transformation.element[2][1]], //transformationY.z,	(f)
 				
-				transformation.element[0][2], //transformationZ.x,	(g)
-				transformation.element[1][2], //transformationZ.y,	(h)
-				transformation.element[2][2], //transformationZ.z,	(i)
+				[LDrawUtilities outputStringForFloat:transformation.element[0][2]], //transformationZ.x,	(g)
+				[LDrawUtilities outputStringForFloat:transformation.element[1][2]], //transformationZ.y,	(h)
+				[LDrawUtilities outputStringForFloat:transformation.element[2][2]], //transformationZ.z,	(i)
 				
 				displayName
 			];

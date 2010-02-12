@@ -81,11 +81,13 @@
 //------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile
 {
-	LDrawPart		*parsedPart				= nil;
-	NSString		*workingLine			= lineFromFile;
-	NSString		*parsedField			= nil;
+	LDrawPart   *parsedPart     = nil;
+	NSString    *workingLine    = lineFromFile;
+	NSString    *parsedField    = nil;
 	
-	Matrix4			 transformation			= IdentityMatrix4;
+	Matrix4     transformation  = IdentityMatrix4;
+	LDrawColorT colorCode       = LDrawColorBogus;
+	GLfloat     customRGB[4]    = {0};
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -102,7 +104,11 @@
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
-			[parsedPart setLDrawColor:[parsedField intValue]];
+			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
+			if(colorCode == LDrawColorCustomRGB)
+				[parsedPart setRGBColor:customRGB];
+			else
+				[parsedPart setLDrawColor:colorCode];
 			
 			//Read position.
 			// (x)
@@ -420,8 +426,8 @@
 	Matrix4 transformation = [self transformationMatrix];
 
 	return [NSString stringWithFormat:
-				@"1 %3d %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %@",
-				color,
+				@"1 %@ %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %@",
+				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
 				transformation.element[3][0], //position.x,			(x)
 				transformation.element[3][1], //position.y,			(y)

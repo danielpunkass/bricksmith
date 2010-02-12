@@ -56,11 +56,13 @@
 //------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile
 {
-	LDrawQuadrilateral	*parsedQuadrilateral = nil;
-	NSString			*workingLine = lineFromFile;
-	NSString			*parsedField;
+	LDrawQuadrilateral  *parsedQuadrilateral    = nil;
+	NSString            *workingLine            = lineFromFile;
+	NSString            *parsedField            = nil;
 	
-	Point3			 workingVertex;
+	Point3              workingVertex           = ZeroPoint3;
+	LDrawColorT         colorCode               = LDrawColorBogus;
+	GLfloat             customRGB[4]            = {0};
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -77,7 +79,11 @@
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
-			[parsedQuadrilateral setLDrawColor:[parsedField intValue]];
+			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
+			if(colorCode == LDrawColorCustomRGB)
+				[parsedQuadrilateral setRGBColor:customRGB];
+			else
+				[parsedQuadrilateral setLDrawColor:colorCode];
 			
 			//Read Vertex 1.
 			// (x1)
@@ -188,7 +194,8 @@
 //==============================================================================
 - (void) encodeWithCoder:(NSCoder *)encoder
 {
-	[encoder encodeInt:color forKey:@"color"];
+	[super encodeWithCoder:encoder];
+
 	[encoder encodeBytes:(void *)&vertex1 length:sizeof(Point3) forKey:@"vertex1"];
 	[encoder encodeBytes:(void *)&vertex2 length:sizeof(Point3) forKey:@"vertex2"];
 	[encoder encodeBytes:(void *)&vertex3 length:sizeof(Point3) forKey:@"vertex3"];
@@ -285,8 +292,8 @@
 - (NSString *) write
 {
 	return [NSString stringWithFormat:
-				@"4 %3d %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f",
-				color,
+				@"4 %@ %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f %12f",
+				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
 				
 				vertex1.x,
 				vertex1.y,

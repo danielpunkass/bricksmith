@@ -29,24 +29,6 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- commentWithDirectiveText: -------------------------------[static]--
-//
-// Purpose:		Given a line from an LDraw file, parse a basic comment line.
-//
-//				directive should have the format:
-//
-//				0 WRITE message-text
-//					or
-//				0 PRINT message-text
-//
-//------------------------------------------------------------------------------
-+ (LDrawComment *) commentWithDirectiveText:(NSString *)directive
-{
-	return [LDrawComment directiveWithString:directive];
-	
-}//end commentWithDirectiveText:
-
-
 //========== finishParsing: ====================================================
 //
 // Purpose:		+directiveWithString: is responsible for parsing out the line 

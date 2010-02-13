@@ -21,12 +21,13 @@
 #import "LDrawTriangle.h"
 
 #import <OpenGL/GL.h>
-#include <string.h>
+#import <string.h>
 
 #import "LDrawColor.h"
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
+
 
 @implementation LDrawTriangle
 
@@ -34,26 +35,14 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- triangleWithDirectiveText: ------------------------------[static]--
-//
-// Purpose:		Given a line from an LDraw file, parse a triangle primitive.
-//
-//				directive should have the format:
-//
-//				3 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 
-//
-//------------------------------------------------------------------------------
-+ (LDrawTriangle *) triangleWithDirectiveText:(NSString *)directive
-{
-	return [LDrawTriangle directiveWithString:directive];
-	
-}//end triangleWithDirectiveText:
-
-
 //---------- directiveWithString: ------------------------------------[static]--
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
+//
+//				directive should have the format:
+//
+//				3 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 
 //
 //------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile
@@ -74,7 +63,8 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField integerValue] == 3){
+		if([parsedField integerValue] == 3)
+		{
 			parsedTriangle = [LDrawTriangle new];
 			
 			//Read in the color code.

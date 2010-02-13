@@ -25,33 +25,21 @@
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
 
+
 @implementation LDrawQuadrilateral
 
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
 
-
-//---------- quadrilateralWithDirectiveText: -------------------------[static]--
-//
-// Purpose:		Given a line from an LDraw file, parse a triangle primitive.
-//
-//				directive should have the format:
-//
-//				4 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 
-//
-//------------------------------------------------------------------------------
-+ (LDrawQuadrilateral *) quadrilateralWithDirectiveText:(NSString *)directive
-{
-	return [LDrawQuadrilateral directiveWithString:directive];
-	
-}//end quadrilateralWithDirectiveText:
-
-
 //---------- directiveWithString: ------------------------------------[static]--
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
+//
+//				directive should have the format:
+//
+//				4 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 
 //
 //------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile
@@ -72,7 +60,8 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField integerValue] == 4){
+		if([parsedField integerValue] == 4)
+		{
 			parsedQuadrilateral = [LDrawQuadrilateral new];
 			
 			//Read in the color code.

@@ -33,30 +33,18 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- conditionalLineWithDirectiveText: -----------------------[static]--
+//---------- directiveWithString: ------------------------------------[static]--
 //
-// Purpose:		Given a line from an LDraw file, parse a conditional line primitive.
+// Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
+//				of LDraw code from a file.
 //
 //				directive should have the format:
 //
 //				5 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 
 //
 //------------------------------------------------------------------------------
-+ (LDrawConditionalLine *) conditionalLineWithDirectiveText:(NSString *)directive
++ (id) directiveWithString:(NSString *)lineFromFile
 {
-	return [LDrawConditionalLine directiveWithString:directive];
-	
-}//end conditionalLineWithDirectiveText:
-
-
-//---------- directiveWithString: ------------------------------------[static]--
-//
-// Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
-//				of LDraw code from a file.
-//
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile{
-	
 	LDrawConditionalLine    *parsedConditionalLine  = nil;
 	NSString                *workingLine            = lineFromFile;
 	NSString                *parsedField            = nil;
@@ -73,7 +61,8 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField integerValue] == 5){
+		if([parsedField integerValue] == 5)
+		{
 			parsedConditionalLine = [[LDrawConditionalLine new] autorelease];
 			
 			//Read in the color code.
@@ -137,9 +126,7 @@
 			workingVertex.z = [parsedField floatValue];
 			
 			[parsedConditionalLine setConditionalVertex2:workingVertex];
-			
 		}
-		
 	}	
 	@catch(NSException *exception)
 	{
@@ -217,8 +204,9 @@
 
 //========== draw:optionsMask: =================================================
 //
-// Purpose:		We have completely disabled these conditional lines pending 
-//				further review (read: better programming skill).
+// Purpose:		We have completely disabled these conditional lines. They add 
+//				little to the modern shaded LDraw experience, and they would 
+//				absolutely kill performance. 
 //
 //==============================================================================
 - (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor

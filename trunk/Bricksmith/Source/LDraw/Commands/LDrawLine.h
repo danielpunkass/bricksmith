@@ -11,14 +11,17 @@
 
 #import "LDrawDrawableElement.h"
 
-@interface LDrawLine : LDrawDrawableElement {
-	
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Class:		LDrawLine
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface LDrawLine : LDrawDrawableElement
+{
 	Point3		vertex1;
 	Point3		vertex2;
 }
-
-//Initialization
-+ (LDrawLine *) lineWithDirectiveText:(NSString *)directive;
 
 //Directives
 - (NSString *) write;

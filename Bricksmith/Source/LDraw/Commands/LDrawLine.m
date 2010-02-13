@@ -29,26 +29,14 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- lineWithDirectiveText: ----------------------------------[static]--
-//
-// Purpose:		Given a line from an LDraw file, parse a line primitive.
-//
-//				directive should have the format:
-//
-//				2 colour x1 y1 z1 x2 y2 z2 
-//
-//------------------------------------------------------------------------------
-+ (LDrawLine *) lineWithDirectiveText:(NSString *)directive
-{
-	return [LDrawLine directiveWithString:directive];
-	
-}//end lineWithDirectiveText:
-
-
 //---------- directiveWithString: ------------------------------------[static]--
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
+//
+//				directive should have the format:
+//
+//				2 colour x1 y1 z1 x2 y2 z2 
 //
 //------------------------------------------------------------------------------
 + (id) directiveWithString:(NSString *)lineFromFile

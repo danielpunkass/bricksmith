@@ -31,26 +31,14 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- commandWithDirectiveText: -------------------------------[static]--
-//
-// Purpose:		Given a line from an LDraw file, parse a basic meta-command line.
-//
-//				directive should have the format:
-//
-//				0 command... 
-//
-//------------------------------------------------------------------------------
-+ (LDrawMetaCommand *) commandWithDirectiveText:(NSString *)directive
-{
-	return [LDrawMetaCommand directiveWithString:directive];
-	
-}//end commandWithDirectiveText:
-
-
 //---------- directiveWithString: ------------------------------------[static]--
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
+//
+//				directive should have the format:
+//
+//				0 command... 
 //
 //				This method determines and returns a subclass instance for known 
 //				meta-commands. 

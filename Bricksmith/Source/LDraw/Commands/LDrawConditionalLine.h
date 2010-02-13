@@ -10,13 +10,17 @@
 #import "LDrawLine.h"
 
 
-@interface LDrawConditionalLine : LDrawLine <NSCoding> {
+////////////////////////////////////////////////////////////////////////////////
+//
+// Class:		LDrawConditionalLine
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface LDrawConditionalLine : LDrawLine <NSCoding>
+{
 	
 	Point3		conditionalVertex1;
 	Point3		conditionalVertex2;
 }
-
-+ (LDrawConditionalLine *) conditionalLineWithDirectiveText:(NSString *)directive;
 
 //Accessors
 - (Point3) conditionalVertex1;

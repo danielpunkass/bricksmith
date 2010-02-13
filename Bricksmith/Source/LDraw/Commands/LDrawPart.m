@@ -40,27 +40,12 @@
 // threads. 
 #define SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS 1
 
+
 @implementation LDrawPart
 
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
-
-//---------- partWithDirectiveText: ----------------------------------[static]--
-//
-// Purpose:		Given a line from an LDraw file, parse a part object.
-//
-//				directive should have the format:
-//
-//				1 color x y z a b c d e f g h i part.dat 
-//
-//------------------------------------------------------------------------------
-+ (LDrawPart *) partWithDirectiveText:(NSString *)directive
-{
-	return [LDrawPart directiveWithString:directive];
-	
-}//end partWithDirectiveText:
-
 
 //---------- directiveWithString: ------------------------------------[static]--
 //

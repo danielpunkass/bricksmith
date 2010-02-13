@@ -21,6 +21,7 @@
 @class LDrawStep;
 @class PartReport;
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Class:		LDrawPart
@@ -37,9 +38,6 @@
 	GLuint			displayListTag;	//list ID for normals in non-inverted matrix
 	NSLock			*drawLock;
 }
-
-//Initialization
-+ (LDrawPart *) partWithDirectiveText:(NSString *)directive;
 
 //Directives
 - (void) drawBounds;

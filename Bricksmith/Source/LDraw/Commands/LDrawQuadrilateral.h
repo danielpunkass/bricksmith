@@ -11,8 +11,13 @@
 
 #import "LDrawDrawableElement.h"
 
-@interface LDrawQuadrilateral : LDrawDrawableElement <NSCoding> {
-	
+////////////////////////////////////////////////////////////////////////////////
+//
+// Class:		LDrawQuadrilateral
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface LDrawQuadrilateral : LDrawDrawableElement <NSCoding>
+{
 	Point3		vertex1;
 	Point3		vertex2;
 	Point3		vertex3;
@@ -21,8 +26,7 @@
 	Vector3		normal;
 }
 
-+ (LDrawQuadrilateral *) quadrilateralWithDirectiveText:(NSString *)directive;
-
+// Directives
 - (NSString *) write;
 
 //Accessors

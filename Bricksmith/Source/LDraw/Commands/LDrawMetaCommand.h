@@ -9,9 +9,10 @@
 //==============================================================================
 #import "LDrawDirective.h"
 
+
 ////////////////////////////////////////////////////////////////////////////////
 //
-// class LDrawMetaCommand
+// Class:		LDrawMetaCommand
 //
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawMetaCommand : LDrawDirective
@@ -19,9 +20,10 @@
 	NSString		*commandString;
 }
 
-+ (LDrawMetaCommand *) commandWithDirectiveText:(NSString *)directive;
+// Initialization
 - (BOOL) finishParsing:(NSScanner *)scanner;
 
+// Directives
 - (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor;
 - (NSString *) write;
 

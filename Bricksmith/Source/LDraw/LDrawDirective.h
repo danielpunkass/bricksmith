@@ -35,7 +35,7 @@
 }
 
 //Initialization
-+ (id) directiveWithString:(NSString *)lineFromFile;
+- (id) initWithLines:(NSArray *)lines beginningAtIndex:(NSUInteger)index;
 
 //Directives
 - (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor;

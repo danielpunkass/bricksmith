@@ -33,7 +33,6 @@
 + (LDrawFile *) file;
 + (LDrawFile *) fileFromContentsAtPath:(NSString *)path;
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents;
-+ (NSArray *) parseModelsFromLines:(NSArray *) linesFromFile;
 - (id) initNew;
 
 // Directives

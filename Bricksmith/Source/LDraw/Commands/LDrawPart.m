@@ -47,7 +47,25 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- directiveWithString: ------------------------------------[static]--
+//========== init ==============================================================
+//
+// Purpose:		Creates an empty part.
+//
+//==============================================================================
+- (id) init
+{
+	self = [super init];
+	
+	[self setDisplayName:@""];
+	[self setTransformComponents:IdentityComponents];
+	//	drawLock = [[NSLock alloc] init];
+	
+	return self;
+	
+}//end init
+
+
+//========== initWithLines:beginningAtIndex: ===================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -63,16 +81,17 @@
 //				| x y z 1 |
 //				+-       -+
 //
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
 {
-	LDrawPart   *parsedPart     = nil;
-	NSString    *workingLine    = lineFromFile;
+	NSString    *workingLine    = [lines objectAtIndex:index];
 	NSString    *parsedField    = nil;
-	
 	Matrix4     transformation  = IdentityMatrix4;
 	LDrawColorT colorCode       = LDrawColorBogus;
 	GLfloat     customRGB[4]    = {0};
+	
+	self = [super initWithLines:lines beginningAtIndex:index];
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -82,18 +101,17 @@
 		parsedField = [LDrawUtilities readNextField:  workingLine
 										  remainder: &workingLine ];
 		//Only attempt to create the part if this is a valid line.
-		if([parsedField integerValue] == 1){
-			parsedPart = [LDrawPart new];
-	
+		if([parsedField integerValue] == 1)
+		{
 			//Read in the color code.
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
 			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
 			if(colorCode == LDrawColorCustomRGB)
-				[parsedPart setRGBColor:customRGB];
+				[self setRGBColor:customRGB];
 			else
-				[parsedPart setLDrawColor:colorCode];
+				[self setLDrawColor:colorCode];
 			
 			//Read position.
 			// (x)
@@ -145,42 +163,28 @@
 			//finish off the corner of the matrix.
 			transformation.element[3][3] = 1;
 			
-			[parsedPart setTransformationMatrix:&transformation];
+			[self setTransformationMatrix:&transformation];
 			
 			//Read Part Name
 			// (part.dat) -- It can have spaces (for MPD models), so we just use the whole 
 			// rest of the line.
-			[parsedPart setDisplayName:
+			[self setDisplayName:
 				[workingLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
 		}
+		else
+			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad part syntax" userInfo:nil];
 	}
 	@catch(NSException *exception)
 	{
-		NSLog(@"the part %@ was fatally invalid", lineFromFile);
+		NSLog(@"the part %@ was fatally invalid", [lines objectAtIndex:index]);
 		NSLog(@" raised exception %@", [exception name]);
+		[self release];
+		self = nil;
 	}
-	
-	return [parsedPart autorelease];
-	
-}//end directiveWithString
-
-
-//========== init ==============================================================
-//
-// Purpose:		Creates an empty part.
-//
-//==============================================================================
-- (id) init
-{
-	self = [super init];
-	
-	[self setDisplayName:@""];
-	[self setTransformComponents:IdentityComponents];
-//	drawLock = [[NSLock alloc] init];
 	
 	return self;
 	
-}//end init
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================

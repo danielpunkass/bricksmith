@@ -45,9 +45,10 @@
 
 //========== finishParsing: ====================================================
 //
-// Purpose:		+directiveWithString: is responsible for parsing out the line 
-//				code and color command (i.e., "0 !COLOUR"); now we just have to 
-//				finish the color-command specific syntax.
+// Purpose:		-[LDrawMetaCommand initWithLines:beginningAtIndex:] is 
+//				responsible for parsing out the line code and color command 
+//				(i.e., "0 !COLOUR"); now we just have to finish the 
+//				color-command specific syntax. 
 //
 //==============================================================================
 - (BOOL) finishParsing:(NSScanner *)scanner

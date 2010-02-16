@@ -21,8 +21,6 @@
 }
 
 + (id) model;
-+ (id) modelWithLines:(NSArray *)lines;
-- (id) initWithLines:(NSArray *)lines;
 
 // Directives
 - (NSString *) writeModel;

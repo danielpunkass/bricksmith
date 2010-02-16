@@ -45,9 +45,7 @@ typedef enum {
 
 //Initialization
 + (id) model;
-+ (id) modelWithLines:(NSArray *)lines;
 - (id) initNew;
-- (id) initWithLines:(NSArray *)lines;
 
 //Accessors
 - (NSString *) category;
@@ -81,7 +79,7 @@ typedef enum {
 - (NSUInteger) maxStepIndexToOutput;
 - (NSUInteger) numberElements;
 - (void) optimizeStructure;
-- (NSArray *) parseHeaderFromLines:(NSArray *) lines;
+- (NSUInteger) parseHeaderFromLines:(NSArray *) lines beginningAtIndex:(NSUInteger)index;
 - (BOOL) line:(NSString *)line isValidForHeader:(NSString *)headerKey;
 
 @end

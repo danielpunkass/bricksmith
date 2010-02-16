@@ -565,7 +565,7 @@ static MLCadIni *sharedIniFile = nil;
 														translation,
 														a11, a12, a13, a21, a22, a23, a31, a32, a33,
 														partName ];
-			currentPart	= [LDrawPart directiveWithString:partLine];
+			currentPart	= [[[LDrawPart alloc] initWithLines:[NSArray arrayWithObject:partLine] beginningAtIndex:0] autorelease];
 			
 			if(currentPart != nil)
 			{
@@ -580,10 +580,8 @@ static MLCadIni *sharedIniFile = nil;
 				}
 				else
 					NSLog(@"%@ %@ is already in the list", [currentPart referenceName], [currentPart browsingDescription]);
-				
 			}
 		}
-		
 	}
 	
 	//---------- Sort list by part name ----------------------------------------

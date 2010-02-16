@@ -74,12 +74,10 @@
 {
 	LDrawFile   *newFile    = [[LDrawFile alloc] init];
 	NSArray     *lines      = [fileContents separateByLine];
-	NSArray     *models     = [LDrawFile parseModelsFromLines:lines];
-	NSInteger   counter;
+	NSArray     *models     = nil;
 	
-	//Initialize the list of models.
-	for(counter = 0; counter < [models count]; counter++)
-		[newFile addSubmodel:[models objectAtIndex:counter]];
+	newFile = [[LDrawFile alloc] initWithLines:lines beginningAtIndex:0];
+	models  = [newFile submodels];
 	
 	if([models count] > 0)
 		[newFile setActiveModel:[models objectAtIndex:0]];
@@ -87,64 +85,6 @@
 	return [newFile autorelease];
 	
 }//end parseFromFileContents:
-
-
-//---------- parseModelsFromLines: -----------------------------------[static]--
-//
-// Purpose:		Returns an array of MPD models culled out from the array of 
-//				lines given in linesFromFile. If linesFromFile contains a single 
-//				non-MPD model, it will be wrapped in an MPD model.
-//
-//------------------------------------------------------------------------------
-+ (NSArray *) parseModelsFromLines:(NSArray *) linesFromFile
-{
-	NSMutableArray  *models             = [NSMutableArray array]; //array of parsed MPD models
-	NSMutableArray  *currentModelLines  = [NSMutableArray array]; //lines to parse into a model.
-	LDrawMPDModel   *newModel           = nil; //the parsed result.
-	
-	NSInteger       numberLines         = [linesFromFile count];
-	NSString        *currentLine        = nil;
-	NSInteger       counter             = 0;
-	
-	//Search through all the lines in the file, and separate them out into 
-	// submodels.
-	for(counter = 0; counter < numberLines; counter++)
-	{
-		currentLine = [linesFromFile objectAtIndex:counter];
-		
-		if([currentLine hasPrefix:LDRAW_MPD_FILE_START_MARKER] == NO)
-		{
-			//still part of the previous model.
-			[currentModelLines addObject:currentLine];
-		}
-		else{
-			//We did find a 0 FILE command; start a new model.
-			// But watch out; the first line in an MPD file is 0 FILE, and we 
-			// don't want to add in an empty model. So we check to see we have 
-			// actually accumulated lines for the model first.
-			if([currentModelLines count] > 0){
-				//we have encountered a new submodel.
-				// Parse the old submodel, then start collecting lines for the 
-				// new one.
-				newModel = [LDrawMPDModel modelWithLines:currentModelLines];
-				[models addObject:newModel];
-				
-			}
-			//Start collecting new lines.
-			currentModelLines = [NSMutableArray array];
-			[currentModelLines addObject:currentLine];
-		}
-	}
-	
-	//Add in the working model.
-	if([currentModelLines count] > 0){
-		newModel = [LDrawMPDModel modelWithLines:currentModelLines];
-		[models addObject:newModel];
-	}
-	
-	return models;
-
-}//end parseModelsFromLines:
 
 
 //========== init ==============================================================
@@ -155,8 +95,8 @@
 - (id) init
 {
 	self = [super init]; //initializes an empty list of subdirectives--in this 
-						// case, the models in the file.
-
+	// case, the models in the file.
+	
 	activeModel = nil;
 	drawCount	= 0;
 	editLock	= [[NSConditionLock alloc] initWithCondition:0];
@@ -164,6 +104,73 @@
 	return self;
 	
 }//end init
+
+
+//========== initWithLines:beginningAtIndex: ===================================
+//
+// Purpose:		Parses the MPD models out of the lines. If lines contains a 
+//				single non-MPD model, it will be wrapped in an MPD model. 
+//
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
+{
+	NSMutableArray  *models             = [NSMutableArray array]; //array of parsed MPD models
+	NSMutableArray  *currentModelLines  = [NSMutableArray array]; //lines to parse into a model.
+	LDrawMPDModel   *newModel           = nil; //the parsed result.
+	
+	NSInteger       numberLines         = [lines count];
+	NSString        *currentLine        = nil;
+	NSInteger       counter             = 0;
+	
+	self = [super initWithLines:lines beginningAtIndex:index];
+	
+	// Search through all the lines in the file, and separate them out into 
+	// submodels.
+	for(counter = index; counter < numberLines; counter++)
+	{
+		currentLine = [lines objectAtIndex:counter];
+		
+		if([currentLine hasPrefix:LDRAW_MPD_FILE_START_MARKER] == NO)
+		{
+			//still part of the previous model.
+			[currentModelLines addObject:currentLine];
+		}
+		else
+		{
+			//We did find a 0 FILE command; start a new model.
+			// But watch out; the first line in an MPD file is 0 FILE, and we 
+			// don't want to add in an empty model. So we check to see we have 
+			// actually accumulated lines for the model first.
+			if([currentModelLines count] > 0)
+			{
+				//we have encountered a new submodel.
+				// Parse the old submodel, then start collecting lines for the 
+				// new one.
+				newModel = [[[LDrawMPDModel alloc] initWithLines:currentModelLines beginningAtIndex:0] autorelease];
+				[models addObject:newModel];
+				
+			}
+			//Start collecting new lines.
+			currentModelLines = [NSMutableArray array];
+			[currentModelLines addObject:currentLine];
+		}
+	}
+	
+	//Add in the working model.
+	if([currentModelLines count] > 0)
+	{
+		newModel = [[[LDrawMPDModel alloc] initWithLines:currentModelLines beginningAtIndex:0] autorelease];
+		[models addObject:newModel];
+	}
+	
+	//Initialize the list of models.
+	for(counter = 0; counter < [models count]; counter++)
+		[self addSubmodel:[models objectAtIndex:counter]];
+
+	return self;
+
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initNew ===========================================================

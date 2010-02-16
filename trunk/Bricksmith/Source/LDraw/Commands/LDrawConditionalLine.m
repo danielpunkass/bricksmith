@@ -33,7 +33,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- directiveWithString: ------------------------------------[static]--
+//========== initWithLines:beginningAtIndex: ===================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -42,16 +42,19 @@
 //
 //				5 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 
 //
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
 {
-	LDrawConditionalLine    *parsedConditionalLine  = nil;
-	NSString                *workingLine            = lineFromFile;
+	NSString                *workingLine            = [lines objectAtIndex:index];
 	NSString                *parsedField            = nil;
-	
 	Point3                  workingVertex           = ZeroPoint3;
 	LDrawColorT             colorCode               = LDrawColorBogus;
 	GLfloat                 customRGB[4]            = {0};
+	
+	// Our superclass is LDrawLine, which has its own unique syntax, so we can't 
+	// call -[super initWithLines:beginningAtIndex:] 
+	self = [self init];
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -63,17 +66,15 @@
 		//Only attempt to create the part if this is a valid line.
 		if([parsedField integerValue] == 5)
 		{
-			parsedConditionalLine = [[LDrawConditionalLine new] autorelease];
-			
 			//Read in the color code.
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
 			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
 			if(colorCode == LDrawColorCustomRGB)
-				[parsedConditionalLine setRGBColor:customRGB];
+				[self setRGBColor:customRGB];
 			else
-				[parsedConditionalLine setLDrawColor:colorCode];
+				[self setLDrawColor:colorCode];
 			
 			//Read Vertex 1.
 			// (x1)
@@ -86,7 +87,7 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedConditionalLine setVertex1:workingVertex];
+			[self setVertex1:workingVertex];
 				
 			//Read Vertex 2.
 			// (x2)
@@ -99,7 +100,7 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedConditionalLine setVertex2:workingVertex];
+			[self setVertex2:workingVertex];
 			
 			//Read Conditonal Vertex 1.
 			// (x3)
@@ -112,7 +113,7 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedConditionalLine setConditionalVertex1:workingVertex];
+			[self setConditionalVertex1:workingVertex];
 			
 			//Read Conditonal Vertex 2.
 			// (x4)
@@ -125,18 +126,22 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedConditionalLine setConditionalVertex2:workingVertex];
+			[self setConditionalVertex2:workingVertex];
 		}
+		else
+			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad conditional line syntax" userInfo:nil];
 	}	
 	@catch(NSException *exception)
 	{
-		NSLog(@"the conditional line primitive %@ was fatally invalid", lineFromFile);
+		NSLog(@"the conditional line primitive %@ was fatally invalid", [lines objectAtIndex:index]);
 		NSLog(@" raised exception %@", [exception name]);
+		[self release];
+		self = nil;
 	}
 	
-	return parsedConditionalLine;
+	return self;
 	
-}//end directiveWithString
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================

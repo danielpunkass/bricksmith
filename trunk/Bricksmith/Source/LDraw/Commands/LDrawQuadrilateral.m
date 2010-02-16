@@ -32,7 +32,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- directiveWithString: ------------------------------------[static]--
+//========== initWithLines:beginningAtIndex: ===================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -41,16 +41,17 @@
 //
 //				4 colour x1 y1 z1 x2 y2 z2 x3 y3 z3 x4 y4 z4 
 //
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
 {
-	LDrawQuadrilateral  *parsedQuadrilateral    = nil;
-	NSString            *workingLine            = lineFromFile;
+	NSString            *workingLine            = [lines objectAtIndex:index];
 	NSString            *parsedField            = nil;
-	
 	Point3              workingVertex           = ZeroPoint3;
 	LDrawColorT         colorCode               = LDrawColorBogus;
 	GLfloat             customRGB[4]            = {0};
+	
+	self = [super initWithLines:lines beginningAtIndex:index];
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -62,17 +63,15 @@
 		//Only attempt to create the part if this is a valid line.
 		if([parsedField integerValue] == 4)
 		{
-			parsedQuadrilateral = [LDrawQuadrilateral new];
-			
 			//Read in the color code.
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
 			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
 			if(colorCode == LDrawColorCustomRGB)
-				[parsedQuadrilateral setRGBColor:customRGB];
+				[self setRGBColor:customRGB];
 			else
-				[parsedQuadrilateral setLDrawColor:colorCode];
+				[self setLDrawColor:colorCode];
 			
 			//Read Vertex 1.
 			// (x1)
@@ -85,7 +84,7 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedQuadrilateral setVertex1:workingVertex];
+			[self setVertex1:workingVertex];
 				
 			//Read Vertex 2.
 			// (x2)
@@ -98,7 +97,7 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedQuadrilateral setVertex2:workingVertex];
+			[self setVertex2:workingVertex];
 			
 			//Read Vertex 3.
 			// (x3)
@@ -111,7 +110,7 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedQuadrilateral setVertex3:workingVertex];
+			[self setVertex3:workingVertex];
 			
 			//Read Vertex 4.
 			// (x4)
@@ -124,20 +123,24 @@
 			parsedField = [LDrawUtilities readNextField:workingLine  remainder: &workingLine ];
 			workingVertex.z = [parsedField floatValue];
 			
-			[parsedQuadrilateral setVertex4:workingVertex];
+			[self setVertex4:workingVertex];
 			
-			[parsedQuadrilateral fixBowtie];
+			[self fixBowtie];
 		}
+		else
+			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad quad syntax" userInfo:nil];
 	}
 	@catch(NSException *exception)
 	{
-		NSLog(@"the quadrilateral primitive %@ was fatally invalid", lineFromFile);
+		NSLog(@"the quadrilateral primitive %@ was fatally invalid", [lines objectAtIndex:index]);
 		NSLog(@" raised exception %@", [exception name]);
+		[self release];
+		self = nil;
 	}
 	
-	return [parsedQuadrilateral autorelease];
+	return self;
 	
-}//end directiveWithString:
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================

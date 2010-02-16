@@ -50,24 +50,6 @@
 }//end model
 
 
-//---------- modelWithLines: -----------------------------------------[static]--
-//
-// Purpose:		Creates a new model file based on the lines from a file.
-//				These lines of strings should only describe one model, not 
-//				multiple ones.
-//
-//				The first line *must* be an MPD file delimiter.
-//
-//------------------------------------------------------------------------------
-+ (id) modelWithLines:(NSArray *)lines
-{
-	LDrawMPDModel *newModel = [[LDrawMPDModel alloc] initWithLines:lines];
-	
-	return [newModel autorelease];
-	
-}//end modelWithLines:
-
-
 //========== init ==============================================================
 //
 // Purpose:		Creates a blank submodel.
@@ -104,7 +86,7 @@
 }//end initNew
 
 
-//========== initWithLines: ====================================================
+//========== initWithLines:beginningAtIndex: ===================================
 //
 // Purpose:		Creates a new model file based on the lines from a file.
 //				These lines of strings should only describe one model, not 
@@ -116,13 +98,16 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-{						//get the line that should contain 0 FILE
-	NSString		*mpdFileCommand		= [lines objectAtIndex:0];
-	NSString		*mpdSubmodelName	= @"";
-	BOOL			 isMPDModel			= NO;
-	NSMutableArray	*nonMPDLines		= [NSMutableArray arrayWithArray:lines];
+	beginningAtIndex:(NSUInteger)index
+{
+	NSString    *mpdFileCommand     = [lines objectAtIndex:index];
+	NSString    *mpdSubmodelName    = @"";
+	BOOL        isMPDModel          = NO;
+	NSArray     *nonMPDLines        = [NSMutableArray arrayWithArray:lines];
+	NSUInteger  modelEndIndex       = 0;
 
-	if([mpdFileCommand hasPrefix:LDRAW_MPD_FILE_START_MARKER]) //does it contain 0 FILE?
+	// The first line should be 0 FILE ...
+	if([mpdFileCommand hasPrefix:LDRAW_MPD_FILE_START_MARKER])
 		isMPDModel = YES; //it does start with 0 FILE; it is MPD.
 	
 	//Strip out the MPD commands for model parsing, and read in the model name.
@@ -140,12 +125,12 @@
 		}
 		
 		//Strip out the first line and the NOFILE command, if there is one.
-		[nonMPDLines removeObjectAtIndex:0];
-		[nonMPDLines removeObject:LDRAW_MPD_FILE_END_MARKER];
+		modelEndIndex   = [lines indexOfObject:LDRAW_MPD_FILE_END_MARKER];
+		nonMPDLines     = [lines subarrayWithRange:NSMakeRange(index + 1, modelEndIndex - (index + 1))];
 	}
 
 	//Create a basic model.
-	[super initWithLines:nonMPDLines]; //parses model into header and steps.
+	[super initWithLines:nonMPDLines beginningAtIndex:index]; //parses model into header and steps.
 	
 	//If it wasn't MPD, we still need a model name. We can get that via the 
 	// parsed model.
@@ -160,7 +145,7 @@
 
 	return self;
 
-}//end initWithLines:
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================

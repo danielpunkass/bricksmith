@@ -69,69 +69,6 @@
 }//end emptyStepWithFlavor:
 
 
-//---------- stepWithLines: ------------------------------------------[static]--
-//
-// Purpose:		Creates a new step ready to be edited, with nothing inside it.
-//
-//------------------------------------------------------------------------------
-+ (LDrawStep *) stepWithLines:(NSArray *)lines
-{
-	LDrawStep   *newStep            = [[LDrawStep alloc] init];
-	
-	NSString    *currentLine        = nil;
-	NSString    *commandCodeString  = nil;
-	NSInteger   commandCode         = 0;
-	Class       CommandClass        = Nil;
-	id          newDirective        = nil;
-	NSUInteger  counter             = 0;
-	NSUInteger	subdirectiveCount	= [lines count];
-	NSString    *lastLine           = nil;
-	
-	if(subdirectiveCount > 0)
-	{
-		lastLine    = [lines lastObject];
-		
-		// See if the last line is a step delimiter. If the delimiter doesn't 
-		// exist, it's implied (such as in a 1-step model). Otherwise, it's 
-		// always at the end -- but it is part of the step, not a subdirective, 
-		// so we'll parse it separately. 
-		if([lastLine hasPrefix:LDRAW_STEP])
-		{
-			// Nothing to parse. Just ignore it.
-			subdirectiveCount -= 1;
-		}
-		else if([lastLine hasPrefix:LDRAW_ROTATION_STEP])
-		{
-			// Parse the rotation step.
-			if( [newStep parseRotationStepFromLine:lastLine] == YES)
-				subdirectiveCount -= 1;
-		}
-		
-		// Convert each non-step-delimiter line into a directive, and add it to 
-		// this step. 
-		for(counter = 0; counter < subdirectiveCount; counter++)
-		{
-			currentLine = [lines objectAtIndex:counter];
-			if([currentLine length] > 0)
-			{
-				commandCodeString = [LDrawUtilities readNextField:currentLine remainder:NULL];
-				//We may need to check for nil here someday.
-				commandCode = [commandCodeString integerValue];
-			
-				CommandClass = [LDrawUtilities classForLineType:commandCode];
-				
-				newDirective = [CommandClass directiveWithString:currentLine];
-				if(newDirective != nil)
-					[newStep addDirective:newDirective];
-			}//end has line data check
-		}
-	}
-	
-	return [newStep autorelease];
-	
-}//end stepWithLines:
-
-
 //========== init ==============================================================
 //
 // Purpose:		Creates a new step ready to be edited, with nothing inside it.
@@ -148,6 +85,68 @@
 	return self;
 	
 }//end init
+
+
+//========== initWithLines:beginningAtIndex: ===================================
+//
+// Purpose:		Parses a step beginning at the specified line of LDraw code.
+//
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
+{
+	NSString    *currentLine        = nil;
+	NSString    *commandCodeString  = nil;
+	NSInteger   commandCode         = 0;
+	Class       CommandClass        = Nil;
+	id          newDirective        = nil;
+	NSUInteger  counter             = 0;
+	NSUInteger  lineCount           = [lines count];
+	
+	self = [super initWithLines:lines beginningAtIndex:index];
+	
+	// Convert each non-step-delimiter line into a directive, and add it to this 
+	// step. 
+	for(counter = index; counter < lineCount; counter++)
+	{
+		currentLine = [lines objectAtIndex:counter];
+		
+		// See if the line is a step delimiter. If the delimiter doesn't exist, 
+		// it's implied (such as in a 1-step model). Otherwise, it marks the end 
+		// of the step. 
+		if([currentLine hasPrefix:LDRAW_STEP])
+		{
+			// Nothing more to parse. Stop.
+			break;
+		}
+		else if([currentLine hasPrefix:LDRAW_ROTATION_STEP])
+		{
+			// Parse the rotation step.
+			if([self parseRotationStepFromLine:currentLine] == NO)
+				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad rotstep syntax" userInfo:nil];
+			break;
+		}
+		else
+		{
+			// Parse each individual directive
+			if([currentLine length] > 0)
+			{
+				commandCodeString = [LDrawUtilities readNextField:currentLine remainder:NULL];
+				//We may need to check for nil here someday.
+				commandCode = [commandCodeString integerValue];
+			
+				CommandClass = [LDrawUtilities classForLineType:commandCode];
+				
+				newDirective = [[[CommandClass alloc] initWithLines:lines beginningAtIndex:counter] autorelease];
+				if(newDirective != nil)
+					[self addDirective:newDirective];
+			}
+		}
+	}
+	
+	return self;
+	
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================

@@ -20,35 +20,6 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- directiveWithString: ------------------------------------[static]--
-//
-// Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
-//				of LDraw code from a file.
-//
-//				This method is intended to be overridden by subclasses.
-//				LDrawDirective's implementation simply returns a useless empty 
-//				directive.
-//
-//				A subclass implementation would look something like:
-//				---------------------------------------------------------------
-//
-//				//The linecode (0, 1, 2, 3, 4, 5) identifies the type of command, 
-//				// and is always the first character in the line.
-//				NSString *lineCode = [lineFromFile substringToIndex:1];
-//				Class LineTypeClass = [LDrawUtilities classForLineType:[lineCode intValue]];
-//				//Now initialize whatever subclass we came up with for this line.
-//				newDirective = [LineTypeClass directiveWithString:lineFromFile];
-//
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
-{
-	id newDirective = [LDrawDirective new];
-	
-	return [newDirective autorelease];
-	
-}//end directiveWithString:
-
-
 //========== init ==============================================================
 //
 // Purpose:		Start me up. This should be called before any other subclass 
@@ -64,6 +35,35 @@
 	return self;
 	
 }//end init
+
+
+//========== initWithLines:beginningAtIndex: ===================================
+//
+// Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
+//				of LDraw code from a file.
+//
+//				This method is intended to be overridden by subclasses.
+//				LDrawDirective's implementation simply returns a useless empty 
+//				directive.
+//
+//				A subclass implementation would look something like:
+//				---------------------------------------------------------------
+//
+//				//The linecode (0, 1, 2, 3, 4, 5) identifies the type of command, 
+//				// and is always the first character in the line.
+//				NSString *lineCode = [lineFromFile substringToIndex:1];
+//				Class LineTypeClass = [LDrawUtilities classForLineType:[lineCode intValue]];
+//				// Then initialize whatever subclass we came up with for this line.
+//
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
+{
+	self = [self init]; // call basic initializer
+	
+	return self;
+	
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================

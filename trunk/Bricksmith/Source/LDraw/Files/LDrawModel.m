@@ -52,22 +52,6 @@
 }//end model
 
 
-//---------- modelWithLines: -----------------------------------------[static]--
-//
-// Purpose:		Creates a new model file based on the lines from a file. These 
-//				lines of strings should only describe one model, not multiple 
-//				ones. 
-//
-//------------------------------------------------------------------------------
-+ (id) modelWithLines:(NSArray *)lines
-{
-	LDrawModel *newModel = [[LDrawModel alloc] initWithLines:lines];
-	
-	return [newModel autorelease];
-	
-}//end modelWithLines:
-
-
 //========== init ==============================================================
 //
 // Purpose:		Creates a new, completely blank model file.
@@ -105,9 +89,9 @@
 	[self setFileName:@""];
 	
 	//Create the author name by looking up the name from the system.
-	ABPerson *userInfo = [[ABAddressBook sharedAddressBook] me];
-	NSString *firstName = [userInfo valueForProperty:kABFirstNameProperty];
-	NSString *lastName  = [userInfo valueForProperty:kABLastNameProperty];
+	ABPerson    *userInfo   = [[ABAddressBook sharedAddressBook] me];
+	NSString    *firstName  = [userInfo valueForProperty:kABFirstNameProperty];
+	NSString    *lastName   = [userInfo valueForProperty:kABLastNameProperty];
 	if([firstName length] > 0 && [lastName length] > 0)
 	{
 		[self setAuthor:[NSString stringWithFormat:@"%@ %@", firstName, lastName]];
@@ -120,7 +104,7 @@
 	
 }//end initNew
 
-//========== initWithLines: ====================================================
+//========== initWithLines:beginningAtIndex: ===================================
 //
 // Purpose:		Creates a new model file based on the lines from a file.
 //				These lines of strings should only describe one model, not 
@@ -140,23 +124,25 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
 {
-	//Start with a nice blank model.
-	self = [self init];
-	
-	//Try and get the header out of the file. If it's there, the lines returned 
-	// will not contain it.
-	lines = [self parseHeaderFromLines:lines];
-	
-	// Parse out steps. Each time we run into a new 0 STEP command, we finish 
-	// the current step. 
 	NSMutableArray  *currentStepLines   = [NSMutableArray array];
 	LDrawStep       *newStep            = nil;
 	NSString        *currentLine        = nil;
+	NSUInteger		contentStartIndex	= 0;
 	NSUInteger      numberLines         = [lines count];
 	NSUInteger      counter             = 0;
 	
-	for(counter = 0; counter < numberLines; counter++)
+	//Start with a nice blank model.
+	self = [super initWithLines:lines beginningAtIndex:index];
+	
+	//Try and get the header out of the file. If it's there, the lines returned 
+	// will not contain it.
+	contentStartIndex = [self parseHeaderFromLines:lines beginningAtIndex:index];
+	
+	// Parse out steps. Each time we run into a new 0 STEP command, we finish 
+	// the current step. 
+	for(counter = contentStartIndex; counter < numberLines; counter++)
 	{
 		currentLine = [lines objectAtIndex:counter];
 		[currentStepLines addObject:currentLine];
@@ -168,7 +154,7 @@
 		{
 			// We've hit the end of the step. Time to parse it and add it to the 
 			// model. 
-			newStep = [LDrawStep stepWithLines:currentStepLines];
+			newStep = [[[LDrawStep alloc] initWithLines:currentStepLines beginningAtIndex:0] autorelease];
 			[self addStep:newStep];
 			
 			// Start a new step if we still have lines left.
@@ -186,7 +172,7 @@
 	
 	return self;
 	
-}//end initWithLines:
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================
@@ -1020,7 +1006,7 @@
 }//end optimizeStructure
 
 
-//========== parseHeaderFromLines: =============================================
+//========== parseHeaderFromLines:beginningAtIndex: ============================
 //
 // Purpose:		Given lines from an LDraw document, fill in the model header 
 //				info. It should be of the following format:
@@ -1035,43 +1021,51 @@
 //				may not be there. Consequently, the code below is a nightmarish
 //				unmaintainable mess.
 //
-//				Returns the contents of lines minus the lines that constituted 
-//				the header.
+//				Returns the line index of the first non-header line.
 //
 //==============================================================================
-- (NSArray *) parseHeaderFromLines:(NSArray *) lines
+- (NSUInteger) parseHeaderFromLines:(NSArray *) lines
+				   beginningAtIndex:(NSUInteger)index
 {
-	NSMutableArray  *linesWithoutHeader = [NSMutableArray arrayWithArray:lines];
 	NSString        *currentLine        = nil;
 	NSUInteger      counter             = 0;
+	BOOL			lineValidForHeader	= NO;
+	NSUInteger		firstNonHeaderIndex	= index;
 	
 	@try
 	{
 		//First line. Should be a description of the model.
-		currentLine = [lines objectAtIndex:0];
-		if([self line:currentLine isValidForHeader:@""]){
+		currentLine = [lines objectAtIndex:index];
+		if([self line:currentLine isValidForHeader:@""])
+		{
 			[self setModelDescription:[currentLine substringFromIndex:2]];
-			[linesWithoutHeader removeObjectIdenticalTo:currentLine];
+			firstNonHeaderIndex++;
 		}
 		
 		//There are at least three more lines in a valid header.
 		// Read the first four lines, and try to get the model info out of 
 		// them.
-		for(counter = 1; counter < 4; counter++) {
-			currentLine = [lines objectAtIndex:counter];
+		lineValidForHeader	= YES;
+		for(counter = firstNonHeaderIndex; counter < firstNonHeaderIndex + 3 && lineValidForHeader == YES; counter++)
+		{
+			currentLine         = [lines objectAtIndex:counter];
+			lineValidForHeader  = NO; // assume not, then disprove
 			
 			//Second line. Should be file name.
-			if([self line:currentLine isValidForHeader:@"Name: "]){
+			if([self line:currentLine isValidForHeader:@"Name: "])
+			{
 				[self setFileName:[currentLine substringFromIndex:[@"0 Name: " length]]];
-				[linesWithoutHeader removeObjectIdenticalTo:currentLine];
+				lineValidForHeader = YES;
 			}
 			//Third line. Should be author name.
-			else if([self line:currentLine isValidForHeader:@"Author: "]){
+			else if([self line:currentLine isValidForHeader:@"Author: "])
+			{
 				[self setAuthor:[currentLine substringFromIndex:[@"0 Author: " length]]];
-				[linesWithoutHeader removeObjectIdenticalTo:currentLine];
+				lineValidForHeader = YES;
 			}
 			//Fourth line. Should be officiality status.
-			else if([self line:currentLine isValidForHeader:@""]){
+			else if([self line:currentLine isValidForHeader:@""])
+			{
 				if([currentLine containsString:@"LDraw.org Official" options:NSCaseInsensitiveSearch])
 					[self setLDrawRepositoryStatus:LDrawOfficialModel];
 				else
@@ -1081,7 +1075,14 @@
 				// part of the header and we delete it. Otherwise, who knows what it is?
 				// Just leave it be then.
 				if([currentLine containsString:@"official" options:NSCaseInsensitiveSearch])
-					[linesWithoutHeader removeObjectIdenticalTo:currentLine];
+				{
+					lineValidForHeader = YES;
+				}
+			}
+			
+			if(lineValidForHeader == YES)
+			{
+				firstNonHeaderIndex++;
 			}
 		}
 	}	
@@ -1090,7 +1091,7 @@
 		//Ran out of lines in the file. Oh well. We got what we got.
 	}
 		
-	return linesWithoutHeader;
+	return firstNonHeaderIndex;
 	
 }//end parseHeaderFromLines
 

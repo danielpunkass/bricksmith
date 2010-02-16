@@ -66,7 +66,6 @@ typedef enum
 //Initialization
 + (id) emptyStep;
 + (id) emptyStepWithFlavor:(LDrawStepFlavorT) flavorType;
-+ (LDrawStep *) stepWithLines:(NSArray *)lines;
 
 //Directives
 - (NSString *) writeWithStepCommand:(BOOL) flag;

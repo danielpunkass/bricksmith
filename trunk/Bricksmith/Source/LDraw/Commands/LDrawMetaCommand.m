@@ -31,104 +31,6 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//---------- directiveWithString: ------------------------------------[static]--
-//
-// Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
-//				of LDraw code from a file.
-//
-//				directive should have the format:
-//
-//				0 command... 
-//
-//				This method determines and returns a subclass instance for known 
-//				meta-commands. 
-//
-//------------------------------------------------------------------------------
-+ (id) directiveWithString:(NSString *)lineFromFile
-{
-	LDrawMetaCommand	*directive		= nil;
-	NSString			*parsedField	= nil;
-	NSScanner			*scanner		= [NSScanner scannerWithString:lineFromFile];
-	int					 lineCode		= 0;
-	int					 metaLineStart	= 0;
-	
-	[scanner setCharactersToBeSkipped:nil];
-	
-	//A malformed part could easily cause a string indexing error, which would 
-	// raise an exception. We don't want this to happen here.
-	@try
-	{
-		//Read in the line code and advance past it.
-		[scanner scanInt:&lineCode];
-//		parsedField = [LDrawUtilities readNextField:  lineFromFile
-//										  remainder: &metaLine ];
-		// Make sure the line code matches.
-		if(lineCode == 0)
-		{
-			// The first word of a meta-command should indicate the command 
-			// itself, and thus the syntax of the rest of the line. However, the 
-			// first word might not be a recognized command. It might not even 
-			// be anything. "0\n" is perfectly valid LDraw.
-			[scanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:nil];
-			metaLineStart = [scanner scanLocation];
-			
-			[scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&parsedField];
-//			parsedField = [LDrawUtilities readNextField:  metaLine
-//											  remainder: &workingLine ];
-		
-			// Comment?
-			if(		[parsedField isEqualToString:LDRAW_COMMENT_SLASH]
-			   ||	[parsedField isEqualToString:LDRAW_COMMENT_WRITE]
-			   ||   [parsedField isEqualToString:LDRAW_COMMENT_PRINT]    )
-			{
-				directive = [[LDrawComment new] autorelease];
-			}
-			// Color Definition?
-			else if([parsedField isEqualToString:LDRAW_COLOR_DEFINITION])
-			{
-				directive = [[LDrawColor new] autorelease];
-			}
-			
-			// If we recognized the metacommand, use the subclass to finish 
-			// parsing. 
-			if(directive != nil)
-			{
-				[directive finishParsing:scanner];
-//				success = [directive finishParsing:scanner];
-				
-				// If it was malformed, let's just act like we didn't recognize 
-				// it after all.
-//				if(success == NO)
-//					directive = nil;
-			}
-			
-			// Didn't specifically recognize this metacommand. Create a 
-			// non-functional generic command to record its existence. 
-			if(directive == nil)
-			{				
-				directive = [[LDrawMetaCommand new] autorelease];
-				NSString *command = [[scanner string] substringFromIndex:metaLineStart];
-		
-//				NSString *command = [metaLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-		
-				[directive setStringValue:command];
-			}
-		}
-		
-	}		
-	@catch(NSException *exception)
-	{
-		NSLog(@"the meta-command %@ was fatally invalid", lineFromFile);
-		NSLog(@" raised exception %@", [exception name]);
-		
-		directive = nil;
-	}
-	
-	return directive;
-	
-}//end directiveWithString:
-
-
 //========== init ==============================================================
 //
 // Purpose:		Initialize an empty command.
@@ -141,6 +43,99 @@
 	return self;
 	
 }//end init
+
+
+//========== initWithLines:beginningAtIndex: ===================================
+//
+// Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
+//				of LDraw code from a file.
+//
+//				directive should have the format:
+//
+//				0 command... 
+//
+//				This method determines and returns a subclass instance for known 
+//				meta-commands. As such, the instance returned will always be of 
+//				a different class, and thus will always be a different instance 
+//				than the receiver. 
+//
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+	beginningAtIndex:(NSUInteger)index
+{
+	LDrawMetaCommand	*directive		= nil;
+	NSString			*parsedField	= nil;
+	NSString			*firstLine		= [lines objectAtIndex:index];
+	NSScanner			*scanner		= [NSScanner scannerWithString:firstLine];
+	int					 lineCode		= 0;
+	int					 metaLineStart	= 0;
+	
+	[scanner setCharactersToBeSkipped:nil];
+	
+	//A malformed part could easily cause a string indexing error, which would 
+	// raise an exception. We don't want this to happen here.
+	@try
+	{
+		//Read in the line code and advance past it.
+		[scanner scanInt:&lineCode];
+
+		// Make sure the line code matches.
+		if(lineCode == 0)
+		{
+			// The first word of a meta-command should indicate the command 
+			// itself, and thus the syntax of the rest of the line. However, the 
+			// first word might not be a recognized command. It might not even 
+			// be anything. "0\n" is perfectly valid LDraw.
+			[scanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:nil];
+			metaLineStart = [scanner scanLocation];
+			
+			[scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&parsedField];
+		
+			// Comment?
+			if(		[parsedField isEqualToString:LDRAW_COMMENT_SLASH]
+			   ||	[parsedField isEqualToString:LDRAW_COMMENT_WRITE]
+			   ||   [parsedField isEqualToString:LDRAW_COMMENT_PRINT]    )
+			{
+				directive = [[LDrawComment alloc] init];
+			}
+			// Color Definition?
+			else if([parsedField isEqualToString:LDRAW_COLOR_DEFINITION])
+			{
+				directive = [[LDrawColor alloc] init];
+			}
+			
+			// If we recognized the metacommand, use the subclass to finish 
+			// parsing. 
+			if(directive != nil)
+			{
+				[directive finishParsing:scanner]; // throws exceptions on error
+			}
+			else
+			{
+				// Didn't specifically recognize this metacommand. Create a 
+				// non-functional generic command to record its existence. 
+				directive = [[LDrawMetaCommand alloc] init];
+				NSString *command = [[scanner string] substringFromIndex:metaLineStart];
+		
+				[directive setStringValue:command];
+			}
+		}
+		else
+			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad metacommand syntax" userInfo:nil];
+	}		
+	@catch(NSException *exception)
+	{
+		NSLog(@"the meta-command %@ was fatally invalid", [lines objectAtIndex:index]);
+		NSLog(@" raised exception %@", [exception name]);
+	}
+	
+	// The new directive should replace the receiver!
+	[self release];
+	self = nil;
+	
+	return directive;
+	
+}//end initWithLines:beginningAtIndex:
 
 
 //========== initWithCoder: ====================================================
@@ -196,8 +191,8 @@
 //========== finishParsing: ====================================================
 //
 // Purpose:		Subclasses override this method to finish parsing their specific 
-//				syntax once +directiveWithString: has determined which subclass 
-//				to instantiate. 
+//				syntax once -[LDrawMetaCommand initWithLines:beginningAtIndex:] 
+//				has determined which subclass to instantiate. 
 //
 // Returns:		YES on success; NO on a syntax error.
 //

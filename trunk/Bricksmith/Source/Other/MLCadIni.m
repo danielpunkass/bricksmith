@@ -565,7 +565,7 @@ static MLCadIni *sharedIniFile = nil;
 														translation,
 														a11, a12, a13, a21, a22, a23, a31, a32, a33,
 														partName ];
-			currentPart	= [[[LDrawPart alloc] initWithLines:[NSArray arrayWithObject:partLine] beginningAtIndex:0] autorelease];
+			currentPart	= [[[LDrawPart alloc] initWithLines:[NSArray arrayWithObject:partLine] inRange:NSMakeRange(0, 1)] autorelease];
 			
 			if(currentPart != nil)
 			{

@@ -127,11 +127,9 @@
 			 inRange:(NSRange)range
 {
 	LDrawStep       *newStep            = nil;
-	NSString        *currentLine        = nil;
 	NSUInteger		contentStartIndex	= 0;
 	NSRange			stepRange			= range;
 	NSUInteger		maxLineIndex		= 0;
-	NSUInteger      counter             = 0;
 	
 	//Start with a nice blank model.
 	self = [super initWithLines:lines inRange:range];
@@ -143,28 +141,17 @@
 	
 	// Parse out steps. Each time we run into a new 0 STEP command, we finish 
 	// the current step. 
-	stepRange = NSMakeRange(contentStartIndex, 0);
-	for(counter = contentStartIndex; counter <= maxLineIndex; counter++)
+	do
 	{
-		currentLine         = [lines objectAtIndex:counter];
-		stepRange.length    += 1;
+		stepRange   = [LDrawStep rangeOfDirectiveBeginningAtIndex:contentStartIndex inLines:lines maxIndex:maxLineIndex];
+		newStep     = [[[LDrawStep alloc] initWithLines:lines inRange:stepRange] autorelease];
+
+		[self addStep:newStep];
+		contentStartIndex = NSMaxRange(stepRange);
 		
-		// Check for the end of the step.
-		if(		[currentLine hasPrefix:LDRAW_STEP ] == YES
-		   ||	[currentLine hasPrefix:LDRAW_ROTATION_STEP] == YES 
-		   ||	counter == maxLineIndex ) // test for end of file.
-		{
-			// We've hit the end of the step. Time to parse it and add it to the 
-			// model. 
-			newStep = [[[LDrawStep alloc] initWithLines:lines inRange:stepRange] autorelease];
-			[self addStep:newStep];
-			
-			// Start a new step if we still have lines left.
-			if(counter < maxLineIndex)
-				stepRange = NSMakeRange(counter+1, 0);
-		}
 	}
-	
+	while(contentStartIndex < NSMaxRange(range));
+		
 	// Degenerate case: utterly empty file. Create one empty step, because it is 
 	// illegal to have a 0-step model in Bricksmith. 
 	if([[self steps] count] == 0)

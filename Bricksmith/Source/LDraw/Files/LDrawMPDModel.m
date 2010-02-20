@@ -101,11 +101,10 @@
 			 inRange:(NSRange)range
 {
 	NSString    *mpdFileCommand     = [lines objectAtIndex:range.location];
+	NSString	*lastLine			= nil;
 	NSString    *mpdSubmodelName    = @"";
 	BOOL        isMPDModel          = NO;
 	NSRange     nonMPDRange         = range;
-	NSUInteger  modelEndIndex       = 0;
-	NSUInteger	counter				= 0;
 
 	// The first line should be 0 FILE ...
 	if([mpdFileCommand hasPrefix:LDRAW_MPD_FILE_START_MARKER])
@@ -126,16 +125,21 @@
 		}
 		
 		//Strip out the first line and the NOFILE command, if there is one.
-		for(counter = range.location + 1; counter < NSMaxRange(range); counter++)
+		lastLine = [lines lastObject];
+		if([lastLine isEqualToString:LDRAW_MPD_FILE_END_MARKER])
 		{
-			NSString *currentLine = [lines objectAtIndex:counter];
-			if([currentLine isEqualToString:LDRAW_MPD_FILE_END_MARKER])
-			{
-				modelEndIndex = counter;
-				break;
-			}
+			// strip out 0 FILE and 0 NOFILE
+			nonMPDRange = NSMakeRange(range.location + 1, range.length - 2);
 		}
-		nonMPDRange     = NSMakeRange(range.location + 1, modelEndIndex - (range.location + 1));
+		else
+		{
+			// strip out 0 FILE only
+			nonMPDRange = NSMakeRange(range.location + 1, range.length - 1);
+		}
+	}
+	else
+	{
+		nonMPDRange = range;
 	}
 
 	//Create a basic model.
@@ -204,6 +208,65 @@
 	return copied;
 	
 }//end copyWithZone:
+
+
+#pragma mark -
+
+//---------- rangeOfDirectiveBeginningAtIndex:inLines:maxIndex: ------[static]--
+//
+// Purpose:		Returns the range from the beginning to the end of the model.
+//
+//------------------------------------------------------------------------------
++ (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index
+									 inLines:(NSArray *)lines
+									maxIndex:(NSUInteger)maxIndex
+{
+	NSString    *firstLine      = nil;
+	BOOL        isMPDModel      = NO;
+	NSString    *currentLine    = nil;
+	NSRange     testRange       = NSMakeRange(index, maxIndex - index + 1);
+	NSRange     modelRange      = testRange;
+	NSUInteger	counter			= 0;
+	NSUInteger	modelEndIndex	= 0;
+	
+	if(testRange.length > 1)
+	{
+		// See if we have to look for MPD syntax.
+		firstLine = [lines objectAtIndex:testRange.location];
+		if([firstLine hasPrefix:LDRAW_MPD_FILE_START_MARKER])
+			isMPDModel = YES;
+		
+		// Find the end of the MPD model. MPD models can end with 0 NOFILE, or 
+		// they can just stop where the next model starts. 
+		if(isMPDModel == YES)
+		{
+			for(counter = testRange.location + 1; counter < NSMaxRange(testRange); counter++)
+			{
+				currentLine = [lines objectAtIndex:counter];
+				
+				if([currentLine isEqualToString:LDRAW_MPD_FILE_END_MARKER])
+				{
+					modelEndIndex = counter;
+					break;
+				}
+				else if([currentLine hasPrefix:LDRAW_MPD_FILE_START_MARKER])
+				{
+					modelEndIndex = counter - 1;
+					break;
+				}
+			}
+			modelRange = NSMakeRange(testRange.location, modelEndIndex - testRange.location + 1);
+		}
+		else
+		{
+			// Non-MPD models just go to the end of the file.
+			modelRange = testRange;
+		}
+	}
+	
+	return modelRange;
+
+}//end rangeOfDirectiveBeginningAtIndex:inLines:maxIndex:
 
 
 #pragma mark -

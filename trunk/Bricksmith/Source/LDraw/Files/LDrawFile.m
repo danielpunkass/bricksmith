@@ -115,60 +115,26 @@
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
 {
-	NSMutableArray  *models             = [NSMutableArray array]; //array of parsed MPD models
-	LDrawMPDModel   *newModel           = nil; //the parsed result.
-	
+	LDrawMPDModel   *newModel           = nil;
 	NSRange			modelRange			= range;
-	NSString        *currentLine        = nil;
-	NSInteger       counter             = 0;
+	NSUInteger		modelStartIndex		= range.location;
 	
 	self = [super initWithLines:lines inRange:range];
 	
 	// Search through all the lines in the file, and separate them out into 
 	// submodels.
-	modelRange = NSMakeRange(range.location, 0);
-	for(counter = range.location; counter < NSMaxRange(range); counter++)
+	do
 	{
-		currentLine = [lines objectAtIndex:counter];
+		modelRange  = [LDrawMPDModel rangeOfDirectiveBeginningAtIndex:modelStartIndex
+															  inLines:lines
+															 maxIndex:NSMaxRange(range) - 1];
+		newModel    = [[[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange] autorelease];
 		
-		if([currentLine hasPrefix:LDRAW_MPD_FILE_START_MARKER])
-		{
-			// We found an 0 FILE command; start a new model.
-			// But watch out; the first line in an MPD file is 0 FILE, and we 
-			// don't want to add in an empty model. So we check to see we have 
-			// actually accumulated lines for the model first.
-			if(modelRange.length > 0)
-			{
-				// We have encountered a new submodel.
-				// Parse the old submodel, then start collecting lines for the 
-				// new one.
-				newModel = [[[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange] autorelease];
-				[models addObject:newModel];
-				
-			}
-			//Start collecting new lines, beginning with the current one.
-			modelRange = NSMakeRange(counter, 1);
-		}
-		else
-		{
-			//still part of the previous model.
-			modelRange.length += 1;
-		}
+		[self addSubmodel:newModel];
+		modelStartIndex = NSMaxRange(modelRange);
 	}
+	while(modelStartIndex < NSMaxRange(range));
 	
-	//Add in the working model.
-	if(modelRange.length > 0)
-	{
-		newModel = [[[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange] autorelease];
-		[models addObject:newModel];
-	}
-	
-	//Initialize the list of models.
-	for(counter = 0; counter < [models count]; counter++)
-	{
-		[self addSubmodel:[models objectAtIndex:counter]];
-	}
-
 	return self;
 
 }//end initWithLines:inRange:

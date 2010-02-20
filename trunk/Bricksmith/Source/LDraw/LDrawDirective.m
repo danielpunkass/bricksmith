@@ -123,6 +123,39 @@
 
 
 #pragma mark -
+
+//---------- rangeOfDirectiveBeginningAtIndex:inLines:maxIndex: ------[static]--
+//
+// Purpose:		Returns the range from the first to the last LDraw line of the 
+//				directive which starts at index. 
+//
+//				This is a core method of the LDraw parser. It allows supporting 
+//				multiline directives and parallelization in parsing. 
+//
+// Parameters:	index	- Index of first line to be considered for the directive
+//				lines	- (Potentially) All the lines of the enclosing file. The 
+//						  directive is represented by a subset of the lines in 
+//						  the range between index and maxIndex. 
+//				maxIndex- Index of the last line which could possibly be part of 
+//						  the directive. 
+//
+// Notes:		Subclasses of LDrawDirective override this method. You should 
+//				ALWAYS call this method on a subclass. Find the subclass using 
+//				+[LDrawUtilities classForDirectiveBeginningWithLine:].
+//
+//------------------------------------------------------------------------------
++ (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index
+									 inLines:(NSArray *)lines
+									maxIndex:(NSUInteger)maxIndex
+{
+	// Most LDraw directives are only one line. For those that aren't the 
+	// subclass should override this method and perform its own parsing. 
+	return NSMakeRange(index, 1);
+	
+}//end rangeOfDirectiveBeginningAtIndex:inLines:maxIndex:
+
+
+#pragma mark -
 #pragma mark DIRECTIVES
 #pragma mark -
 

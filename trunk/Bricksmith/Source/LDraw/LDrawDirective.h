@@ -36,6 +36,7 @@
 
 //Initialization
 - (id) initWithLines:(NSArray *)lines inRange:(NSRange)range;
++ (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index inLines:(NSArray *)lines maxIndex:(NSUInteger)maxIndex;
 
 //Directives
 - (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor;

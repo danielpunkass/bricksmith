@@ -69,6 +69,8 @@
 }//end emptyStepWithFlavor:
 
 
+#pragma mark -
+
 //========== init ==============================================================
 //
 // Purpose:		Creates a new step ready to be edited, with nothing inside it.
@@ -130,7 +132,9 @@
 			if([currentLine length] > 0)
 			{
 				CommandClass = [LDrawUtilities classForDirectiveBeginningWithLine:currentLine];
-				commandRange = NSMakeRange(counter, 1);
+				commandRange = [CommandClass rangeOfDirectiveBeginningAtIndex:counter
+																	  inLines:lines
+																	 maxIndex:NSMaxRange(range) - 1];
 				
 				newDirective = [[[CommandClass alloc] initWithLines:lines inRange:commandRange] autorelease];
 				if(newDirective != nil)
@@ -200,6 +204,50 @@
 	return copied;
 	
 }//end copyWithZone:
+
+
+#pragma mark -
+
+//---------- rangeOfDirectiveBeginningAtIndex:inLines:maxIndex: ------[static]--
+//
+// Purpose:		Returns the range from the beginning to the end of the step.
+//
+//------------------------------------------------------------------------------
++ (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index
+									 inLines:(NSArray *)lines
+									maxIndex:(NSUInteger)maxIndex
+{
+	NSString    *currentLine    = nil;
+	NSUInteger  counter         = 0;
+	NSRange     testRange       = NSMakeRange(index, maxIndex - index + 1);
+	NSInteger	stepLength		= 0;
+	NSRange		stepRange;
+	
+	// Find the last line in the step. Steps either end with the step delimiter, 
+	// or they simply go all the way to the end of the file. 
+	// Convert each non-step-delimiter line into a directive, and add it to this 
+	// step. 
+	for(counter = testRange.location; counter < NSMaxRange(testRange); counter++)
+	{
+		currentLine = [lines objectAtIndex:counter];
+		stepLength++;
+		
+		// See if the line is a step delimiter. If the delimiter doesn't exist, 
+		// it's implied (such as in a 1-step model). Otherwise, it marks the end 
+		// of the step. 
+		if(		[currentLine hasPrefix:LDRAW_STEP]
+		   ||	[currentLine hasPrefix:LDRAW_ROTATION_STEP])
+		{
+			// Nothing more to parse. Stop.
+			break;
+		}
+	}
+	
+	stepRange = NSMakeRange(index, stepLength);
+	
+	return stepRange;
+	
+}//end rangeOfDirectiveBeginningAtIndex:inLines:maxIndex:
 
 
 #pragma mark -

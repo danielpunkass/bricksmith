@@ -33,7 +33,6 @@
 + (LDrawFile *) file;
 + (LDrawFile *) fileFromContentsAtPath:(NSString *)path;
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents;
-- (id) initNew;
 
 // Directives
 - (void) lockForEditing;

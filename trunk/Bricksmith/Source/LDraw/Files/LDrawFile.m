@@ -42,7 +42,14 @@
 //------------------------------------------------------------------------------
 + (LDrawFile *) file
 {
-	return [[[LDrawFile alloc] initNew] autorelease];
+	LDrawFile       *newFile    = [[LDrawFile alloc] init];
+	LDrawMPDModel   *firstModel = [LDrawMPDModel model];
+	
+	//Fill it with one empty model.
+	[newFile addSubmodel:firstModel];
+	[newFile setActiveModel:firstModel];
+	
+	return [newFile autorelease];
 	
 }//end file
 
@@ -138,27 +145,6 @@
 	return self;
 
 }//end initWithLines:inRange:
-
-
-//========== initNew ===========================================================
-//
-// Purpose:		Creates a new MPD file with one model.
-//
-//==============================================================================
-- (id) initNew
-{
-	//Create a completely blank file.
-	[self init];
-	
-	//Fill it with one empty model.
-	LDrawMPDModel *firstModel = [LDrawMPDModel model];
-	[self addSubmodel:firstModel];
-	
-	[self setActiveModel:firstModel];
-	
-	return self;
-	
-}//end initNew
 
 
 //========== initWithCoder: ====================================================

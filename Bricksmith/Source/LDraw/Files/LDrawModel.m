@@ -104,7 +104,7 @@
 	
 }//end initNew
 
-//========== initWithLines:beginningAtIndex: ===================================
+//========== initWithLines:inRange: ============================================
 //
 // Purpose:		Creates a new model file based on the lines from a file.
 //				These lines of strings should only describe one model, not 
@@ -124,42 +124,44 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-	beginningAtIndex:(NSUInteger)index
+			 inRange:(NSRange)range
 {
-	NSMutableArray  *currentStepLines   = [NSMutableArray array];
 	LDrawStep       *newStep            = nil;
 	NSString        *currentLine        = nil;
 	NSUInteger		contentStartIndex	= 0;
-	NSUInteger      numberLines         = [lines count];
+	NSRange			stepRange			= range;
+	NSUInteger		maxLineIndex		= 0;
 	NSUInteger      counter             = 0;
 	
 	//Start with a nice blank model.
-	self = [super initWithLines:lines beginningAtIndex:index];
+	self = [super initWithLines:lines inRange:range];
 	
 	//Try and get the header out of the file. If it's there, the lines returned 
 	// will not contain it.
-	contentStartIndex = [self parseHeaderFromLines:lines beginningAtIndex:index];
+	contentStartIndex   = [self parseHeaderFromLines:lines beginningAtIndex:range.location];
+	maxLineIndex        = NSMaxRange(range) - 1;
 	
 	// Parse out steps. Each time we run into a new 0 STEP command, we finish 
 	// the current step. 
-	for(counter = contentStartIndex; counter < numberLines; counter++)
+	stepRange = NSMakeRange(contentStartIndex, 0);
+	for(counter = contentStartIndex; counter <= maxLineIndex; counter++)
 	{
-		currentLine = [lines objectAtIndex:counter];
-		[currentStepLines addObject:currentLine];
+		currentLine         = [lines objectAtIndex:counter];
+		stepRange.length    += 1;
 		
 		// Check for the end of the step.
 		if(		[currentLine hasPrefix:LDRAW_STEP ] == YES
 		   ||	[currentLine hasPrefix:LDRAW_ROTATION_STEP] == YES 
-		   ||	counter == (numberLines - 1) ) // test for end of file.
+		   ||	counter == maxLineIndex ) // test for end of file.
 		{
 			// We've hit the end of the step. Time to parse it and add it to the 
 			// model. 
-			newStep = [[[LDrawStep alloc] initWithLines:currentStepLines beginningAtIndex:0] autorelease];
+			newStep = [[[LDrawStep alloc] initWithLines:lines inRange:stepRange] autorelease];
 			[self addStep:newStep];
 			
 			// Start a new step if we still have lines left.
-			if(counter < (numberLines - 1))
-				currentStepLines = [NSMutableArray array];
+			if(counter < maxLineIndex)
+				stepRange = NSMakeRange(counter+1, 0);
 		}
 	}
 	
@@ -172,7 +174,7 @@
 	
 	return self;
 	
-}//end initWithLines:beginningAtIndex:
+}//end initWithLines:inRange:
 
 
 //========== initWithCoder: ====================================================
@@ -1024,7 +1026,7 @@
 //				Returns the line index of the first non-header line.
 //
 //==============================================================================
-- (NSUInteger) parseHeaderFromLines:(NSArray *) lines
+- (NSUInteger) parseHeaderFromLines:(NSArray *)lines
 				   beginningAtIndex:(NSUInteger)index
 {
 	NSString        *currentLine        = nil;

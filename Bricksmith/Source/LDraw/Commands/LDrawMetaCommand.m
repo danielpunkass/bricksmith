@@ -45,7 +45,7 @@
 }//end init
 
 
-//========== initWithLines:beginningAtIndex: ===================================
+//========== initWithLines:inRange: ============================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -61,11 +61,11 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-	beginningAtIndex:(NSUInteger)index
+			 inRange:(NSRange)range
 {
 	LDrawMetaCommand	*directive		= nil;
 	NSString			*parsedField	= nil;
-	NSString			*firstLine		= [lines objectAtIndex:index];
+	NSString			*firstLine		= [lines objectAtIndex:range.location];
 	NSScanner			*scanner		= [NSScanner scannerWithString:firstLine];
 	int					 lineCode		= 0;
 	int					 metaLineStart	= 0;
@@ -125,7 +125,7 @@
 	}		
 	@catch(NSException *exception)
 	{
-		NSLog(@"the meta-command %@ was fatally invalid", [lines objectAtIndex:index]);
+		NSLog(@"the meta-command %@ was fatally invalid", [lines objectAtIndex:range.location]);
 		NSLog(@" raised exception %@", [exception name]);
 	}
 	
@@ -135,7 +135,7 @@
 	
 	return directive;
 	
-}//end initWithLines:beginningAtIndex:
+}//end initWithLines:inRange:
 
 
 //========== initWithCoder: ====================================================
@@ -191,7 +191,7 @@
 //========== finishParsing: ====================================================
 //
 // Purpose:		Subclasses override this method to finish parsing their specific 
-//				syntax once -[LDrawMetaCommand initWithLines:beginningAtIndex:] 
+//				syntax once -[LDrawMetaCommand initWithLines:inRange:] 
 //				has determined which subclass to instantiate. 
 //
 // Returns:		YES on success; NO on a syntax error.

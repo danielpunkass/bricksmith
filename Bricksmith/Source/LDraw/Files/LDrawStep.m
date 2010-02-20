@@ -87,27 +87,27 @@
 }//end init
 
 
-//========== initWithLines:beginningAtIndex: ===================================
+//========== initWithLines:inRange: ============================================
 //
 // Purpose:		Parses a step beginning at the specified line of LDraw code.
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-	beginningAtIndex:(NSUInteger)index
+			 inRange:(NSRange)range
 {
 	NSString    *currentLine        = nil;
 	NSString    *commandCodeString  = nil;
 	NSInteger   commandCode         = 0;
 	Class       CommandClass        = Nil;
+	NSRange		commandRange		= range;
 	id          newDirective        = nil;
 	NSUInteger  counter             = 0;
-	NSUInteger  lineCount           = [lines count];
 	
-	self = [super initWithLines:lines beginningAtIndex:index];
+	self = [super initWithLines:lines inRange:range];
 	
 	// Convert each non-step-delimiter line into a directive, and add it to this 
 	// step. 
-	for(counter = index; counter < lineCount; counter++)
+	for(counter = range.location; counter < NSMaxRange(range); counter++)
 	{
 		currentLine = [lines objectAtIndex:counter];
 		
@@ -136,8 +136,9 @@
 				commandCode = [commandCodeString integerValue];
 			
 				CommandClass = [LDrawUtilities classForLineType:commandCode];
+				commandRange = NSMakeRange(counter, 1);
 				
-				newDirective = [[[CommandClass alloc] initWithLines:lines beginningAtIndex:counter] autorelease];
+				newDirective = [[[CommandClass alloc] initWithLines:lines inRange:commandRange] autorelease];
 				if(newDirective != nil)
 					[self addDirective:newDirective];
 			}
@@ -146,7 +147,7 @@
 	
 	return self;
 	
-}//end initWithLines:beginningAtIndex:
+}//end initWithLines:inRange:
 
 
 //========== initWithCoder: ====================================================

@@ -32,7 +32,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== initWithLines:beginningAtIndex: ===================================
+//========== initWithLines:inRange: ============================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -43,15 +43,15 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-	beginningAtIndex:(NSUInteger)index
+			 inRange:(NSRange)range
 {
-	NSString            *workingLine            = [lines objectAtIndex:index];
+	NSString            *workingLine            = [lines objectAtIndex:range.location];
 	NSString            *parsedField            = nil;
 	Point3              workingVertex           = ZeroPoint3;
 	LDrawColorT         colorCode               = LDrawColorBogus;
 	GLfloat             customRGB[4]            = {0};
 	
-	self = [super initWithLines:lines beginningAtIndex:index];
+	self = [super initWithLines:lines inRange:range];
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -132,7 +132,7 @@
 	}
 	@catch(NSException *exception)
 	{
-		NSLog(@"the quadrilateral primitive %@ was fatally invalid", [lines objectAtIndex:index]);
+		NSLog(@"the quadrilateral primitive %@ was fatally invalid", [lines objectAtIndex:range.location]);
 		NSLog(@" raised exception %@", [exception name]);
 		[self release];
 		self = nil;
@@ -140,7 +140,7 @@
 	
 	return self;
 	
-}//end initWithLines:beginningAtIndex:
+}//end initWithLines:inRange:
 
 
 //========== initWithCoder: ====================================================

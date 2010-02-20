@@ -86,7 +86,7 @@
 }//end initNew
 
 
-//========== initWithLines:beginningAtIndex: ===================================
+//========== initWithLines:inRange: ============================================
 //
 // Purpose:		Creates a new model file based on the lines from a file.
 //				These lines of strings should only describe one model, not 
@@ -98,13 +98,14 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-	beginningAtIndex:(NSUInteger)index
+			 inRange:(NSRange)range
 {
-	NSString    *mpdFileCommand     = [lines objectAtIndex:index];
+	NSString    *mpdFileCommand     = [lines objectAtIndex:range.location];
 	NSString    *mpdSubmodelName    = @"";
 	BOOL        isMPDModel          = NO;
-	NSArray     *nonMPDLines        = [NSMutableArray arrayWithArray:lines];
+	NSRange     nonMPDRange         = range;
 	NSUInteger  modelEndIndex       = 0;
+	NSUInteger	counter				= 0;
 
 	// The first line should be 0 FILE ...
 	if([mpdFileCommand hasPrefix:LDRAW_MPD_FILE_START_MARKER])
@@ -125,12 +126,20 @@
 		}
 		
 		//Strip out the first line and the NOFILE command, if there is one.
-		modelEndIndex   = [lines indexOfObject:LDRAW_MPD_FILE_END_MARKER];
-		nonMPDLines     = [lines subarrayWithRange:NSMakeRange(index + 1, modelEndIndex - (index + 1))];
+		for(counter = range.location + 1; counter < NSMaxRange(range); counter++)
+		{
+			NSString *currentLine = [lines objectAtIndex:counter];
+			if([currentLine isEqualToString:LDRAW_MPD_FILE_END_MARKER])
+			{
+				modelEndIndex = counter;
+				break;
+			}
+		}
+		nonMPDRange     = NSMakeRange(range.location + 1, modelEndIndex - (range.location + 1));
 	}
 
 	//Create a basic model.
-	[super initWithLines:nonMPDLines beginningAtIndex:index]; //parses model into header and steps.
+	[super initWithLines:lines inRange:nonMPDRange]; //parses model into header and steps.
 	
 	//If it wasn't MPD, we still need a model name. We can get that via the 
 	// parsed model.
@@ -142,10 +151,9 @@
 	//And now set the MPD-specific attributes.
 	[self setModelName:mpdSubmodelName];
 	
-
 	return self;
 
-}//end initWithLines:beginningAtIndex:
+}//end initWithLines:inRange:
 
 
 //========== initWithCoder: ====================================================

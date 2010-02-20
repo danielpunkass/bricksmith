@@ -33,7 +33,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== initWithLines:beginningAtIndex: ===================================
+//========== initWithLines:inRange: ============================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -44,16 +44,16 @@
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
-	beginningAtIndex:(NSUInteger)index
+			 inRange:(NSRange)range
 {
-	NSString                *workingLine            = [lines objectAtIndex:index];
+	NSString                *workingLine            = [lines objectAtIndex:range.location];
 	NSString                *parsedField            = nil;
 	Point3                  workingVertex           = ZeroPoint3;
 	LDrawColorT             colorCode               = LDrawColorBogus;
 	GLfloat                 customRGB[4]            = {0};
 	
 	// Our superclass is LDrawLine, which has its own unique syntax, so we can't 
-	// call -[super initWithLines:beginningAtIndex:] 
+	// call -[super initWithLines:inRange:] 
 	self = [self init];
 	
 	//A malformed part could easily cause a string indexing error, which would 
@@ -133,7 +133,7 @@
 	}	
 	@catch(NSException *exception)
 	{
-		NSLog(@"the conditional line primitive %@ was fatally invalid", [lines objectAtIndex:index]);
+		NSLog(@"the conditional line primitive %@ was fatally invalid", [lines objectAtIndex:range.location]);
 		NSLog(@" raised exception %@", [exception name]);
 		[self release];
 		self = nil;
@@ -141,7 +141,7 @@
 	
 	return self;
 	
-}//end initWithLines:beginningAtIndex:
+}//end initWithLines:inRange:
 
 
 //========== initWithCoder: ====================================================

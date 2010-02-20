@@ -79,7 +79,7 @@ typedef enum {
 - (NSUInteger) maxStepIndexToOutput;
 - (NSUInteger) numberElements;
 - (void) optimizeStructure;
-- (NSUInteger) parseHeaderFromLines:(NSArray *) lines beginningAtIndex:(NSUInteger)index;
+- (NSUInteger) parseHeaderFromLines:(NSArray *)lines beginningAtIndex:(NSUInteger)index;
 - (BOOL) line:(NSString *)line isValidForHeader:(NSString *)headerKey;
 
 @end

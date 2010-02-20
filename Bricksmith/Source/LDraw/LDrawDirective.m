@@ -49,10 +49,7 @@
 //				A subclass implementation would look something like:
 //				---------------------------------------------------------------
 //
-//				//The linecode (0, 1, 2, 3, 4, 5) identifies the type of command, 
-//				// and is always the first character in the line.
-//				NSString *lineCode = [lineFromFile substringToIndex:1];
-//				Class LineTypeClass = [LDrawUtilities classForLineType:[lineCode intValue]];
+//				Class LineTypeClass = [LDrawUtilities classForDirectiveBeginningWithLine:lineFromFile];
 //				// Then initialize whatever subclass we came up with for this line.
 //
 //==============================================================================

@@ -96,8 +96,6 @@
 			 inRange:(NSRange)range
 {
 	NSString    *currentLine        = nil;
-	NSString    *commandCodeString  = nil;
-	NSInteger   commandCode         = 0;
 	Class       CommandClass        = Nil;
 	NSRange		commandRange		= range;
 	id          newDirective        = nil;
@@ -131,11 +129,7 @@
 			// Parse each individual directive
 			if([currentLine length] > 0)
 			{
-				commandCodeString = [LDrawUtilities readNextField:currentLine remainder:NULL];
-				//We may need to check for nil here someday.
-				commandCode = [commandCodeString integerValue];
-			
-				CommandClass = [LDrawUtilities classForLineType:commandCode];
+				CommandClass = [LDrawUtilities classForDirectiveBeginningWithLine:currentLine];
 				commandRange = NSMakeRange(counter, 1);
 				
 				newDirective = [[[CommandClass alloc] initWithLines:lines inRange:commandRange] autorelease];

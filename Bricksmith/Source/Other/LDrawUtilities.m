@@ -28,17 +28,27 @@
 #pragma mark PARSING
 #pragma mark -
 
-//---------- classForLineType: ---------------------------------------[static]--
+//---------- classForDirectiveBeginningWithLine: ---------------------[static]--
 //
 // Purpose:		Allows initializing the right kind of class based on the code 
 //				found at the beginning of an LDraw line.
 //
+
 //------------------------------------------------------------------------------
-+ (Class) classForLineType:(NSInteger)lineType
++ (Class) classForDirectiveBeginningWithLine:(NSString *)line
 {
-	Class classForType = nil;
+	Class       classForType        = Nil;
+	NSString    *commandCodeString  = nil;
+	NSInteger   lineType            = 0;
 	
-	switch(lineType){
+	commandCodeString   = [LDrawUtilities readNextField:line remainder:NULL];
+	//We may need to check for nil here someday.
+	lineType            = [commandCodeString integerValue];
+	
+	// The linecode (0, 1, 2, 3, 4, 5) identifies the type of command, and is 
+	// always the first character in the line. 
+	switch(lineType)
+	{
 		case 0:
 			classForType = [LDrawMetaCommand class];
 			break;
@@ -63,7 +73,7 @@
 	
 	return classForType;
 	
-}//end classForLineType:
+}//end classForDirectiveBeginningWithLine:
 
 
 //---------- parseColorCodeFromField: --------------------------------[static]--

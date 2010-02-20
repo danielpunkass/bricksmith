@@ -49,7 +49,7 @@ typedef enum
 }
 
 // Parsing
-+ (Class) classForLineType:(NSInteger)lineType;
++ (Class) classForDirectiveBeginningWithLine:(NSString *)line;
 + (LDrawColorT) parseColorCodeFromField:(NSString *)colorField RGB:(GLfloat*)componentsOut;
 + (NSString *) readNextField:(NSString *) partialDirective
 				   remainder:(NSString **) remainder;

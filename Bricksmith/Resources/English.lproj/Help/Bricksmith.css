@@ -54,28 +54,28 @@
 #smallbannerbox
 {
 	margin-top: 12pt;
-	margin-left: 12pt;
+	margin-left: 0pt;
 	margin-bottom: 12pt;
 	padding-right: 6pt;
 	padding-bottom: 6pt;
+	min-height: 32px;
 }
 
 #iconbox
 {
 	margin-bottom: -3px;
-	float: left
+	float: left;
 }
 
 #smallbannericon
 {
-	width: 24px;
+	width: 32px;
 	height: 32px;
 }
 
 #smallbannerheading
 {
-	margin-left: 30pt;
-	
+	margin-left: 32pt;
 	font-size: 16pt;
 	font-weight: bold;
 }

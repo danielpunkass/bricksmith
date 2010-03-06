@@ -39,6 +39,9 @@
 	
 	favorites			= [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
 	
+	catalogAccessMutex	= [[NSRecursiveLock alloc] init];
+	parsingMutexes		= [[NSMutableDictionary alloc] init];
+	
 	[self setPartCatalog:[NSDictionary dictionary]];
 	
 	return self;
@@ -258,14 +261,14 @@
 	NSMutableDictionary *newPartCatalog             = [NSMutableDictionary dictionary];
 	
 	// Start the progress bar so that we know what's happening.
-	NSUInteger			partCount					=		[[fileManager directoryContentsAtPath:primitivesPath] count]
-														+	[[fileManager directoryContentsAtPath:primitives48Path] count]
-														+	[[fileManager directoryContentsAtPath:partsPath] count]
-														+	[[fileManager directoryContentsAtPath:subpartsPath] count]
-														+	[[fileManager directoryContentsAtPath:unofficialPrimitivesPath] count]
-														+	[[fileManager directoryContentsAtPath:unofficialPrimitives48Path] count]
-														+	[[fileManager directoryContentsAtPath:unofficialPartsPath] count]
-														+	[[fileManager directoryContentsAtPath:unofficialSubpartsPath] count];
+	NSUInteger			partCount					=		[[fileManager contentsOfDirectoryAtPath:primitivesPath				error:NULL] count]
+														+	[[fileManager contentsOfDirectoryAtPath:primitives48Path			error:NULL] count]
+														+	[[fileManager contentsOfDirectoryAtPath:partsPath					error:NULL] count]
+														+	[[fileManager contentsOfDirectoryAtPath:subpartsPath				error:NULL] count]
+														+	[[fileManager contentsOfDirectoryAtPath:unofficialPrimitivesPath	error:NULL] count]
+														+	[[fileManager contentsOfDirectoryAtPath:unofficialPrimitives48Path	error:NULL] count]
+														+	[[fileManager contentsOfDirectoryAtPath:unofficialPartsPath			error:NULL] count]
+														+	[[fileManager contentsOfDirectoryAtPath:unofficialSubpartsPath		error:NULL] count];
 	[delegate partLibrary:self maximumPartCountToLoad:partCount];
 	
 	
@@ -393,11 +396,101 @@
 #pragma mark FINDING PARTS
 #pragma mark -
 
+//========== loadModelForName: =================================================
+//
+// Purpose:		This is a thread-safe method which causes the model of the given 
+//				name to be loaded out of the LDraw folder. 
+//
+//==============================================================================
+- (void) loadModelForName:(NSString *)partName
+{
+	LDrawModel      *model          = nil;
+	NSString        *partPath       = nil;
+	NSConditionLock *parseLock      = nil;
+	BOOL            alreadyParsing  = NO;	// another thread is already parsing partName
+	
+	// Determine if the model needs to be parsed.
+	[self->catalogAccessMutex lock];
+	{
+		// Has it already been parsed?
+		model = [self->loadedFiles objectForKey:partName];
+		if(model == nil)
+		{
+			// Is it being parsed? If so, all we need to do is wait for whoever 
+			// is parsing it to finish. 
+			parseLock       = [self->parsingMutexes objectForKey:partName];
+			alreadyParsing  = (parseLock != nil);
+			
+			if(alreadyParsing == NO)
+			{
+				// Nobody has started parsing it yet, so we win!
+				// Create a condition mutex that will notify others when we are 
+				// finished, in case more than one thread attempts to read the 
+				// same model. 
+				parseLock = [[NSConditionLock alloc] initWithCondition:NO];
+				[self->parsingMutexes setObject:parseLock forKey:partName];
+				[parseLock lock];
+			}
+			else
+			{
+				// Ensure the object persists after the parse thread is done 
+				// with it. 
+				[parseLock retain];
+			}
+
+		}
+	}
+	[self->catalogAccessMutex unlock];
+	
+	
+	// Wait until the other thread is done parsing?
+	if(alreadyParsing == YES)
+	{
+		[parseLock lockWhenCondition:YES];
+		[parseLock unlock];
+		[parseLock release];
+	}
+	else
+	{
+		// Well, this means we have to try getting it off the disk!
+		//
+		// This section is NOT mutex protected, because this method is 
+		// reentrant! Multiple parse threads will call this method to load 
+		// additional parts, including parse threads spawned by the parse we are 
+		// about to initiate! If this part were mutexed, they would all pile up 
+		// in one big deadlock here. 
+		if(model == nil)
+		{
+			partPath	= [self pathForPartName:partName];
+			model		= [self readModelAtPath:partPath partName:partName];
+			
+			// Set the new model in the catalog
+			[self->catalogAccessMutex lock];
+			{
+				if(model != nil)
+				{
+					[self->loadedFiles setObject:model forKey:partName];
+				}
+				
+				// Notify waiting threads we are finished parsing this part.
+				[parseLock unlockWithCondition:YES];
+				[self->parsingMutexes removeObjectForKey:partName];
+				[parseLock release];
+			}
+			[self->catalogAccessMutex unlock];
+		}
+	}
+	
+}//end loadModelForName:
+
+
 //========== modelForName: =====================================================
 //
 // Purpose:		Attempts to find the part based only on the given name.
 //				This method can only find parts in the LDraw folder; it returns 
 //				nil if fed an MPD submodel name.
+//
+//				NOT THREAD SAFE!
 //
 // Notes:		The part is looked up by the name specified in the part command. 
 //				For regular parts and primitives, this is simply the filename 
@@ -412,7 +505,7 @@
 	LDrawModel	*model		= nil;
 	NSString	*partPath	= nil;
 	
-	//Try to get a live link if we have parsed this part off disk already.
+	// Has it already been parsed?
 	model = [self->loadedFiles objectForKey:partName];
 	
 	if(model == nil)
@@ -420,6 +513,9 @@
 		//Well, this means we have to try getting it off the disk!
 		partPath	= [self pathForPartName:partName];
 		model		= [self readModelAtPath:partPath partName:partName];
+		
+		if(model != nil)
+			[self->loadedFiles setObject:model forKey:partName];
 	}
 	
 	return model;
@@ -571,7 +667,11 @@
 		
 		//see if it exists!
 		if([fileManager fileExistsAtPath:testPath])
+		{
 			model = [self readModelAtPath:testPath partName:partName];
+			if(model != nil)
+				[self->loadedFiles setObject:model forKey:partName];
+		}
 	}
 	
 	return model;
@@ -696,7 +796,7 @@
 //	NSLog(@"readable types: %@", readableFileTypes);
 	NSArray             *readableFileTypes  = [NSArray arrayWithObjects:@"dat", @"ldr", nil];
 	
-	NSArray             *partNames          = [fileManager directoryContentsAtPath:folderPath];
+	NSArray             *partNames          = [fileManager contentsOfDirectoryAtPath:folderPath error:NULL];
 	NSUInteger          numberOfParts       = [partNames count];
 	NSUInteger          counter;
 	
@@ -961,14 +1061,11 @@
 	
 	if(partPath != nil)
 	{
-		//We found it in the LDraw folder; now all we need to do is get 
-		// the model for it.
+		// We found it in the LDraw folder; now all we need to do is get the 
+		// model for it. 
 		LDrawFile *parsedFile = [LDrawFile fileFromContentsAtPath:partPath];
 		[parsedFile optimizeStructure];
 		model = [[parsedFile submodels] objectAtIndex:0];
-		
-			//Now that we've parsed it once, save it for future reference.
-		[self->loadedFiles setObject:model forKey:partName];
 	}
 	
 	return model;
@@ -1015,9 +1112,11 @@
 //==============================================================================
 - (void) dealloc
 {
-	[partCatalog	release];
-	[favorites		release];
-	[loadedFiles	release];
+	[partCatalog		release];
+	[favorites			release];
+	[loadedFiles		release];
+	[catalogAccessMutex	release];
+	[parsingMutexes		release];
 	
 	[super dealloc];
 	

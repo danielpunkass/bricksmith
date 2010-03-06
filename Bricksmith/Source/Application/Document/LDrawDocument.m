@@ -338,7 +338,14 @@
 		
 		@try
 		{
-			newFile = [LDrawFile parseFromFileContents:fileContents];
+			CFAbsoluteTime  startTime   = CFAbsoluteTimeGetCurrent();
+			CFTimeInterval  parseTime   = 0;
+			
+			newFile     = [LDrawFile parseFromFileContents:fileContents];
+			parseTime   = CFAbsoluteTimeGetCurrent() - startTime;
+			
+			NSLog(@"parse time = %f", parseTime);
+			
 			if(newFile != nil)
 			{
 				[self setDocumentContents:newFile];

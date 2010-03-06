@@ -742,7 +742,10 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	// Force the part library to parse the model this part will display. This 
 	// pushes all parsing into the same operation, which improves loading time 
 	// predictability and allows better potential threading optimization. 
-	[[LDrawApplication sharedPartLibrary] modelForPart:self];
+	if(newPartName != nil && [newPartName length] > 0)
+	{
+		[[LDrawApplication sharedPartLibrary] loadModelForName:displayName];
+	}
 	
 	[self removeDisplayList];
 	

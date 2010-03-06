@@ -23,10 +23,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface PartLibrary : NSObject
 {
-	NSDictionary		*partCatalog;
-	NSMutableArray		*favorites;			// parts names in the "Favorites" pseduocategory
-	NSMutableDictionary	*loadedFiles;		// list of LDrawFiles which have been read off disk.
-	NSMutableDictionary	*fileDisplayLists;	// access stored display lists by part name, then color.
+	NSDictionary        *partCatalog;
+	NSMutableArray      *favorites;				// parts names in the "Favorites" pseduocategory
+	NSMutableDictionary *loadedFiles;			// list of LDrawFiles which have been read off disk.
+	NSMutableDictionary *fileDisplayLists;		// access stored display lists by part name, then color.
+	NSRecursiveLock     *catalogAccessMutex;	// protects additions to the part catalog
+	NSMutableDictionary *parsingMutexes;		// NSConditionLocks signal what files are being parsed
 }
 
 // Initialization
@@ -48,6 +50,7 @@
 - (void) saveFavoritesToUserDefaults;
 
 // Finding Parts
+- (void) loadModelForName:(NSString *)name;
 - (LDrawModel *) modelForName:(NSString *) partName;
 - (LDrawModel *) modelForPart:(LDrawPart *) part;
 - (NSString *) pathForPartName:(NSString *)partName;

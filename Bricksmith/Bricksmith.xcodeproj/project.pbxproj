@@ -194,7 +194,7 @@
 		0B9FE5BA08AD97770046511D /* Unknown.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5B208AD97770046511D /* Unknown.tiff */; };
 		0B9FE5BD08AD977F0046511D /* OneBrick.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5BC08AD977F0046511D /* OneBrick.tiff */; };
 		0B9FE5D208AD97990046511D /* LDraw Document.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5C908AD97990046511D /* LDraw Document.icns */; };
-		0B9FE5D308AD97990046511D /* Mac Brick.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5CA08AD97990046511D /* Mac Brick.icns */; };
+		0B9FE5D308AD97990046511D /* Bricksmith.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5CA08AD97990046511D /* Bricksmith.icns */; };
 		0BA24BEA0EFF2A6500BF9915 /* StringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */; };
 		0BA24BEB0EFF2A6500BF9915 /* StringUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */; };
 		0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BB129E90D7BD208004E8CEC /* Spin.tiff */; };
@@ -489,7 +489,7 @@
 		0B9FE5B208AD97770046511D /* Unknown.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Unknown.tiff; sourceTree = "<group>"; };
 		0B9FE5BC08AD977F0046511D /* OneBrick.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OneBrick.tiff; sourceTree = "<group>"; };
 		0B9FE5C908AD97990046511D /* LDraw Document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "LDraw Document.icns"; sourceTree = "<group>"; };
-		0B9FE5CA08AD97990046511D /* Mac Brick.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "Mac Brick.icns"; sourceTree = "<group>"; };
+		0B9FE5CA08AD97990046511D /* Bricksmith.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Bricksmith.icns; sourceTree = "<group>"; };
 		0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringUtilities.h; sourceTree = "<group>"; };
 		0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringUtilities.m; sourceTree = "<group>"; };
 		0BB129E90D7BD208004E8CEC /* Spin.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Spin.tiff; sourceTree = "<group>"; };
@@ -868,7 +868,7 @@
 			isa = PBXGroup;
 			children = (
 				0B9FE5C908AD97990046511D /* LDraw Document.icns */,
-				0B9FE5CA08AD97990046511D /* Mac Brick.icns */,
+				0B9FE5CA08AD97990046511D /* Bricksmith.icns */,
 			);
 			path = Icon;
 			sourceTree = "<group>";
@@ -1224,7 +1224,7 @@
 				0B9FE5BA08AD97770046511D /* Unknown.tiff in Resources */,
 				0B9FE5BD08AD977F0046511D /* OneBrick.tiff in Resources */,
 				0B9FE5D208AD97990046511D /* LDraw Document.icns in Resources */,
-				0B9FE5D308AD97990046511D /* Mac Brick.icns in Resources */,
+				0B9FE5D308AD97990046511D /* Bricksmith.icns in Resources */,
 				0B34306708B2E93D00A06A40 /* Localizable.strings in Resources */,
 				0B8EBCF10938383000D87E0C /* ZoomInCursor.tiff in Resources */,
 				0B8EBCF20938383000D87E0C /* ZoomOutCursor.tiff in Resources */,

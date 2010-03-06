@@ -36,7 +36,7 @@
 	<key>CFBundleHelpBookName</key>
 	<string>Bricksmith Tutorial</string>
 	<key>CFBundleIconFile</key>
-	<string>Mac Brick</string>
+	<string>Bricksmith.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AllenSmith.Bricksmith</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -47,11 +47,11 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>2.3.1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.5.0</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>BricksmithApplication</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>10.5.0</string>
 </dict>
 </plist>

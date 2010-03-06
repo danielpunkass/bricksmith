@@ -221,7 +221,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 + (NSString *) ldconfigPath
 {
 	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	NSFileManager	*fileManager	= [NSFileManager defaultManager];
+	NSFileManager	*fileManager	= [[[NSFileManager alloc] init] autorelease];
 	NSBundle		*mainBundle		= nil;
 	NSString		*ldrawPath		= [userDefaults objectForKey:LDRAW_PATH_KEY];
 	NSString		*installedPath	= [ldrawPath stringByAppendingPathComponent:@"LDConfig.ldr"];
@@ -244,7 +244,9 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 		
 		// Attempt to install it
 		if(installedPath != nil)
-			installSuccess = [fileManager copyPath:builtInPath toPath:installedPath handler:nil];
+		{
+			installSuccess = [fileManager copyItemAtPath:builtInPath toPath:installedPath error:NULL];
+		}
 		
 		if(installSuccess == YES)
 			ldconfigPath = installedPath;

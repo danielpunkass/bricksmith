@@ -36,7 +36,7 @@
 // class DocumentToolbarController
 //
 ////////////////////////////////////////////////////////////////////////////////
-@interface DocumentToolbarController : NSObject
+@interface DocumentToolbarController : NSObject <NSToolbarDelegate>
 {
 	IBOutlet LDrawDocument			*document; //link to the documnt to which this is attached.
 

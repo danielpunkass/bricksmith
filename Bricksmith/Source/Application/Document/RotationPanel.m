@@ -17,20 +17,6 @@
 
 RotationPanel *sharedRotationPanel = nil;
 
-//---------- initialize ----------------------------------------------[static]--
-//
-// Purpose:		Called when the class is first instantiated; register bindings 
-//				stuff here.
-//
-//------------------------------------------------------------------------------
-+ (void) initialize
-{
-	[self setKeys:[NSArray arrayWithObjects:@"rotationMode", nil]
-			triggerChangeNotificationsForDependentKey:@"enableFixedPointCoordinates"];
-		
-}//end initialize
-
-
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -
@@ -116,6 +102,29 @@ RotationPanel *sharedRotationPanel = nil;
 	return self->rotationMode;
 	
 }//end rotationMode
+
+
+//---------- keyPathsForValuesAffectingValueForKey: ------------------[static]--
+//
+// Purpose:		Register bindings stuff.
+//
+//------------------------------------------------------------------------------
++ (NSSet *) keyPathsForValuesAffectingValueForKey:(NSString *)key
+{
+	NSSet *triggerKeys = nil;
+
+	if([key isEqualToString:@"enableFixedPointCoordinates"])
+	{
+		triggerKeys = [NSSet setWithObject:@"rotationMode"];
+	}
+	else
+	{
+		triggerKeys = [super keyPathsForValuesAffectingValueForKey:key];
+	}
+	
+	return triggerKeys;
+
+}//end keyPathsForValuesAffectingValueForKey:
 
 
 #pragma mark -

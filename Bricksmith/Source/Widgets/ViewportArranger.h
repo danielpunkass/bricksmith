@@ -22,7 +22,7 @@
 // class ViewportArranger
 //
 ////////////////////////////////////////////////////////////////////////////////
-@interface ViewportArranger : ExtendedSplitView
+@interface ViewportArranger : ExtendedSplitView <NSSplitViewDelegate>
 {
 	id<ViewportArrangerDelegate>    delegate;
 }

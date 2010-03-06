@@ -21,7 +21,7 @@
 // class PreferencesDialogController
 //
 ////////////////////////////////////////////////////////////////////////////////
-@interface PreferencesDialogController : NSObject
+@interface PreferencesDialogController : NSObject <NSToolbarDelegate>
 {
     IBOutlet NSWindow		*preferencesWindow;
 	

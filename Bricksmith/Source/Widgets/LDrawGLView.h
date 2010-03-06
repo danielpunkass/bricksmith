@@ -226,6 +226,4 @@ typedef enum
 @interface NSEvent (GestureMethods)
 - (CGFloat) magnification;
 @end
-#else
-	#warning This can be removed now.
 #endif

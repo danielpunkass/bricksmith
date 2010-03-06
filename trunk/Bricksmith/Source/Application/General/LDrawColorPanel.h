@@ -18,7 +18,7 @@
 // Class:		LDrawColorPanel
 //
 ////////////////////////////////////////////////////////////////////////////////
-@interface LDrawColorPanel : NSPanel <LDrawColorable>
+@interface LDrawColorPanel : NSPanel <LDrawColorable, NSWindowDelegate>
 {
 	IBOutlet	LDrawColorPanel		*colorPanel;
 	IBOutlet	LDrawColorBar		*colorBar;

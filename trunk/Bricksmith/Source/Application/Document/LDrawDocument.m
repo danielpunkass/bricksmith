@@ -1299,7 +1299,7 @@
 					returnCode:(NSInteger)returnCode
 				   contextInfo:(void *)contextInfo
 {
-	NSFileManager   *fileManager        = [NSFileManager defaultManager];
+	NSFileManager   *fileManager        = [[[NSFileManager alloc] init] autorelease];
 	NSString        *saveName           = nil;
 	NSString        *modelName          = nil;
 	NSString        *folderName         = nil;
@@ -1321,9 +1321,9 @@
 		
 		//If we got this far, we need to replace any prexisting file.
 		if([fileManager fileExistsAtPath:saveName isDirectory:NULL])
-			[fileManager removeFileAtPath:saveName handler:nil];
-		
-		[fileManager createDirectoryAtPath:saveName attributes:nil];
+			[fileManager removeItemAtPath:saveName error:NULL];
+		 
+		[fileManager createDirectoryAtPath:saveName withIntermediateDirectories:YES attributes:nil error:NULL];
 		
 		//Output all the steps for all the submodels.
 		for(modelCounter = 0; modelCounter < [[[self documentContents] submodels] count]; modelCounter++)
@@ -1343,7 +1343,7 @@
 			modelName	= [NSString stringWithFormat:modelnameFormat, [currentModel modelName]];
 			folderName	= [saveName stringByAppendingPathComponent:modelName];
 			
-			[fileManager createDirectoryAtPath:folderName attributes:nil];
+			[fileManager createDirectoryAtPath:folderName withIntermediateDirectories:YES attributes:nil error:NULL];
 			
 			//Write out each step!
 			for(counter = [[currentModel steps] count]-1; counter >= 0; counter--)

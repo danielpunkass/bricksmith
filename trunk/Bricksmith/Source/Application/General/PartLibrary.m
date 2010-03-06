@@ -174,7 +174,7 @@
 - (BOOL) load
 {
 	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
-	NSFileManager   *fileManager    = [NSFileManager defaultManager];
+	NSFileManager   *fileManager    = [[[NSFileManager alloc] init] autorelease];
 	
 	NSString        *ldrawPath      = [userDefaults stringForKey:LDRAW_PATH_KEY];
 	NSString        *pathToPartList = nil;
@@ -235,7 +235,7 @@
 //==============================================================================
 - (BOOL) reloadPartsWithDelegate:(id <PartLibraryReloadPartsDelegate>)delegate
 {
-	NSFileManager		*fileManager		= [NSFileManager defaultManager];
+	NSFileManager		*fileManager		= [[[NSFileManager alloc] init] autorelease];
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 	
 	NSString			*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
@@ -593,7 +593,7 @@
 									  options:0
 										range:NSMakeRange(0, [fixedPartName length]) ];
 	
-	NSFileManager	*fileManager		= [NSFileManager defaultManager];
+	NSFileManager	*fileManager		= [[[NSFileManager alloc] init] autorelease];
 	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
 	
 	NSString		*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
@@ -658,7 +658,7 @@
 	
 	if(filePath != nil)
 	{
-		fileManager		= [NSFileManager defaultManager];
+		fileManager		= [[[NSFileManager alloc] init] autorelease];
 		
 		//look at path = parentFolder/referenceName
 		partName		= [part referenceName];
@@ -790,7 +790,7 @@
 			   namePrefix:(NSString *)namePrefix
 				 delegate:(id <PartLibraryReloadPartsDelegate>)delegate
 {
-	NSFileManager       *fileManager        = [NSFileManager defaultManager];
+	NSFileManager       *fileManager        = [[[NSFileManager alloc] init] autorelease];
 // Not working for some reason. Why?
 //	NSArray				*readableFileTypes = [NSDocument readableTypes];
 //	NSLog(@"readable types: %@", readableFileTypes);
@@ -1085,7 +1085,7 @@
 	NSString *partsFolderPath		= [folderPath stringByAppendingPathComponent:PARTS_DIRECTORY_NAME];
 	NSString *primitivesFolderPath	= [folderPath stringByAppendingPathComponent:PRIMITIVES_DIRECTORY_NAME];
 	
-	NSFileManager	*fileManager = [NSFileManager defaultManager];
+	NSFileManager	*fileManager = [[[NSFileManager alloc] init] autorelease];
 	BOOL			folderIsValid = NO;
 	
 	if(		[fileManager fileExistsAtPath:folderPath]

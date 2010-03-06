@@ -610,7 +610,7 @@ static MLCadIni *sharedIniFile = nil;
 //------------------------------------------------------------------------------
 + (NSString *) preferredPath
 {
-	NSFileManager	*fileManager		= [NSFileManager defaultManager];
+	NSFileManager	*fileManager		= [[[NSFileManager alloc] init] autorelease];
 	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
 	
 	NSString		*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];

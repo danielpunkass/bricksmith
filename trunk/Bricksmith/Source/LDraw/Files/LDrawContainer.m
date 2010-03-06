@@ -89,12 +89,12 @@
 	id              copiedObject        = nil;
 	NSInteger       counter             = 0;
 	
-	//Allocate our instance varibales.
+	// Allocate our instance varibales.
 	copiedContainer->containedObjects = [[NSMutableArray alloc] initWithCapacity:numberSubdirectives];
 	
-	//Copy each subdirective and transfer it into the copied container.
-	for(counter = 0; counter < numberSubdirectives; counter++){
-		currentObject = [containedObjects objectAtIndex:counter];
+	// Copy each subdirective and transfer it into the copied container.
+	for(currentObject in self->containedObjects)
+	{
 		copiedObject = [currentObject copy];
 		[copiedContainer insertDirective:copiedObject atIndex:counter];
 		[copiedObject release];

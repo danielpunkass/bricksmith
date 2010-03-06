@@ -20,6 +20,8 @@
 //==============================================================================
 #import "LDrawFile.h"
 
+#import <dispatch/dispatch.h>
+
 #import "LDrawMPDModel.h"
 #import "LDrawPart.h"
 #import "LDrawUtilities.h"
@@ -94,6 +96,8 @@
 }//end parseFromFileContents:
 
 
+#pragma mark -
+
 //========== init ==============================================================
 //
 // Purpose:		Creates a new file with absolutely nothing in it.
@@ -122,12 +126,18 @@
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
 {
-	LDrawMPDModel   *newModel           = nil;
-	NSRange			modelRange			= range;
-	NSUInteger		modelStartIndex		= range.location;
+	NSRange         modelRange      = range;
+	NSUInteger      modelStartIndex = range.location;
+	id              *submodels      = calloc(range.length, sizeof(LDrawDirective*));
+	NSUInteger      insertIndex     = 0;
+	NSUInteger      counter         = 0;
+	LDrawMPDModel   *currentModel   = nil;
 	
 	self = [super initWithLines:lines inRange:range];
 	
+//	dispatch_queue_t    queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
+//	dispatch_group_t    dispatchGroup   = dispatch_group_create();
+													
 	// Search through all the lines in the file, and separate them out into 
 	// submodels.
 	do
@@ -135,12 +145,36 @@
 		modelRange  = [LDrawMPDModel rangeOfDirectiveBeginningAtIndex:modelStartIndex
 															  inLines:lines
 															 maxIndex:NSMaxRange(range) - 1];
-		newModel    = [[[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange] autorelease];
+		// Parse
+//		dispatch_group_async(dispatchGroup, queue,
+//		^{
+			LDrawMPDModel *newModel    = [[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange];
+			
+			// Store non-retaining, but *thread-safe* container 
+			// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
+			// autorelease newDirective. 
+			submodels[insertIndex] = newModel;
+//		});
 		
-		[self addSubmodel:newModel];
 		modelStartIndex = NSMaxRange(modelRange);
+		insertIndex     += 1;
 	}
 	while(modelStartIndex < NSMaxRange(range));
+	
+	// Wait for all the multithreaded parsing to happen
+//	dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
+//	dispatch_release(dispatchGroup);
+	
+	// Add all the models in order
+	for(counter = 0; counter < insertIndex; counter++)
+	{
+		currentModel = submodels[counter];
+		
+		[self addSubmodel:currentModel];
+		[currentModel release];
+	}
+	
+	free(submodels);
 	
 	return self;
 

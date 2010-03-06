@@ -97,19 +97,24 @@
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
 {
-	NSString    *currentLine        = nil;
-	Class       CommandClass        = Nil;
-	NSRange		commandRange		= range;
-	id          newDirective        = nil;
-	NSUInteger  counter             = 0;
-	
+	NSString        *currentLine        = nil;
+	Class           CommandClass        = Nil;
+	NSRange         commandRange        = range;
+	id              *directives         = calloc(range.length, sizeof(LDrawDirective*));
+	NSUInteger      lineIndex           = 0;
+	NSUInteger      insertIndex         = 0;
+	NSUInteger      counter             = 0;
+	LDrawDirective  *currentDirective   = nil;
+		
 	self = [super initWithLines:lines inRange:range];
 	
-	// Convert each non-step-delimiter line into a directive, and add it to this 
-	// step. 
-	for(counter = range.location; counter < NSMaxRange(range); counter++)
+	dispatch_queue_t    queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
+	dispatch_group_t    dispatchGroup   = dispatch_group_create();
+	
+	// Parse out the STEP command
+	if(range.length > 0)
 	{
-		currentLine = [lines objectAtIndex:counter];
+		currentLine = [lines objectAtIndex:(NSMaxRange(range) - 1)];
 		
 		// See if the line is a step delimiter. If the delimiter doesn't exist, 
 		// it's implied (such as in a 1-step model). Otherwise, it marks the end 
@@ -117,31 +122,64 @@
 		if([currentLine hasPrefix:LDRAW_STEP])
 		{
 			// Nothing more to parse. Stop.
-			break;
+			range.length -= 1;
 		}
 		else if([currentLine hasPrefix:LDRAW_ROTATION_STEP])
 		{
 			// Parse the rotation step.
 			if([self parseRotationStepFromLine:currentLine] == NO)
 				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad rotstep syntax" userInfo:nil];
-			break;
+			
+			range.length -= 1;
+		}
+	}
+	
+	// Convert each non-step-delimiter line into a directive, and add it to this 
+	// step. 
+	lineIndex = range.location;
+	while(lineIndex < NSMaxRange(range))
+	{
+		currentLine = [lines objectAtIndex:lineIndex];
+		if([currentLine length] > 0)
+		{
+			CommandClass = [LDrawUtilities classForDirectiveBeginningWithLine:currentLine];
+			commandRange = [CommandClass rangeOfDirectiveBeginningAtIndex:lineIndex
+																  inLines:lines
+																 maxIndex:NSMaxRange(range) - 1];
+			// Parse (multithreaded)
+			dispatch_group_async(dispatchGroup, queue,
+			^{
+				LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange];
+				
+				// Store non-retaining, but *thread-safe* container 
+				// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
+				// autorelease newDirective. 
+				directives[insertIndex] = newDirective;
+			});
+			lineIndex     = NSMaxRange(commandRange);
+			insertIndex += 1;
 		}
 		else
 		{
-			// Parse each individual directive
-			if([currentLine length] > 0)
-			{
-				CommandClass = [LDrawUtilities classForDirectiveBeginningWithLine:currentLine];
-				commandRange = [CommandClass rangeOfDirectiveBeginningAtIndex:counter
-																	  inLines:lines
-																	 maxIndex:NSMaxRange(range) - 1];
-				
-				newDirective = [[[CommandClass alloc] initWithLines:lines inRange:commandRange] autorelease];
-				if(newDirective != nil)
-					[self addDirective:newDirective];
-			}
+			lineIndex += 1;
 		}
+
 	}
+	
+	// Wait for all the multithreaded parsing to happen
+	dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
+	dispatch_release(dispatchGroup);
+	
+	// Add the accumulated directives *in order*
+	for(counter = 0; counter < insertIndex; counter++)
+	{
+		currentDirective = directives[counter];
+		
+		[self addDirective:currentDirective];
+		[currentDirective release];
+	}
+	
+	free(directives);
 	
 	return self;
 	

@@ -1,11 +1,29 @@
+//==============================================================================
 //
-// Prefix header for all source files of the 'Bricksmith' target in the 'Bricksmith' project
+// File:		Mac LDraw_Prefix.pch
 //
+// Purpose:		Prefix header for all source files of the 'Bricksmith' target in 
+//				the 'Bricksmith' project 
+//
+// Modified:	02/14/05 Allen Smith. Creation Date.
+//
+//==============================================================================
 
-//Bricksmith is a Cocoa project. Whereever Cocoa can be used, it will be.
+// Bricksmith is a Cocoa project. Whereever Cocoa can be used, it will be.
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
+	
+	// Supply delegate protocols for compilation before 10.6
+	#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_5
+		@protocol NSSplitViewDelegate
+		@end
+		@protocol NSToolbarDelegate
+		@end
+		@protocol NSWindowDelegate
+		@end
+	#endif
 #endif
 
-//Carbon should be used very, *very* little, but it may be handy.
+// Carbon should be used very, *very* little, but it may be handy.
 #import <Carbon/Carbon.h>
+

@@ -20,7 +20,9 @@
 //==============================================================================
 #import "LDrawFile.h"
 
+#ifdef NS_BLOCKS_AVAILABLE
 #import <dispatch/dispatch.h>
+#endif
 
 #import "LDrawMPDModel.h"
 #import "LDrawPart.h"

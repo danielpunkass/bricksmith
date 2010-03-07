@@ -27,6 +27,10 @@
 //==============================================================================
 #import "LDrawStep.h"
 
+#ifdef NS_BLOCKS_AVAILABLE
+#import <dispatch/dispatch.h>
+#endif
+
 #import "LDrawModel.h"
 #import "LDrawUtilities.h"
 #import "StringCategory.h"
@@ -108,9 +112,10 @@
 		
 	self = [super initWithLines:lines inRange:range];
 	
+#ifdef NS_BLOCKS_AVAILABLE
 	dispatch_queue_t    queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
 	dispatch_group_t    dispatchGroup   = dispatch_group_create();
-	
+#endif	
 	// Parse out the STEP command
 	if(range.length > 0)
 	{
@@ -147,15 +152,19 @@
 																  inLines:lines
 																 maxIndex:NSMaxRange(range) - 1];
 			// Parse (multithreaded)
+#ifdef NS_BLOCKS_AVAILABLE
 			dispatch_group_async(dispatchGroup, queue,
 			^{
+#endif
 				LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange];
 				
 				// Store non-retaining, but *thread-safe* container 
 				// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
 				// autorelease newDirective. 
 				directives[insertIndex] = newDirective;
+#ifdef NS_BLOCKS_AVAILABLE
 			});
+#endif
 			lineIndex     = NSMaxRange(commandRange);
 			insertIndex += 1;
 		}
@@ -166,9 +175,11 @@
 
 	}
 	
+#ifdef NS_BLOCKS_AVAILABLE
 	// Wait for all the multithreaded parsing to happen
 	dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
 	dispatch_release(dispatchGroup);
+#endif
 	
 	// Add the accumulated directives *in order*
 	for(counter = 0; counter < insertIndex; counter++)

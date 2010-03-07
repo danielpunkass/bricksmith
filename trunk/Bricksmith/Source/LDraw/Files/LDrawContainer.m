@@ -32,8 +32,8 @@
 {
 	self = [super init];
 	
-	containedObjects = [NSMutableArray array];
-	[containedObjects retain];
+	containedObjects    = [[NSMutableArray array] retain];
+	postsNotifications  = NO;
 	
 	return self;
 	
@@ -120,12 +120,9 @@
 {
 	NSMutableArray  *subelements        = [NSMutableArray array];
 	id              currentDirective    = nil;
-	NSInteger       counter             = 0;
 	
-	for(counter = 0; counter < [self->containedObjects count]; counter++)
+	for(currentDirective in self->containedObjects)
 	{
-		currentDirective = [self->containedObjects objectAtIndex:counter];
-		
 		if([currentDirective respondsToSelector:@selector(allEnclosedElements)])
 			[subelements addObjectsFromArray:[currentDirective allEnclosedElements]];
 		else
@@ -208,6 +205,34 @@
 
 
 #pragma mark -
+
+//========== setPostsNotifications: ============================================
+//
+// Purpose:		Sets whether the container posts 
+//				LDrawDirectiveDidChangeNotifications when its contents change. 
+//
+// Notes:		Posting notifications is extremely time-consuming and only 
+//				needed for editable containers. Given the huge number of 
+//				container changes which occur during parsing, you generally want 
+//				this flag off except in parseable directives. 
+//
+//==============================================================================
+- (void) setPostsNotifications:(BOOL)flag
+{
+	self->postsNotifications = flag;
+	
+	// Apply new setting to children
+	for(id childDirective in self->containedObjects)
+	{
+		if([childDirective respondsToSelector:@selector(setPostsNotifications:)] == YES)
+		{
+			[childDirective setPostsNotifications:flag];
+		}
+	}
+}//end setPostsNotifications:
+
+
+#pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
 
@@ -273,12 +298,22 @@
 //==============================================================================
 - (void) insertDirective:(LDrawDirective *)directive atIndex:(NSInteger)index
 {
+	// Insert
 	[containedObjects insertObject:directive atIndex:index];
 	[directive setEnclosingDirective:self];
 	
-	[[NSNotificationCenter defaultCenter]
-			postNotificationName:LDrawDirectiveDidChangeNotification
-						  object:self];
+	// Apply notification policy to new children
+	if([directive respondsToSelector:@selector(setPostsNotifications:)] == YES)
+	{
+		[(id)directive setPostsNotifications:self->postsNotifications];
+	}
+
+	if(self->postsNotifications == YES)
+	{
+		[[NSNotificationCenter defaultCenter]
+				postNotificationName:LDrawDirectiveDidChangeNotification
+							  object:self];
+	}
 	
 }//end insertDirective:atIndex:
 
@@ -297,9 +332,12 @@
 	
 	[containedObjects removeObjectAtIndex:index]; //or disowned at least.
 	
-	[[NSNotificationCenter defaultCenter]
-			postNotificationName:LDrawDirectiveDidChangeNotification
-						  object:self];
+	if(self->postsNotifications == YES)
+	{
+		[[NSNotificationCenter defaultCenter]
+				postNotificationName:LDrawDirectiveDidChangeNotification
+							  object:self];
+	}
 						  
 }//end removeDirectiveAtIndex:
 

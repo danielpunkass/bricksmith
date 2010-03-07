@@ -49,6 +49,9 @@ typedef enum LDrawColorMaterial
 	NSString			*name;
 }
 
+// Initialization
++ (LDrawColor *) blendedColorForCode:(LDrawColorT)colorCode;
+
 // Accessors
 
 - (LDrawColorT)			colorCode;

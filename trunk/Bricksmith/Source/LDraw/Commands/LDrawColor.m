@@ -137,6 +137,82 @@
 }//end lineWithDirectiveText
 
 
+//---------- blendedColorForCode: ------------------------------------[static]--
+//
+// Purpose:		Returns pseduocolors according to logic found in LDRAW.EXE.
+//
+// Notes:		James Jessiman's original DOS-based LDraw was limited in to 16 
+//				colors (in 1995!), so he developed a hack to accommodate a 
+//				bigger palette: dithering. Two colors would be combined in a 
+//				pixel-checkerboard pattern. Transparent colors were implemented 
+//				with a dither overlay, as was a huge swath of color codes which 
+//				would combine two colors. 
+//
+//				All of this is utterly, pathologically obsolete. For one thing, 
+//				computers can display 16.7 million colors per pixel. For another 
+//				thing, dithering was really ugly. And finally, LDConfig and the 
+//				!COLOUR meta-command provide a way of specifying any one of 
+//				those 16.7 million colors. 
+//
+//				Unfortunately, MLCad displayed dithered colors in its color 
+//				picker up until 2010. Worse yet, woe betide us, part authors 
+//				used these dithered colors to model certain stickers and printed 
+//				bricks. 
+//
+//				Bricksmith will grudgingly support blended colors strictly for 
+//				purposes of displaying those stickers. But it will NOT, EVER 
+//				show these colors in its color picker. This functionality should 
+//				be sent back to the early nineties where it deserved to die. 
+//
+//------------------------------------------------------------------------------
++ (LDrawColor *) blendedColorForCode:(LDrawColorT)colorCode
+{
+	uint8_t ldrawEXEColorTable[16][3] = {
+											{ 51,	 51,	 51},
+											{  0,	 51,	178},
+											{  0,	127,	 51},
+											{  0,	181,	166},
+											{204,	  0,	  0},
+											{255,	 51,	153},
+											{102,	 51,	  0},
+											{153,	153,	153},
+											{102,	102,	 88},
+											{  0,	128,	255},
+											{ 51,	255,	102},
+											{171,	253,	249},
+											{255,	  0,	  0},
+											{255,	176,	204},
+											{255,	229,	  0},
+											{255,	255,	255} 
+										};
+
+	int         blendCode1              = 0;
+	int         blendCode2              = 0;
+	GLfloat     blendedComponents[4]    = {0.0};
+	LDrawColor  *blendedColor           = [[LDrawColor alloc] init];
+	
+	// Find the two base indexes of the blended color's dither.
+	blendCode1 = (colorCode - 256) / 16; // div (integer division)
+	blendCode2 = (colorCode - 256) % 16;
+	
+	// Derive the components. Hold your nose.
+	// Obviously, we don't support dithering. We average the colors to produce 
+	// something which looks nicer. 
+	blendedComponents[0] = (float)(ldrawEXEColorTable[blendCode1][0] + ldrawEXEColorTable[blendCode2][0]) / 2 / 255; // red
+	blendedComponents[1] = (float)(ldrawEXEColorTable[blendCode1][1] + ldrawEXEColorTable[blendCode2][1]) / 2 / 255; // green
+	blendedComponents[2] = (float)(ldrawEXEColorTable[blendCode1][2] + ldrawEXEColorTable[blendCode2][2]) / 2 / 255; // blue
+	blendedComponents[3] = 1.0; // alpha
+	
+	// Create a color to hold them.
+	[blendedColor setColorCode:colorCode];
+	[blendedColor setColorRGBA:blendedComponents];
+	[blendedColor setName:[NSString stringWithFormat:@"BlendedColor%d", colorCode]];
+	
+	return [blendedColor autorelease];
+	
+}//end blendedColorForCode:
+
+
 #pragma mark -
 #pragma mark DIRECTIVES
 #pragma mark -

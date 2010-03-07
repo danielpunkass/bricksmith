@@ -42,9 +42,9 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 //------------------------------------------------------------------------------
 + (ColorLibrary *) sharedColorLibrary
 {
-	NSString	*ldconfigPath	= nil;
-	LDrawFile	*ldconfigFile	= nil;
-	GLfloat		 nonColor[4]	= {0};
+	NSString    *ldconfigPath   = nil;
+	LDrawFile   *ldconfigFile   = nil;
+	GLfloat     nonColor[4]     = {0};
 
 	if(sharedColorLibrary == nil)
 	{
@@ -84,6 +84,20 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 		// Register both special colors in the library
 		[sharedColorLibrary addColor:currentColor];
 		[sharedColorLibrary addColor:edgeColor];
+		
+		
+		//---------- Dithered Colors -------------------------------------------
+		// I'm only providing these to be a nice team player in the LDraw world.
+		
+		LDrawColor  *blendedColor   = nil;
+		int         counter         = 0;
+		
+		// Provide dithered colors for the entire valid range from LDRAW.EXE
+		for(counter = 256; counter <= 511; counter++)
+		{
+			blendedColor = [LDrawColor blendedColorForCode:counter];
+			[sharedColorLibrary addPrivateColor:blendedColor];
+		}
 	}
 	
 	return sharedColorLibrary;
@@ -116,6 +130,10 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 // Purpose:		Returns a list of the LDrawColor objects registered in this 
 //				library. 
 //
+// Notes:		This does NOT return the private colors, because we are 
+//				embarassed they even exist, and definitely don't want to let 
+//				them slip to the outside world (especially the color picker!) 
+//
 //==============================================================================
 - (NSArray *) colors
 {
@@ -136,9 +154,22 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 	NSNumber	*key	= [NSNumber numberWithInteger:colorCode];
 	LDrawColor	*color	= [self->colors objectForKey:key];
 	
+	// Try searching the private colors.
+	if(color == nil)
+	{
+		color = [self->privateColors objectForKey:key];
+	}
+	
+	// Try the shared library.
 	if(color == nil && self != sharedColorLibrary)
 	{
 		color = [[ColorLibrary sharedColorLibrary] colorForCode:colorCode];
+	}
+	
+	// Return something!
+	if(color == nil)
+	{
+		color = [[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor];
 	}
 	
 	return color;
@@ -204,6 +235,32 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 	[self->colors setObject:newColor forKey:key];
 	
 }//end addColor:
+
+
+//========== addPrivateColor: ==================================================
+//
+// Purpose:		Adds the given color to the receiver, but doesn't make it 
+//				visible to the color picker. 
+//
+// Notes:		This supports LDRAW.EXE's "dithered" colors, which sadly wormed 
+//				their way into the part library, but should absolutely never be 
+//				used in modeling. Keeping the "private" allows us to display 
+//				old parts which may have been created with them without allowing 
+//				them to otherwise pollute the user experience. 
+//
+//==============================================================================
+- (void) addPrivateColor:(LDrawColor *)newColor
+{
+	LDrawColorT	 colorCode	= [newColor colorCode];
+	NSNumber	*key		= [NSNumber numberWithInteger:colorCode];
+	
+	// Allocate if it doesn't exist. 
+	if(self->privateColors == nil)
+		self->privateColors = [[NSMutableDictionary alloc] init];
+
+	[self->privateColors setObject:newColor forKey:key];
+	
+}//end addPrivateColor:
 
 
 #pragma mark -

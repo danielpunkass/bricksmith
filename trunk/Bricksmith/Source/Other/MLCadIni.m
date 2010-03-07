@@ -505,9 +505,7 @@ static MLCadIni *sharedIniFile = nil;
 	
 	NSString		*partName		= nil;
 	NSString		*flags			= nil;
-	NSString		*translation	= nil;
-	float			a11, a12, a13, a21, a22, a23, a31, a32, a33;
-	NSString		*partLine		= nil;
+	Matrix4			transformation  = IdentityMatrix4;
 	LDrawPart		*currentPart	= nil;
 	
 	NSCharacterSet	*quoteSet		= [NSCharacterSet characterSetWithCharactersInString:@"\""];
@@ -540,33 +538,34 @@ static MLCadIni *sharedIniFile = nil;
 		
 		//the rest is the transformation matrix, but in a different order from 
 		// an LDraw type 1 part line.
-		[scanner scanFloat:&a11];
-		[scanner scanFloat:&a12];
-		[scanner scanFloat:&a13];
-		[scanner scanFloat:&a21];
-		[scanner scanFloat:&a22];
-		[scanner scanFloat:&a23];
-		[scanner scanFloat:&a31];
-		[scanner scanFloat:&a32];
-		[scanner scanFloat:&a33];
+		[scanner scanFloat:&transformation.element[0][0]];
+		[scanner scanFloat:&transformation.element[1][0]];
+		[scanner scanFloat:&transformation.element[2][0]];
+		[scanner scanFloat:&transformation.element[0][1]];
+		[scanner scanFloat:&transformation.element[1][1]];
+		[scanner scanFloat:&transformation.element[2][1]];
+		[scanner scanFloat:&transformation.element[0][2]];
+		[scanner scanFloat:&transformation.element[1][2]];
+		[scanner scanFloat:&transformation.element[2][2]];
+
+		[scanner scanFloat:&transformation.element[3][0]];
+		[scanner scanFloat:&transformation.element[3][1]];
+		[scanner scanFloat:&transformation.element[3][2]];
 		
-		[scanner scanUpToString:@"" intoString:&translation]; //comes last not first
 		
 		//---------- Create an LDrawPart for the line --------------------------
 		
-		//Some entries have an empty string for a part name. Stupidly, NSScanner 
+		// Some entries have an empty string for a part name. Stupidly, NSScanner 
 		// only indicates this by returning NO when scanning through ""; the 
 		// string pointer still points to whatever it did before the scan call.
 		// In any event, we want to discard these non-entries.
 		if(gotName == YES)
 		{
-			partLine	= [NSString stringWithFormat:@"1 %d %@ %f %f %f %f %f %f %f %f %f %@",
-														LDrawCurrentColor, 
-														translation,
-														a11, a12, a13, a21, a22, a23, a31, a32, a33,
-														partName ];
-			currentPart	= [[[LDrawPart alloc] initWithLines:[NSArray arrayWithObject:partLine] inRange:NSMakeRange(0, 1)] autorelease];
+			currentPart = [[[LDrawPart alloc] init] autorelease];
 			
+			[currentPart setTransformationMatrix:&transformation];
+			[currentPart setDisplayName:partName parse:NO];
+		
 			if(currentPart != nil)
 			{
 				//add the part-- but don't allow duplicate names, even if they 

@@ -136,7 +136,8 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////
 @interface ColorLibrary : NSObject
 {
-	NSMutableDictionary	*colors; // keys are LDrawColorT codes; objects are LDrawColors
+	NSMutableDictionary	*colors;		// keys are LDrawColorT codes; objects are LDrawColors
+	NSMutableDictionary *privateColors;	// colors we might be asked to display, but should NOT be in the color picker
 }
 
 // Initialization
@@ -149,6 +150,7 @@ typedef enum
 
 // Registering Colors
 - (void) addColor:(LDrawColor *)newColor;
+- (void) addPrivateColor:(LDrawColor *)newColor;
 
 // Utilities
 + (NSString *) ldconfigPath;

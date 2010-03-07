@@ -344,7 +344,7 @@
 			newFile     = [LDrawFile parseFromFileContents:fileContents];
 			parseTime   = CFAbsoluteTimeGetCurrent() - startTime;
 			
-			NSLog(@"parse time = %f", parseTime);
+//			NSLog(@"parse time = %f", parseTime);
 			
 			if(newFile != nil)
 			{
@@ -567,6 +567,10 @@
 {
 	[newContents retain];
 	[documentContents release];
+	
+	// This is going to be an editable container now, so we need to know when it 
+	// changes. 
+	[newContents setPostsNotifications:YES];
 	
 	documentContents = newContents;
 	

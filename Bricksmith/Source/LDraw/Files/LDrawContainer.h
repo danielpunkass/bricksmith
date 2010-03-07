@@ -15,8 +15,16 @@
 
 @class PartReport;
 
-@interface LDrawContainer : LDrawDirective <NSCoding, NSCopying> {
+////////////////////////////////////////////////////////////////////////////////
+//
+// Class:		LDrawContainer
+//
+////////////////////////////////////////////////////////////////////////////////
+@interface LDrawContainer : LDrawDirective <NSCoding, NSCopying>
+{
+	@private
 	NSMutableArray		*containedObjects;
+	BOOL				postsNotifications;
 }
 
 //Accessors
@@ -27,6 +35,8 @@
 									  view:(const GLint *)viewport;
 - (NSInteger) indexOfDirective:(LDrawDirective *)directive;
 - (NSArray *) subdirectives;
+
+- (void) setPostsNotifications:(BOOL)flag;
 
 //Actions
 - (void) addDirective:(LDrawDirective *)directive;

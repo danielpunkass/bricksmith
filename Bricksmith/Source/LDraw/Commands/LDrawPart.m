@@ -706,7 +706,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 // Purpose:		Sets the color of this element.
 //
 //==============================================================================
--(void) setLDrawColor:(LDrawColorT)newColor
+- (void) setLDrawColor:(LDrawColorT)newColor
 {
 	[super setLDrawColor:newColor];
 	
@@ -717,8 +717,26 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 
 //========== setDisplayName: ===================================================
 //
+// Purpose:		Updates the name of the part and attempts to load it into the 
+//				part library. 
+//
+//==============================================================================
+- (void) setDisplayName:(NSString *)newPartName
+{
+	[self setDisplayName:newPartName parse:YES];
+}
+
+
+//========== setDisplayName: ===================================================
+//
 // Purpose:		Updates the name of the part. This is the filename where the 
 //				part is found.
+//
+//				If shouldParse is YES, pre-loads the referenced part if 
+//				possible. Pre-loading is very import in initial model loading, 
+//				because it enables structual optimizations to be performed prior 
+//				to OpenGL optimizations. It also results in a more honest load 
+//				progress bar. 
 //
 // Notes:		References to LDraw/parts and LDraw/p are simply encoded as the 
 //				file name. However, references to LDraw/parts/s are encoded as 
@@ -726,7 +744,8 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //				handle the s\ prefix.
 //
 //==============================================================================
--(void) setDisplayName:(NSString *)newPartName
+- (void) setDisplayName:(NSString *)newPartName
+				  parse:(BOOL)shouldParse
 {
 	NSString *newReferenceName = [newPartName lowercaseString];
 
@@ -742,7 +761,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	// Force the part library to parse the model this part will display. This 
 	// pushes all parsing into the same operation, which improves loading time 
 	// predictability and allows better potential threading optimization. 
-	if(newPartName != nil && [newPartName length] > 0)
+	if(shouldParse == YES && newPartName != nil && [newPartName length] > 0)
 	{
 		[[LDrawApplication sharedPartLibrary] loadModelForName:displayName];
 	}

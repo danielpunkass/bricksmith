@@ -54,6 +54,7 @@ typedef enum
 + (NSString *) readNextField:(NSString *) partialDirective
 				   remainder:(NSString **) remainder;
 + (NSString *) stringFromFile:(NSString *)path;
++ (NSString *) stringFromFileData:(NSData *)fileData;
 
 // Writing
 + (NSString *) outputStringForColorCode:(LDrawColorT)colorCode RGB:(GLfloat*)components;

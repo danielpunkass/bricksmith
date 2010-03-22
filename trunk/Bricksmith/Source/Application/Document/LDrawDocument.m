@@ -314,19 +314,9 @@
 			   ofType:(NSString *)typeName
 				error:(NSError **)outError
 {
-	NSString    *fileContents   = nil;
+	NSString    *fileContents   = [LDrawUtilities stringFromFileData:data];
 	LDrawFile   *newFile        = nil;
 	BOOL        success         = NO;
-	
-	//LDraw files are plain text.
-	fileContents = [[NSString alloc] initWithData:data
-										 encoding:NSUTF8StringEncoding ];
-	if(fileContents == nil) //whoops. Not UTF-8. Try the Windows standby.
-		fileContents = [[NSString alloc] initWithData:data
-											 encoding:NSISOLatin1StringEncoding ];
-	if(fileContents == nil) //yikes. Not even Windows. MacRoman should do it.
-		fileContents = [[NSString alloc] initWithData:data
-											 encoding:NSMacOSRomanStringEncoding ];
 	
 	//Parse the model.
 	// - optimizing models can result in OpenGL calls, so to be ultra-safe we 
@@ -360,8 +350,6 @@
 		}
 	}
 	CGLUnlockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
-	
-	[fileContents release];
 	
     return success;
 	

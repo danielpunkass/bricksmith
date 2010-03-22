@@ -217,25 +217,46 @@
 //---------- stringFromFile: -----------------------------------------[static]--
 //
 // Purpose:		Reads the contents of the file at the given path into a string. 
-//				We try a few different encodings.
 //
 //------------------------------------------------------------------------------
 + (NSString *) stringFromFile:(NSString *)path
 {
 	NSData      *fileData   = [NSData dataWithContentsOfFile:path];
+	NSString    *fileString = [self stringFromFileData:fileData];
+	
+	return fileString;
+	
+}//end stringFromFile:
+
+
+//---------- stringFromFileData: -------------------------------------[static]--
+//
+// Purpose:		Reads the contents of the file with the given data into a 
+//				string. We try a few different encodings. 
+//
+//------------------------------------------------------------------------------
++ (NSString *) stringFromFileData:(NSData *)fileData
+{
 	NSString    *fileString = nil;
 	
-	//try UTF-8 first, because it's so nice.
+	// Try UTF-8 first, because it's so nice.
 	fileString = [[NSString alloc] initWithData:fileData
-									   encoding:NSUTF8StringEncoding];
+									   encoding:NSUTF8StringEncoding ];
 	
-	//uh-oh. Maybe Windows Latin?
+	// Uh-oh. Maybe Windows Latin?
 	if(fileString == nil)
 		fileString = [[NSString alloc] initWithData:fileData
-										   encoding:NSISOLatin1StringEncoding];
+										   encoding:NSISOLatin1StringEncoding ];
+	
+	// Yikes. Not even Windows. MacRoman will do it, even if it doesn't look 
+	// right. 
+	if(fileString == nil) 
+		fileString = [[NSString alloc] initWithData:fileData
+										   encoding:NSMacOSRomanStringEncoding ];
+
 	return [fileString autorelease];
 	
-}//end stringFromFile
+}//end stringFromFileData:
 
 
 #pragma mark -

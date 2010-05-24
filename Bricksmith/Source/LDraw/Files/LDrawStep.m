@@ -93,13 +93,14 @@
 }//end init
 
 
-//========== initWithLines:inRange: ============================================
+//========== initWithLines:inRange:allowThreads: ===============================
 //
 // Purpose:		Parses a step beginning at the specified line of LDraw code.
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
+		allowThreads:(BOOL)allowThreads
 {
 	NSString        *currentLine        = nil;
 	Class           CommandClass        = Nil;
@@ -110,11 +111,16 @@
 	NSUInteger      counter             = 0;
 	LDrawDirective  *currentDirective   = nil;
 		
-	self = [super initWithLines:lines inRange:range];
+	self = [super initWithLines:lines inRange:range allowThreads:allowThreads];
 	
 #ifdef NS_BLOCKS_AVAILABLE
-	dispatch_queue_t    queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
-	dispatch_group_t    dispatchGroup   = dispatch_group_create();
+	dispatch_queue_t    queue           = NULL;	
+	dispatch_group_t    dispatchGroup   = NULL;
+	if(allowThreads == YES)
+	{
+		queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
+		dispatchGroup   = dispatch_group_create();
+	}
 #endif	
 	// Parse out the STEP command
 	if(range.length > 0)
@@ -152,19 +158,32 @@
 																  inLines:lines
 																 maxIndex:NSMaxRange(range) - 1];
 			// Parse (multithreaded)
+			if(allowThreads == YES)
+			{
 #ifdef NS_BLOCKS_AVAILABLE
-			dispatch_group_async(dispatchGroup, queue,
-			^{
+				dispatch_group_async(dispatchGroup, queue,
+				^{
 #endif
-				LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange];
-				
-				// Store non-retaining, but *thread-safe* container 
-				// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
-				// autorelease newDirective. 
+					// Parse but disallow multithreading for subparsing. LDraw 
+					// objects be be deeply recursive, which means we would pile 
+					// up a lot of dispatch_group_wait calls, resulting in so 
+					// many threads we run out of stack space. 
+					LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange allowThreads:NO];
+					
+					// Store non-retaining, but *thread-safe* container 
+					// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
+					// autorelease newDirective. 
+					directives[insertIndex] = newDirective;
+#ifdef NS_BLOCKS_AVAILABLE
+				});
+#endif
+			}
+			else
+			{
+				LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange allowThreads:NO];
 				directives[insertIndex] = newDirective;
-#ifdef NS_BLOCKS_AVAILABLE
-			});
-#endif
+			}
+
 			lineIndex     = NSMaxRange(commandRange);
 			insertIndex += 1;
 		}
@@ -176,9 +195,12 @@
 	}
 	
 #ifdef NS_BLOCKS_AVAILABLE
-	// Wait for all the multithreaded parsing to happen
-	dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
-	dispatch_release(dispatchGroup);
+	if(allowThreads == YES)
+	{
+		// Wait for all the multithreaded parsing to happen
+		dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
+		dispatch_release(dispatchGroup);
+	}
 #endif
 	
 	// Add the accumulated directives *in order*

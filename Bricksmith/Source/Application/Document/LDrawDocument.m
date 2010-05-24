@@ -331,10 +331,10 @@
 			CFAbsoluteTime  startTime   = CFAbsoluteTimeGetCurrent();
 			CFTimeInterval  parseTime   = 0;
 			
-			newFile     = [LDrawFile parseFromFileContents:fileContents];
+			newFile     = [LDrawFile parseFromFileContents:fileContents allowThreads:NO];
 			parseTime   = CFAbsoluteTimeGetCurrent() - startTime;
 			
-//			NSLog(@"parse time = %f", parseTime);
+			NSLog(@"parse time = %f", parseTime);
 			
 			if(newFile != nil)
 			{

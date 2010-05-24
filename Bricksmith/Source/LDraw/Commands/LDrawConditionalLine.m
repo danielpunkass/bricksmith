@@ -33,7 +33,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== initWithLines:inRange: ============================================
+//========== initWithLines:inRange:allowThreads: ===============================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -45,6 +45,7 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
+		allowThreads:(BOOL)allowThreads
 {
 	NSString                *workingLine            = [lines objectAtIndex:range.location];
 	NSString                *parsedField            = nil;

@@ -69,25 +69,28 @@
 	LDrawFile	*parsedFile		= nil;
 	
 	if(fileContents != nil)
-		parsedFile = [LDrawFile parseFromFileContents:fileContents];
+		parsedFile = [LDrawFile parseFromFileContents:fileContents allowThreads:NO];
 		
 	return parsedFile;
 	
 }//end fileFromContentsAtPath:
 
 
-//---------- parseFromFileContents: ----------------------------------[static]--
+//---------- parseFromFileContents:allowThreads: ---------------------[static]--
 //
 // Purpose:		Reads a file out of the raw file contents. 
 //
 //------------------------------------------------------------------------------
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents
+						 allowThreads:(BOOL)allowThreads
 {
 	LDrawFile   *newFile    = [[LDrawFile alloc] init];
 	NSArray     *lines      = [fileContents separateByLine];
 	NSArray     *models     = nil;
 	
-	newFile = [[LDrawFile alloc] initWithLines:lines inRange:NSMakeRange(0, [lines count])];
+	newFile = [[LDrawFile alloc] initWithLines:lines
+									   inRange:NSMakeRange(0, [lines count])
+								  allowThreads:allowThreads ];
 	models  = [newFile submodels];
 	
 	if([models count] > 0)
@@ -95,7 +98,7 @@
 	
 	return [newFile autorelease];
 	
-}//end parseFromFileContents:
+}//end parseFromFileContents:allowThreads:
 
 
 #pragma mark -
@@ -119,7 +122,7 @@
 }//end init
 
 
-//========== initWithLines:inRange: ============================================
+//========== initWithLines:inRange:allowThreads: ===============================
 //
 // Purpose:		Parses the MPD models out of the lines. If lines contains a 
 //				single non-MPD model, it will be wrapped in an MPD model. 
@@ -127,6 +130,7 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
+		allowThreads:(BOOL)allowThreads
 {
 	NSRange         modelRange      = range;
 	NSUInteger      modelStartIndex = range.location;
@@ -135,7 +139,7 @@
 	NSUInteger      counter         = 0;
 	LDrawMPDModel   *currentModel   = nil;
 	
-	self = [super initWithLines:lines inRange:range];
+	self = [super initWithLines:lines inRange:range allowThreads:allowThreads];
 	
 //	dispatch_queue_t    queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
 //	dispatch_group_t    dispatchGroup   = dispatch_group_create();
@@ -150,7 +154,7 @@
 		// Parse
 //		dispatch_group_async(dispatchGroup, queue,
 //		^{
-			LDrawMPDModel *newModel    = [[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange];
+			LDrawMPDModel *newModel    = [[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange allowThreads:allowThreads];
 			
 			// Store non-retaining, but *thread-safe* container 
 			// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 

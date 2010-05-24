@@ -37,7 +37,7 @@
 }//end init
 
 
-//========== initWithLines:inRange: ============================================
+//========== initWithLines:inRange:allowThreads: ===============================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -55,6 +55,7 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
+		allowThreads:(BOOL)allowThreads
 {
 	self = [self init]; // call basic initializer
 	

@@ -32,7 +32,7 @@
 // Initialization
 + (LDrawFile *) file;
 + (LDrawFile *) fileFromContentsAtPath:(NSString *)path;
-+ (LDrawFile *) parseFromFileContents:(NSString *) fileContents;
++ (LDrawFile *) parseFromFileContents:(NSString *) fileContents allowThreads:(BOOL)allowThreads;
 
 // Directives
 - (void) lockForEditing;

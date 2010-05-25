@@ -46,6 +46,10 @@
 																  backing:NSBackingStoreBuffered
 																	defer:YES
 																  ordered:NSWindowAbove];
+	// The window can get auto-closed by the OS when its parent window is 
+	// closed, leaving us with a dangling pointer if we didn't call this.
+	[helperWindow setReleasedWhenClosed:NO]; 
+	
 	[helperWindow setContentView:overlayView];
 	
 	return self;

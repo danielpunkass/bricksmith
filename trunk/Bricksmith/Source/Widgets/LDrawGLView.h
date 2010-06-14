@@ -171,6 +171,7 @@ typedef enum
 - (void) resetFrameSize;
 - (void) restoreConfiguration;
 - (void) saveConfiguration;
+- (void) saveImageToPath:(NSString *)path;
 - (void) scrollCenterToModelPoint:(Point3)modelPoint;
 - (void) scrollCenterToPoint:(NSPoint)newCenter;
 - (void) takeBackgroundColorFromUserDefaults;

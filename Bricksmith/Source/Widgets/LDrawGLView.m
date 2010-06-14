@@ -468,6 +468,7 @@
 			{	// reset periodically
 				fpsStartTime = [NSDate timeIntervalSinceReferenceDate]; 
 				framesSinceStartTime = 0;
+				NSLog(@"fps = ????????, draw time: %f", drawTime);
 			}
 			else
 			{
@@ -1600,6 +1601,38 @@
 //				[NSApp sendAction:@selector(delete:)
 //							   to:nil //just send it somewhere!
 //							 from:self];
+
+//			case '\\':
+//				[self setNeedsDisplay:YES];
+//				break;
+//
+//			case 'f':
+//			{
+//				[[self openGLContext] makeCurrentContext];
+//				glReadBuffer(GL_FRONT);
+//
+//				NSArray *searchPaths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
+//				NSString *path = [searchPaths objectAtIndex:0];
+//				
+//				path = [path stringByAppendingPathComponent:@"Front"];
+//				path = [path stringByAppendingPathExtension:@"tiff"];
+//				[self saveImageToPath:path];
+//			}
+//				break;
+//
+//			case 'b':
+//			{
+//				[[self openGLContext] makeCurrentContext];
+//				glReadBuffer(GL_BACK);
+//
+//				NSArray *searchPaths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
+//				NSString *path = [searchPaths objectAtIndex:0];
+//				
+//				path = [path stringByAppendingPathComponent:@"Back"];
+//				path = [path stringByAppendingPathExtension:@"tiff"];
+//				[self saveImageToPath:path];
+//			}
+//				break;
 
 			case ' ':
 				// Swallow the spacebar, since it is a special tool-palette key. 
@@ -3590,6 +3623,78 @@
 	}
 
 }//end saveConfiguration
+
+
+//========== saveImage =========================================================
+//
+// Purpose:		Dumps the current glReadBuffer to the given file. Debugging aid.
+//
+//==============================================================================
+- (void) saveImageToPath:(NSString *)path
+{
+	[[self openGLContext] makeCurrentContext];
+	
+	GLint   viewport [4]  = {0};
+	NSSize  viewportSize    = NSZeroSize;
+	size_t  byteWidth       = 0;
+	uint8_t *byteBuffer     = NULL;
+	
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	viewportSize    = NSMakeSize(viewport[2], viewport[3]);
+	
+	byteWidth   = viewportSize.width * 4;	// Assume 4 bytes/pixel for now
+	byteWidth   = (byteWidth + 3) & ~3;    // Align to 4 bytes
+	
+	byteBuffer  = malloc(byteWidth * viewportSize.height);
+	
+	glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+	{
+		glPixelStorei(GL_PACK_ALIGNMENT, 4); // Force 4-byte alignment
+		glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+		glPixelStorei(GL_PACK_SKIP_ROWS, 0);
+		glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+		
+		glReadPixels(0, 0, viewportSize.width, viewportSize.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, byteBuffer);
+		NSLog(@"read error = %d", glGetError());
+	}
+	glPopClientAttrib();
+	
+	
+    //---------- Save to image -------------------------------------------------
+	
+	CGColorSpaceRef         cSpace  = NULL;
+	CGContextRef            bitmap  = NULL;
+	CGImageRef              image   = NULL;
+	CGImageDestinationRef   dest    = NULL;
+	
+	
+	cSpace = CGColorSpaceCreateWithName (kCGColorSpaceGenericRGB);
+    bitmap = CGBitmapContextCreate(byteBuffer, viewportSize.width, viewportSize.height, 8, byteWidth,
+												cSpace,  
+												kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host);
+	
+    // Make an image out of our bitmap; does a cheap vm_copy of the bitmap
+    image = CGBitmapContextCreateImage(bitmap);
+    NSAssert( image != NULL, @"CGBitmapContextCreate failure");
+	
+    // Save the image to the file
+    dest = CGImageDestinationCreateWithURL((CFURLRef)[NSURL fileURLWithPath:path], CFSTR("public.tiff"), 1, nil);
+    NSAssert( dest != 0, @"CGImageDestinationCreateWithURL failed");
+	
+    // Set the image in the image destination to be `image' with
+    // optional properties specified in saved properties dict.
+    CGImageDestinationAddImage(dest, image, nil);
+    
+    bool success = CGImageDestinationFinalize(dest);
+    NSAssert( success != 0, @"Image could not be written successfully");
+	
+	CFRelease(cSpace);
+	CFRelease(dest);
+	CGImageRelease(image);
+	CFRelease(bitmap);
+	free(byteBuffer);
+	
+}//end saveImageToPath:
 
 
 //========== scrollCenterToModelPoint: =========================================

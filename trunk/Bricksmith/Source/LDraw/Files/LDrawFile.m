@@ -69,32 +69,25 @@
 	LDrawFile	*parsedFile		= nil;
 	
 	if(fileContents != nil)
-		parsedFile = [LDrawFile parseFromFileContents:fileContents allowThreads:NO];
+		parsedFile = [LDrawFile parseFromFileContents:fileContents];
 		
 	return parsedFile;
 	
 }//end fileFromContentsAtPath:
 
 
-//---------- parseFromFileContents:allowThreads: ---------------------[static]--
+//---------- parseFromFileContents: ----------------------------------[static]--
 //
 // Purpose:		Reads a file out of the raw file contents. 
 //
 //------------------------------------------------------------------------------
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents
-						 allowThreads:(BOOL)allowThreads
 {
 	LDrawFile   *newFile    = [[LDrawFile alloc] init];
 	NSArray     *lines      = [fileContents separateByLine];
-	NSArray     *models     = nil;
 	
 	newFile = [[LDrawFile alloc] initWithLines:lines
-									   inRange:NSMakeRange(0, [lines count])
-								  allowThreads:allowThreads ];
-	models  = [newFile submodels];
-	
-	if([models count] > 0)
-		[newFile setActiveModel:[models objectAtIndex:0]];
+									   inRange:NSMakeRange(0, [lines count]) ];
 	
 	return [newFile autorelease];
 	
@@ -122,7 +115,7 @@
 }//end init
 
 
-//========== initWithLines:inRange:allowThreads: ===============================
+//========== initWithLines:inRange:parentGroup: ================================
 //
 // Purpose:		Parses the MPD models out of the lines. If lines contains a 
 //				single non-MPD model, it will be wrapped in an MPD model. 
@@ -130,57 +123,65 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
-		allowThreads:(BOOL)allowThreads
+		 parentGroup:(dispatch_group_t)parentGroup
 {
 	NSRange         modelRange      = range;
 	NSUInteger      modelStartIndex = range.location;
-	id              *submodels      = calloc(range.length, sizeof(LDrawDirective*));
+	id              *submodels      = NULL;
 	NSUInteger      insertIndex     = 0;
 	NSUInteger      counter         = 0;
 	LDrawMPDModel   *currentModel   = nil;
 	
-	self = [super initWithLines:lines inRange:range allowThreads:allowThreads];
-	
-//	dispatch_queue_t    queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
-//	dispatch_group_t    dispatchGroup   = dispatch_group_create();
-													
-	// Search through all the lines in the file, and separate them out into 
-	// submodels.
-	do
+	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
+	if(self)
 	{
-		modelRange  = [LDrawMPDModel rangeOfDirectiveBeginningAtIndex:modelStartIndex
-															  inLines:lines
-															 maxIndex:NSMaxRange(range) - 1];
-		// Parse
-//		dispatch_group_async(dispatchGroup, queue,
-//		^{
-			LDrawMPDModel *newModel    = [[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange allowThreads:allowThreads];
+		submodels = calloc(range.length, sizeof(LDrawDirective*));
+		
+	//	dispatch_queue_t    queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
+	//	dispatch_group_t    dispatchGroup   = dispatch_group_create();
+														
+		// Search through all the lines in the file, and separate them out into 
+		// submodels.
+		do
+		{
+			modelRange  = [LDrawMPDModel rangeOfDirectiveBeginningAtIndex:modelStartIndex
+																  inLines:lines
+																 maxIndex:NSMaxRange(range) - 1];
+			// Parse
+	//		dispatch_group_async(dispatchGroup, queue,
+	//		^{
+				LDrawMPDModel *newModel    = [[LDrawMPDModel alloc] initWithLines:lines inRange:modelRange parentGroup:parentGroup];
+				
+				// Store non-retaining, but *thread-safe* container 
+				// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
+				// autorelease newDirective. 
+				submodels[insertIndex] = newModel;
+	//		});
 			
-			// Store non-retaining, but *thread-safe* container 
-			// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
-			// autorelease newDirective. 
-			submodels[insertIndex] = newModel;
-//		});
+			modelStartIndex = NSMaxRange(modelRange);
+			insertIndex     += 1;
+		}
+		while(modelStartIndex < NSMaxRange(range));
 		
-		modelStartIndex = NSMaxRange(modelRange);
-		insertIndex     += 1;
-	}
-	while(modelStartIndex < NSMaxRange(range));
-	
-	// Wait for all the multithreaded parsing to happen
-//	dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
-//	dispatch_release(dispatchGroup);
-	
-	// Add all the models in order
-	for(counter = 0; counter < insertIndex; counter++)
-	{
-		currentModel = submodels[counter];
+		// Wait for all the multithreaded parsing to happen
+	//	dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
+	//	dispatch_release(dispatchGroup);
 		
-		[self addSubmodel:currentModel];
-		[currentModel release];
+		// Add all the models in order
+		for(counter = 0; counter < insertIndex; counter++)
+		{
+			currentModel = submodels[counter];
+			
+			[self addSubmodel:currentModel];
+			[currentModel release];
+		}
+		
+		if([[self submodels] count] > 0)
+			[self setActiveModel:[[self submodels] objectAtIndex:0]];
+
+		free(submodels);
 	}
 	
-	free(submodels);
 	
 	return self;
 

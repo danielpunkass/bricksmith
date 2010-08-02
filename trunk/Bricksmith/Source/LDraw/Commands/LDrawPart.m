@@ -65,7 +65,7 @@
 }//end init
 
 
-//========== initWithLines:inRange:allowThreads: ===============================
+//========== initWithLines:inRange:parentGroup: ================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -84,7 +84,7 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
-		allowThreads:(BOOL)allowThreads
+		 parentGroup:(dispatch_group_t)parentGroup
 {
 	NSString    *workingLine    = [lines objectAtIndex:range.location];
 	NSString    *parsedField    = nil;
@@ -92,7 +92,7 @@
 	LDrawColorT colorCode       = LDrawColorBogus;
 	GLfloat     customRGB[4]    = {0};
 	
-	self = [super initWithLines:lines inRange:range allowThreads:allowThreads];
+	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.
@@ -169,8 +169,9 @@
 			//Read Part Name
 			// (part.dat) -- It can have spaces (for MPD models), so we just use the whole 
 			// rest of the line.
-			[self setDisplayName:
-				[workingLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
+			[self setDisplayName:[workingLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+						   parse:YES
+						 inGroup:parentGroup];
 		}
 		else
 			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad part syntax" userInfo:nil];
@@ -724,11 +725,11 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //==============================================================================
 - (void) setDisplayName:(NSString *)newPartName
 {
-	[self setDisplayName:newPartName parse:YES];
+	[self setDisplayName:newPartName parse:YES inGroup:NULL];
 }
 
 
-//========== setDisplayName: ===================================================
+//========== setDisplayName:parse:inGroup: =====================================
 //
 // Purpose:		Updates the name of the part. This is the filename where the 
 //				part is found.
@@ -747,8 +748,10 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //==============================================================================
 - (void) setDisplayName:(NSString *)newPartName
 				  parse:(BOOL)shouldParse
+				inGroup:(dispatch_group_t)parentGroup
 {
-	NSString *newReferenceName = [newPartName lowercaseString];
+	NSString            *newReferenceName   = [newPartName lowercaseString];
+	dispatch_group_t    parseGroup          = NULL;
 
 	[newPartName retain];
 	[displayName release];
@@ -764,7 +767,19 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	// predictability and allows better potential threading optimization. 
 	if(shouldParse == YES && newPartName != nil && [newPartName length] > 0)
 	{
-		[[LDrawApplication sharedPartLibrary] loadModelForName:displayName];
+		// Create a parsing group if needed.
+		if(parentGroup == NULL)
+			parseGroup = dispatch_group_create();
+		else
+			parseGroup = parentGroup;
+
+		[[LDrawApplication sharedPartLibrary] loadModelForName:displayName inGroup:parseGroup];
+		
+		if(parentGroup == NULL)
+		{
+			dispatch_group_wait(parseGroup, DISPATCH_TIME_FOREVER);
+			dispatch_release(parseGroup);
+		}
 	}
 	
 	[self removeDisplayList];

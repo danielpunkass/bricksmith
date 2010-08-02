@@ -239,20 +239,23 @@
 {
 	NSString    *fileString = nil;
 	
-	// Try UTF-8 first, because it's so nice.
-	fileString = [[NSString alloc] initWithData:fileData
-									   encoding:NSUTF8StringEncoding ];
-	
-	// Uh-oh. Maybe Windows Latin?
-	if(fileString == nil)
+	if(fileData)
+	{
+		// Try UTF-8 first, because it's so nice.
 		fileString = [[NSString alloc] initWithData:fileData
-										   encoding:NSISOLatin1StringEncoding ];
-	
-	// Yikes. Not even Windows. MacRoman will do it, even if it doesn't look 
-	// right. 
-	if(fileString == nil) 
-		fileString = [[NSString alloc] initWithData:fileData
-										   encoding:NSMacOSRomanStringEncoding ];
+										   encoding:NSUTF8StringEncoding ];
+		
+		// Uh-oh. Maybe Windows Latin?
+		if(fileString == nil)
+			fileString = [[NSString alloc] initWithData:fileData
+											   encoding:NSISOLatin1StringEncoding ];
+		
+		// Yikes. Not even Windows. MacRoman will do it, even if it doesn't look 
+		// right. 
+		if(fileString == nil) 
+			fileString = [[NSString alloc] initWithData:fileData
+											   encoding:NSMacOSRomanStringEncoding ];
+	}
 
 	return [fileString autorelease];
 	

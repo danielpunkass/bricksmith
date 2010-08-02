@@ -27,8 +27,8 @@
 	NSMutableArray      *favorites;				// parts names in the "Favorites" pseduocategory
 	NSMutableDictionary *loadedFiles;			// list of LDrawFiles which have been read off disk.
 	NSMutableDictionary *fileDisplayLists;		// access stored display lists by part name, then color.
-	NSRecursiveLock     *catalogAccessMutex;	// protects additions to the part catalog
-	NSMutableDictionary *parsingMutexes;		// NSConditionLocks signal what files are being parsed
+	dispatch_queue_t	catalogAccessQueue;		// serial queue to mutex changes to the part catalog
+	NSMutableDictionary *parsingGroups;			// arrays of dispatch_group_t's which have requested each file currently being parsed
 }
 
 // Initialization
@@ -50,7 +50,7 @@
 - (void) saveFavoritesToUserDefaults;
 
 // Finding Parts
-- (void) loadModelForName:(NSString *)name;
+- (void) loadModelForName:(NSString *)name inGroup:(dispatch_group_t)parentGroup;
 - (LDrawModel *) modelForName:(NSString *) partName;
 - (LDrawModel *) modelForPart:(LDrawPart *) part;
 - (NSString *) pathForPartName:(NSString *)partName;
@@ -68,7 +68,9 @@
 - (NSString *)descriptionForPart:(LDrawPart *)part;
 - (NSString *)descriptionForPartName:(NSString *)name;
 - (NSString *) descriptionForFilePath:(NSString *)filepath;
-- (LDrawModel *) readModelAtPath:(NSString *)partPath partName:(NSString *)partName;
+- (LDrawModel *) readModelAtPath:(NSString *)partPath
+				  asynchronously:(BOOL)asynchronous
+			   completionHandler:(void (^)(LDrawModel *))completionBlock;
 - (BOOL) validateLDrawFolder:(NSString *) folderPath;
 
 @end

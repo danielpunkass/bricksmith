@@ -35,7 +35,8 @@
 }
 
 //Initialization
-- (id) initWithLines:(NSArray *)lines inRange:(NSRange)range allowThreads:(BOOL)allowThreads;
+- (id) initWithLines:(NSArray *)lines inRange:(NSRange)range;
+- (id) initWithLines:(NSArray *)lines inRange:(NSRange)range parentGroup:(dispatch_group_t)parentGroup;
 + (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index inLines:(NSArray *)lines maxIndex:(NSUInteger)maxIndex;
 
 //Directives

@@ -35,7 +35,7 @@
 #pragma mark INITIALIZATION
 #pragma mark -
 
-//========== initWithLines:inRange:allowThreads: ===============================
+//========== initWithLines:inRange:parentGroup: ================================
 //
 // Purpose:		Returns a triangle initialized from line of LDraw code beginning 
 //				at the given range. 
@@ -47,7 +47,7 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
-		allowThreads:(BOOL)allowThreads
+		 parentGroup:(dispatch_group_t)parentGroup
 {
 	NSString        *workingLine    = [lines objectAtIndex:range.location];
 	NSString        *parsedField    = nil;
@@ -55,7 +55,7 @@
 	LDrawColorT     colorCode       = LDrawColorBogus;
 	GLfloat         customRGB[4]    = {0};
 	
-	self = [super initWithLines:lines inRange:range allowThreads:allowThreads];
+	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
 	//A malformed part could easily cause a string indexing error, which would 
 	// raise an exception. We don't want this to happen here.

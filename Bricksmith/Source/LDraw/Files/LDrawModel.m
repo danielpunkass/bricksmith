@@ -104,7 +104,7 @@
 	
 }//end initNew
 
-//========== initWithLines:inRange:allowThreads: ===============================
+//========== initWithLines:inRange:parentGroup: ================================
 //
 // Purpose:		Creates a new model file based on the lines from a file.
 //				These lines of strings should only describe one model, not 
@@ -125,7 +125,7 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
-		allowThreads:(BOOL)allowThreads
+		 parentGroup:(dispatch_group_t)parentGroup
 {
 	LDrawStep       *newStep            = nil;
 	NSUInteger		contentStartIndex	= 0;
@@ -133,7 +133,7 @@
 	NSUInteger		maxLineIndex		= 0;
 	
 	//Start with a nice blank model.
-	self = [super initWithLines:lines inRange:range allowThreads:allowThreads];
+	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
 	//Try and get the header out of the file. If it's there, the lines returned 
 	// will not contain it.
@@ -145,7 +145,7 @@
 	do
 	{
 		stepRange   = [LDrawStep rangeOfDirectiveBeginningAtIndex:contentStartIndex inLines:lines maxIndex:maxLineIndex];
-		newStep     = [[[LDrawStep alloc] initWithLines:lines inRange:stepRange allowThreads:allowThreads] autorelease];
+		newStep     = [[[LDrawStep alloc] initWithLines:lines inRange:stepRange parentGroup:parentGroup] autorelease];
 
 		[self addStep:newStep];
 		contentStartIndex = NSMaxRange(stepRange);

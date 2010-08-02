@@ -86,7 +86,7 @@
 }//end initNew
 
 
-//========== initWithLines:inRange:allowThreads: ===============================
+//========== initWithLines:inRange:parentGroup: ================================
 //
 // Purpose:		Creates a new model file based on the lines from a file.
 //				These lines of strings should only describe one model, not 
@@ -99,7 +99,7 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
-		allowThreads:(BOOL)allowThreads
+		 parentGroup:(dispatch_group_t)parentGroup
 {
 	NSString    *mpdFileCommand     = [lines objectAtIndex:range.location];
 	NSString	*lastLine			= nil;
@@ -144,7 +144,7 @@
 	}
 
 	//Create a basic model.
-	[super initWithLines:lines inRange:nonMPDRange allowThreads:allowThreads]; //parses model into header and steps.
+	[super initWithLines:lines inRange:nonMPDRange parentGroup:parentGroup]; //parses model into header and steps.
 	
 	//If it wasn't MPD, we still need a model name. We can get that via the 
 	// parsed model.

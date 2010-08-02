@@ -93,14 +93,14 @@
 }//end init
 
 
-//========== initWithLines:inRange:allowThreads: ===============================
+//========== initWithLines:inRange:parentGroup: ================================
 //
 // Purpose:		Parses a step beginning at the specified line of LDraw code.
 //
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
-		allowThreads:(BOOL)allowThreads
+		 parentGroup:(dispatch_group_t)parentGroup
 {
 	NSString        *currentLine        = nil;
 	Class           CommandClass        = Nil;
@@ -108,20 +108,25 @@
 	id              *directives         = calloc(range.length, sizeof(LDrawDirective*));
 	NSUInteger      lineIndex           = 0;
 	NSUInteger      insertIndex         = 0;
-	NSUInteger      counter             = 0;
-	LDrawDirective  *currentDirective   = nil;
 		
-	self = [super initWithLines:lines inRange:range allowThreads:allowThreads];
+	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
 #ifdef NS_BLOCKS_AVAILABLE
-	dispatch_queue_t    queue           = NULL;	
-	dispatch_group_t    dispatchGroup   = NULL;
-	if(allowThreads == YES)
+	dispatch_queue_t    queue               = NULL;	
+	dispatch_group_t    stepDispatchGroup   = NULL;
+	
+	// Create a group for the multithreaded parsing of the step contents.
+	queue               = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
+	stepDispatchGroup   = dispatch_group_create();
+	
+	// Prevent the owning group from completing until the step is finished 
+	// asynchronously parsing its contents. 
+	if(parentGroup != NULL)
 	{
-		queue           = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);	
-		dispatchGroup   = dispatch_group_create();
+		dispatch_group_enter(parentGroup);
 	}
 #endif	
+
 	// Parse out the STEP command
 	if(range.length > 0)
 	{
@@ -157,33 +162,24 @@
 			commandRange = [CommandClass rangeOfDirectiveBeginningAtIndex:lineIndex
 																  inLines:lines
 																 maxIndex:NSMaxRange(range) - 1];
+#ifdef NS_BLOCKS_AVAILABLE
 			// Parse (multithreaded)
-			if(allowThreads == YES)
-			{
-#ifdef NS_BLOCKS_AVAILABLE
-				dispatch_group_async(dispatchGroup, queue,
-				^{
+			dispatch_group_async(stepDispatchGroup, queue,
+			^{
 #endif
-					// Parse but disallow multithreading for subparsing. LDraw 
-					// objects be be deeply recursive, which means we would pile 
-					// up a lot of dispatch_group_wait calls, resulting in so 
-					// many threads we run out of stack space. 
-					LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange allowThreads:NO];
-					
-					// Store non-retaining, but *thread-safe* container 
-					// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
-					// autorelease newDirective. 
-					directives[insertIndex] = newDirective;
-#ifdef NS_BLOCKS_AVAILABLE
-				});
-#endif
-			}
-			else
-			{
-				LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange allowThreads:NO];
+				// Parse but disallow multithreading for subparsing. LDraw 
+				// objects be be deeply recursive, which means we would pile 
+				// up a lot of dispatch_group_wait calls, resulting in so 
+				// many threads we run out of stack space. 
+				LDrawDirective *newDirective = [[CommandClass alloc] initWithLines:lines inRange:commandRange parentGroup:parentGroup];
+				
+				// Store non-retaining, but *thread-safe* container 
+				// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
+				// autorelease newDirective. 
 				directives[insertIndex] = newDirective;
-			}
-
+#ifdef NS_BLOCKS_AVAILABLE
+			});
+#endif
 			lineIndex     = NSMaxRange(commandRange);
 			insertIndex += 1;
 		}
@@ -195,24 +191,32 @@
 	}
 	
 #ifdef NS_BLOCKS_AVAILABLE
-	if(allowThreads == YES)
-	{
-		// Wait for all the multithreaded parsing to happen
-		dispatch_group_wait(dispatchGroup, DISPATCH_TIME_FOREVER);
-		dispatch_release(dispatchGroup);
-	}
+	dispatch_group_notify(stepDispatchGroup, queue,
+	^{
 #endif
-	
-	// Add the accumulated directives *in order*
-	for(counter = 0; counter < insertIndex; counter++)
-	{
-		currentDirective = directives[counter];
+		NSUInteger      counter             = 0;
+		LDrawDirective  *currentDirective   = nil;
+
+		// Add the accumulated directives *in order*
+		for(counter = 0; counter < insertIndex; counter++)
+		{
+			currentDirective = directives[counter];
+			
+			[self addDirective:currentDirective];
+			[currentDirective release];
+		}
+		free(directives);
 		
-		[self addDirective:currentDirective];
-		[currentDirective release];
-	}
-	
-	free(directives);
+#ifdef NS_BLOCKS_AVAILABLE
+		// Now that the step is complete, we can release our lock on the 
+		// parent group and allow it to finish. 
+		if(parentGroup != NULL)
+		{
+			dispatch_group_leave(parentGroup);
+		}
+	});
+	dispatch_release(stepDispatchGroup);
+#endif
 	
 	return self;
 	

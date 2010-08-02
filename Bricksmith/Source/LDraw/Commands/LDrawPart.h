@@ -53,7 +53,7 @@
 - (TransformComponents) transformComponents;
 - (Matrix4) transformationMatrix;
 - (void) setDisplayName:(NSString *)newPartName;
-- (void) setDisplayName:(NSString *)newPartName parse:(BOOL)shouldParse;
+- (void) setDisplayName:(NSString *)newPartName parse:(BOOL)shouldParse inGroup:(dispatch_group_t)parentGroup;
 - (void) setTransformComponents:(TransformComponents)newComponents;
 - (void) setTransformationMatrix:(Matrix4 *)newMatrix;
 

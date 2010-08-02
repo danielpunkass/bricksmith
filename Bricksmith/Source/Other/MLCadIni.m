@@ -564,7 +564,7 @@ static MLCadIni *sharedIniFile = nil;
 			currentPart = [[[LDrawPart alloc] init] autorelease];
 			
 			[currentPart setTransformationMatrix:&transformation];
-			[currentPart setDisplayName:partName parse:NO];
+			[currentPart setDisplayName:partName parse:NO inGroup:NULL];
 		
 			if(currentPart != nil)
 			{

@@ -37,7 +37,29 @@
 }//end init
 
 
-//========== initWithLines:inRange:allowThreads: ===============================
+//========== initWithLines:inRange: ============================================
+//
+// Purpose:		Convenience method to perform a blocking parse operation
+//
+//==============================================================================
+- (id) initWithLines:(NSArray *)lines
+			 inRange:(NSRange)range
+{
+	LDrawDirective      *directive  = nil;
+	dispatch_group_t    group       = dispatch_group_create();
+	
+	directive = [self initWithLines:lines inRange:range parentGroup:group];
+	
+	dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+	dispatch_release(group);
+	
+	return directive;
+	
+}//end initWithLines:inRange:
+
+
+
+//========== initWithLines:inRange:parentGroup: ================================
 //
 // Purpose:		Returns the LDraw directive based on lineFromFile, a single line 
 //				of LDraw code from a file.
@@ -55,9 +77,15 @@
 //==============================================================================
 - (id) initWithLines:(NSArray *)lines
 			 inRange:(NSRange)range
-		allowThreads:(BOOL)allowThreads
+		 parentGroup:(dispatch_group_t)parentGroup
 {
 	self = [self init]; // call basic initializer
+	
+	if([lines count] == 0)
+	{
+		[self autorelease];
+		self = nil;
+	}
 	
 	return self;
 	

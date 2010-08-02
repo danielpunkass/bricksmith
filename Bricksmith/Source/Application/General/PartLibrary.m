@@ -22,6 +22,8 @@
 #import "LDrawPart.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
+#import "StringCategory.h"
+
 
 @implementation PartLibrary
 
@@ -39,8 +41,8 @@
 	
 	favorites			= [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
 	
-	catalogAccessMutex	= [[NSRecursiveLock alloc] init];
-	parsingMutexes		= [[NSMutableDictionary alloc] init];
+	catalogAccessQueue	= dispatch_queue_create("com.AllenSmith.Bricksmith.CatalogAccess", NULL);
+	parsingGroups		= [[NSMutableDictionary alloc] init];
 	
 	[self setPartCatalog:[NSDictionary dictionary]];
 	
@@ -396,90 +398,79 @@
 #pragma mark FINDING PARTS
 #pragma mark -
 
-//========== loadModelForName: =================================================
+//========== loadModelForName:inGroup: =========================================
 //
 // Purpose:		This is a thread-safe method which causes the model of the given 
 //				name to be loaded out of the LDraw folder. 
 //
 //==============================================================================
 - (void) loadModelForName:(NSString *)partName
+				  inGroup:(dispatch_group_t)parentGroup
 {
-	LDrawModel      *model          = nil;
-	NSString        *partPath       = nil;
-	NSConditionLock *parseLock      = nil;
-	BOOL            alreadyParsing  = NO;	// another thread is already parsing partName
-	
 	// Determine if the model needs to be parsed.
-	[self->catalogAccessMutex lock];
-	{
-		// Has it already been parsed?
+	// Dispatch to a serial queue to effectively mutex the query
+	dispatch_group_async(parentGroup, self->catalogAccessQueue,
+	^{
+		NSMutableArray  *requestingGroups   = nil;
+		LDrawModel      *model              = nil;
+		BOOL            alreadyParsing      = NO;	// another thread is already parsing partName
+	
+		// Already been parsed?
 		model = [self->loadedFiles objectForKey:partName];
 		if(model == nil)
 		{
 			// Is it being parsed? If so, all we need to do is wait for whoever 
 			// is parsing it to finish. 
-			parseLock       = [self->parsingMutexes objectForKey:partName];
-			alreadyParsing  = (parseLock != nil);
+			requestingGroups    = [self->parsingGroups objectForKey:partName];
+			alreadyParsing      = (requestingGroups != nil);
 			
 			if(alreadyParsing == NO)
 			{
-				// Nobody has started parsing it yet, so we win!
-				// Create a condition mutex that will notify others when we are 
-				// finished, in case more than one thread attempts to read the 
-				// same model. 
-				parseLock = [[NSConditionLock alloc] initWithCondition:NO];
-				[self->parsingMutexes setObject:parseLock forKey:partName];
-				[parseLock lock];
+				// Start a registry for all the dispatch groups which attempt to 
+				// load the same model. When parsing is complete, they will all 
+				// be signaled. 
+				requestingGroups = [[NSMutableArray alloc] init];
+				[self->parsingGroups setObject:requestingGroups forKey:partName];
+				[requestingGroups release];
 			}
-			else
-			{
-				// Ensure the object persists after the parse thread is done 
-				// with it. 
-				[parseLock retain];
-			}
-
-		}
-	}
-	[self->catalogAccessMutex unlock];
-	
-	
-	// Wait until the other thread is done parsing?
-	if(alreadyParsing == YES)
-	{
-		[parseLock lockWhenCondition:YES];
-		[parseLock unlock];
-		[parseLock release];
-	}
-	else
-	{
-		// Well, this means we have to try getting it off the disk!
-		//
-		// This section is NOT mutex protected, because this method is 
-		// reentrant! Multiple parse threads will call this method to load 
-		// additional parts, including parse threads spawned by the parse we are 
-		// about to initiate! If this part were mutexed, they would all pile up 
-		// in one big deadlock here. 
-		if(model == nil)
-		{
-			partPath	= [self pathForPartName:partName];
-			model		= [self readModelAtPath:partPath partName:partName];
-			
-			// Set the new model in the catalog
-			[self->catalogAccessMutex lock];
-			{
-				if(model != nil)
-				{
-					[self->loadedFiles setObject:model forKey:partName];
-				}
 				
-				// Notify waiting threads we are finished parsing this part.
-				[parseLock unlockWithCondition:YES];
-				[self->parsingMutexes removeObjectForKey:partName];
-				[parseLock release];
+			// Register the calling group as having also requested a parse 
+			// for this file. This ensures the calling group cannot complete 
+			// until the parse is complete on whatever thread is actually 
+			// doing it. 
+			dispatch_group_enter(parentGroup);
+			[requestingGroups addObject:[NSValue valueWithPointer:parentGroup]];
+			
+			// Nobody has started parsing it yet, so we win! Parse from disk.
+			if(alreadyParsing == NO)
+			{
+				dispatch_group_async(parentGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+				^{
+					NSString    *partPath   = [self pathForPartName:partName];
+						
+					[self readModelAtPath:partPath asynchronously:YES completionHandler:^(LDrawModel *model)
+					{
+						// Register new model in the library (serial queue "mutex" protected)
+						dispatch_group_async(parentGroup, self->catalogAccessQueue,
+						^{
+							if(model != nil)
+							{
+								[self->loadedFiles setObject:model forKey:partName];
+							}
+							
+							// Notify waiting threads we are finished parsing this part.
+							for(NSValue *waitingGroupPtr in requestingGroups)
+							{
+								dispatch_group_t waitingGroup = [waitingGroupPtr pointerValue];
+								dispatch_group_leave(waitingGroup);
+							}
+							[self->parsingGroups removeObjectForKey:partName];
+						});
+					}];
+				});
 			}
-			[self->catalogAccessMutex unlock];
 		}
-	}
+	});
 	
 }//end loadModelForName:
 
@@ -512,7 +503,7 @@
 	{
 		//Well, this means we have to try getting it off the disk!
 		partPath	= [self pathForPartName:partName];
-		model		= [self readModelAtPath:partPath partName:partName];
+		model		= [self readModelAtPath:partPath asynchronously:NO completionHandler:NULL];
 		
 		if(model != nil)
 			[self->loadedFiles setObject:model forKey:partName];
@@ -668,7 +659,7 @@
 		//see if it exists!
 		if([fileManager fileExistsAtPath:testPath])
 		{
-			model = [self readModelAtPath:testPath partName:partName];
+			model = [self readModelAtPath:testPath asynchronously:NO completionHandler:NULL];
 			if(model != nil)
 				[self->loadedFiles setObject:model forKey:partName];
 		}
@@ -1053,20 +1044,52 @@
 // Purpose:		Parses the model found at the given path, adds it to the list of 
 //				loaded parts, and returns the model.
 //
+// Notes:		The model is returned from the method if asynchronous is NO.
+//				Otherwise, returns nil and passes the completed model via the 
+//				block instead. 
+//
 //==============================================================================
 - (LDrawModel *) readModelAtPath:(NSString *)partPath
-						partName:(NSString *)partName
+				  asynchronously:(BOOL)asynchronous
+			   completionHandler:(void (^)(LDrawModel *))completionBlock
 {
-	LDrawModel	*model		= nil;
+	NSString            *fileContents   = nil;
+	NSArray             *lines          = nil;
+	LDrawFile           *parsedFile     = nil;
+	dispatch_group_t    group           = dispatch_group_create();
+	__block LDrawModel  *model          = nil;
 	
 	if(partPath != nil)
 	{
 		// We found it in the LDraw folder; now all we need to do is get the 
 		// model for it. 
-		LDrawFile *parsedFile = [LDrawFile fileFromContentsAtPath:partPath];
+		fileContents    = [LDrawUtilities stringFromFile:partPath];
+		lines           = [fileContents separateByLine];
+		
+		parsedFile      = [[LDrawFile alloc] initWithLines:lines
+												   inRange:NSMakeRange(0, [lines count])
+											   parentGroup:group];
+	}
+	
+	if(asynchronous == NO)
+	{
+		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 		[parsedFile optimizeStructure];
 		model = [[parsedFile submodels] objectAtIndex:0];
 	}
+	else
+	{
+		dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+		^{
+			[parsedFile optimizeStructure];
+			model = [[parsedFile submodels] objectAtIndex:0];
+			
+			if(completionBlock)
+				completionBlock(model);
+		});
+	}
+	
+	dispatch_release(group);
 	
 	return model;
 	
@@ -1115,8 +1138,8 @@
 	[partCatalog		release];
 	[favorites			release];
 	[loadedFiles		release];
-	[catalogAccessMutex	release];
-	[parsingMutexes		release];
+	dispatch_release(catalogAccessQueue);
+	[parsingGroups		release];
 	
 	[super dealloc];
 	

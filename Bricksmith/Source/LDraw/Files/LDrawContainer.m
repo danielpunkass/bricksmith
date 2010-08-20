@@ -32,7 +32,7 @@
 {
 	self = [super init];
 	
-	containedObjects    = [[NSMutableArray array] retain];
+	containedObjects    = [[NSMutableArray alloc] init];
 	postsNotifications  = NO;
 	
 	return self;
@@ -84,13 +84,9 @@
 - (id) copyWithZone:(NSZone *)zone
 {
 	LDrawContainer  *copiedContainer    = (LDrawContainer *)[super copyWithZone:zone];
-	NSInteger       numberSubdirectives = [self->containedObjects count];
 	id              currentObject       = nil;
 	id              copiedObject        = nil;
 	NSInteger       counter             = 0;
-	
-	// Allocate our instance varibales.
-	copiedContainer->containedObjects = [[NSMutableArray alloc] initWithCapacity:numberSubdirectives];
 	
 	// Copy each subdirective and transfer it into the copied container.
 	for(currentObject in self->containedObjects)

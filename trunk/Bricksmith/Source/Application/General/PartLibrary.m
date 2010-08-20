@@ -1075,17 +1075,25 @@
 	{
 		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 		[parsedFile optimizeStructure];
-		model = [[parsedFile submodels] objectAtIndex:0];
+		model = [[[[parsedFile submodels] objectAtIndex:0] retain] autorelease];
+		// We are "leaking" the enclosing file, but returning an internal model 
+		// without disconnecting it from its file is pretty dodgy and it would 
+		// be easy to code a bug in. We'd be better off returning the file 
+		// itself, or perhaps removing the model from its file (since everything 
+		// is theoretically flattened). 
+//		[parsedFile release];
 	}
 	else
 	{
 		dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 		^{
 			[parsedFile optimizeStructure];
-			model = [[parsedFile submodels] objectAtIndex:0];
+			model = [[[[parsedFile submodels] objectAtIndex:0] retain] autorelease];
 			
 			if(completionBlock)
 				completionBlock(model);
+			
+//			[parsedFile release]; // see notes above
 		});
 	}
 	

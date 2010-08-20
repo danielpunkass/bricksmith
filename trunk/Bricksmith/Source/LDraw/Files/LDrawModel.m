@@ -219,7 +219,6 @@
 	[copied setAuthor:[self author]];
 	[copied setLDrawRepositoryStatus:[self ldrawRepositoryStatus]];
 	
-	copied->colorLibrary = [[ColorLibrary alloc] init]; // just make a new one. It will get current colors on the next draw.
 	[copied setStepDisplay:[self stepDisplay]];
 	[copied setMaximumStepIndexForStepDisplay:[self maximumStepIndexForStepDisplay]];
 	

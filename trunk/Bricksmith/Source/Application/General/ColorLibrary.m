@@ -353,4 +353,23 @@ void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
 	
 }//end complimentColor
 
+
+#pragma mark -
+#pragma mark DESTRUCTOR
+#pragma mark -
+
+//========== dealloc ===========================================================
+//
+// Purpose:		It's like the Blue Period. Depression and gloom abound as we 
+//				consider the ultimate fate of being deallocated. 
+//
+//==============================================================================
+- (void) dealloc
+{
+	[colors release];
+	
+	[super dealloc];
+}
+
+
 @end

@@ -128,8 +128,8 @@
 	if(self->movedParts != nil)
 		[movedParts release];
 		
-	missingParts	= [[NSMutableArray alloc] init];
-	movedParts		= [[NSMutableArray alloc] init];
+	self->missingParts  = [[NSMutableArray alloc] init];
+	self->movedParts    = [[NSMutableArray alloc] init];
 	
 	for(counter = 0; counter < elementCount; counter++)
 	{
@@ -400,6 +400,8 @@
 {
 	[reportedObject	release];
 	[partsReport	release];
+	[missingParts	release];
+	[movedParts		release];
 	
 	[super dealloc];
 	

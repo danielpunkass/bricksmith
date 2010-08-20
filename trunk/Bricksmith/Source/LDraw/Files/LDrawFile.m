@@ -83,7 +83,7 @@
 //------------------------------------------------------------------------------
 + (LDrawFile *) parseFromFileContents:(NSString *) fileContents
 {
-	LDrawFile   *newFile    = [[LDrawFile alloc] init];
+	LDrawFile   *newFile    = nil;
 	NSArray     *lines      = [fileContents separateByLine];
 	
 	newFile = [[LDrawFile alloc] initWithLines:lines

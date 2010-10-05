@@ -2514,11 +2514,11 @@
 - (void) magnifyWithEvent:(NSEvent *)theEvent
 {
 	CGFloat magnification   = [theEvent magnification]; // 1 = increase 100%; -1 = decrease 100%
-	CGFloat zoomChange      = magnification * 100;
+	CGFloat zoomChange      = 1.0 + magnification;
 	CGFloat currentZoom     = [self zoomPercentage];
 	
 	//Negative means down
-	[self setZoomPercentage:currentZoom + zoomChange];
+	[self setZoomPercentage:(currentZoom * zoomChange)];
 	
 }//end magnifyWithEvent:
 

@@ -332,8 +332,8 @@ void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
 	
 	// Isolate the color's grayscale intensity http://en.wikipedia.org/wiki/Grayscale
 	brightness =	originalColor[0] * 0.30
-				+	originalColor[0] * 0.59
-				+	originalColor[0] * 0.11;
+				+	originalColor[1] * 0.59
+				+	originalColor[2] * 0.11;
 	
 	//compliment dark colors with light ones and light colors with dark ones.
 	if(brightness > 0.5)

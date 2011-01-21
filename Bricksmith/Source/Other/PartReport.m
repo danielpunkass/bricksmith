@@ -168,7 +168,7 @@
 - (void) registerPart:(LDrawPart *)part
 {
 	NSString			*partName			= [part referenceName];
-	NSNumber			*partColor			= [NSNumber numberWithInteger:[part LDrawColor]];
+	LDrawColor			*partColor			= [part LDrawColor];
 	
 	NSMutableDictionary	*partRecord			= [self->partsReport objectForKey:partName];
 	NSUInteger			 numberColoredParts	= 0;
@@ -234,7 +234,7 @@
 //				a table view.
 //
 //				Each entry in the array is a dictionary containing the keys:
-//				PART_NUMBER_KEY, LDRAW_COLOR_CODE, PART_QUANTITY
+//				PART_NUMBER_KEY, LDRAW_COLOR, PART_QUANTITY
 //
 //==============================================================================
 - (NSArray *) flattenedReport
@@ -248,7 +248,7 @@
 	
 	NSDictionary    *currentPartRecord      = nil;
 	NSString        *currentPartNumber      = nil;
-	NSNumber        *currentPartColor       = nil;
+	LDrawColor      *currentPartColor       = nil;
 	NSNumber        *currentPartQuantity    = nil;
 	NSString        *currentPartName        = nil; //for convenience.
 	NSString        *currentColorName       = nil;
@@ -270,14 +270,14 @@
 			currentPartQuantity	= [quantitiesForPart objectForKey:currentPartColor];
 			
 			currentPartName		= [partLibrary descriptionForPartName:currentPartNumber];
-			currentColorName	= [[[ColorLibrary sharedColorLibrary] colorForCode:[currentPartColor integerValue]] localizedName];
+			currentColorName	= [currentPartColor localizedName];
 			
 			//Now we have all the information we need. Flatten it into a single
 			// record.
 			currentPartRecord = [NSDictionary dictionaryWithObjectsAndKeys:
 						currentPartNumber,		PART_NUMBER_KEY,
 						currentPartName,		PART_NAME_KEY,
-						currentPartColor,		LDRAW_COLOR_CODE,
+						currentPartColor,		LDRAW_COLOR,
 						currentColorName,		COLOR_NAME,
 						currentPartQuantity,	PART_QUANTITY,
 						nil ];

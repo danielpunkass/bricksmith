@@ -20,7 +20,9 @@
 #import "LDrawFile.h"
 #import "LDrawModel.h"
 #import "LDrawPart.h"
+#import "LDrawStep.h"
 #import "LDrawUtilities.h"
+#import "LDrawVertexes.h"
 #import "MacLDraw.h"
 #import "StringCategory.h"
 
@@ -36,13 +38,13 @@
 {
 	self = [super init];
 	
-	loadedFiles			= [[NSMutableDictionary dictionaryWithCapacity:400] retain];
-	fileDisplayLists	= [[NSMutableDictionary dictionaryWithCapacity:400] retain];
+	loadedFiles                 = [[NSMutableDictionary dictionaryWithCapacity:400] retain];
+	optimizedRepresentations    = [[NSMutableDictionary dictionaryWithCapacity:400] retain];
 	
-	favorites			= [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
+	favorites                   = [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
 	
-	catalogAccessQueue	= dispatch_queue_create("com.AllenSmith.Bricksmith.CatalogAccess", NULL);
-	parsingGroups		= [[NSMutableDictionary alloc] init];
+	catalogAccessQueue          = dispatch_queue_create("com.AllenSmith.Bricksmith.CatalogAccess", NULL);
+	parsingGroups               = [[NSMutableDictionary alloc] init];
 	
 	[self setPartCatalog:[NSDictionary dictionary]];
 	
@@ -670,11 +672,12 @@
 }//end modelFromNeighboringFileForPart:
 
 
-//========== retainDisplayListForPart:color: ===================================
+//========== optimizedDrawableForPart:color: ==================================
 //
-// Purpose:		Returns the display list tag used to draw the given part. 
-//				Display lists are shared among multiple part instances of the 
-//				same name and color in order to reduce memory space.	
+// Purpose:		Returns a vertex container which has been optimized to draw the 
+//				given part. Vertex objects are shared among multiple part 
+//				instances of the same name and color in order to reduce memory 
+//				space. 
 //
 // Parameters:	part	- part to get/create a display list for.
 //				color	- RGBA color for the part. We can't just ask the part for 
@@ -683,73 +686,70 @@
 //						  color. 
 //
 //==============================================================================
-- (GLuint) retainDisplayListForPart:(LDrawPart *) part
-							  color:(GLfloat *) glColor
+- (LDrawDirective *) optimizedDrawableForPart:(LDrawPart *) part
+										color:(LDrawColor *)color
 {
-	GLuint				 displayListTag	= 0;
-	NSString			*referenceName	= [part referenceName];
-	NSMutableDictionary	*partRecord		= nil;
-	NSString			*key			= [NSString stringWithFormat:@"%f %f %f %f", glColor[0], glColor[1], glColor[2], glColor[3] ];
-	NSNumber			*listTag		= nil;
+	NSString            *referenceName  = [part referenceName];
+	LDrawVertexes       *vertexObject   = nil;
 	
 	if([referenceName length] > 0)
 	{
-		partRecord	= [self->fileDisplayLists objectForKey:referenceName];
+		vertexObject	= [self->optimizedRepresentations objectForKey:referenceName];
 		
-		if(partRecord == nil)
-		{
-			// create a new record for hold list tags.
-			partRecord = [NSMutableDictionary dictionary];
-			[self->fileDisplayLists setObject:partRecord forKey:referenceName];
-		}
-		else
-		{
-			// try to get a previously-cached list for this part/color
-			listTag = [partRecord objectForKey:key];
-		}
-	
-		if(listTag != nil)
-		{
-			displayListTag = [listTag integerValue];
-//			NSLog(@"found %d for %@ %d", displayListTag, referenceName, color);
-		}
-		else
+		if(vertexObject == nil)
 		{
 			LDrawModel	*modelToDraw = [self modelForPart:part];
 			
 			if(modelToDraw != nil)
 			{
-				// Do not recursively optimize all the referenced subparts. It's 
-				// slower! (And it's even slower if you add a color parameter 
-				// and create display lists for every subpart in the glColor.) 
-//				[modelToDraw optimizeOpenGL];
+				vertexObject = [[LDrawVertexes alloc] init];
 				
-				// Optimize the part itself into a display list.
-				displayListTag = glGenLists(1);
+				// Extract the optimized structure of the model.
+				NSArray *modelSteps = [modelToDraw steps];
+				NSArray *lines      = nil;
+				NSArray *triangles  = nil;
+				NSArray *quads      = nil;
+				NSArray *allOthers  = nil;
 				
-				//Don't ask the part to draw itself, either. Parts modify the 
-				//transformation matrix, and we want our display list to be 
-				//independent of the transformation. So we shortcut part drawing 
-				//and do the model itself. 
-//				glPushMatrix();
-//					glLoadIdentity();
-					glNewList(displayListTag, GL_COMPILE);
-						[modelToDraw draw:DRAW_FOR_DISPLAY_LIST_COMPILE parentColor:glColor];
-					glEndList();
-//				glPopMatrix();
+				for(LDrawStep *currentStep in modelSteps)
+				{
+					switch([currentStep stepFlavor])
+					{
+						case LDrawStepLines:
+							lines = [currentStep subdirectives];
+							break;
+						case LDrawStepTriangles:
+							triangles = [currentStep subdirectives];
+							break;
+						case LDrawStepQuadrilaterals:
+							quads = [currentStep subdirectives];
+							break;
+						case LDrawStepAnyDirectives:
+							allOthers = [currentStep subdirectives];
+							break;
+						case LDrawStepConditionalLines: // ignore
+							break;
+					}
+				}
 				
-				[partRecord setObject:[NSNumber numberWithUnsignedInteger:displayListTag]
-							   forKey:key ];
-				
-//				NSLog(@"generated %d for %@ %d", displayListTag, referenceName, color);
+				[vertexObject setLines:lines triangles:triangles quadrilaterals:quads other:allOthers];
+
+				[self->optimizedRepresentations setObject:vertexObject forKey:referenceName];
+			}
+		}
+		
+		if(vertexObject != nil)
+		{
+			if([vertexObject isOptimizedForColor:color] == NO)
+			{
+				[vertexObject optimizeOpenGLWithParentColor:color];
 			}
 		}
 	}
 	
+	return vertexObject;
 	
-	return displayListTag;
-	
-}//end retainDisplayListForPart:color:
+}//end optimizedDrawableForPart:color:
 
 
 #pragma mark -

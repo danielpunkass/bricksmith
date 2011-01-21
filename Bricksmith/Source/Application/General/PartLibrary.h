@@ -12,6 +12,7 @@
 
 #import "ColorLibrary.h"
 
+@class LDrawDirective;
 @class LDrawModel;
 @class LDrawPart;
 @protocol PartLibraryReloadPartsDelegate;
@@ -24,11 +25,11 @@
 @interface PartLibrary : NSObject
 {
 	NSDictionary        *partCatalog;
-	NSMutableArray      *favorites;				// parts names in the "Favorites" pseduocategory
-	NSMutableDictionary *loadedFiles;			// list of LDrawFiles which have been read off disk.
-	NSMutableDictionary *fileDisplayLists;		// access stored display lists by part name, then color.
-	dispatch_queue_t	catalogAccessQueue;		// serial queue to mutex changes to the part catalog
-	NSMutableDictionary *parsingGroups;			// arrays of dispatch_group_t's which have requested each file currently being parsed
+	NSMutableArray      *favorites;					// parts names in the "Favorites" pseduocategory
+	NSMutableDictionary *loadedFiles;				// list of LDrawFiles which have been read off disk.
+	NSMutableDictionary *optimizedRepresentations;	// access stored vertex objects by part name, then color.
+	dispatch_queue_t	catalogAccessQueue;			// serial queue to mutex changes to the part catalog
+	NSMutableDictionary *parsingGroups;				// arrays of dispatch_group_t's which have requested each file currently being parsed
 }
 
 // Initialization
@@ -55,8 +56,7 @@
 - (LDrawModel *) modelForPart:(LDrawPart *) part;
 - (NSString *) pathForPartName:(NSString *)partName;
 - (LDrawModel *) modelFromNeighboringFileForPart:(LDrawPart *)part;
-- (GLuint) retainDisplayListForPart:(LDrawPart *)part color:(GLfloat *)color;
-
+- (LDrawDirective *) optimizedDrawableForPart:(LDrawPart *) part color:(LDrawColor *)color;
 // Utilites
 - (void) addPartsInFolder:(NSString *)folderPath
 				toCatalog:(NSMutableDictionary *)catalog

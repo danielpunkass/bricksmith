@@ -12,6 +12,7 @@
 #import "InspectionLine.h"
 
 #import "LDrawLine.h"
+#import "LDrawModel.h"
 #import "FormCategory.h"
 
 @implementation InspectionLine
@@ -52,6 +53,7 @@
 	[representedObject setVertex1:vertex1];
 	[representedObject setVertex2:vertex2];
 	
+	[[representedObject enclosingModel] optimizeVertexes];
 	[super commitChanges:sender];
 	
 }//end commitChanges:
@@ -77,6 +79,7 @@
 	[startPoint	setCoordinateValue:vertex1];
 	[endPoint	setCoordinateValue:vertex2];
 	
+	[[representedObject enclosingModel] optimizeVertexes];
 	[super revert:sender];
 	
 }//end revert:

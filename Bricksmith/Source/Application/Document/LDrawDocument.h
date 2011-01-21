@@ -170,7 +170,7 @@ typedef enum insertionMode {
 - (void) moveDirective:(LDrawDrawableElement *)object inDirection:(Vector3)moveVector;
 - (void) rotatePart:(LDrawPart *)part byDegrees:(Tuple3)rotationDegrees aroundPoint:(Point3)rotationCenter;
 - (void) setElement:(LDrawDrawableElement *)element toHidden:(BOOL)hideFlag;
-- (void) setObject:(LDrawDirective <LDrawColorable>*)object toColor:(LDrawColorT)newColor;
+- (void) setObject:(LDrawDirective <LDrawColorable>* )object toColor:(LDrawColor *)newColor;
 - (void) setTransformation:(TransformComponents)newComponents forPart:(LDrawPart *)part;
 
 //Notifications

@@ -71,7 +71,6 @@ typedef enum
 - (NSString *) writeWithStepCommand:(BOOL) flag;
 
 //Accessors
-- (void) addDirective:(LDrawDirective *)newDirective;
 - (LDrawModel *) enclosingModel;
 - (Tuple3) rotationAngle;
 - (Tuple3) rotationAngleZYX;

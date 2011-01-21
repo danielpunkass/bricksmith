@@ -38,9 +38,112 @@
 	[self setMaterial:LDrawColorMaterialNone];
 	[self setName:@""];
 	
+	colorRGBA[3] = 1.0; // alpha.
+	
 	return self;
 	
 }//end init
+
+
+//========== initWithCoder: ====================================================
+//
+// Purpose:		Reads a representation of this object from the given coder,
+//				which is assumed to always be a keyed decoder. This allows us to 
+//				read and write LDraw objects as NSData.
+//
+//==============================================================================
+- (id)initWithCoder:(NSCoder *)decoder
+{
+	self = [super initWithCoder:decoder];
+	
+	self->colorCode             = [decoder decodeIntForKey:@"colorCode"];
+	self->colorRGBA[0]          = [decoder decodeFloatForKey:@"colorRGBARed"];
+	self->colorRGBA[1]          = [decoder decodeFloatForKey:@"colorRGBAGreen"];
+	self->colorRGBA[2]          = [decoder decodeFloatForKey:@"colorRGBABlue"];
+	self->colorRGBA[3]          = [decoder decodeFloatForKey:@"colorRGBAAlpha"];
+	self->edgeColorCode         = [decoder decodeIntForKey:@"edgeColorCode"];
+	self->edgeColorRGBA[0]      = [decoder decodeFloatForKey:@"edgeColorRGBARed"];
+	self->edgeColorRGBA[1]      = [decoder decodeFloatForKey:@"edgeColorRGBAGreen"];
+	self->edgeColorRGBA[2]      = [decoder decodeFloatForKey:@"edgeColorRGBABlue"];
+	self->edgeColorRGBA[3]      = [decoder decodeFloatForKey:@"edgeColorRGBAAlpha"];
+	self->hasExplicitAlpha      = [decoder decodeBoolForKey:@"hasExplicitAlpha"];
+	self->hasLuminance          = [decoder decodeBoolForKey:@"hasLuminance"];
+	self->luminance             = (uint8_t)[decoder decodeIntForKey:@"luminance"];
+	self->material              = [decoder decodeIntForKey:@"material"];
+	self->materialParameters    = [[decoder decodeObjectForKey:@"materialParameters"] retain];
+	self->name                  = [[decoder decodeObjectForKey:@"name"] retain];
+	
+	return self;
+	
+}//end initWithCoder:
+
+
+//========== encodeWithCoder: ==================================================
+//
+// Purpose:		Writes a representation of this object to the given coder,
+//				which is assumed to always be a keyed decoder. This allows us to 
+//				read and write LDraw objects as NSData.
+//
+//==============================================================================
+- (void) encodeWithCoder:(NSCoder *)encoder
+{
+	[super encodeWithCoder:encoder];
+	
+	[encoder encodeInt:colorCode				forKey:@"colorCode"];
+	[encoder encodeFloat:colorRGBA[0]			forKey:@"colorRGBARed"];
+	[encoder encodeFloat:colorRGBA[1]			forKey:@"colorRGBAGreen"];
+	[encoder encodeFloat:colorRGBA[2]			forKey:@"colorRGBABlue"];
+	[encoder encodeFloat:colorRGBA[3]			forKey:@"colorRGBAAlpha"];
+	[encoder encodeInt:edgeColorCode			forKey:@"edgeColorCode"];
+	[encoder encodeFloat:edgeColorRGBA[0]		forKey:@"edgeColorRGBARed"];
+	[encoder encodeFloat:edgeColorRGBA[1]		forKey:@"edgeColorRGBAGreen"];
+	[encoder encodeFloat:edgeColorRGBA[2]		forKey:@"edgeColorRGBABlue"];
+	[encoder encodeFloat:edgeColorRGBA[3]		forKey:@"edgeColorRGBAAlpha"];
+	[encoder encodeBool:hasExplicitAlpha		forKey:@"hasExplicitAlpha"];
+	[encoder encodeBool:hasLuminance			forKey:@"hasLuminance"];
+	[encoder encodeInt:luminance				forKey:@"luminance"];
+	[encoder encodeInt:material					forKey:@"material"];
+	[encoder encodeObject:materialParameters	forKey:@"materialParameters"];
+	[encoder encodeObject:name					forKey:@"name"];
+	
+}//end encodeWithCoder:
+
+
+//========== copyWithZone: =====================================================
+//
+// Purpose:		Returns a duplicate of this color.
+//
+// Notes:		This method must be implemented in fussy ways to allow this 
+//				object to serve as a key for NSDictionaries, which it does in 
+//				LDrawVertexes. 
+//
+//==============================================================================
+- (id) copyWithZone:(NSZone *)zone
+{
+	// Since almost all colors are supposed to be from libraries, and since copy 
+	// must be efficient because dictionary keys are copied, and particularly 
+	// since equal objects must have the same hash, it is *VASTLY* easier to 
+	// return the object itself for its "copy." 
+	//
+	// The -hash implementation will die if this is not the case.
+	return [self retain];
+
+//	LDrawColor *copied = (LDrawColor *)[super copyWithZone:zone];
+//	
+//	copied->colorCode				= self->colorCode;
+//	memcpy(copied->colorRGBA,		  self->colorRGBA, sizeof(colorRGBA));
+//	copied->edgeColorCode			= self->edgeColorCode;
+//	memcpy(copied->edgeColorRGBA,	  self->edgeColorRGBA, sizeof(edgeColorRGBA));
+//	copied->hasExplicitAlpha		= self->hasExplicitAlpha;
+//	copied->hasLuminance			= self->hasLuminance;
+//	copied->luminance				= self->luminance;
+//	copied->material				= self->material;
+//	[copied setMaterialParameters:[self materialParameters]];
+//	[copied setName:[self name]];
+//	
+//	return copied;
+	
+}//end copyWithZone:
 
 
 //========== finishParsing: ====================================================
@@ -222,7 +325,7 @@
 // Purpose:		"Draws" the color.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
 {
 	// Need to add this color to the model's color library.
 	ColorLibrary *colorLibrary = [[(LDrawStep*)[self enclosingDirective] enclosingModel] colorLibrary];
@@ -358,6 +461,31 @@
 }//end colorCode
 
 
+//========== complimentColor ===================================================
+//
+// Purpose:		Returns the color which should be used for drawing 
+//				LDrawEdgeColor for this color. 
+//
+//==============================================================================
+- (LDrawColor *) complimentColor
+{
+	// LDConfig compliment colors look ugly. Bricksmith uses internally-derived 
+	// compliments which look more like the original LDraw. 
+	if(fakeComplimentColor == nil)
+	{
+		self->fakeComplimentColor = [[LDrawColor alloc] init];
+		
+		GLfloat fakeComplimentComponents[4] = {};
+		complimentColor(self->colorRGBA, fakeComplimentComponents);
+		
+		[fakeComplimentColor setColorCode:LDrawEdgeColor];
+		[fakeComplimentColor setColorRGBA:fakeComplimentComponents];
+	}
+	
+	return fakeComplimentColor;
+}
+
+
 //========== edgeColorCode =====================================================
 //
 // Purpose:		Return the LDraw color code to be used when drawing the 
@@ -372,6 +500,7 @@
 	return self->edgeColorCode;
 	
 }//end edgeColorCode
+
 
 
 //========== getColorRGBA: =====================================================
@@ -619,6 +748,46 @@
 #pragma mark UTILITIES
 #pragma mark -
 
+//========== isEqual: ==========================================================
+//
+// Purpose:		Allow these objects to serve as keys in a dictionary (used in 
+//				LDrawVertexes); -isEqual: and -hash are both required.
+//
+//				We only expect one instance of each unique color to exist, so 
+//				the trivial comparison should be valid. After all, two different 
+//				(file-local) colors could share the same color code, but they 
+//				aren't equal.
+//
+//==============================================================================
+- (BOOL) isEqual:(id)anObject
+{
+	BOOL isEqual = NO;
+	
+	// If two objects are equal, they must return the same hash. The hash is a 
+	// pain to compute, so we don't want to do anything fancy with equality.
+//	if([anObject isMemberOfClass:[LDrawColor class]])
+//	{
+//		isEqual = (self->colorCode == [anObject colorCode]);
+//	}
+
+	isEqual = (anObject == self);
+
+	return isEqual;
+}
+
+
+//========== hash ==============================================================
+//
+// Purpose:		Allow these objects to serve as keys in a dictionary (used in 
+//				LDrawVertexes).
+//
+//==============================================================================
+- (NSUInteger)hash
+{
+	return (NSUInteger)self;
+}
+
+
 //========== HSVACompare: ======================================================
 //
 // Purpose:		Orders colors according to their Hue, Saturation, and 
@@ -752,8 +921,10 @@
 //==============================================================================
 - (void) dealloc
 {
-	[materialParameters	release];
-	[name				release];
+	[materialParameters		release];
+	[name					release];
+	
+	[fakeComplimentColor	release];
 	
 	[super dealloc];
 	

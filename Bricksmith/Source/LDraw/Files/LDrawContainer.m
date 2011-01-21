@@ -347,13 +347,14 @@
 // Purpose:		Appends the directive into the appropriate container. 
 //
 //==============================================================================
-- (void) flattenIntoLines:(LDrawStep *)lines
-				triangles:(LDrawStep *)triangles
-		   quadrilaterals:(LDrawStep *)quadrilaterals
-					other:(LDrawStep *)everythingElse
-			 currentColor:(LDrawColorT)currentColor
+- (void) flattenIntoLines:(NSMutableArray *)lines
+				triangles:(NSMutableArray *)triangles
+		   quadrilaterals:(NSMutableArray *)quadrilaterals
+					other:(NSMutableArray *)everythingElse
+			 currentColor:(LDrawColor *)parentColor
 		 currentTransform:(Matrix4)transform
 		  normalTransform:(Matrix3)normalTransform
+				recursive:(BOOL)recursive
 {
 	NSArray         *subdirectives      = [self subdirectives];
 	LDrawDirective  *currentDirective   = 0;
@@ -364,9 +365,10 @@
 								 triangles:triangles
 							quadrilaterals:quadrilaterals
 									 other:everythingElse
-							  currentColor:currentColor
+							  currentColor:parentColor
 						  currentTransform:transform
-						   normalTransform:normalTransform];
+						   normalTransform:normalTransform
+								 recursive:recursive];
 	}
 	
 }//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:

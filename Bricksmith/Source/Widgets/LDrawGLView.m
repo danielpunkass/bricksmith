@@ -50,6 +50,7 @@
 #import "ScrollViewCategory.h"
 #import "UserDefaultsCategory.h"
 
+#define DEBUG_DRAWING 1
 
 @implementation LDrawGLView
 
@@ -160,7 +161,7 @@
 	//---------- Initialize instance variables ---------------------------------
 	
 	[self setAcceptsFirstResponder:YES];
-	[self setLDrawColor:LDrawCurrentColor];
+	[self setLDrawColor:[[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor]];
 	
 	canDrawLock				= [[NSConditionLock alloc] initWithCondition:NO];
 	keepDrawThreadAlive		= YES;
@@ -228,6 +229,10 @@
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_MULTISAMPLE); //antialiasing
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 	
 	[self takeBackgroundColorFromUserDefaults]; //glClearColor()
 	
@@ -440,10 +445,8 @@
 			// Make lines look a little nicer; Max width 1.0; 0.5 at 100% zoom
 			glLineWidth(MIN([self zoomPercentage]/100 * 0.5, 1.0));
 
-			glColor4fv(glColor);
-			
 			// DRAW!
-			[self->fileBeingDrawn draw:options parentColor:glColor];
+			[self->fileBeingDrawn draw:options parentColor:color];
 			
 			//glFlush(); //implicit in -flushBuffer
 			[[self openGLContext] flushBuffer];
@@ -711,7 +714,7 @@
 // Purpose:		Returns the LDraw color code of the receiver.
 //
 //==============================================================================
--(LDrawColorT) LDrawColor
+-(LDrawColor *) LDrawColor
 {
 	return self->color;
 	
@@ -961,23 +964,11 @@
 //				color themselves.
 //
 //==============================================================================
--(void) setLDrawColor:(LDrawColorT)newColor
+-(void) setLDrawColor:(LDrawColor *)newColor
 {
+	[newColor retain];
+	[self->color release];
 	self->color = newColor;
-	
-	//Look up the OpenGL color now so we don't have to whenever we draw.
-	ColorLibrary	*colorLibrary	= [ColorLibrary sharedColorLibrary];
-	LDrawColor		*colorObject	= nil;
-	
-	// Honestly, how often is the parent model color going to be a custom color? 
-	// Never! 
-//	if([self->fileBeingDrawn isKindOfClass:[LDrawFile class]] == YES)
-//		colorLibrary = [[(LDrawFile*)fileBeingDrawn activeModel] colorLibrary];
-//	else if([fileBeingDrawn isKindOfClass:[LDrawModel class]] == YES)
-//		colorLibrary = [(LDrawModel*)fileBeingDrawn colorLibrary];
-
-	colorObject = [colorLibrary colorForCode:newColor];
-	[colorObject getColorRGBA:self->glColor]; 
 	
 }//end setColor
 
@@ -3302,7 +3293,7 @@
 					
 					//draw all the requested directives
 					for(counter = 0; counter < [directives count]; counter++)
-						[[directives objectAtIndex:counter] draw:drawOptions parentColor:glColor];
+						[[directives objectAtIndex:counter] draw:drawOptions parentColor:color];
 				}
 				//Restore original viewing matrix after mangling for the hit area.
 				glMatrixMode(GL_PROJECTION);

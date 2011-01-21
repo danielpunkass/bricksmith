@@ -44,7 +44,6 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 {
 	NSString    *ldconfigPath   = nil;
 	LDrawFile   *ldconfigFile   = nil;
-	GLfloat     nonColor[4]     = {0};
 
 	if(sharedColorLibrary == nil)
 	{
@@ -55,7 +54,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 		ldconfigFile		= [LDrawFile fileFromContentsAtPath:ldconfigPath];
 		
 		// "Draw" it so that all the colors are recorded in the library
-		[ldconfigFile draw:DRAW_NO_OPTIONS parentColor:nonColor];
+		[ldconfigFile draw:DRAW_NO_OPTIONS parentColor:nil];
 		
 		sharedColorLibrary	= [[[ldconfigFile activeModel] colorLibrary] retain];
 		
@@ -326,7 +325,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 //				stands out in the original color, but maintains the same hue.
 //
 //==============================================================================
-void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
+void complimentColor(const GLfloat *originalColor, GLfloat *complimentColor)
 {
 	float	brightness		= 0.0;
 	
@@ -350,6 +349,8 @@ void complimentColor(GLfloat *originalColor, GLfloat *complimentColor)
 		complimentColor[1] = originalColor[1] + 0.40;
 		complimentColor[2] = originalColor[2] + 0.40;
 	}
+	
+	complimentColor[3] = originalColor[3];
 	
 }//end complimentColor
 

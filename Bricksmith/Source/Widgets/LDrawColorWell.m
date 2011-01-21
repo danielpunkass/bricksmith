@@ -87,9 +87,9 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 // Purpose:		Returns the LDraw color code represented by this button.
 //
 //==============================================================================
--(LDrawColorT) LDrawColor
+-(LDrawColor *) LDrawColor
 {
-	return colorCode;
+	return color;
 	
 }//end LDrawColor
 
@@ -100,16 +100,17 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 //				redraws the receiever.
 //
 //==============================================================================
-- (void) setLDrawColor:(LDrawColorT)newColorCode
+- (void) setLDrawColor:(LDrawColor *)newColor
 {
-	LDrawColor	*color			= [[ColorLibrary sharedColorLibrary] colorForCode:newColorCode];
 	GLfloat		 components[4];
 	
 	// assign ivar
-	self->colorCode = newColorCode;
+	[newColor retain];
+	[self->color release];
+	self->color = newColor;
 	
 	// Set cached NSColor too
-	[color getColorRGBA:components];
+	[newColor getColorRGBA:components];
 	
 	[self->nsColor release];
 	self->nsColor = [[NSColor colorWithCalibratedRed:components[0]
@@ -157,7 +158,7 @@ static LDrawColorWell *sharedActiveColorWell = nil;
 //==============================================================================
 - (void) changeLDrawColorWell:(id)sender
 {
-	LDrawColorT newColor = [sender LDrawColor];
+	LDrawColor *newColor = [sender LDrawColor];
 	
 	[self setLDrawColor:newColor];
 	

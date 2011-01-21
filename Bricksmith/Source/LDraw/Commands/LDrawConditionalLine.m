@@ -50,8 +50,7 @@
 	NSString                *workingLine            = [lines objectAtIndex:range.location];
 	NSString                *parsedField            = nil;
 	Point3                  workingVertex           = ZeroPoint3;
-	LDrawColorT             colorCode               = LDrawColorBogus;
-	GLfloat                 customRGB[4]            = {0};
+	LDrawColor				*parsedColor			= nil;
 	
 	// Our superclass is LDrawLine, which has its own unique syntax, so we can't 
 	// call -[super initWithLines:inRange:] 
@@ -71,11 +70,8 @@
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
-			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
-			if(colorCode == LDrawColorCustomRGB)
-				[self setRGBColor:customRGB];
-			else
-				[self setLDrawColor:colorCode];
+			parsedColor = [LDrawUtilities parseColorFromField:parsedField];
+			[self setLDrawColor:parsedColor];
 			
 			//Read Vertex 1.
 			// (x1)
@@ -215,7 +211,7 @@
 //				absolutely kill performance. 
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
 {
 	//do nothing.
 	
@@ -230,7 +226,7 @@
 // Note:		DISABLED. See -draw:parentColor:
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
 {
 	[super drawElement:optionsMask withColor:drawingColor];
 	
@@ -248,7 +244,7 @@
 {
 	return [NSString stringWithFormat:
 				@"5 %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@",
-				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
+				[LDrawUtilities outputStringForColor:self->color],
 				
 				[LDrawUtilities outputStringForFloat:vertex1.x],
 				[LDrawUtilities outputStringForFloat:vertex1.y],
@@ -267,6 +263,23 @@
 				[LDrawUtilities outputStringForFloat:conditionalVertex2.z]		
 			];
 }//end write
+
+
+//========== writeElementToVertexBuffer:withColor: =============================
+//
+// Purpose:		Writes this object into the specified vertex buffer, which is a 
+//				pointer to the offset into which the first vertex point's data 
+//				is to be stored. Store subsequent vertexs after the first.
+//
+//==============================================================================
+- (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
+									 withColor:(LDrawColor *)drawingColor
+{
+	// This should never be called, but just in case...
+	return NULL;
+
+}//end writeElementToVertexBuffer:withColor:
+
 
 #pragma mark -
 #pragma mark DISPLAY
@@ -388,6 +401,28 @@
 #pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
+
+//========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
+//
+// Purpose:		Appends the directive into the appropriate container. 
+//
+//==============================================================================
+- (void) flattenIntoLines:(NSMutableArray *)lines
+				triangles:(NSMutableArray *)triangles
+		   quadrilaterals:(NSMutableArray *)quadrilaterals
+					other:(NSMutableArray *)everythingElse
+			 currentColor:(LDrawColor *)parentColor
+		 currentTransform:(Matrix4)transform
+		  normalTransform:(Matrix3)normalTransform
+				recursive:(BOOL)recursive
+{
+	// Do nothing. Prevent LDrawLine (the superclass) from adding this object to 
+	// the list! 
+	
+	// Conditional lines are not really my friend, so I'm dumping them all.
+	
+}//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
+
 
 //========== registerUndoActions ===============================================
 //

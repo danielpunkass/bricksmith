@@ -54,9 +54,9 @@
 // Purpose:		Returns the LDraw color code represented by this button.
 //
 //==============================================================================
-- (LDrawColorT) LDrawColor
+- (LDrawColor *) LDrawColor
 {
-	return colorCode;
+	return color;
 	
 }//end LDrawColor
 
@@ -67,17 +67,18 @@
 //				redraws the receiever.
 //
 //==============================================================================
-- (void) setLDrawColor:(LDrawColorT) newColorCode
+- (void) setLDrawColor:(LDrawColor *) newColor
 {
-	LDrawColor	*color			= [[ColorLibrary sharedColorLibrary] colorForCode:newColorCode];
-	NSString	*description	= nil;
-	GLfloat		 components[4];
+	NSString    *description    = nil;
+	GLfloat     components[4];
 	
 	// assign ivar
-	self->colorCode = newColorCode;
+	[newColor retain];
+	[self->color release];
+	self->color = newColor;
 	
 	// Set cached NSColor too
-	[color getColorRGBA:components];
+	[newColor getColorRGBA:components];
 	
 	[self->nsColor release];
 	self->nsColor = [[NSColor colorWithCalibratedRed:components[0]
@@ -86,8 +87,8 @@
 											   alpha:1.0 ] retain];
 	
 	//Create a tool tip to identify the LDraw color code.
-	description	= [color localizedName];
-	[self setToolTip:[NSString stringWithFormat:@"LDraw %d\n%@", self->colorCode, description]];
+	description	= [newColor localizedName];
+	[self setToolTip:[NSString stringWithFormat:@"LDraw %d\n%@", [newColor colorCode], description]];
 	
 	[self setNeedsDisplay:YES];
 	

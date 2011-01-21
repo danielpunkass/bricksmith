@@ -20,12 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawColorBar : NSView <LDrawColorable>
 {
-	LDrawColorT colorCode;
-	NSColor		*nsColor;
+	LDrawColor  *color;
+	NSColor     *nsColor;
 }
-
-//Accessors
-- (LDrawColorT) LDrawColor;
-- (void) setLDrawColor:(LDrawColorT) newColorCode;
 
 @end

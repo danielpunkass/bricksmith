@@ -35,10 +35,6 @@
 //Initialization
 + (LDrawColorPanel *) sharedColorPanel;
 
-//Accessors
-- (LDrawColorT) LDrawColor;
-- (void) setLDrawColor:(LDrawColorT)newColor;
-
 //Actions
 - (void) focusSearchField:(id)sender;
 - (void) sendAction;
@@ -46,7 +42,7 @@
 - (void) updateSelectionWithObjects:(NSArray *)selectedObjects;
 
 //Utilities
-- (NSInteger) indexOfColorCode:(LDrawColorT)colorCodeSought;
+- (NSInteger) indexOfColor:(LDrawColor *)colorSought;
 - (void) loadInitialSortDescriptors;
 - (NSPredicate *) predicateForSearchString:(NSString *)searchString;
 

@@ -123,8 +123,8 @@ typedef enum
 ////////////////////////////////////////////////////////////////////////////////
 @protocol LDrawColorable
 
--(LDrawColorT) LDrawColor;
-- (void) setLDrawColor:(LDrawColorT)newColor;
+-(LDrawColor *) LDrawColor;
+- (void) setLDrawColor:(LDrawColor *)newColor;
 
 @end
 
@@ -155,6 +155,6 @@ typedef enum
 // Utilities
 + (NSString *) ldconfigPath;
 
-void complimentColor(GLfloat *originalColor, GLfloat *complimentColor);
+void complimentColor(const GLfloat *originalColor, GLfloat *complimentColor);
 
 @end

@@ -21,7 +21,6 @@
 //					Special options to configure the program behavior.
 //
 ////////////////////////////////////////////////////////////////////////////////
-#define DEBUG_DRAWING							0
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +152,7 @@
 
 
 //Color Keys
-#define LDRAW_COLOR_CODE						@"LDraw Color Code"		// NSNumber 0-512
+#define LDRAW_COLOR								@"LDraw Color"		// NSNumber 0-512
 #define COLOR_NAME								@"Color Name"			// NSString representing localized name
 
 //Part Report keys

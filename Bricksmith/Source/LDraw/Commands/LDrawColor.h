@@ -47,6 +47,8 @@ typedef enum LDrawColorMaterial
 	LDrawColorMaterialT	 material;
 	NSString			*materialParameters;
 	NSString			*name;
+	
+	LDrawColor			*fakeComplimentColor;	// synthesized, not according to !COLOUR rules
 }
 
 // Initialization
@@ -55,6 +57,7 @@ typedef enum LDrawColorMaterial
 // Accessors
 
 - (LDrawColorT)			colorCode;
+- (LDrawColor *)		complimentColor;
 - (LDrawColorT)			edgeColorCode;
 - (void)				getColorRGBA:(GLfloat *)inComponents;
 - (void)				getEdgeColorRGBA:(GLfloat *)inComponents;

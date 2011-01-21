@@ -11,8 +11,9 @@
 //==============================================================================
 #import "InspectionQuadrilateral.h"
 
-#import "LDrawQuadrilateral.h"
 #import "FormCategory.h"
+#import "LDrawModel.h"
+#import "LDrawQuadrilateral.h"
 
 @implementation QuadrilateralView
 
@@ -85,6 +86,7 @@
 	[representedObject setVertex3:vertex3];
 	[representedObject setVertex4:vertex4];
 	
+	[[representedObject enclosingModel] optimizeVertexes];
 	[super commitChanges:sender];
 	
 }//end commitChanges:
@@ -114,6 +116,7 @@
 	[vertex3Form setCoordinateValue:vertex3];
 	[vertex4Form setCoordinateValue:vertex4];
 	
+	[[representedObject enclosingModel] optimizeVertexes];
 	[super revert:sender];
 	
 }//end revert:

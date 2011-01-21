@@ -232,7 +232,7 @@ ToolPalette *sharedToolPalette = nil;
 //==============================================================================
 - (void) colorDidChange:(NSNotification *)notification
 {
-	LDrawColorT	 newColor = [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	LDrawColor	 *newColor = [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	
 	[self->colorWell setLDrawColor:newColor];
 	

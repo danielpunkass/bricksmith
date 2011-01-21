@@ -11,6 +11,7 @@
 
 #import "LDrawContainer.h"
 #import "LDrawFile.h"
+#import "LDrawModel.h"
 #import "MacLDraw.h"
 	
 @implementation LDrawDirective
@@ -196,7 +197,7 @@
 //				LDrawDirective's implementation does nothing.
 //
 //==============================================================================
-- (void) draw:(NSUInteger)optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger)optionsMask parentColor:(LDrawColor *)parentColor
 {
 	//subclasses should override this with OpenGL code to draw the line.
 	
@@ -335,7 +336,7 @@
 	//loop through the ancestors looking for an LDrawFile.
 	for(counter = 0; counter < [ancestors count] && foundIt == NO; counter++)
 	{
-		currentAncestor = [ancestors objectAtIndex:0];
+		currentAncestor = [ancestors objectAtIndex:counter];
 		
 		if([currentAncestor isKindOfClass:[LDrawFile class]])
 			foundIt = YES;
@@ -347,6 +348,36 @@
 		return nil;
 	
 }//end enclosingFile
+
+
+//========== enclosingModel ====================================================
+//
+// Purpose:		Returns the highest LDrawModel which contains this directive, or 
+//				nil if the directive is not in the hierarchy of an LDrawModel.
+//
+//==============================================================================
+- (LDrawModel *) enclosingModel
+{
+	NSArray     *ancestors      = [self ancestors];
+	id          currentAncestor = nil;
+	BOOL        foundIt         = NO;
+	NSInteger   counter         = 0;
+	
+	//loop through the ancestors looking for an LDrawFile.
+	for(counter = 0; counter < [ancestors count] && foundIt == NO; counter++)
+	{
+		currentAncestor = [ancestors objectAtIndex:counter];
+		
+		if([currentAncestor isKindOfClass:[LDrawModel class]])
+			foundIt = YES;
+	}
+	
+	if(foundIt == YES)
+		return currentAncestor;
+	else
+		return nil;
+	
+}//end enclosingModel
 
 
 //========== isSelected ========================================================
@@ -486,13 +517,14 @@
 //				This is the core of -[LDrawModel optimizeStructure].
 //
 //==============================================================================
-- (void) flattenIntoLines:(LDrawStep *)lines
-				triangles:(LDrawStep *)triangles
-		   quadrilaterals:(LDrawStep *)quadrilaterals
-					other:(LDrawStep *)everythingElse
-			 currentColor:(LDrawColorT)currentColor
+- (void) flattenIntoLines:(NSMutableArray *)lines
+				triangles:(NSMutableArray *)triangles
+		   quadrilaterals:(NSMutableArray *)quadrilaterals
+					other:(NSMutableArray *)everythingElse
+			 currentColor:(LDrawColor *)parentColor
 		 currentTransform:(Matrix4)transform
 		  normalTransform:(Matrix3)normalTransform
+				recursive:(BOOL)recursive
 {
 	// By default, a directive does not add itself to the list, an indication 
 	// that it is not drawn. Subclasses override this routine to add themselves 

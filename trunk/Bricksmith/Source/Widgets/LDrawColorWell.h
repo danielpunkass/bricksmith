@@ -18,17 +18,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawColorWell : NSButton <LDrawColorable>
 {
-	LDrawColorT colorCode;
-	NSColor		*nsColor;
+	LDrawColor  *color;
+	NSColor     *nsColor;
 }
 
 //Active color well
 + (LDrawColorWell *) activeColorWell;
 + (void) setActiveColorWell:(LDrawColorWell *)newWell;
-
-//Accessors
--(LDrawColorT) LDrawColor;
-- (void) setLDrawColor:(LDrawColorT)newColor;
 
 //Actions
 - (void) changeLDrawColorWell:(id)sender;

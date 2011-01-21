@@ -946,7 +946,7 @@
 {
 	NSArray     *selectedObjects    = [self selectedObjects];
 	id          currentObject       = nil;
-	LDrawColorT newColor            = [sender LDrawColor];
+	LDrawColor  *newColor           = [sender LDrawColor];
 	NSInteger   counter             = 0;
 	
 	for(counter = 0; counter < [selectedObjects count]; counter++)
@@ -1991,9 +1991,9 @@
 //==============================================================================
 - (IBAction) addLineClicked:(id)sender
 {
-	LDrawLine		*newLine		= [[[LDrawLine alloc] init] autorelease];
-	NSUndoManager	*undoManager	= [self undoManager];
-	LDrawColorT		 selectedColor	= [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	LDrawLine       *newLine        = [[[LDrawLine alloc] init] autorelease];
+	NSUndoManager   *undoManager    = [self undoManager];
+	LDrawColor      *selectedColor  = [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	
 	[newLine setLDrawColor:selectedColor];
 	
@@ -2014,7 +2014,7 @@
 	
 	LDrawTriangle	*newTriangle	= [[[LDrawTriangle alloc] init] autorelease];
 	NSUndoManager	*undoManager	= [self undoManager];
-	LDrawColorT		 selectedColor	= [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	LDrawColor      *selectedColor  = [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	
 	[newTriangle setLDrawColor:selectedColor];
 	
@@ -2033,9 +2033,9 @@
 //==============================================================================
 - (IBAction) addQuadrilateralClicked:(id)sender
 {
-	LDrawQuadrilateral	*newQuadrilateral	= [[[LDrawQuadrilateral alloc] init] autorelease];
-	NSUndoManager		*undoManager		= [self undoManager];
-	LDrawColorT			 selectedColor		= [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	LDrawQuadrilateral  *newQuadrilateral   = [[[LDrawQuadrilateral alloc] init] autorelease];
+	NSUndoManager       *undoManager        = [self undoManager];
+	LDrawColor          *selectedColor      = [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	
 	[newQuadrilateral setLDrawColor:selectedColor];
 	
@@ -2055,9 +2055,9 @@
 //==============================================================================
 - (IBAction) addConditionalClicked:(id)sender
 {
-	LDrawConditionalLine	*newConditional	= [[[LDrawConditionalLine alloc] init] autorelease];
-	NSUndoManager			*undoManager	= [self undoManager];
-	LDrawColorT				selectedColor	= [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	LDrawConditionalLine    *newConditional = [[[LDrawConditionalLine alloc] init] autorelease];
+	NSUndoManager           *undoManager    = [self undoManager];
+	LDrawColor              *selectedColor  = [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	
 	[newConditional setLDrawColor:selectedColor];
 	
@@ -2255,7 +2255,10 @@
 		
 		//Do the move.
 		[object moveBy:moveVector];
+		
+		[[object enclosingModel] optimizeVertexes];
 //		[object optimizeOpenGL];
+
 	}
 	
 	//our part changed; notify!
@@ -2343,6 +2346,7 @@
 		[undoManager setActionName:actionName];
 		
 		[element setHidden:hideFlag];
+		[[element enclosingModel] optimizeVertexes];
 	}
 	[[NSNotificationCenter defaultCenter]
 					postNotificationName:LDrawDirectiveDidChangeNotification
@@ -2355,7 +2359,7 @@
 // Purpose:		Undo-aware call to change the color of an object.
 //
 //==============================================================================
-- (void) setObject:(LDrawDirective <LDrawColorable>* )object toColor:(LDrawColorT)newColor
+- (void) setObject:(LDrawDirective <LDrawColorable>* )object toColor:(LDrawColor *)newColor
 {
 	NSUndoManager *undoManager = [self undoManager];
 	
@@ -2368,6 +2372,7 @@
 	{
 		[object setLDrawColor:newColor];
 		[object optimizeOpenGL];
+		[[object enclosingModel] optimizeVertexes];
 	}
 	[[self documentContents] unlockEditor];
 	[self updateInspector];
@@ -4005,10 +4010,11 @@
 //==============================================================================
 - (void) addPartNamed:(NSString *)partName
 {
-	LDrawPart			*newPart		= [[[LDrawPart alloc] init] autorelease];
-	NSUndoManager		*undoManager	= [self undoManager];
-	LDrawColorT			 selectedColor	= [[LDrawColorPanel sharedColorPanel] LDrawColor];
-	TransformComponents	 transformation	= IdentityComponents;
+	LDrawPart           *newPart        = [[[LDrawPart alloc] init] autorelease];
+	NSUndoManager       *undoManager    = [self undoManager];
+	LDrawColor          *selectedColor  = [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	TransformComponents transformation  = IdentityComponents;
+	
 	//We got a part; let's add it!
 	if(partName != nil)
 	{

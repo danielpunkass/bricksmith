@@ -19,9 +19,11 @@
 //==============================================================================
 #import "LDrawLine.h"
 
+#import "LDrawColor.h"
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
+
 
 @implementation LDrawLine
 
@@ -43,11 +45,10 @@
 			 inRange:(NSRange)range
 		 parentGroup:(dispatch_group_t)parentGroup
 {
-	NSString    *workingLine        = [lines objectAtIndex:range.location];
-	NSString    *parsedField        = nil;
-	Point3      workingVertex       = ZeroPoint3;
-	LDrawColorT	colorCode			= LDrawColorBogus;
-	GLfloat		customRGB[4]		= {0};
+	NSString    *workingLine    = [lines objectAtIndex:range.location];
+	NSString    *parsedField    = nil;
+	Point3      workingVertex   = ZeroPoint3;
+	LDrawColor  *parsedColor    = nil;
 	
 	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
@@ -65,11 +66,8 @@
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
-			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
-			if(colorCode == LDrawColorCustomRGB)
-				[self setRGBColor:customRGB];
-			else
-				[self setLDrawColor:colorCode];
+			parsedColor = [LDrawUtilities parseColorFromField:parsedField];
+			[self setLDrawColor:parsedColor];
 			
 			//Read Vertex 1.
 			// (x1)
@@ -182,35 +180,35 @@
 //				subroutine of -draw: in LDrawDrawableElement.
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
 {
 	//Have we already begun drawing somewhere upstream? If so, all we need to 
 	// do here is add the vertices.
-	if((optionsMask & DRAW_BEGUN) != 0)
-	{
-		glColor4fv(drawingColor);
-		glNormal3f(0.0, -1.0, 0.0); //lines need normals! Who knew?
-		glVertex3f(vertex1.x, vertex1.y, vertex1.z);
-		
-		glColor4fv(drawingColor);
-		glNormal3f(0.0, -1.0, 0.0);
-		glVertex3f(vertex2.x, vertex2.y, vertex2.z);
-	}
-	//Drawing not begun; we must start it explicitly.
-	else
-	{
-		glBegin(GL_LINES);
-		
-			glColor4fv(drawingColor);
-			glNormal3f(0.0, -1.0, 0.0);
-			glVertex3f(vertex1.x, vertex1.y, vertex1.z);
-			
-			glColor4fv(drawingColor);
-			glNormal3f(0.0, -1.0, 0.0);
-			glVertex3f(vertex2.x, vertex2.y, vertex2.z);
-			
-		glEnd();
-	}
+//	if((optionsMask & DRAW_BEGUN) != 0)
+//	{
+//		glColor4fv(drawingColor);
+//		glNormal3f(0.0, -1.0, 0.0); //lines need normals! Who knew?
+//		glVertex3f(vertex1.x, vertex1.y, vertex1.z);
+//		
+//		glColor4fv(drawingColor);
+//		glNormal3f(0.0, -1.0, 0.0);
+//		glVertex3f(vertex2.x, vertex2.y, vertex2.z);
+//	}
+//	//Drawing not begun; we must start it explicitly.
+//	else
+//	{
+//		glBegin(GL_LINES);
+//		
+//			glColor4fv(drawingColor);
+//			glNormal3f(0.0, -1.0, 0.0);
+//			glVertex3f(vertex1.x, vertex1.y, vertex1.z);
+//			
+//			glColor4fv(drawingColor);
+//			glNormal3f(0.0, -1.0, 0.0);
+//			glVertex3f(vertex2.x, vertex2.y, vertex2.z);
+//			
+//		glEnd();
+//	}
 
 }//end drawElement:drawingColor:
 
@@ -226,7 +224,7 @@
 {
 	return [NSString stringWithFormat:
 				@"2 %@ %@ %@ %@ %@ %@ %@",
-				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
+				[LDrawUtilities outputStringForColor:self->color],
 				
 				[LDrawUtilities outputStringForFloat:vertex1.x],
 				[LDrawUtilities outputStringForFloat:vertex1.y],
@@ -237,6 +235,34 @@
 				[LDrawUtilities outputStringForFloat:vertex2.z]				
 			];
 }//end write
+
+
+//========== writeElementToVertexBuffer:withColor: =============================
+//
+// Purpose:		Writes this object into the specified vertex buffer, which is a 
+//				pointer to the offset into which the first vertex point's data 
+//				is to be stored. Store subsequent vertexs after the first.
+//
+//==============================================================================
+- (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
+									 withColor:(LDrawColor *)drawingColor
+{
+	Vector3 normal          = V3Make(0.0, -1.0, 0.0); //lines need normals! Who knew?
+	GLfloat components[4]   = {};
+	
+	[drawingColor getColorRGBA:components];
+	
+	memcpy(&vertexBuffer[0].position, &vertex1,     sizeof(Point3));
+	memcpy(&vertexBuffer[0].normal,   &normal,      sizeof(Point3));
+	memcpy(&vertexBuffer[0].color,    components,   sizeof(GLfloat)*4);
+	
+	memcpy(&vertexBuffer[1].position, &vertex2,     sizeof(Point3));
+	memcpy(&vertexBuffer[1].normal,   &normal,      sizeof(Point3));
+	memcpy(&vertexBuffer[1].color,    components,   sizeof(GLfloat)*4);
+	
+	return vertexBuffer + 2;
+	
+}//end writeElementToVertexBuffer:withColor:
 
 
 #pragma mark -
@@ -393,13 +419,14 @@
 // Purpose:		Appends the directive into the appropriate container. 
 //
 //==============================================================================
-- (void) flattenIntoLines:(LDrawStep *)lines
-				triangles:(LDrawStep *)triangles
-		   quadrilaterals:(LDrawStep *)quadrilaterals
-					other:(LDrawStep *)everythingElse
-			 currentColor:(LDrawColorT)parentColor
+- (void) flattenIntoLines:(NSMutableArray *)lines
+				triangles:(NSMutableArray *)triangles
+		   quadrilaterals:(NSMutableArray *)quadrilaterals
+					other:(NSMutableArray *)everythingElse
+			 currentColor:(LDrawColor *)parentColor
 		 currentTransform:(Matrix4)transform
 		  normalTransform:(Matrix3)normalTransform
+				recursive:(BOOL)recursive
 {
 	[super flattenIntoLines:lines
 				  triangles:triangles
@@ -407,12 +434,13 @@
 					  other:everythingElse
 			   currentColor:parentColor
 		   currentTransform:transform
-			normalTransform:normalTransform];
+			normalTransform:normalTransform
+				  recursive:recursive];
 	
 	self->vertex1 = V3MulPointByProjMatrix(self->vertex1, transform);
 	self->vertex2 = V3MulPointByProjMatrix(self->vertex2, transform);
 	
-	[lines addDirective:self];
+	[lines addObject:self];
 	
 }//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
 

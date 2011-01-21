@@ -29,7 +29,7 @@
 - (void) awakeFromNib
 {
 	LDrawColorCell  *colorCell      = [[[LDrawColorCell alloc] init] autorelease];
-	NSTableColumn   *colorColumn    = [pieceCountTable tableColumnWithIdentifier:LDRAW_COLOR_CODE];
+	NSTableColumn   *colorColumn    = [pieceCountTable tableColumnWithIdentifier:LDRAW_COLOR];
 	
 	[colorColumn setDataCell:colorCell];
 	
@@ -308,7 +308,7 @@
 	
 //	if(		[identifier isEqualToString:PART_NUMBER_KEY]
 //		||	[identifier isEqualToString:PART_QUANTITY]
-//		||	[identifier isEqualToString:LDRAW_COLOR_CODE] )
+//		||	[identifier isEqualToString:LDRAW_COLOR] )
 //	{
 //		object = [partRecord objectForKey:identifier];
 //	}
@@ -317,7 +317,7 @@
 //		object = [[LDrawApplication sharedPartLibrary] descriptionForPartName:[partRecord objectForKey:PART_NUMBER_KEY]];
 //	
 //	else if([identifier isEqualToString:COLOR_NAME])
-//		object = [LDrawColor nameForLDrawColor:[[partRecord objectForKey:LDRAW_COLOR_CODE] intValue]];
+//		object = [LDrawColor nameForLDrawColor:[[partRecord objectForKey:LDRAW_COLOR] intValue]];
 	
 	return object;
 	
@@ -367,7 +367,7 @@
 {
 	NSDictionary    *partRecord     = nil;
 	NSString        *partName       = nil;
-	LDrawColorT     partColor       = LDrawColorBogus;
+	LDrawColor      *partColor      = nil;
 	PartLibrary     *partLibrary    = [LDrawApplication sharedPartLibrary];
 	id              modelToView     = nil;
 	NSInteger       rowIndex        = [pieceCountTable selectedRow];
@@ -376,7 +376,7 @@
 	{
 		partRecord	= [flattenedReport objectAtIndex:rowIndex];
 		partName	= [partRecord objectForKey:PART_NUMBER_KEY];
-		partColor	= [[partRecord objectForKey:LDRAW_COLOR_CODE] intValue];
+		partColor	= [partRecord objectForKey:LDRAW_COLOR];
 		
 		modelToView = [partLibrary modelForName:partName];
 		[partPreview setLDrawDirective:modelToView];

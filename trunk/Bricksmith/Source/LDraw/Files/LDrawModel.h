@@ -13,6 +13,7 @@
 @class ColorLibrary;
 @class LDrawFile;
 @class LDrawStep;
+@class LDrawVertexes;
 
 typedef enum {
 	LDrawOfficialModel = 1,
@@ -32,6 +33,7 @@ typedef enum {
 	NSString				*author;
 	LDrawDotOrgModelStatusT	 ldrawDotOrgStatus;
 	
+	LDrawVertexes			*vertexes;
 	Box3					*cachedBounds;			// used only for optimized parts
 	ColorLibrary			*colorLibrary;			// in-scope !COLOURS local to the model
 	BOOL					 stepDisplayActive;		// YES if we are only display steps 1-currentStepDisplayed
@@ -60,6 +62,7 @@ typedef enum {
 - (Tuple3) rotationAngleForStepAtIndex:(NSUInteger)stepNumber;
 - (BOOL) stepDisplay;
 - (NSArray *) steps;
+- (LDrawVertexes *) vertexes;
 - (LDrawStep *) visibleStep;
 
 - (void) setDraggingDirectives:(NSArray *)directives;
@@ -75,10 +78,16 @@ typedef enum {
 - (void) addStep:(LDrawStep *)newStep;
 - (void) makeStepVisible:(LDrawStep *)step;
 
+// Notifications
+- (void) didAddDirective:(LDrawDirective *)directive;
+- (void) didRemoveDirective:(LDrawDirective *)directive;
+
 //Utilities
 - (NSUInteger) maxStepIndexToOutput;
 - (NSUInteger) numberElements;
+- (void) optimizePrimitiveStructure;
 - (void) optimizeStructure;
+- (void) optimizeVertexes;
 - (NSUInteger) parseHeaderFromLines:(NSArray *)lines beginningAtIndex:(NSUInteger)index;
 - (BOOL) line:(NSString *)line isValidForHeader:(NSString *)headerKey;
 

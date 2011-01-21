@@ -9,16 +9,16 @@
 //==============================================================================
 #import "LDrawUtilities.h"
 
-#import "LDrawMetaCommand.h"
-#import "LDrawPart.h"
-#import "LDrawLine.h"
-#import "LDrawTriangle.h"
-#import "LDrawQuadrilateral.h"
+#import "BezierPathCategory.h"
+#import "LDrawApplication.h"
+#import "LDrawColor.h"
 #import "LDrawConditionalLine.h"
 #import "LDrawContainer.h"
-
-#import "LDrawApplication.h"
-#import "BezierPathCategory.h"
+#import "LDrawLine.h"
+#import "LDrawMetaCommand.h"
+#import "LDrawPart.h"
+#import "LDrawQuadrilateral.h"
+#import "LDrawTriangle.h"
 #import "MacLDraw.h"
 #import "PartLibrary.h"
 
@@ -76,7 +76,7 @@
 }//end classForDirectiveBeginningWithLine:
 
 
-//---------- parseColorCodeFromField: --------------------------------[static]--
+//---------- parseColorFromField: ------------------------------------[static]--
 //
 // Purpose:		Returns the color code which is represented by the field.
 //
@@ -86,19 +86,18 @@
 //				this.) 
 //
 //------------------------------------------------------------------------------
-+ (LDrawColorT) parseColorCodeFromField:(NSString *)colorField
-									RGB:(GLfloat*)componentsOut
++ (LDrawColor *) parseColorFromField:(NSString *)colorField
 {
-	LDrawColorT colorCode       = LDrawColorBogus;
 	NSScanner   *scanner        = [NSScanner scannerWithString:colorField];
+	LDrawColorT colorCode       = LDrawColorBogus;
 	unsigned    hexBytes        = 0;
 	int         customCodeType  = 0;
+	GLfloat     components[4]   = {};
+	LDrawColor	*color			= nil;
 
 	// Custom RGB?
 	if([scanner scanString:@"0x" intoString:nil] == YES)
 	{
-		colorCode = LDrawColorCustomRGB;
-		
 		// The integer should be of the format:
 		// 0x2RRGGBB for opaque colors
 		// 0x3RRGGBB for transparent colors
@@ -112,49 +111,63 @@
 		{
 			// Solid color
 			case 2:
-				componentsOut[0] = (GLfloat) ((hexBytes >> 2*8) & 0xFF) / 255; // Red
-				componentsOut[1] = (GLfloat) ((hexBytes >> 1*8) & 0xFF) / 255; // Green
-				componentsOut[2] = (GLfloat) ((hexBytes >> 0*8) & 0xFF) / 255; // Blue
-				componentsOut[3] = (GLfloat) 1.0; // alpha
+				components[0] = (GLfloat) ((hexBytes >> 2*8) & 0xFF) / 255; // Red
+				components[1] = (GLfloat) ((hexBytes >> 1*8) & 0xFF) / 255; // Green
+				components[2] = (GLfloat) ((hexBytes >> 0*8) & 0xFF) / 255; // Blue
+				components[3] = (GLfloat) 1.0; // alpha
 				break;
 			
 			// Transparent color
 			case 3:
-				componentsOut[0] = (GLfloat) ((hexBytes >> 2*8) & 0xFF) / 255; // Red
-				componentsOut[1] = (GLfloat) ((hexBytes >> 1*8) & 0xFF) / 255; // Green
-				componentsOut[2] = (GLfloat) ((hexBytes >> 0*8) & 0xFF) / 255; // Blue
-				componentsOut[3] = (GLfloat) 0.5; // alpha
+				components[0] = (GLfloat) ((hexBytes >> 2*8) & 0xFF) / 255; // Red
+				components[1] = (GLfloat) ((hexBytes >> 1*8) & 0xFF) / 255; // Green
+				components[2] = (GLfloat) ((hexBytes >> 0*8) & 0xFF) / 255; // Blue
+				components[3] = (GLfloat) 0.5; // alpha
 				break;
 			
 			// combined opaque color
 			case 4:
-				componentsOut[0] = (GLfloat) (((hexBytes >> 5*4) & 0xF) + ((hexBytes >> 2*4) & 0xF))/2 / 255; // Red
-				componentsOut[0] = (GLfloat) (((hexBytes >> 4*4) & 0xF) + ((hexBytes >> 1*4) & 0xF))/2 / 255; // Green
-				componentsOut[0] = (GLfloat) (((hexBytes >> 3*4) & 0xF) + ((hexBytes >> 0*4) & 0xF))/2 / 255; // Blue
-				componentsOut[3] = (GLfloat) 1.0; // alpha
+				components[0] = (GLfloat) (((hexBytes >> 5*4) & 0xF) + ((hexBytes >> 2*4) & 0xF))/2 / 255; // Red
+				components[0] = (GLfloat) (((hexBytes >> 4*4) & 0xF) + ((hexBytes >> 1*4) & 0xF))/2 / 255; // Green
+				components[0] = (GLfloat) (((hexBytes >> 3*4) & 0xF) + ((hexBytes >> 0*4) & 0xF))/2 / 255; // Blue
+				components[3] = (GLfloat) 1.0; // alpha
 				break;
 				
 			// bad-looking transparent color
 			case 5:
-				componentsOut[0] = (GLfloat) ((hexBytes >> 5*4) & 0xF) / 15; // Red
-				componentsOut[0] = (GLfloat) ((hexBytes >> 4*4) & 0xF) / 15; // Green
-				componentsOut[0] = (GLfloat) ((hexBytes >> 3*4) & 0xF) / 15; // Blue
-				componentsOut[3] = (GLfloat) 0.5; // alpha
+				components[0] = (GLfloat) ((hexBytes >> 5*4) & 0xF) / 15; // Red
+				components[0] = (GLfloat) ((hexBytes >> 4*4) & 0xF) / 15; // Green
+				components[0] = (GLfloat) ((hexBytes >> 3*4) & 0xF) / 15; // Blue
+				components[3] = (GLfloat) 0.5; // alpha
 				break;
 			
 			default:
 				break;
 		}
+		
+		color = [[[LDrawColor alloc] init] autorelease];
+		[color setColorCode:LDrawColorCustomRGB];
+		[color setEdgeColorCode:LDrawBlack];
+		[color setColorRGBA:components];
 	}
 	else
 	{
 		// Regular, standards-compliant LDraw color code
-		colorCode = [colorField intValue];
+		colorCode   = [colorField intValue];
+		color       = [[ColorLibrary sharedColorLibrary] colorForCode:colorCode];
+		
+		if(color == nil)
+		{
+			// This is probably a file-local color. Or a file from the future.
+			color = [[[LDrawColor alloc] init] autorelease];
+			[color setColorCode:colorCode];
+			[color setEdgeColorCode:LDrawBlack];
+		}
 	}
 		
-	return colorCode;
+	return color;
 	
-}//end parseColorCodeFromField:
+}//end parseColorFromField:
 
 
 //---------- readNextField:remainder: --------------------------------[static]--
@@ -274,12 +287,16 @@
 // Notes:		This supports the non-standard custom RGB extension.
 //
 //------------------------------------------------------------------------------
-+ (NSString *) outputStringForColorCode:(LDrawColorT)colorCode
-									RGB:(GLfloat*)components
++ (NSString *) outputStringForColor:(LDrawColor *)color
 {
 	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
 	BOOL            columnizeOutput = [userDefaults boolForKey:COLUMNIZE_OUTPUT_KEY];
 	NSString        *outputString   = nil;
+	GLfloat			components[4]	= {};
+	LDrawColorT		colorCode		= LDrawColorBogus;
+	
+	colorCode = [color colorCode];
+	[color getColorRGBA:components];
 
 	if(colorCode == LDrawColorCustomRGB)
 	{

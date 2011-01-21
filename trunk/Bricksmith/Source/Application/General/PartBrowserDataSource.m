@@ -26,6 +26,7 @@
 #import "LDrawApplication.h"
 #import "LDrawColorPanel.h"
 #import "LDrawPart.h"
+#import "LDrawModel.h"
 #import "MacLDraw.h"
 #import "PartLibrary.h"
 #import "StringCategory.h"
@@ -894,13 +895,24 @@
 //==============================================================================
 - (void) syncSelectionAndPartDisplayed
 {
-	NSString	*selectedPartName	= [self selectedPartName];
-	id			 modelToView		= nil;
-	
-	if(selectedPartName != nil) {
-		modelToView = [self->partLibrary modelForName:selectedPartName];
+	NSString    *selectedPartName   = [self selectedPartName];
+	LDrawPart   *newPart            = nil;
+		
+	if(selectedPartName != nil)
+	{
+		// Not this simple anymore. We have to make sure to draw the optimized 
+		// vertexes. The easiest way to do that is to create a part referencing 
+		// the model. 
+//		modelToView = [self->partLibrary modelForName:selectedPartName];
+
+		newPart		= [[[LDrawPart alloc] init] autorelease];
+		
+		//Set up the part attributes
+		[newPart setLDrawColor:[[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor]];
+		[newPart setDisplayName:selectedPartName];
+		[newPart optimizeOpenGL];
 	}
-	[partPreview setLDrawDirective:modelToView];
+	[partPreview setLDrawDirective:newPart];
 	
 }//end syncSelectionAndPartDisplayed
 
@@ -916,7 +928,7 @@
 	NSString		*partName			= [self selectedPartName];
 	LDrawPart		*newPart			= nil;
 	NSData			*partData			= nil;
-	LDrawColorT		 selectedColor		= [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	LDrawColor		*selectedColor		= [[LDrawColorPanel sharedColorPanel] LDrawColor];
 	BOOL			 success			= NO;
 	
 	//We got a part; let's add it!

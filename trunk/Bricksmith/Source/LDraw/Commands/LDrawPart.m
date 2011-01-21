@@ -25,20 +25,15 @@
 #import <string.h>
 
 #import "LDrawApplication.h"
+#import "LDrawColor.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
+#import "LDrawVertexes.h"
 #import "MacLDraw.h"
 #import "PartLibrary.h"
 #import "PartReport.h"
-
-// Use the -[PartLibrary retainDisplayList:] to share optimized parts across all 
-// instances. Otherwise, optimize each part individually. Contrary to 
-// expectations, the latter yielded no speed benefit. However, it was necessary 
-// to demonstrate Apple's bug in drawing nested display lists on separate 
-// threads. 
-#define SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS 1
 
 
 @implementation LDrawPart
@@ -89,8 +84,7 @@
 	NSString    *workingLine    = [lines objectAtIndex:range.location];
 	NSString    *parsedField    = nil;
 	Matrix4     transformation  = IdentityMatrix4;
-	LDrawColorT colorCode       = LDrawColorBogus;
-	GLfloat     customRGB[4]    = {0};
+	LDrawColor  *parsedColor    = nil;
 	
 	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
@@ -108,11 +102,8 @@
 			// (color)
 			parsedField = [LDrawUtilities readNextField:  workingLine
 											  remainder: &workingLine ];
-			colorCode = [LDrawUtilities parseColorCodeFromField:parsedField RGB:customRGB];
-			if(colorCode == LDrawColorCustomRGB)
-				[self setRGBColor:customRGB];
-			else
-				[self setLDrawColor:colorCode];
+			parsedColor = [LDrawUtilities parseColorFromField:parsedField];
+			[self setLDrawColor:parsedColor];
 			
 			//Read position.
 			// (x)
@@ -260,52 +251,53 @@
 //				subroutine of -draw: in LDrawDrawableElement.
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
 {
-	LDrawModel  *modelToDraw    = nil;
-	BOOL        drawBoundsOnly  = ((optionsMask & DRAW_BOUNDS_ONLY) != 0);
+	LDrawDirective  *drawable       = nil;
+	BOOL            drawBoundsOnly  = ((optionsMask & DRAW_BOUNDS_ONLY) != 0);
 	
-	if( hasDisplayList == YES && drawBoundsOnly == NO)
+	// Multithreading finally works with one display list per displayed part 
+	// AND mutexes around the glCallList. But the mutex contention causes a 
+	// 50% increase in drawing time. Gah! 
+	
+	glPushMatrix();
 	{
-		// Multithreading finally works with one display list per displayed part 
-		// AND mutexes around the glCallList. But the mutex contention causes a 
-		// 50% increase in drawing time. Gah! 
+		glMultMatrixf(glTransformation);
 		
-#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS
-		glPushMatrix();
-			glMultMatrixf(glTransformation);
-#endif
-//			[drawLock lock];
-			glCallList(self->displayListTag);
-//			[drawLock unlock];
-
-#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS
-		glPopMatrix();
-#endif
-	}
-	else
-	{
-		glPushMatrix();
+		if(drawBoundsOnly == NO)
 		{
-//			glTranslated(0, 0, 0);
-			glMultMatrixf(glTransformation);
-			if(drawBoundsOnly == NO)
+			if(self->optimizedDrawable != nil)
 			{
-				modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
-				
-				//let subreferences use display lists.
-				[modelToDraw draw:(optionsMask) 
-					  parentColor:drawingColor];
+				drawable = self->optimizedDrawable;
 			}
 			else
 			{
-				glColor4fv(drawingColor);
-//				glColor4f(drawingColor[0], drawingColor[1], drawingColor[2], 0.25); // debug bounding boxes
-				[self drawBounds];
+				LDrawModel *referencedSubmodel	= [self referencedMPDSubmodel];
+				if(referencedSubmodel)
+				{
+					drawable = referencedSubmodel;
+				}
+				else
+				{
+					// Parts assigned to LDrawCurrentColor may get drawn in many 
+					// different colors in one draw, so we can't cache their 
+					// optimized drawable. We have to retrieve their optimized 
+					// drawable on-the-fly. 
+					drawable = [[LDrawApplication sharedPartLibrary] optimizedDrawableForPart:self color:drawingColor];
+				}
 			}
+			
+			[drawable draw:optionsMask parentColor:drawingColor];
 		}
-		glPopMatrix();
+		else
+		{
+			GLfloat components[4] = {};
+			[drawingColor getColorRGBA:components];
+//			glColor4f(drawingColor[0], drawingColor[1], drawingColor[2], 0.25); // debug bounding boxes
+			[self drawBounds];
+		}
 	}
+	glPopMatrix();
 
 }//end drawElement:parentColor:
 
@@ -418,7 +410,7 @@
 
 	return [NSString stringWithFormat:
 				@"1 %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@",
-				[LDrawUtilities outputStringForColorCode:self->color RGB:self->glColor],
+				[LDrawUtilities outputStringForColor:self->color],
 				
 				[LDrawUtilities outputStringForFloat:transformation.element[3][0]], //position.x,			(x)
 				[LDrawUtilities outputStringForFloat:transformation.element[3][1]], //position.y,			(y)
@@ -708,7 +700,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 // Purpose:		Sets the color of this element.
 //
 //==============================================================================
-- (void) setLDrawColor:(LDrawColorT)newColor
+- (void) setLDrawColor:(LDrawColor *)newColor
 {
 	[super setLDrawColor:newColor];
 	
@@ -1131,50 +1123,58 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 // Purpose:		Appends the directive into the appropriate container. 
 //
 //==============================================================================
-- (void) flattenIntoLines:(LDrawStep *)lines
-				triangles:(LDrawStep *)triangles
-		   quadrilaterals:(LDrawStep *)quadrilaterals
-					other:(LDrawStep *)everythingElse
-			 currentColor:(LDrawColorT)parentColor
+- (void) flattenIntoLines:(NSMutableArray *)lines
+				triangles:(NSMutableArray *)triangles
+		   quadrilaterals:(NSMutableArray *)quadrilaterals
+					other:(NSMutableArray *)everythingElse
+			 currentColor:(LDrawColor *)parentColor
 		 currentTransform:(Matrix4)transform
 		  normalTransform:(Matrix3)normalTransform
+				recursive:(BOOL)recursive
 {
 	LDrawModel  *modelToDraw        = nil;
 	LDrawModel  *flatCopy           = nil;
 	Matrix4		partTransform		= [self transformationMatrix];
 	Matrix4     combinedTransform   = IdentityMatrix4;
 
-	[super flattenIntoLines:lines
-				  triangles:triangles
-			 quadrilaterals:quadrilaterals
-					  other:everythingElse
-			   currentColor:parentColor
-		   currentTransform:transform
-			normalTransform:normalTransform];
-	
-	// Flattening involves applying the part's transform to copies of all 
-	// referenced vertices. (We are forced to make copies because you can't call 
-	// glMultMatrix inside a glBegin; the only way to draw all like geometry at 
-	// once is to have a flat, transformed copy of it.) 
-	
-	modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
-	flatCopy    = [modelToDraw copy];
-	
-	// concatenate the transform and pass it down
-	combinedTransform   = Matrix4Multiply(transform, partTransform);
-	
-	// Normals are actually transformed by a different matrix.
-	normalTransform     = Matrix3MakeNormalTransformFromProjMatrix(combinedTransform);
-	
-	[flatCopy flattenIntoLines:lines
-					 triangles:triangles
-				quadrilaterals:quadrilaterals
-						 other:everythingElse
-				  currentColor:[self LDrawColor]
-			  currentTransform:combinedTransform
-			   normalTransform:normalTransform ];
-	
-	[flatCopy release];
+	// Nonrecursive flattenings are just trying to collect the primitives. Parts 
+	// should be completely ignored. 
+	if(recursive == YES)
+	{
+		[super flattenIntoLines:lines
+					  triangles:triangles
+				 quadrilaterals:quadrilaterals
+						  other:everythingElse
+				   currentColor:parentColor
+			   currentTransform:transform
+				normalTransform:normalTransform
+					  recursive:recursive];
+					  
+		// Flattening involves applying the part's transform to copies of all 
+		// referenced vertices. (We are forced to make copies because you can't call 
+		// glMultMatrix inside a glBegin; the only way to draw all like geometry at 
+		// once is to have a flat, transformed copy of it.) 
+		
+		modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+		flatCopy    = [modelToDraw copy];
+		
+		// concatenate the transform and pass it down
+		combinedTransform   = Matrix4Multiply(transform, partTransform);
+		
+		// Normals are actually transformed by a different matrix.
+		normalTransform     = Matrix3MakeNormalTransformFromProjMatrix(combinedTransform);
+		
+		[flatCopy flattenIntoLines:lines
+						 triangles:triangles
+					quadrilaterals:quadrilaterals
+							 other:everythingElse
+					  currentColor:[self LDrawColor]
+				  currentTransform:combinedTransform
+				   normalTransform:normalTransform
+						 recursive:recursive ];
+		
+		[flatCopy release];
+	}
 
 }//end flattenIntoLines:triangles:quadrilaterals:other:currentColor:
 
@@ -1214,62 +1214,28 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //==============================================================================
 - (void) optimizeOpenGL
 {
-#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS //{
 	// Only optimize explicitly colored parts.
 	// Uncolored parts need to know about the current color 
 	// as they are drawn, which is anathema to optimization. Rats.
-	if(self->referenceName != nil && self->color != LDrawCurrentColor)
+	if(self->referenceName != nil && [self->color colorCode] != LDrawCurrentColor)
 	{
 		LDrawModel *referencedSubmodel	= [self referencedMPDSubmodel];
 		
 		if(referencedSubmodel == nil)
 		{
-			self->displayListTag = [[LDrawApplication sharedPartLibrary]
-											retainDisplayListForPart:self
-															   color:self->glColor];
-
-			if(displayListTag != 0)
-				self->hasDisplayList = YES;
+			self->optimizedDrawable = [[LDrawApplication sharedPartLibrary]
+											optimizedDrawableForPart:self
+															   color:self->color];
 		}
 		else
 		{
-			// Don't optimize MPD references. The user can change their 
-			// referenced contents, and I don't want to have to keep track 
-			// of invalidating display lists when he does. 
+			// Tell the submodel we want to draw it with our color.
+			[[referencedSubmodel vertexes] optimizeOpenGLWithParentColor:self->color];
 		}
 	}
 	else
-		self->hasDisplayList = NO;
+		self->optimizedDrawable = nil;
 
-// }	
-#else //{
-	if(self->hasDisplayList == YES)
-		[self removeDisplayList];
-
-	if(self->referenceName != nil)
-	{
-		LDrawModel *referencedSubmodel	= [self referencedMPDSubmodel];
-		
-		if(referencedSubmodel == nil)
-		{
-			self->displayListTag = glGenLists(1); //create new list name
-			if(self->displayListTag != 0)
-			{
-				glNewList(self->displayListTag, GL_COMPILE);
-					[self draw:DRAW_FOR_DISPLAY_LIST_COMPILE parentColor:self->glColor];
-				glEndList();
-				
-				self->hasDisplayList = YES;
-			}
-		}
-		else
-		{
-			// Don't optimize MPD references. The user can change their 
-			// referenced contents, and I don't want to have to keep track 
-			// of invalidating display lists when he does. 
-		}
-	}
-#endif // }
 }//end optimizeOpenGL
 
 
@@ -1299,18 +1265,10 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //==============================================================================
 - (void) removeDisplayList
 {
-#if SHARE_DISPLAY_LISTS_FOR_PART_COLOR_PAIRS == 0 // {
-	if(self->hasDisplayList)
+	if(self->optimizedDrawable)
 	{
-		glDeleteLists(self->displayListTag, 1);
-		self->hasDisplayList = NO;
+		self->optimizedDrawable = nil;
 	}
-#else // }{
-	if(self->hasDisplayList)
-	{
-		self->hasDisplayList = NO;
-	}
-#endif // }
 }//end removeDisplayList
 
 

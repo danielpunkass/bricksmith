@@ -50,14 +50,14 @@ typedef enum
 
 // Parsing
 + (Class) classForDirectiveBeginningWithLine:(NSString *)line;
-+ (LDrawColorT) parseColorCodeFromField:(NSString *)colorField RGB:(GLfloat*)componentsOut;
++ (LDrawColor *) parseColorFromField:(NSString *)colorField;
 + (NSString *) readNextField:(NSString *) partialDirective
 				   remainder:(NSString **) remainder;
 + (NSString *) stringFromFile:(NSString *)path;
 + (NSString *) stringFromFileData:(NSData *)fileData;
 
 // Writing
-+ (NSString *) outputStringForColorCode:(LDrawColorT)colorCode RGB:(GLfloat*)components;
++ (NSString *) outputStringForColor:(LDrawColor *)color;
 + (NSString *) outputStringForFloat:(float)number;
 
 // Miscellaneous

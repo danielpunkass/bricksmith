@@ -11,6 +11,7 @@
 //==============================================================================
 #import "InspectionTriangle.h"
 
+#import "LDrawModel.h"
 #import "LDrawTriangle.h"
 #import "FormCategory.h"
 
@@ -82,6 +83,7 @@
 	[representedObject setVertex2:vertex2];
 	[representedObject setVertex3:vertex3];
 	
+	[[representedObject enclosingModel] optimizeVertexes];
 	[super commitChanges:sender];
 	
 }//end commitChanges:
@@ -109,6 +111,7 @@
 	[vertex2Form setCoordinateValue:vertex2];
 	[vertex3Form setCoordinateValue:vertex3];
 	
+	[[representedObject enclosingModel] optimizeVertexes];
 	[super revert:sender];
 	
 }//end revert:

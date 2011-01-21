@@ -338,37 +338,34 @@
 //				so we need call glBegin only once for the entire step.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
 {
 	NSArray         *commandsInStep     = [self subdirectives];
-	NSUInteger      numberCommands      = [commandsInStep count];
 	LDrawDirective  *currentDirective   = nil;
-	NSUInteger      counter             = 0;
 	
-	//Check for optimized steps.
-	if(self->stepFlavor == LDrawStepQuadrilaterals)
-		glBegin(GL_QUADS);
-	else if(self->stepFlavor == LDrawStepTriangles)
-		glBegin(GL_TRIANGLES);
-	else if(self->stepFlavor == LDrawStepLines)
-		glBegin(GL_LINES);
-	
-	//If we have any specialized flavor above, then we have already begun 
-	// drawing. This little tidbit must be passed on down to the lower reaches.
-	if(self->stepFlavor != LDrawStepAnyDirectives){
-		optionsMask |= DRAW_BEGUN;
-	}
-	
+//	//Check for optimized steps.
+//	if(self->stepFlavor == LDrawStepQuadrilaterals)
+//		glBegin(GL_QUADS);
+//	else if(self->stepFlavor == LDrawStepTriangles)
+//		glBegin(GL_TRIANGLES);
+//	else if(self->stepFlavor == LDrawStepLines)
+//		glBegin(GL_LINES);
+//	
+//	//If we have any specialized flavor above, then we have already begun 
+//	// drawing. This little tidbit must be passed on down to the lower reaches.
+//	if(self->stepFlavor != LDrawStepAnyDirectives){
+//		optionsMask |= DRAW_BEGUN;
+//	}
+//	
 	//Draw each element in the step.
-	for(counter = 0; counter < numberCommands; counter++)
+	for(currentDirective in commandsInStep)
 	{
-		currentDirective = [commandsInStep objectAtIndex:counter];
 		[currentDirective draw:optionsMask parentColor:parentColor];
 	}
-	
-	//close drawing if we started it.
-	if(stepFlavor != LDrawStepAnyDirectives)
-		glEnd();
+//	
+//	//close drawing if we started it.
+//	if(stepFlavor != LDrawStepAnyDirectives)
+//		glEnd();
 
 }//end draw:parentColor:
 
@@ -548,19 +545,6 @@
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
-
-//========== addDirective: =====================================================
-//
-// Purpose:		Inserts the new directive at the end of the step.
-//
-//==============================================================================
-- (void) addDirective:(LDrawDirective *)newDirective
-{
-	//might want to do some type checking here.
-	[super addDirective:newDirective];
-	
-}//end addDirective:
-
 
 //========== enclosingModel ====================================================
 //
@@ -769,6 +753,41 @@
 	self->stepRotationType = newValue;
 	
 }//end setStepRotationType:
+
+
+#pragma mark -
+
+//========== insertDirective:atIndex: ==========================================
+//
+// Purpose:		Inserts the new directive into the step.
+//
+//==============================================================================
+- (void) insertDirective:(LDrawDirective *)directive atIndex:(NSInteger)index
+{
+	//might want to do some type checking here.
+	[super insertDirective:directive atIndex:index];
+	
+	[[self enclosingModel] didAddDirective:directive];
+	
+}//end insertDirective:atIndex:
+
+
+//========== removeDirectiveAtIndex: ===========================================
+//
+// Purpose:		Removes the directive from the step.
+//
+//==============================================================================
+- (void) removeDirectiveAtIndex:(NSInteger)index
+{
+	LDrawDirective *directive = [[[self subdirectives] objectAtIndex:index] retain];
+
+	[super removeDirectiveAtIndex:index];
+	
+	[[self enclosingModel] didRemoveDirective:directive];
+	
+	[directive release];
+	
+}//end removeDirectiveAtIndex:
 
 
 #pragma mark -

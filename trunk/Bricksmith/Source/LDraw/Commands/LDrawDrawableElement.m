@@ -52,12 +52,24 @@
 {
 	self = [super initWithCoder:decoder];
 	
-	self->color         = [decoder decodeIntForKey:@"color"];
-	self->glColor[0]    = [decoder decodeFloatForKey:@"glColorRed"];
-	self->glColor[1]    = [decoder decodeFloatForKey:@"glColorGreen"];
-	self->glColor[2]    = [decoder decodeFloatForKey:@"glColorBlue"];
-	self->glColor[3]    = [decoder decodeFloatForKey:@"glColorAlpha"];
-	[self setHidden:[decoder decodeBoolForKey:@"hidden"]];
+	[self setLDrawColor:[decoder	decodeObjectForKey:@"color"]];
+	[self setHidden:[decoder		decodeBoolForKey:@"hidden"]];
+	
+	// If the part's color comes from the library, use the library version 
+	// instead of the dearchived one. 
+	//
+	// Note: This won't help us for file-local colors. They are messy. We don't 
+	//		 know what model we belong to until after the part's step has been 
+	//		 fully unpacked and added to the model. Only then can we finally 
+	//		 retrieve the model's local color library. Currently we have no 
+	//		 hooks for that operation; we need a -directiveDidMoveToModel: call 
+	//		 and distribute it to all children. 
+	ColorLibrary    *colorLibrary   = [ColorLibrary sharedColorLibrary];
+	LDrawColor      *libraryColor   = [colorLibrary colorForCode:[self->color colorCode]];
+	if(libraryColor)
+	{
+		[self setLDrawColor:libraryColor];
+	}
 	
 	return self;
 	
@@ -75,12 +87,8 @@
 {
 	[super encodeWithCoder:encoder];
 	
-	[encoder encodeInt:color		forKey:@"color"];
-	[encoder encodeFloat:glColor[0] forKey:@"glColorRed"];
-	[encoder encodeFloat:glColor[1] forKey:@"glColorGreen"];
-	[encoder encodeFloat:glColor[2] forKey:@"glColorBlue"];
-	[encoder encodeFloat:glColor[3] forKey:@"glColorAlpha"];
-	[encoder encodeBool:hidden		forKey:@"hidden"];
+	[encoder encodeObject:self->color	forKey:@"color"];
+	[encoder encodeBool:hidden			forKey:@"hidden"];
 	
 }//end encodeWithCoder:
 
@@ -95,14 +103,8 @@
 {
 	LDrawDrawableElement *copied = (LDrawDrawableElement *)[super copyWithZone:zone];
 	
-	if(self->color == LDrawColorCustomRGB)
-	{
-		[copied setRGBColor:self->glColor];
-	}
-	else
-	{
-		[copied setLDrawColor:[self LDrawColor]];
-	}
+	// Colors are references, so they don't get copied
+	[copied setLDrawColor:[self LDrawColor]];
 	
 	return copied;
 	
@@ -113,14 +115,14 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:optionsMask: =================================================
+//========== draw:parentColor: =================================================
 //
 // Purpose:		Draws the part. This is a wrapper method that just sets up the 
 //				drawing context (the color), then calls a subroutine which 
 //				actually draws the element.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger)optionsMask parentColor:(LDrawColor *)parentColor
 {
 	//[super draw]; //does nothing anyway; don't call it.
 	
@@ -158,7 +160,7 @@
 		
 		//Draw, for goodness sake!
 		
-		switch(self->color)
+		switch([self->color colorCode])
 		{
 			case LDrawCurrentColor:
 				//Just draw; don't fool with colors. A significant portion of our 
@@ -167,16 +169,12 @@
 				break;
 				
 			case LDrawEdgeColor:
-				// We'll need to turn this on to support file-local colors.
-//				ColorLibrary	*colorLibrary	= [[[self enclosingDirective] enclosingModel] colorLibrary];
-//				LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
-				complimentColor(parentColor, self->glColor);
-				[self drawElement:optionsMask withColor:self->glColor];
+				[self drawElement:optionsMask withColor:[self->color complimentColor]];
 				break;
 			
 			case LDrawColorCustomRGB:
 			default:
-				[self drawElement:optionsMask withColor:self->glColor];
+				[self drawElement:optionsMask withColor:self->color];
 				break;
 		}
 		
@@ -192,6 +190,47 @@
 }//end draw:optionsMask:
 
 
+//========== writeToVertexBuffer:parentColor: ==================================
+//
+// Purpose:		Resolve the correct color
+//
+//==============================================================================
+- (VBOVertexData *) writeToVertexBuffer:(VBOVertexData *)vertexBuffer
+							parentColor:(LDrawColor *)parentColor
+{
+	VBOVertexData *endPointer = NULL;
+	
+	if(parentColor == nil || self->color == nil)
+	{
+		NSLog(@"nil color");
+	}
+	
+	switch([self->color colorCode])
+	{
+		case LDrawCurrentColor:
+			//Just draw; don't fool with colors. A significant portion of our 
+			// drawing code probably falls into this category.
+			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:parentColor];
+			break;
+			
+		case LDrawEdgeColor:
+			// We'll need to turn this on to support file-local colors.
+			//				ColorLibrary	*colorLibrary	= [[[self enclosingDirective] enclosingModel] colorLibrary];
+			//				LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
+			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:[parentColor complimentColor]];
+			break;
+			
+		case LDrawColorCustomRGB:
+		default:
+			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:self->color];
+			break;
+	}
+	
+	return endPointer;
+	
+}//end writeToVertexBuffer:parentColor:
+
+
 //========== drawElement:withColor: ============================================
 //
 // Purpose:		Draws the actual drawable stuff (polygons, etc.) of the element. 
@@ -199,12 +238,25 @@
 //				shared functionality such as setting colors.
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor
+- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
 {
 	//implemented by subclasses.
 	
 }//end drawElement:withColor:
 
+
+//========== writeElementToVertexBuffer:withColor: =============================
+//
+// Purpose:		Copies the actual vertex data into the buffer, now that setup 
+//				has been done in -writeToVertexBuffer: 
+//
+//==============================================================================
+- (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
+									 withColor:(LDrawColor *)drawingColor
+{
+	//implemented by subclasses.
+	return NULL;
+}
 
 #pragma mark -
 #pragma mark ACCESSORS
@@ -339,7 +391,7 @@
 // Purpose:		Returns the LDraw color code of the receiver.
 //
 //==============================================================================
--(LDrawColorT) LDrawColor
+-(LDrawColor *) LDrawColor
 {
 	return color;
 	
@@ -361,6 +413,18 @@
 
 #pragma mark -
 
+//========== setEnclosingDirective: ============================================
+//
+// Purpose:		We are being added to another directive.
+//
+//==============================================================================
+- (void) setEnclosingDirective:(LDrawContainer *)newParent
+{
+	enclosingDirective = newParent;
+	
+}//end setEnclosingDirective:
+
+
 //========== setHidden: ========================================================
 //
 // Purpose:		Sets whether this part will be drawn, or whether it will be 
@@ -381,39 +445,13 @@
 // Purpose:		Sets the color of this element.
 //
 //==============================================================================
--(void) setLDrawColor:(LDrawColorT)newColor
+- (void) setLDrawColor:(LDrawColor *)newColor
 {
+	[newColor retain];
+	[self->color release];
 	self->color = newColor;
 	
-	//Look up the OpenGL color now so we don't have to whenever we draw.
-	// -- Now that we are complying with the LDraw Colour Definition 
-	// Language, we must look up the color at draw time because of 
-	// registration/scoping issues. It shouldn't be a big deal because parts are 
-	// optimized into a display list. I hope.
-	
-	// Model-local colors got messy with optimization. Decided not to be 
-	// compliant right now. 
-	
-	ColorLibrary	*colorLibrary	= [ColorLibrary sharedColorLibrary]; //[[[self enclosingDirective] enclosingModel] colorLibrary];
-	LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
-	
-	[colorObject getColorRGBA:self->glColor];
-	
 }//end setLDrawColor:
-
-
-//========== setRGBColor: ======================================================
-//
-// Purpose:		Assigns this directive a custom-defined color rather than an 
-//				LDraw code. 
-//
-//==============================================================================
-- (void) setRGBColor:(GLfloat *)glColorIn
-{
-	self->color = LDrawColorCustomRGB;
-	memcpy(self->glColor, glColorIn, sizeof(GLfloat[4]));
-	
-}//end setRGBColor:
 
 
 #pragma mark -
@@ -498,22 +536,23 @@
 //				This is the core of -[LDrawModel optimizeStructure].
 //
 //==============================================================================
-- (void) flattenIntoLines:(LDrawStep *)lines
-				triangles:(LDrawStep *)triangles
-		   quadrilaterals:(LDrawStep *)quadrilaterals
-					other:(LDrawStep *)everythingElse
-			 currentColor:(LDrawColorT)parentColor
+- (void) flattenIntoLines:(NSMutableArray *)lines
+				triangles:(NSMutableArray *)triangles
+		   quadrilaterals:(NSMutableArray *)quadrilaterals
+					other:(NSMutableArray *)everythingElse
+			 currentColor:(LDrawColor *)parentColor
 		 currentTransform:(Matrix4)transform
 		  normalTransform:(Matrix3)normalTransform
+				recursive:(BOOL)recursive
 {
 	// Resolve the correct color and set it. Our subclasses will be responsible 
 	// for then adding themselves to the correct list. 
 
 	// Figure out the actual color of the directive.
 	
-	if(self->color == LDrawCurrentColor)
+	if([self->color colorCode] == LDrawCurrentColor)
 	{
-		if(parentColor == LDrawCurrentColor)
+		if([parentColor colorCode] == LDrawCurrentColor)
 		{
 			// just add
 		}
@@ -523,22 +562,18 @@
 			[self setLDrawColor:parentColor];
 		}
 	}
-	else if(self->color == LDrawEdgeColor)
+	else if([self->color colorCode] == LDrawEdgeColor)
 	{
-		if(parentColor == LDrawCurrentColor)
+		if([parentColor colorCode] == LDrawCurrentColor)
 		{
 			// just add
 		}
 		else
 		{
 			// set directiveCopy to compliment color
-			GLfloat     glParentColor[4];
-			LDrawColor  *colorObject        = [[ColorLibrary sharedColorLibrary] colorForCode:parentColor];
+			LDrawColor  *complimentColor        = [parentColor complimentColor];
 			
-			[colorObject getColorRGBA:glParentColor];
-			complimentColor(glParentColor, self->glColor);
-			
-			[self setRGBColor:self->glColor];
+			[self setLDrawColor:complimentColor];
 			
 			// then add.
 		}

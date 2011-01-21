@@ -14,6 +14,15 @@
 #import "LDrawDirective.h"
 #import "MatrixMath.h"
 
+typedef struct
+{
+	GLfloat position[3];
+	GLfloat normal[3];
+	GLfloat color[4];
+	
+} VBOVertexData;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // class LDrawDrawableElement
@@ -21,13 +30,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 @interface LDrawDrawableElement : LDrawDirective <LDrawColorable, NSCoding>
 {
-	LDrawColorT		color;
-	GLfloat			glColor[4]; //OpenGL equivalent of the LDrawColor.
-	BOOL			hidden;		//YES if we don't draw this.
+	LDrawColor  *color;
+	BOOL        hidden;		//YES if we don't draw this.
 }
 
 // Directives
-- (void) drawElement:(NSUInteger) optionsMask withColor:(GLfloat *)drawingColor;
+- (VBOVertexData *) writeToVertexBuffer:(VBOVertexData *)vertexBuffer parentColor:(LDrawColor *)parentColor;
+- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor;
+- (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer withColor:(LDrawColor *)drawingColor;
+
 
 // Accessors
 - (Box3) boundingBox3;
@@ -35,12 +46,9 @@
 								projection:(const GLdouble *)projectionGLMatrix
 									  view:(const GLint *)viewport;
 - (BOOL) isHidden;
-- (LDrawColorT) LDrawColor;
 - (Point3) position;
 
 - (void) setHidden:(BOOL)flag;
-- (void) setLDrawColor:(LDrawColorT)newColor;
-- (void) setRGBColor:(GLfloat *)glColorIn;
 
 // Actions
 - (Vector3) displacementForNudge:(Vector3)nudgeVector;

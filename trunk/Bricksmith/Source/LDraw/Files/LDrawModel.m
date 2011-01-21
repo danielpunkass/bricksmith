@@ -20,6 +20,7 @@
 #import <AddressBook/AddressBook.h>
 
 #import "ColorLibrary.h"
+#import "LDrawColor.h"
 #import "LDrawConditionalLine.h"
 #import "LDrawFile.h"
 #import "LDrawLine.h"
@@ -27,6 +28,7 @@
 #import "LDrawStep.h"
 #import "LDrawTriangle.h"
 #import "LDrawUtilities.h"
+#import "LDrawVertexes.h"
 #import "MacLDraw.h"
 #import "StringCategory.h"
 
@@ -61,7 +63,8 @@
 {
 	self = [super init];
 	
-	self->colorLibrary	= [[ColorLibrary alloc] init];
+	self->vertexes      = nil; // not created until -optimizeOpenGL
+	self->colorLibrary  = [[ColorLibrary alloc] init];
 	[self setModelDescription:@""];
 	[self setFileName:@""];
 	[self setAuthor:@""];
@@ -239,7 +242,7 @@
 //				their constituents.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
 {
 	NSArray     *steps              = [self subdirectives];
 	NSUInteger  maxIndex            = [self maxStepIndexToOutput];
@@ -252,6 +255,9 @@
 		currentDirective = [steps objectAtIndex:counter];
 		[currentDirective draw:optionsMask parentColor:parentColor];
 	}
+	
+	// Draw primitives
+	[self->vertexes draw:optionsMask parentColor:parentColor];
 	
 	// Draw Drag-and-Drop pieces if we've got 'em.
 	if(self->draggingDirectives != nil)
@@ -655,6 +661,18 @@
 }//end steps
 
 
+//========== vertexes ==========================================================
+//
+// Purpose:		Returns the optimization object for representing the model's 
+//				primitives (which aren't capable of drawing themselves). 
+//
+//==============================================================================
+- (LDrawVertexes *) vertexes
+{
+	return self->vertexes;
+}
+
+
 //========== visibleStep =======================================================
 //
 // Purpose:		Returns the last step which would be drawn if this model were 
@@ -866,6 +884,34 @@
 
 
 #pragma mark -
+#pragma mark NOTIFICATIONS
+#pragma mark -
+
+//========== didAddDirective: ==================================================
+//
+// Purpose:		One of the model's children has added a new directive which the 
+//				model is responsible for drawing. 
+//
+//==============================================================================
+- (void) didAddDirective:(LDrawDirective *)directive
+{
+	[vertexes addDirective:directive];
+}
+
+
+//========== didRemoveDirective: ===============================================
+//
+// Purpose:		One of the model's children has added a new directive which the 
+//				model is responsible for drawing. 
+//
+//==============================================================================
+- (void) didRemoveDirective:(LDrawDirective *)directive
+{
+	[vertexes removeDirective:directive];
+}
+
+
+#pragma mark -
 #pragma mark UTILITIES
 #pragma mark -
 
@@ -925,6 +971,58 @@
 }//end numberElements
 
 
+//========== optimizeOpenGL ====================================================
+//
+// Purpose:		Collect members into optimized OpenGL containers.
+//
+// Notes:		This method is NOT thread safe.
+//
+//==============================================================================
+- (void) optimizeOpenGL
+{
+	// Allow primitives to be visible when displaying the model itself.
+	[self optimizeVertexes];
+	
+	[super optimizeOpenGL];
+}
+
+
+//========== optimizePrimitiveStructure ========================================
+//
+// Purpose:		Finds all the primitives which are direct children of the model 
+//				and records them in an optimizable vertex object. 
+//
+//==============================================================================
+- (void) optimizePrimitiveStructure
+{
+	// Collect all primitives into a single object which can draw them without 
+	// using immediate mode. 
+	if(self->vertexes == nil)
+	{
+		// We must create the vertex object HERE, because it is not thread-safe 
+		// and will ordinarily be written to when adding and removing 
+		// directives. Since the initial parse is multithreaded, we cannot allow 
+		// this object to be used until the model has been fully parsed. 
+		self->vertexes = [[LDrawVertexes alloc] init];
+		
+		NSMutableArray  *lines              = [NSMutableArray array];
+		NSMutableArray  *triangles          = [NSMutableArray array];
+		NSMutableArray  *quadrilaterals     = [NSMutableArray array];
+		
+		[self flattenIntoLines:lines
+					 triangles:triangles
+				quadrilaterals:quadrilaterals
+						 other:nil
+				  currentColor:[[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor]
+			  currentTransform:IdentityMatrix4
+			   normalTransform:IdentityMatrix3
+					 recursive:NO];
+		
+		[vertexes setLines:lines triangles:triangles quadrilaterals:quadrilaterals other:nil];
+	}
+}//end optimizePrimitiveStructure
+
+
 //========== optimizeStructure =================================================
 //
 // Purpose:		Arranges the directives in such a way that the file will be 
@@ -948,10 +1046,15 @@
 {
 	NSArray         *steps              = [self subdirectives];
 	
-	LDrawStep       *lines              = [LDrawStep emptyStepWithFlavor:LDrawStepLines];
-	LDrawStep       *triangles          = [LDrawStep emptyStepWithFlavor:LDrawStepTriangles];
-	LDrawStep       *quadrilaterals     = [LDrawStep emptyStepWithFlavor:LDrawStepQuadrilaterals];
-	LDrawStep       *everythingElse     = [LDrawStep emptyStepWithFlavor:LDrawStepAnyDirectives];
+	NSMutableArray  *lines              = [NSMutableArray array];
+	NSMutableArray  *triangles          = [NSMutableArray array];
+	NSMutableArray  *quadrilaterals     = [NSMutableArray array];
+	NSMutableArray  *everythingElse     = [NSMutableArray array];
+	
+	LDrawStep       *linesStep          = [LDrawStep emptyStepWithFlavor:LDrawStepLines];
+	LDrawStep       *trianglesStep      = [LDrawStep emptyStepWithFlavor:LDrawStepTriangles];
+	LDrawStep       *quadrilateralsStep = [LDrawStep emptyStepWithFlavor:LDrawStepQuadrilaterals];
+	LDrawStep       *everythingElseStep = [LDrawStep emptyStepWithFlavor:LDrawStepAnyDirectives];
 	
 	NSUInteger      directiveCount      = 0;
 	NSInteger       counter             = 0;
@@ -965,9 +1068,10 @@
 				 triangles:triangles
 			quadrilaterals:quadrilaterals
 					 other:everythingElse
-			  currentColor:LDrawCurrentColor
+			  currentColor:[[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor]
 		  currentTransform:IdentityMatrix4
-		   normalTransform:IdentityMatrix3];
+		   normalTransform:IdentityMatrix3
+				 recursive:YES];
 		  
 	// Now that we have everything separated, remove the main step (it's the one 
 	// that has the entire model in it) and . 
@@ -978,14 +1082,39 @@
 	}
 	
 	// Replace the original directives with the categorized steps we've created 
-	if([[lines subdirectives] count] > 0)
-		[self addDirective:lines];
-	if([[triangles subdirectives] count] > 0)
-		[self addDirective:triangles];
-	if([[quadrilaterals subdirectives] count] > 0)
-		[self addDirective:quadrilaterals];
-	if([[everythingElse subdirectives] count] > 0)
-		[self addDirective:everythingElse];
+	if([lines count] > 0)
+	{
+		for(id directive in lines)
+		{
+			[linesStep addDirective:directive];
+		}
+		[self addDirective:linesStep];
+	}
+
+	if([triangles count] > 0)
+	{
+		for(id directive in triangles)
+		{
+			[trianglesStep addDirective:directive];
+		}
+		[self addDirective:trianglesStep];
+	}
+	if([quadrilaterals count] > 0)
+	{
+		for(id directive in quadrilaterals)
+		{
+			[quadrilateralsStep addDirective:directive];
+		}
+		[self addDirective:quadrilateralsStep];
+	}
+	if([everythingElse count] > 0)
+	{
+		for(id directive in everythingElse)
+		{
+			[everythingElseStep addDirective:directive];
+		}
+		[self addDirective:everythingElseStep];
+	}
 		
 	//Optimizations complete; save some info.
 	Box3 bounds = [self boundingBox3];
@@ -993,6 +1122,33 @@
 	memcpy( cachedBounds, &bounds, sizeof(Box3) );
 	
 }//end optimizeStructure
+
+
+//========== optimizeVertexes ==================================================
+//
+// Purpose:		Makes sure the vertexes (collected in 
+//				-optimizePrimitiveStructure) are displayable. This is called in 
+//				response to changing the vertexes, so all existing optimizations 
+//				must be destroyed. 
+//
+//==============================================================================
+- (void) optimizeVertexes
+{
+	// Allow primitives to be visible when displaying the model itself.
+	LDrawColor *parentColor = [[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor];
+	
+	if([vertexes isOptimizedForColor:parentColor])
+	{
+		// The vertexs have already been optimized for any referencing colors. 
+		// Just rebuild the existing color optimizations. 
+		[self->vertexes rebuildAllOptimizations];
+	}
+	else
+	{
+		// Newly-created, empty vertexes. Make a list to display the model itself. 
+		[self->vertexes optimizeOpenGLWithParentColor:parentColor];
+	}
+}//end optimizeVertexes
 
 
 //========== parseHeaderFromLines:beginningAtIndex: ============================
@@ -1143,10 +1299,12 @@
 //==============================================================================
 - (void) dealloc
 {
-	[author				release];
-	[colorLibrary		release];
-	[fileName			release];
 	[modelDescription	release];
+	[fileName			release];
+	[author				release];
+	
+	[vertexes			release];
+	[colorLibrary		release];
 	
 	if(self->cachedBounds != NULL)
 		free(cachedBounds);

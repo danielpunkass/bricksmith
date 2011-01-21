@@ -34,8 +34,7 @@
 	
 	GLfloat			glTransformation[16];
 
-	BOOL			hasDisplayList;
-	GLuint			displayListTag;	//list ID for normals in non-inverted matrix
+	LDrawDirective	*optimizedDrawable;
 	NSLock			*drawLock;
 }
 

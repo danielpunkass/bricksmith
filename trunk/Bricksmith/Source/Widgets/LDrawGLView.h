@@ -79,9 +79,8 @@ typedef enum
 	// Drawing Environment
 	GLfloat                 cameraDistance;			// location of camera on the z-axis; distance from (0,0,0);
 	NSSize					snugFrameSize;
-	LDrawColorT             color;					// default color to draw parts if none is specified
+	LDrawColor				*color;					// default color to draw parts if none is specified
 	GLfloat                 glBackgroundColor[4];
-	GLfloat                 glColor[4];				// OpenGL equivalent of the LDrawColor.
 	gridSpacingModeT		gridMode;
 	ProjectionModeT         projectionMode;
 	RotationDrawModeT       rotationDrawMode;		// drawing detail while rotating.
@@ -109,7 +108,6 @@ typedef enum
 - (void) strokeInsideRect:(NSRect)rect thickness:(CGFloat)borderWidth;
 
 // Accessors
-- (LDrawColorT) LDrawColor;
 - (NSPoint) centerPoint;
 - (Matrix4) getInverseMatrix;
 - (Matrix4) getMatrix;
@@ -126,7 +124,6 @@ typedef enum
 - (void) setDelegate:(id)object;
 - (void) setForwardAction:(SEL)newAction;
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;
-- (void) setLDrawColor:(LDrawColorT)newColor;
 - (void) setLDrawDirective:(LDrawDirective *) newFile;
 - (void) setNudgeAction:(SEL)newAction;
 - (void) setProjectionMode:(ProjectionModeT) newProjectionMode;

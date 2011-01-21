@@ -21,12 +21,9 @@
 //==============================================================================
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
-	NSNumber		*cellObject		= [self objectValue];
-	LDrawColorT		 colorCode		= [cellObject intValue]; //can't just call [self intValue] here; that only works on text contents.
-	ColorLibrary	*colorLibrary	= [ColorLibrary sharedColorLibrary];
-	LDrawColor		*colorObject	= [colorLibrary colorForCode:colorCode];
-	NSColor			*cellColor		= nil;
-	GLfloat			 components[4];
+	LDrawColor  *colorObject    = [self objectValue];
+	NSColor     *cellColor      = nil;
+	GLfloat     components[4];
 	
 	// Get the color components and covert them. Discard alpha.
 	[colorObject getColorRGBA:components];

@@ -18,6 +18,7 @@
 
 @class LDrawContainer;
 @class LDrawFile;
+@class LDrawModel;
 @class LDrawStep;
 
 
@@ -40,7 +41,7 @@
 + (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index inLines:(NSArray *)lines maxIndex:(NSUInteger)maxIndex;
 
 //Directives
-- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor;
+- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor;
 - (NSString *) write;
 
 //Display
@@ -52,6 +53,7 @@
 - (NSArray *)ancestors;
 - (LDrawContainer *) enclosingDirective;
 - (LDrawFile *) enclosingFile;
+- (LDrawModel *) enclosingModel;
 - (BOOL) isSelected;
 
 - (void) setEnclosingDirective:(LDrawContainer *)newParent;
@@ -63,13 +65,14 @@
 - (void) unlockEditor;
 
 //Utilities
-- (void) flattenIntoLines:(LDrawStep *)lines
-				triangles:(LDrawStep *)triangles
-		   quadrilaterals:(LDrawStep *)quadrilaterals
-					other:(LDrawStep *)everythingElse
-			 currentColor:(LDrawColorT)currentColor
+- (void) flattenIntoLines:(NSMutableArray *)lines
+				triangles:(NSMutableArray *)triangles
+		   quadrilaterals:(NSMutableArray *)quadrilaterals
+					other:(NSMutableArray *)everythingElse
+			 currentColor:(LDrawColor *)parentColor
 		 currentTransform:(Matrix4)transform
-		  normalTransform:(Matrix3)normalTransform;
+		  normalTransform:(Matrix3)normalTransform
+				recursive:(BOOL)recursive;
 - (BOOL) isAncestorInList:(NSArray *)containers;
 - (void) optimizeOpenGL;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;

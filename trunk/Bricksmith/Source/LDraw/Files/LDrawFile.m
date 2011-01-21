@@ -247,7 +247,7 @@
 //				complete. Thus, no draws can happen during that time.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(GLfloat *)parentColor
+- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
 {
 	//this is like calling the non-existent method
 	//			[editLock setCondition:([editLock condition] + 1)]
@@ -619,6 +619,34 @@
 															view:viewport];
 	
 }//end projectedBoundingBoxWithModelView:projection:view:
+
+
+//========== optimizeOpenGL ====================================================
+//
+// Purpose:		Makes this file run faster by compiling its contents into a 
+//				display list if possible.
+//
+//==============================================================================
+- (void) optimizeOpenGL
+{
+	NSArray *submodels = [self submodels];
+
+	// Ensure that each submodel has collected its primitives so that they may 
+	// then be optimized. This is not a thread-safe operation, so it has to be 
+	// called after the file has finished parsing. 
+	//
+	// This is also done separately from -[LDrawModel optimizeOpenGL] because 
+	// the model may contain parts which reference other MPD submodels. The 
+	// vertex objects must be created for all submodels before the part 
+	// references are optimized. 
+	for(LDrawModel *model in submodels)
+	{
+		[model optimizePrimitiveStructure];
+	}
+	
+	[super optimizeOpenGL];
+	
+}//end optimizeOpenGL
 
 
 //========== optimizeStructure =================================================

@@ -195,6 +195,8 @@
 		0B9FE5BD08AD977F0046511D /* OneBrick.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5BC08AD977F0046511D /* OneBrick.tiff */; };
 		0B9FE5D208AD97990046511D /* LDraw Document.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5C908AD97990046511D /* LDraw Document.icns */; };
 		0B9FE5D308AD97990046511D /* Bricksmith.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5CA08AD97990046511D /* Bricksmith.icns */; };
+		0BA0833E1293AB7C001AA84D /* LDrawVertexes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BA0833C1293AB7C001AA84D /* LDrawVertexes.h */; };
+		0BA0833F1293AB7C001AA84D /* LDrawVertexes.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA0833D1293AB7C001AA84D /* LDrawVertexes.m */; };
 		0BA24BEA0EFF2A6500BF9915 /* StringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */; };
 		0BA24BEB0EFF2A6500BF9915 /* StringUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */; };
 		0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BB129E90D7BD208004E8CEC /* Spin.tiff */; };
@@ -490,6 +492,8 @@
 		0B9FE5BC08AD977F0046511D /* OneBrick.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OneBrick.tiff; sourceTree = "<group>"; };
 		0B9FE5C908AD97990046511D /* LDraw Document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "LDraw Document.icns"; sourceTree = "<group>"; };
 		0B9FE5CA08AD97990046511D /* Bricksmith.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Bricksmith.icns; sourceTree = "<group>"; };
+		0BA0833C1293AB7C001AA84D /* LDrawVertexes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawVertexes.h; sourceTree = "<group>"; };
+		0BA0833D1293AB7C001AA84D /* LDrawVertexes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawVertexes.m; sourceTree = "<group>"; };
 		0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringUtilities.h; sourceTree = "<group>"; };
 		0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringUtilities.m; sourceTree = "<group>"; };
 		0BB129E90D7BD208004E8CEC /* Spin.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Spin.tiff; sourceTree = "<group>"; };
@@ -614,6 +618,8 @@
 				0B2AB7C307C7E93B00085145 /* LDrawDirective.m */,
 				0B6F383C07C81F81007B1075 /* File Structure */,
 				0B6F383B07C81F6D007B1075 /* Commands */,
+				0BA0833C1293AB7C001AA84D /* LDrawVertexes.h */,
+				0BA0833D1293AB7C001AA84D /* LDrawVertexes.m */,
 			);
 			name = LDraw;
 			path = Source/LDraw;
@@ -1125,6 +1131,7 @@
 				0B8C096810BA532F00BEB111 /* OverlayHelperView.h in Headers */,
 				0B8C097310BA550500BEB111 /* OverlayHelperWindow.h in Headers */,
 				0B8C0A2610BA623700BEB111 /* OverlayViewCategory.h in Headers */,
+				0BA0833E1293AB7C001AA84D /* LDrawVertexes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1159,7 +1166,14 @@
 			isa = PBXProject;
 			buildConfigurationList = 2BB5975109FEFD180077A885 /* Build configuration list for PBXProject "Bricksmith" */;
 			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* Mac LDraw */;
 			projectDirPath = "";
 			projectReferences = (
@@ -1363,6 +1377,7 @@
 				0B3E7BA010AF9E5A00AFBCF4 /* OverlayViewCategory.m in Sources */,
 				0B8C096910BA532F00BEB111 /* OverlayHelperView.m in Sources */,
 				0B8C097410BA550500BEB111 /* OverlayHelperWindow.m in Sources */,
+				0BA0833F1293AB7C001AA84D /* LDrawVertexes.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -75,8 +75,9 @@ LDrawColorPanel *sharedColorPanel = nil;
 //==============================================================================
 - (id) init
 {
-	id		 oldself	= [super init];
-	NSArray	*colorList	= [[ColorLibrary sharedColorLibrary] colors];
+	id              oldself         = [super init];
+	ColorLibrary    *colorLibrary   = [ColorLibrary sharedColorLibrary];
+	NSArray         *colorList      = [colorLibrary colors];
 
 	[NSBundle loadNibNamed:@"ColorPanel" owner:self];
 	
@@ -97,7 +98,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 		
 		[self loadInitialSortDescriptors];
 		
-		[self setLDrawColor:LDrawRed];
+		[self setLDrawColor:[colorLibrary colorForCode:LDrawRed]];
 	updatingToReflectFile = NO;
 	
 	[self setDelegate:self];
@@ -123,24 +124,24 @@ LDrawColorPanel *sharedColorPanel = nil;
 // Purpose:		Returns the color code of the panel's currently-selected color.
 //
 //==============================================================================
-- (LDrawColorT) LDrawColor
+- (LDrawColor *) LDrawColor
 {
 	NSArray		*selection			= [self->colorListController selectedObjects];
 	LDrawColor	*selectedColor		= nil;
-	LDrawColorT	selectedColorCode	= LDrawColorBogus;
 	
 	//It is possible there are no rows selected, if a search has limited the 
 	// color list out of existence.
 	if([selection count] > 0)
 	{
-		selectedColor		= [selection objectAtIndex:0];
-		selectedColorCode	= [selectedColor colorCode];
+		selectedColor = [selection objectAtIndex:0];
 	}
 	//Just return whatever was last selected.
 	else
-		selectedColorCode = [colorBar LDrawColor];
+	{
+		selectedColor = [colorBar LDrawColor];
+	}
 	
-	return selectedColorCode;
+	return selectedColor;
 	
 }//end LDrawColor
 
@@ -152,16 +153,16 @@ LDrawColorPanel *sharedColorPanel = nil;
 //				change the found set.
 //
 //==============================================================================
-- (void) setLDrawColor:(LDrawColorT)newColor
+- (void) setLDrawColor:(LDrawColor *)newColor
 {
 	//Try to find the color we are after in the current list.
-	NSInteger rowToSelect = [self indexOfColorCode:newColor]; //will be the row index for the color we want.
+	NSInteger rowToSelect = [self indexOfColor:newColor]; //will be the row index for the color we want.
 	
 	if(rowToSelect == NSNotFound)
 	{
 		//It wasn't in the currently-displayed list. Search the master list.
 		[self->colorListController setFilterPredicate:nil];
-		rowToSelect = [self indexOfColorCode:newColor];
+		rowToSelect = [self indexOfColor:newColor];
 	}
 	
 	//We'd better have found it by now!
@@ -251,7 +252,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 		// about the current color, though!
 		[[NSNotificationCenter defaultCenter]
 							postNotificationName:LDrawColorDidChangeNotification
-										  object:[NSNumber numberWithInteger:[self LDrawColor]] ];
+										  object:[self LDrawColor] ];
 	}
 
 }//end sendAction
@@ -270,7 +271,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 {
 	NSString    *searchString               = [sender stringValue];
 	NSPredicate *searchPredicate            = nil;
-	LDrawColorT currentColor                = [self LDrawColor];
+	LDrawColor  *currentColor               = [self LDrawColor];
 	NSInteger   indexOfPreviousSelection    = 0;
 	
 	searchPredicate = [self predicateForSearchString:searchString];
@@ -280,7 +281,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 	
 	// The array controller will automatically maintain the selection if it can. 
 	// But if it can't, we need to come up a reasonable new answer. 
-	indexOfPreviousSelection = [self indexOfColorCode:currentColor];
+	indexOfPreviousSelection = [self indexOfColor:currentColor];
 	// If the previous color is no longer in the list, what should we do? I have 
 	// chosen to automatically select the first color, since I don't want to 
 	// introduce the UI confusion of empty selection. 
@@ -307,8 +308,8 @@ LDrawColorPanel *sharedColorPanel = nil;
 //==============================================================================
 - (void) updateSelectionWithObjects:(NSArray *)selectedObjects
 {
-	id			currentObject	= [selectedObjects lastObject];
-	LDrawColorT	objectColor		= [self LDrawColor];
+	id          currentObject   = [selectedObjects lastObject];
+	LDrawColor  *objectColor    = [self LDrawColor];
 	
 	//Find the color code of the last object selected. I suppose this is rather 
 	// tacky to do such a simple search, but I would prefer not to write the 
@@ -330,18 +331,19 @@ LDrawColorPanel *sharedColorPanel = nil;
 #pragma mark UTILITIES
 #pragma mark -
 
-//========== indexOfColorCode: =================================================
+//========== indexOfColor: =================================================
 //
 // Purpose:		Returns the row index of colorCodeSought in the panel's table, 
 //				or NSNotFound if colorCodeSought is not displayed. 
 //
 //==============================================================================
-- (NSInteger) indexOfColorCode:(LDrawColorT)colorCodeSought
+- (NSInteger) indexOfColor:(LDrawColor *)colorSought
 {
 	NSArray     *visibleColors  = [self->colorListController arrangedObjects];
 	NSInteger   numberColors    = [visibleColors count];
 	LDrawColor  *currentColor   = nil;
 	LDrawColorT currentCode     = LDrawColorBogus;
+	LDrawColorT	colorCodeSought = [colorSought colorCode];
 	NSInteger   rowToSelect     = NSNotFound; //will be the row index for the color we want.
 	NSInteger   counter         = 0;
 	
@@ -358,7 +360,7 @@ LDrawColorPanel *sharedColorPanel = nil;
 	
 	return rowToSelect;
 	
-}//end indexOfColorCode:
+}//end indexOfColor:
 
 
 //========== loadInitialSortDescriptors ========================================

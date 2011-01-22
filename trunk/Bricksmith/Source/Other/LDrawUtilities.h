@@ -9,10 +9,11 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
-#import "MatrixMath.h"
 #import "ColorLibrary.h"
+#import "MatrixMath.h"
 
 @class LDrawPart;
+@class LDrawVertexes;
 
 // How much parts move when you nudge them in the viewer. 
 typedef enum gridSpacingMode
@@ -59,6 +60,9 @@ typedef enum
 // Writing
 + (NSString *) outputStringForColor:(LDrawColor *)color;
 + (NSString *) outputStringForFloat:(float)number;
+
+// Drawing
++ (LDrawVertexes *) boundingCube;
 
 // Miscellaneous
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;

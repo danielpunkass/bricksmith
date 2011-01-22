@@ -291,10 +291,7 @@
 		}
 		else
 		{
-			GLfloat components[4] = {};
-			[drawingColor getColorRGBA:components];
-//			glColor4f(drawingColor[0], drawingColor[1], drawingColor[2], 0.25); // debug bounding boxes
-			[self drawBounds];
+			[self drawBoundsWithColor:drawingColor];
 		}
 	}
 	glPopMatrix();
@@ -302,12 +299,12 @@
 }//end drawElement:parentColor:
 
 
-//========== drawBounds ========================================================
+//========== drawBoundsWithColor: ==============================================
 //
 // Purpose:		Draws the part's bounds as a solid box. Nonrecursive.
 //
 //==============================================================================
-- (void) drawBounds
+- (void) drawBoundsWithColor:(LDrawColor *)drawingColor
 {
 	//Pull the bounds directly from the model; we can't use the part's because 
 	// it mangles them based on rotation. In this case, we want to do a raw 
@@ -317,73 +314,15 @@
 	//If the model can't be found, we can't draw good bounds for it!
 	if(modelToDraw != nil)
 	{
-		Box3		bounds			= [modelToDraw boundingBox3];
+		LDrawVertexes   *unitCube   = [LDrawUtilities boundingCube];
+		Box3            bounds      = [modelToDraw boundingBox3];
+		Tuple3          extents     = V3Sub(bounds.max, bounds.min);
 		
-		GLfloat		vertices[8][3]	= {	
-										{bounds.min.x, bounds.min.y, bounds.min.z},
-										{bounds.min.x, bounds.min.y, bounds.max.z},
-										{bounds.min.x, bounds.max.y, bounds.max.z},
-										{bounds.min.x, bounds.max.y, bounds.min.z},
-										
-										{bounds.max.x, bounds.min.y, bounds.min.z},
-										{bounds.max.x, bounds.min.y, bounds.max.z},
-										{bounds.max.x, bounds.max.y, bounds.max.z},
-										{bounds.max.x, bounds.max.y, bounds.min.z},
-									  };
-									  
-		GLfloat		normals[6][3]	= {
-										{ 1,  0,  0}, //0: +x
-										{ 0,  1,  0}, //1: +y
-										{ 0,  0,  1}, //2: +z
-										{-1,  0,  0}, //3: -x
-										{ 1, -1,  0}, //4: -y
-										{ 0,  0, -1}, //5: -z
-									  };
-									  
-		//Well, this hardly looks like the most efficient block of code in the world.
-		// I tried using vertex arrays, but it was a stunning failue.
-		glBegin(GL_QUADS);
-			
-			//The normal vectors all are backwards from what I expected them to be. 
-			//  Why?
-			glNormal3fv(normals[0]);//expected 3
-			glVertex3fv(vertices[0]);
-			glVertex3fv(vertices[3]);
-			glVertex3fv(vertices[2]);
-			glVertex3fv(vertices[1]);
-			
-			glNormal3fv(normals[2]);//expected 5, etc.
-			glVertex3fv(vertices[0]);
-			glVertex3fv(vertices[4]);
-			glVertex3fv(vertices[7]);
-			glVertex3fv(vertices[3]);
-			
-			glNormal3fv(normals[4]);
-			glVertex3fv(vertices[3]);
-			glVertex3fv(vertices[7]);
-			glVertex3fv(vertices[6]);
-			glVertex3fv(vertices[2]);
-			
-			glNormal3fv(normals[5]);
-			glVertex3fv(vertices[2]);
-			glVertex3fv(vertices[6]);
-			glVertex3fv(vertices[5]);
-			glVertex3fv(vertices[1]);
-			
-			glNormal3fv(normals[1]);
-			glVertex3fv(vertices[1]);
-			glVertex3fv(vertices[5]);
-			glVertex3fv(vertices[4]);
-			glVertex3fv(vertices[0]);
-			
-			glNormal3fv(normals[3]);
-			glVertex3fv(vertices[4]);
-			glVertex3fv(vertices[5]);
-			glVertex3fv(vertices[6]);
-			glVertex3fv(vertices[7]);
-			
-		glEnd();
+		// Expand and position the unit cube to match the model
+		glTranslatef(bounds.min.x, bounds.min.y, bounds.min.z);
+		glScalef(extents.x, extents.y, extents.z);
 		
+		[unitCube draw:DRAW_NO_OPTIONS parentColor:drawingColor];
 	}
 }//end drawBounds
 
@@ -1235,6 +1174,13 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	}
 	else
 		self->optimizedDrawable = nil;
+		
+	// Make sure the bounding cube is available in our color
+	LDrawVertexes *unitCube = [LDrawUtilities boundingCube];
+	if([unitCube isOptimizedForColor:self->color] == NO)
+	{
+		[unitCube optimizeOpenGLWithParentColor:self->color];
+	}
 
 }//end optimizeOpenGL
 

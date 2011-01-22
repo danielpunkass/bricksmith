@@ -39,7 +39,7 @@
 }
 
 //Directives
-- (void) drawBounds;
+- (void) drawBoundsWithColor:(LDrawColor *)drawingColor;
 - (NSString *) write;
 
 //Accessors

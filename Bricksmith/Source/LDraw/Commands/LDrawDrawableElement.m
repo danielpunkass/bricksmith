@@ -131,7 +131,7 @@
 		//If the part is selected, we need to give some indication. We do this by 
 		// drawing it as a wireframe instead of a filled color. This setting also 
 		// conveniently applies to all referenced parts herein. 
-		if(self->isSelected == YES && (optionsMask & DRAW_FOR_DISPLAY_LIST_COMPILE) == 0)
+		if(self->isSelected == YES)
 		{
 			//a bug on Intel iMacs is causing the wireframe not to get drawn 
 			// unless lighting OR blending is off. We don't need blending here 

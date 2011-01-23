@@ -226,28 +226,6 @@
 //==============================================================================
 - (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
 {	
-	//Have we already begun drawing somewhere upstream? If so, all we need to 
-	// do here is add the vertices.
-//	if((optionsMask & DRAW_BEGUN) != 0)
-//	{
-//		glColor4fv(drawingColor);
-//		glNormal3f(normal.x, normal.y, normal.z );
-//		glVertex3f(vertex1.x, vertex1.y, vertex1.z);
-//		
-//		glColor4fv(drawingColor);
-//		glNormal3f(normal.x, normal.y, normal.z );
-//		glVertex3f(vertex2.x, vertex2.y, vertex2.z);
-//		
-//		glColor4fv(drawingColor);
-//		glNormal3f(normal.x, normal.y, normal.z );
-//		glVertex3f(vertex3.x, vertex3.y, vertex3.z);
-//		
-//		glColor4fv(drawingColor);
-//		glNormal3f(normal.x, normal.y, normal.z );
-//		glVertex3f(vertex4.x, vertex4.y, vertex4.z);
-//	}
-//	//Drawing not begun; we must start it explicitly.
-//	else
 //	{
 //		glBegin(GL_QUADS);
 //		

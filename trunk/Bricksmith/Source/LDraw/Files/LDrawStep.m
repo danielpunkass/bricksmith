@@ -343,29 +343,11 @@
 	NSArray         *commandsInStep     = [self subdirectives];
 	LDrawDirective  *currentDirective   = nil;
 	
-//	//Check for optimized steps.
-//	if(self->stepFlavor == LDrawStepQuadrilaterals)
-//		glBegin(GL_QUADS);
-//	else if(self->stepFlavor == LDrawStepTriangles)
-//		glBegin(GL_TRIANGLES);
-//	else if(self->stepFlavor == LDrawStepLines)
-//		glBegin(GL_LINES);
-//	
-//	//If we have any specialized flavor above, then we have already begun 
-//	// drawing. This little tidbit must be passed on down to the lower reaches.
-//	if(self->stepFlavor != LDrawStepAnyDirectives){
-//		optionsMask |= DRAW_BEGUN;
-//	}
-//	
 	//Draw each element in the step.
 	for(currentDirective in commandsInStep)
 	{
 		[currentDirective draw:optionsMask parentColor:parentColor];
 	}
-//	
-//	//close drawing if we started it.
-//	if(stepFlavor != LDrawStepAnyDirectives)
-//		glEnd();
 
 }//end draw:parentColor:
 

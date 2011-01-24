@@ -256,6 +256,14 @@
 	LDrawDirective  *drawable       = nil;
 	BOOL            drawBoundsOnly  = ((optionsMask & DRAW_BOUNDS_ONLY) != 0);
 	
+	if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
+	{
+		// The superclass already provided a name for this element, and we do 
+		// not want any other subelements to override it. So we filter the 
+		// selection mode flag out of the options we pass down. 
+		optionsMask = optionsMask ^ DRAW_HIT_TEST_MODE; //XOR
+	}
+
 	// Multithreading finally works with one display list per displayed part 
 	// AND mutexes around the glCallList. But the mutex contention causes a 
 	// 50% increase in drawing time. Gah! 

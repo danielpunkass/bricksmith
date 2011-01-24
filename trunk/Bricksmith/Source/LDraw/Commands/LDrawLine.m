@@ -182,20 +182,37 @@
 //==============================================================================
 - (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
 {
-//	{
-//		glBegin(GL_LINES);
-//		
-//			glColor4fv(drawingColor);
-//			glNormal3f(0.0, -1.0, 0.0);
-//			glVertex3f(vertex1.x, vertex1.y, vertex1.z);
-//			
-//			glColor4fv(drawingColor);
-//			glNormal3f(0.0, -1.0, 0.0);
-//			glVertex3f(vertex2.x, vertex2.y, vertex2.z);
-//			
-//		glEnd();
-//	}
-
+	// Ordinarily, primitives are not responsible for drawing themselves 
+	// (because it's really slow!); the get rendered in bulk. The exception is 
+	// for part selection, where each element must be rendered individually with 
+	// its own hit tag. 
+	if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
+	{
+		// Render to a one-off VBO, since immediate mode is deprecated.
+		
+		GLuint          vboTag      = 0;
+		VBOVertexData   vertexes[2] = {};
+		
+		glGenBuffers(1, &vboTag);
+		glBindBuffer(GL_ARRAY_BUFFER, vboTag);
+		
+		[self writeToVertexBuffer:vertexes parentColor:drawingColor];
+		
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexes), vertexes, GL_STREAM_DRAW);
+		
+		// Draw
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glBindBuffer(GL_ARRAY_BUFFER, vboTag);
+		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), 0);
+		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
+		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
+		
+		glDrawArrays(GL_LINES, 0, 1 * 2);
+		
+		glDeleteBuffers(1, &vboTag);
+	}
 }//end drawElement:drawingColor:
 
 

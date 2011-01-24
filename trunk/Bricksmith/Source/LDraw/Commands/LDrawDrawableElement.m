@@ -128,19 +128,19 @@
 	
 	if(self->hidden == NO)
 	{
-		//If the part is selected, we need to give some indication. We do this by 
+		// If the part is selected, we need to give some indication. We do this by 
 		// drawing it as a wireframe instead of a filled color. This setting also 
 		// conveniently applies to all referenced parts herein. 
 		if(self->isSelected == YES)
 		{
-			//a bug on Intel iMacs is causing the wireframe not to get drawn 
+			// a bug on Intel iMacs is causing the wireframe not to get drawn 
 			// unless lighting OR blending is off. We don't need blending here 
 			// because we are already drawing wireframes!
 			glDisable(GL_BLEND);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 		
-		//Load names for mouse-selection, if that's the mode we're in.
+		// Load names for mouse-selection, if that's the mode we're in.
 		// Only elements contained within a step should ever wind up here.
 		// Any other nestings are invalid.
 		if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
@@ -151,11 +151,6 @@
 			glLoadName( stepIndex*STEP_NAME_MULTIPLIER + partIndex );
 			//SERIOUS FLAW!!! This object is not required to have a parent. But 
 			// currently, such an orphan would never be drawn. So life goes on.
-			
-			//Now that we have set a name for this element, we do not want any 
-			// other subelements to override it. So we filter the selection 
-			// mode flag out of the options we pass down.
-			optionsMask = optionsMask ^ DRAW_HIT_TEST_MODE; //XOR
 		}
 		
 		//Draw, for goodness sake!
@@ -163,7 +158,7 @@
 		switch([self->color colorCode])
 		{
 			case LDrawCurrentColor:
-				//Just draw; don't fool with colors. A significant portion of our 
+				// Just draw; don't fool with colors. A significant portion of our 
 				// drawing code probably falls into this category.
 				[self drawElement:optionsMask withColor:parentColor];
 				break;

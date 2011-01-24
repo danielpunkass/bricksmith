@@ -133,10 +133,6 @@
 		// conveniently applies to all referenced parts herein. 
 		if(self->isSelected == YES)
 		{
-			// a bug on Intel iMacs is causing the wireframe not to get drawn 
-			// unless lighting OR blending is off. We don't need blending here 
-			// because we are already drawing wireframes!
-			glDisable(GL_BLEND);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 		

@@ -236,10 +236,6 @@
 #define DRAW_HIT_TEST_MODE						1 << 1
 #define DRAW_BOUNDS_ONLY						1 << 3
 
-//The tags used for mouse-click hit-testing are formed by: 
-// stepIndex * STEP_NAME_MULTIPLIER + partIndexInStep   (see LDrawDrawableElement)
-#define STEP_NAME_MULTIPLIER					1000000
-
 //Number of degrees to rotate in each grid mode.
 #define GRID_ROTATION_FINE						15
 #define GRID_ROTATION_MEDIUM					45

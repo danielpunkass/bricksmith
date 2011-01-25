@@ -23,7 +23,8 @@
 #import "MacLDraw.h"
 #import "PartLibrary.h"
 
-static LDrawVertexes *boundingCube = nil;
+static LDrawVertexes        *boundingCube   = nil;
+static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDirective objects
 
 @implementation LDrawUtilities
 
@@ -500,6 +501,71 @@ static LDrawVertexes *boundingCube = nil;
 	return boundingCube;
 	
 }//end boundingCube
+
+
+#pragma mark -
+#pragma mark HIT DETECTION
+#pragma mark -
+
+//---------- objectForHitTag: ----------------------------------------[static]--
+//
+// Purpose:		Returns the object associated with the given hit-detection tag. 
+//				This method should be called after completing a hit-detection 
+//				draw to resolve the objects which were hit. 
+//
+//------------------------------------------------------------------------------
++ (LDrawDirective *) objectForHitTag:(GLuint)hitTag
+{
+	NSNumber        *key    = [NSNumber numberWithUnsignedInt:hitTag];
+	LDrawDirective  *object = [hitTags objectForKey:key];
+	
+	return object;
+	
+}//end objectForHitTag:
+
+
+
+//---------- makeHitTagForObject: ------------------------------------[static]--
+//
+// Purpose:		Assigns a hit-detection tag to the given object and returns it. 
+//				Tags are NOT persistent from draw to draw; you must call 
+//				+resetHitTags at the beginning of each hit-detection draw. 
+//
+// Note:		Tags are internally 1-relative, but that's purely an 
+//				implementation detail. 
+//
+//------------------------------------------------------------------------------
++ (GLuint) makeHitTagForObject:(LDrawDirective *)directive
+{
+	NSUInteger  previousTag = [hitTags count];
+	GLuint      newTag      = previousTag + 1;
+	NSNumber    *key        = [NSNumber numberWithUnsignedInt:newTag];
+	
+	[hitTags setObject:directive forKey:key];
+	
+	return newTag;
+	
+}//end makeHitTagForObject:
+
+
+//---------- resetHitTags --------------------------------------------[static]--
+//
+// Purpose:		Clears the list of tags used for hit detection. This must be 
+//				called before each hit-detection draw. 
+//
+//------------------------------------------------------------------------------
++ (void) resetHitTags
+{
+	if(hitTags == nil)
+	{
+		hitTags = [[NSMutableDictionary alloc] init];
+	}
+	else
+	{
+		[hitTags removeAllObjects];
+	}
+
+}//end resetHitTags
 
 
 #pragma mark -

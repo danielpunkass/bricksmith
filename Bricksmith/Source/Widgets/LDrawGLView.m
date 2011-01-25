@@ -3208,7 +3208,7 @@
 //				fastDraw	= consider only bounding boxes for hit-detection.
 //
 // Returns:		Array of clicked parts; the closest one -- and the only one we 
-//				care about -- is always the 0th element.
+//				ultimately care about -- is always the 0th element.
 //
 // Notes:		There's a gotcha here. The click region is determined by 
 //				isolating a 1-pixel square around the place where the mouse was 
@@ -3268,6 +3268,7 @@
 			{
 				//Prepare for recording names. These functions must be called 
 				// *after* switching to render mode.
+				[LDrawUtilities resetHitTags];
 				glInitNames();
 				glPushName(UINT_MAX); //0 would be a valid choice, after all...
 				
@@ -3353,16 +3354,16 @@
 	NSMutableArray	*clickedParts		= [NSMutableArray arrayWithCapacity:numberHits];
 	LDrawDirective	*currentDirective	= nil;
 	
-	//The hit record depths are mapped between 0 and UINT_MAX, where the maximum 
-	// integer is the deepest point. We are looking for the shallowest point, 
-	// because that's what we clicked on.
-	GLuint	minimumDepth		= UINT_MAX;
-	GLuint	currentName			= 0;
-	GLuint	currentDepth		= 0;
-	GLuint		numberNames			= 0;
-	GLuint		hitCounter			= 0;
-	GLuint		counter				= 0;
-	GLuint		hitRecordBaseIndex	= 0;
+	// The hit record depths are mapped between 0 and UINT_MAX, where the 
+	// maximum integer is the deepest point. We are looking for the shallowest 
+	// point, because that's what we clicked on. 
+	GLuint  minimumDepth        = UINT_MAX;
+	GLuint  currentName         = 0;
+	GLuint  currentDepth        = 0;
+	GLuint  numberNames         = 0;
+	GLuint  hitCounter          = 0;
+	GLuint  counter             = 0;
+	GLuint  hitRecordBaseIndex  = 0;
 	
 	//Process all the hits. In theory, each hit record can be of variable 
 	// length, so the logic is a little messy. (In Bricksmith, each it record 
@@ -3411,36 +3412,14 @@
 //
 // Purpose:		When we click the mouse, it generates an OpenGL hit-test in 
 //				which parts that were "hit" leave a signature behind. That 
-//				signature in an encoded integer which determines where in the 
-//				model the part resides. This method decodes that tag.
-//
-// Note:		0 is a perfectly valid directive tag; our clue that we didn't 
-//				find anything is if the number of hits is invalid. That 
-//				information is beyond the scope of this method's knowledge.
+//				signature in an one-off integer assigned during the draw from 
+//				+[LDrawUtilities makeHitTagForObject:]. The tags are not 
+//				persistent from draw to draw. 
 //
 //==============================================================================
 - (LDrawDirective *) getDirectiveFromHitCode:(GLuint)name
 {
-	LDrawModel		*enclosingModel		= nil;
-	LDrawStep		*enclosingStep		= nil;
-	LDrawDirective	*clickedDirective	= nil;
-	
-	//Name tags encode the indices at which the reside.
-	NSUInteger	stepIndex	= name / STEP_NAME_MULTIPLIER; //integer division
-	NSUInteger	partIndex	= name % STEP_NAME_MULTIPLIER;
-	
-	//Find the reference we seek. Note that the "fileBeingDrawn" is 
-	// not necessarily a file, so we have to compensate.
-	if([fileBeingDrawn isKindOfClass:[LDrawFile class]] == YES)
-		enclosingModel = (LDrawModel *)[(LDrawFile*)fileBeingDrawn activeModel];
-	else if([fileBeingDrawn isKindOfClass:[LDrawModel class]] == YES)
-		enclosingModel = (LDrawModel *)fileBeingDrawn;
-	
-	if(enclosingModel != nil)
-	{
-		enclosingStep    = [[enclosingModel steps] objectAtIndex:stepIndex];
-		clickedDirective = [[enclosingStep subdirectives] objectAtIndex:partIndex];
-	}
+	LDrawDirective	*clickedDirective	= [LDrawUtilities objectForHitTag:name];
 	
 	return clickedDirective;
 	

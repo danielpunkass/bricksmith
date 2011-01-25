@@ -16,6 +16,7 @@
 #import "ColorLibrary.h"
 #import "LDrawColor.h"
 #import "LDrawContainer.h"
+#import "LDrawUtilities.h"
 #import "MacLDraw.h"
 
 @implementation LDrawDrawableElement
@@ -137,16 +138,10 @@
 		}
 		
 		// Load names for mouse-selection, if that's the mode we're in.
-		// Only elements contained within a step should ever wind up here.
-		// Any other nestings are invalid.
 		if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
 		{
-			LDrawContainer  *enclosingStep  = [self enclosingDirective];
-			NSInteger       partIndex       = [enclosingStep indexOfDirective:self]; 
-			NSInteger       stepIndex       = [[enclosingStep enclosingDirective] indexOfDirective:enclosingStep];
-			glLoadName( stepIndex*STEP_NAME_MULTIPLIER + partIndex );
-			//SERIOUS FLAW!!! This object is not required to have a parent. But 
-			// currently, such an orphan would never be drawn. So life goes on.
+			GLuint hitTag = [LDrawUtilities makeHitTagForObject:self];
+			glLoadName( hitTag );
 		}
 		
 		//Draw, for goodness sake!

@@ -12,6 +12,7 @@
 #import "ColorLibrary.h"
 #import "MatrixMath.h"
 
+@class LDrawDirective;
 @class LDrawPart;
 @class LDrawVertexes;
 
@@ -63,6 +64,12 @@ typedef enum
 
 // Drawing
 + (LDrawVertexes *) boundingCube;
+
+// Hit Detection
++ (LDrawDirective *) objectForHitTag:(GLuint)hitTag;
++ (GLuint) makeHitTagForObject:(LDrawDirective *)directive;
++ (void) resetHitTags;
+
 
 // Miscellaneous
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;

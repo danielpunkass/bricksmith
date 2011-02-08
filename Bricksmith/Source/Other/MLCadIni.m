@@ -329,13 +329,18 @@ static MLCadIni *sharedIniFile = nil;
 //==============================================================================
 - (float) armAngleForTorsoName:(NSString *)torsoName
 {
-	//mechanical torso. No arm rotation
-	if([torsoName isEqualToString:@"30375.dat"] == YES)
+	// Mechanical torso. No arm rotation
+	if(		[torsoName isEqualToString:@"30375.dat"] == YES
+	   ||	[torsoName isEqualToString:@"54275.dat"] == YES)
+	{
 		return 0.0;
-	//regular torso. 
-	//		-- this value is derived from a little trig on the torso surface.
+	}
 	else
+	{
+		// Regular torso. 
+		//		-- this value is derived from a little trig on the torso surface.
 		return 9.791;
+	}
 		
 }//end armAngleForTorsoName:
 

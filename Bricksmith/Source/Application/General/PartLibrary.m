@@ -43,7 +43,9 @@
 	
 	favorites                   = [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
 	
+#if NS_BLOCKS_AVAILABLE
 	catalogAccessQueue          = dispatch_queue_create("com.AllenSmith.Bricksmith.CatalogAccess", NULL);
+#endif
 	parsingGroups               = [[NSMutableDictionary alloc] init];
 	
 	[self setPartCatalog:[NSDictionary dictionary]];
@@ -411,9 +413,11 @@
 {
 	// Determine if the model needs to be parsed.
 	// Dispatch to a serial queue to effectively mutex the query
+#if NS_BLOCKS_AVAILABLE
 	dispatch_group_async(parentGroup, self->catalogAccessQueue,
 	^{
 		NSMutableArray  *requestingGroups   = nil;
+#endif
 		LDrawModel      *model              = nil;
 		BOOL            alreadyParsing      = NO;	// another thread is already parsing partName
 	
@@ -421,6 +425,7 @@
 		model = [self->loadedFiles objectForKey:partName];
 		if(model == nil)
 		{
+#if NS_BLOCKS_AVAILABLE
 			// Is it being parsed? If so, all we need to do is wait for whoever 
 			// is parsing it to finish. 
 			requestingGroups    = [self->parsingGroups objectForKey:partName];
@@ -442,14 +447,18 @@
 			// doing it. 
 			dispatch_group_enter(parentGroup);
 			[requestingGroups addObject:[NSValue valueWithPointer:parentGroup]];
+#endif
 			
 			// Nobody has started parsing it yet, so we win! Parse from disk.
 			if(alreadyParsing == NO)
 			{
+#if NS_BLOCKS_AVAILABLE
 				dispatch_group_async(parentGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 				^{
+#endif
 					NSString    *partPath   = [self pathForPartName:partName];
 						
+#if NS_BLOCKS_AVAILABLE //------------------------------------------------------
 					[self readModelAtPath:partPath asynchronously:YES completionHandler:^(LDrawModel *model)
 					{
 						// Register new model in the library (serial queue "mutex" protected)
@@ -469,10 +478,22 @@
 							[self->parsingGroups removeObjectForKey:partName];
 						});
 					}];
+#else //------------------------------------------------------------------------
+					// **** Non-multithreaded fallback code ****
+					model = [self readModelAtPath:partPath asynchronously:NO completionHandler:NULL];
+					if(model != nil)
+					{
+						[self->loadedFiles setObject:model forKey:partName];
+					}
+#endif //-----------------------------------------------------------------------
+#if NS_BLOCKS_AVAILABLE
 				});
+#endif
 			}
 		}
+#if NS_BLOCKS_AVAILABLE
 	});
+#endif
 	
 }//end loadModelForName:
 
@@ -1056,9 +1077,16 @@
 	NSString            *fileContents   = nil;
 	NSArray             *lines          = nil;
 	LDrawFile           *parsedFile     = nil;
-	dispatch_group_t    group           = dispatch_group_create();
-	__block LDrawModel  *model          = nil;
+	dispatch_group_t    group           = NULL;
+#if NS_BLOCKS_AVAILABLE
+	__block
+#endif
+			LDrawModel  *model          = nil;
 	
+#if NS_BLOCKS_AVAILABLE
+	group           = dispatch_group_create();
+#endif
+
 	if(partPath != nil)
 	{
 		// We found it in the LDraw folder; now all we need to do is get the 
@@ -1071,9 +1099,11 @@
 											   parentGroup:group];
 	}
 	
+#if NS_BLOCKS_AVAILABLE
 	if(asynchronous == NO)
 	{
 		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+#endif
 		[parsedFile optimizeStructure];
 		model = [[[[parsedFile submodels] objectAtIndex:0] retain] autorelease];
 		// We are "leaking" the enclosing file, but returning an internal model 
@@ -1082,6 +1112,7 @@
 		// itself, or perhaps removing the model from its file (since everything 
 		// is theoretically flattened). 
 //		[parsedFile release];
+#if NS_BLOCKS_AVAILABLE
 	}
 	else
 	{
@@ -1098,6 +1129,7 @@
 	}
 	
 	dispatch_release(group);
+#endif
 	
 	return model;
 	
@@ -1146,7 +1178,9 @@
 	[partCatalog		release];
 	[favorites			release];
 	[loadedFiles		release];
+#if NS_BLOCKS_AVAILABLE
 	dispatch_release(catalogAccessQueue);
+#endif
 	[parsingGroups		release];
 	
 	[super dealloc];

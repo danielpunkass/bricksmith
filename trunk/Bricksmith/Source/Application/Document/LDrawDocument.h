@@ -11,6 +11,7 @@
 //==============================================================================
 #import <Cocoa/Cocoa.h>
 
+#import "BricksmithUtilities.h"
 #import "ColorLibrary.h"
 #import "LDrawUtilities.h"
 #import "MatrixMath.h"

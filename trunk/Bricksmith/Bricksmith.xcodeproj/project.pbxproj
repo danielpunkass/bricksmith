@@ -39,17 +39,20 @@
 		0B06F6240F5D0588004E7DD7 /* FavoriteRemove.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */; };
 		0B06F7170F633FD2004E7DD7 /* ExtendedTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B06F7150F633FD2004E7DD7 /* ExtendedTableView.h */; };
 		0B06F7180F633FD2004E7DD7 /* ExtendedTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B06F7160F633FD2004E7DD7 /* ExtendedTableView.m */; };
-		0B0DD7C709B5772200F8EBAA /* LDrawUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */; };
-		0B0DD7C809B5772200F8EBAA /* LDrawUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */; };
 		0B17D2490ECE89C000F8B5FA /* RotationStep.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */; };
 		0B17D2FF0ED0D4C400F8B5FA /* RotationStepEnd.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */; };
+		0B1DA5A813172DA700E14960 /* LDrawDirective.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B1DA5A213172DA700E14960 /* LDrawDirective.h */; };
+		0B1DA5A913172DA700E14960 /* LDrawDirective.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B1DA5A313172DA700E14960 /* LDrawDirective.m */; };
+		0B1DA5AA13172DA700E14960 /* LDrawUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B1DA5A413172DA700E14960 /* LDrawUtilities.h */; };
+		0B1DA5AB13172DA700E14960 /* LDrawUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B1DA5A513172DA700E14960 /* LDrawUtilities.m */; };
+		0B1DA5AC13172DA700E14960 /* LDrawVertexes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B1DA5A613172DA700E14960 /* LDrawVertexes.h */; };
+		0B1DA5AD13172DA700E14960 /* LDrawVertexes.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B1DA5A713172DA700E14960 /* LDrawVertexes.m */; };
 		0B25F040093D5F960099D85E /* BricksmithApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B25F03E093D5F960099D85E /* BricksmithApplication.h */; };
 		0B25F041093D5F960099D85E /* BricksmithApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B25F03F093D5F960099D85E /* BricksmithApplication.m */; };
 		0B2700870981FCEA0058A7BE /* ToolPalette.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2700850981FCEA0058A7BE /* ToolPalette.h */; };
 		0B2700880981FCEA0058A7BE /* ToolPalette.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2700860981FCEA0058A7BE /* ToolPalette.m */; };
 		0B2700E7098203320058A7BE /* Hand.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B2700E5098203320058A7BE /* Hand.tiff */; };
 		0B2700E8098203320058A7BE /* Arrow.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B2700E6098203320058A7BE /* Arrow.tiff */; };
-		0B2AB7C507C7E93B00085145 /* LDrawDirective.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2AB7C307C7E93B00085145 /* LDrawDirective.m */; };
 		0B2DD14A0CD810DC0093E8E5 /* PartBrowserTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2DD1480CD810DC0093E8E5 /* PartBrowserTableView.h */; };
 		0B2DD14B0CD810DC0093E8E5 /* PartBrowserTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */; };
 		0B2DD14E0CD810F20093E8E5 /* BezierPathCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2DD14C0CD810F20093E8E5 /* BezierPathCategory.h */; };
@@ -195,8 +198,6 @@
 		0B9FE5BD08AD977F0046511D /* OneBrick.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5BC08AD977F0046511D /* OneBrick.tiff */; };
 		0B9FE5D208AD97990046511D /* LDraw Document.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5C908AD97990046511D /* LDraw Document.icns */; };
 		0B9FE5D308AD97990046511D /* Bricksmith.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5CA08AD97990046511D /* Bricksmith.icns */; };
-		0BA0833E1293AB7C001AA84D /* LDrawVertexes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BA0833C1293AB7C001AA84D /* LDrawVertexes.h */; };
-		0BA0833F1293AB7C001AA84D /* LDrawVertexes.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA0833D1293AB7C001AA84D /* LDrawVertexes.m */; };
 		0BA24BEA0EFF2A6500BF9915 /* StringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */; };
 		0BA24BEB0EFF2A6500BF9915 /* StringUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */; };
 		0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BB129E90D7BD208004E8CEC /* Spin.tiff */; };
@@ -205,7 +206,6 @@
 		0BC6992D08B5719100DAF996 /* LDrawLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F3FAD07CB0253007B1075 /* LDrawLine.h */; };
 		0BC6992E08B5719200DAF996 /* LDrawModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F384507C8207B007B1075 /* LDrawModel.h */; };
 		0BC6992F08B5719300DAF996 /* LDrawPart.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F3FB107CB0253007B1075 /* LDrawPart.h */; };
-		0BC6993008B5719500DAF996 /* LDrawDirective.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2AB7C207C7E93B00085145 /* LDrawDirective.h */; };
 		0BC6993108B5719500DAF996 /* LDrawFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F383D07C81FEF007B1075 /* LDrawFile.h */; };
 		0BC6993208B5719600DAF996 /* LDrawMetaCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F3FAF07CB0253007B1075 /* LDrawMetaCommand.h */; };
 		0BC6993408B5719800DAF996 /* MacLDraw.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2AAA4407C1D22A00085145 /* MacLDraw.h */; };
@@ -225,6 +225,8 @@
 		0BCD0C6607FD0BA10066A536 /* LDrawContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */; };
 		0BDC146F0B9D0502001D1FF1 /* PartBrowserPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */; };
 		0BDC14700B9D0502001D1FF1 /* PartBrowserPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */; };
+		0BE84A1F1300F91F004E7626 /* BricksmithUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BE84A1D1300F91F004E7626 /* BricksmithUtilities.h */; };
+		0BE84A201300F91F004E7626 /* BricksmithUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BE84A1E1300F91F004E7626 /* BricksmithUtilities.m */; };
 		0BF729B808AD849300E3DA53 /* DocumentToolbarController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BF729A708AD849300E3DA53 /* DocumentToolbarController.h */; };
 		0BF729B908AD849300E3DA53 /* DocumentToolbarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF729A808AD849300E3DA53 /* DocumentToolbarController.m */; };
 		0BF729BA08AD849300E3DA53 /* LDrawDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BF729A908AD849300E3DA53 /* LDrawDocument.h */; };
@@ -325,10 +327,14 @@
 		0B06F6230F5D0588004E7DD7 /* FavoriteRemove.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = FavoriteRemove.pdf; sourceTree = "<group>"; };
 		0B06F7150F633FD2004E7DD7 /* ExtendedTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtendedTableView.h; sourceTree = "<group>"; };
 		0B06F7160F633FD2004E7DD7 /* ExtendedTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtendedTableView.m; sourceTree = "<group>"; };
-		0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawUtilities.h; sourceTree = "<group>"; };
-		0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawUtilities.m; sourceTree = "<group>"; };
 		0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = RotationStep.pdf; sourceTree = "<group>"; };
 		0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = RotationStepEnd.pdf; sourceTree = "<group>"; };
+		0B1DA5A213172DA700E14960 /* LDrawDirective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawDirective.h; sourceTree = "<group>"; };
+		0B1DA5A313172DA700E14960 /* LDrawDirective.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawDirective.m; sourceTree = "<group>"; };
+		0B1DA5A413172DA700E14960 /* LDrawUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawUtilities.h; sourceTree = "<group>"; };
+		0B1DA5A513172DA700E14960 /* LDrawUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawUtilities.m; sourceTree = "<group>"; };
+		0B1DA5A613172DA700E14960 /* LDrawVertexes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawVertexes.h; sourceTree = "<group>"; };
+		0B1DA5A713172DA700E14960 /* LDrawVertexes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawVertexes.m; sourceTree = "<group>"; };
 		0B25F03E093D5F960099D85E /* BricksmithApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BricksmithApplication.h; sourceTree = "<group>"; };
 		0B25F03F093D5F960099D85E /* BricksmithApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BricksmithApplication.m; sourceTree = "<group>"; };
 		0B2700850981FCEA0058A7BE /* ToolPalette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolPalette.h; sourceTree = "<group>"; };
@@ -336,8 +342,6 @@
 		0B2700E5098203320058A7BE /* Hand.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Hand.tiff; sourceTree = "<group>"; };
 		0B2700E6098203320058A7BE /* Arrow.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Arrow.tiff; sourceTree = "<group>"; };
 		0B2AAA4407C1D22A00085145 /* MacLDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacLDraw.h; sourceTree = "<group>"; };
-		0B2AB7C207C7E93B00085145 /* LDrawDirective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawDirective.h; sourceTree = "<group>"; };
-		0B2AB7C307C7E93B00085145 /* LDrawDirective.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawDirective.m; sourceTree = "<group>"; };
 		0B2DD1480CD810DC0093E8E5 /* PartBrowserTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserTableView.h; sourceTree = "<group>"; };
 		0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserTableView.m; sourceTree = "<group>"; };
 		0B2DD14C0CD810F20093E8E5 /* BezierPathCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BezierPathCategory.h; sourceTree = "<group>"; };
@@ -492,8 +496,6 @@
 		0B9FE5BC08AD977F0046511D /* OneBrick.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OneBrick.tiff; sourceTree = "<group>"; };
 		0B9FE5C908AD97990046511D /* LDraw Document.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = "LDraw Document.icns"; sourceTree = "<group>"; };
 		0B9FE5CA08AD97990046511D /* Bricksmith.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Bricksmith.icns; sourceTree = "<group>"; };
-		0BA0833C1293AB7C001AA84D /* LDrawVertexes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawVertexes.h; sourceTree = "<group>"; };
-		0BA0833D1293AB7C001AA84D /* LDrawVertexes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawVertexes.m; sourceTree = "<group>"; };
 		0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringUtilities.h; sourceTree = "<group>"; };
 		0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringUtilities.m; sourceTree = "<group>"; };
 		0BB129E90D7BD208004E8CEC /* Spin.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Spin.tiff; sourceTree = "<group>"; };
@@ -509,6 +511,8 @@
 		0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LDrawContainer.m; path = Source/LDraw/Files/LDrawContainer.m; sourceTree = SOURCE_ROOT; };
 		0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserPanel.h; sourceTree = "<group>"; };
 		0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserPanel.m; sourceTree = "<group>"; };
+		0BE84A1D1300F91F004E7626 /* BricksmithUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BricksmithUtilities.h; sourceTree = "<group>"; };
+		0BE84A1E1300F91F004E7626 /* BricksmithUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BricksmithUtilities.m; sourceTree = "<group>"; };
 		0BF729A708AD849300E3DA53 /* DocumentToolbarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentToolbarController.h; sourceTree = "<group>"; };
 		0BF729A808AD849300E3DA53 /* DocumentToolbarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DocumentToolbarController.m; sourceTree = "<group>"; };
 		0BF729A908AD849300E3DA53 /* LDrawDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawDocument.h; sourceTree = "<group>"; };
@@ -600,6 +604,19 @@
 			path = Interface;
 			sourceTree = "<group>";
 		};
+		0B1DA5A113172DA700E14960 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				0B1DA5A213172DA700E14960 /* LDrawDirective.h */,
+				0B1DA5A313172DA700E14960 /* LDrawDirective.m */,
+				0B1DA5A413172DA700E14960 /* LDrawUtilities.h */,
+				0B1DA5A513172DA700E14960 /* LDrawUtilities.m */,
+				0B1DA5A613172DA700E14960 /* LDrawVertexes.h */,
+				0B1DA5A713172DA700E14960 /* LDrawVertexes.m */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
 		0B2AA9CB07C1C79500085145 /* Application */ = {
 			isa = PBXGroup;
 			children = (
@@ -614,12 +631,9 @@
 		0B2AB7BB07C7E8BE00085145 /* LDraw */ = {
 			isa = PBXGroup;
 			children = (
-				0B2AB7C207C7E93B00085145 /* LDrawDirective.h */,
-				0B2AB7C307C7E93B00085145 /* LDrawDirective.m */,
-				0B6F383C07C81F81007B1075 /* File Structure */,
 				0B6F383B07C81F6D007B1075 /* Commands */,
-				0BA0833C1293AB7C001AA84D /* LDrawVertexes.h */,
-				0BA0833D1293AB7C001AA84D /* LDrawVertexes.m */,
+				0B6F383C07C81F81007B1075 /* File Structure */,
+				0B1DA5A113172DA700E14960 /* Support */,
 			);
 			name = LDraw;
 			path = Source/LDraw;
@@ -990,8 +1004,8 @@
 			isa = PBXGroup;
 			children = (
 				32DBCF750370BD2300C91783 /* Mac LDraw_Prefix.pch */,
-				0B0DD7C509B5772200F8EBAA /* LDrawUtilities.h */,
-				0B0DD7C609B5772200F8EBAA /* LDrawUtilities.m */,
+				0BE84A1D1300F91F004E7626 /* BricksmithUtilities.h */,
+				0BE84A1E1300F91F004E7626 /* BricksmithUtilities.m */,
 				0B2AAA4407C1D22A00085145 /* MacLDraw.h */,
 				0B491DA207F5555B00AC0C10 /* MatrixMath.h */,
 				0B491DA307F5555B00AC0C10 /* MatrixMath.c */,
@@ -1070,7 +1084,6 @@
 				0BC6992D08B5719100DAF996 /* LDrawLine.h in Headers */,
 				0BC6992E08B5719200DAF996 /* LDrawModel.h in Headers */,
 				0BC6992F08B5719300DAF996 /* LDrawPart.h in Headers */,
-				0BC6993008B5719500DAF996 /* LDrawDirective.h in Headers */,
 				0BC6993108B5719500DAF996 /* LDrawFile.h in Headers */,
 				0BC6993208B5719600DAF996 /* LDrawMetaCommand.h in Headers */,
 				0BC6993408B5719800DAF996 /* MacLDraw.h in Headers */,
@@ -1105,7 +1118,6 @@
 				0B8EBEA4093C102E00D87E0C /* WindowCategory.h in Headers */,
 				0B25F040093D5F960099D85E /* BricksmithApplication.h in Headers */,
 				0B2700870981FCEA0058A7BE /* ToolPalette.h in Headers */,
-				0B0DD7C709B5772200F8EBAA /* LDrawUtilities.h in Headers */,
 				2BF2E3030AB0FC5E0026D5DB /* MovePanel.h in Headers */,
 				2BF2E3050AB0FC5E0026D5DB /* RotationPanel.h in Headers */,
 				2BF2E30F0AB0FC840026D5DB /* MinifigureDialogController.h in Headers */,
@@ -1131,7 +1143,10 @@
 				0B8C096810BA532F00BEB111 /* OverlayHelperView.h in Headers */,
 				0B8C097310BA550500BEB111 /* OverlayHelperWindow.h in Headers */,
 				0B8C0A2610BA623700BEB111 /* OverlayViewCategory.h in Headers */,
-				0BA0833E1293AB7C001AA84D /* LDrawVertexes.h in Headers */,
+				0BE84A1F1300F91F004E7626 /* BricksmithUtilities.h in Headers */,
+				0B1DA5A813172DA700E14960 /* LDrawDirective.h in Headers */,
+				0B1DA5AA13172DA700E14960 /* LDrawUtilities.h in Headers */,
+				0B1DA5AC13172DA700E14960 /* LDrawVertexes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1300,7 +1315,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D15AC320486D014006FF6A4 /* main.m in Sources */,
-				0B2AB7C507C7E93B00085145 /* LDrawDirective.m in Sources */,
 				0B6F384007C81FEF007B1075 /* LDrawFile.m in Sources */,
 				0B6F384407C82025007B1075 /* LDrawMPDModel.m in Sources */,
 				0B6F384807C8207B007B1075 /* LDrawModel.m in Sources */,
@@ -1351,7 +1365,6 @@
 				0B8EBEA5093C102E00D87E0C /* WindowCategory.m in Sources */,
 				0B25F041093D5F960099D85E /* BricksmithApplication.m in Sources */,
 				0B2700880981FCEA0058A7BE /* ToolPalette.m in Sources */,
-				0B0DD7C809B5772200F8EBAA /* LDrawUtilities.m in Sources */,
 				2BF2E3040AB0FC5E0026D5DB /* MovePanel.m in Sources */,
 				2BF2E3060AB0FC5E0026D5DB /* RotationPanel.m in Sources */,
 				2BF2E3100AB0FC840026D5DB /* MinifigureDialogController.m in Sources */,
@@ -1377,7 +1390,10 @@
 				0B3E7BA010AF9E5A00AFBCF4 /* OverlayViewCategory.m in Sources */,
 				0B8C096910BA532F00BEB111 /* OverlayHelperView.m in Sources */,
 				0B8C097410BA550500BEB111 /* OverlayHelperWindow.m in Sources */,
-				0BA0833F1293AB7C001AA84D /* LDrawVertexes.m in Sources */,
+				0BE84A201300F91F004E7626 /* BricksmithUtilities.m in Sources */,
+				0B1DA5A913172DA700E14960 /* LDrawDirective.m in Sources */,
+				0B1DA5AB13172DA700E14960 /* LDrawUtilities.m in Sources */,
+				0B1DA5AD13172DA700E14960 /* LDrawVertexes.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

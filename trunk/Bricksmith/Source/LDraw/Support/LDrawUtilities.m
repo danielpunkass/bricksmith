@@ -2,14 +2,14 @@
 //
 // File:		LDrawUtilities.m
 //
-// Purpose:		Convenience routines for managing LDraw directives.
+// Purpose:		Convenience routines for managing LDraw directives: their 
+//				syntax, manipulation, or display. 
 //
 //  Created by Allen Smith on 2/28/06.
 //  Copyright 2006. All rights reserved.
 //==============================================================================
 #import "LDrawUtilities.h"
 
-#import "BezierPathCategory.h"
 #import "LDrawApplication.h"
 #import "LDrawColor.h"
 #import "LDrawConditionalLine.h"
@@ -37,7 +37,6 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 // Purpose:		Allows initializing the right kind of class based on the code 
 //				found at the beginning of an LDraw line.
 //
-
 //------------------------------------------------------------------------------
 + (Class) classForDirectiveBeginningWithLine:(NSString *)line
 {
@@ -581,7 +580,7 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation
 {
 	Tuple3 angle	= ZeroPoint3;
-
+	
 	switch(orientation)
 	{
 		case ViewOrientation3D:
@@ -589,7 +588,7 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 			// applying these rotations in order: z=0, y=45, x=23. 
 			angle = V3Make(30.976, 40.609, 21.342);
 			break;
-	
+			
 		case ViewOrientationFront:
 			angle = V3Make(0, 0, 0);
 			break;
@@ -652,85 +651,6 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 	return bounds;
 	
 }//end boundingBox3ForDirectives
-
-
-//---------- dragImageWithOffset: ------------------------------------[static]--
-//
-// Purpose:		Returns the image used to denote drag-and-drop of parts. 
-//
-// Notes:		We don't use this image when dragging rows in the file contents, 
-//				just when using physically moving parts within the model. 
-//
-//------------------------------------------------------------------------------
-+ (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset
-{
-	NSImage	*brickImage			= [NSImage imageNamed:@"Brick"];
-	CGFloat	 border				= 3;
-	NSSize	 dragImageSize		= NSMakeSize([brickImage size].width + border*2, [brickImage size].height + border*2);
-	NSImage	*dragImage			= [[NSImage alloc] initWithSize:dragImageSize];
-	NSImage *arrowCursorImage	= [[NSCursor arrowCursor] image];
-	NSSize	 arrowSize			= [arrowCursorImage size];
-	
-	[dragImage lockFocus];
-		
-		[[NSColor colorWithDeviceWhite:0.6 alpha:0.75] set];
-		[[NSBezierPath bezierPathWithRect:NSMakeRect(0, 0, dragImageSize.width,dragImageSize.height) radiusPercentage:50.0] fill];
-		
-		[brickImage drawAtPoint:NSMakePoint(border, border) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-		
-	[dragImage unlockFocus];
-	
-	if(dragImageOffset != NULL)
-	{
-		// Now provide an offset to move the image over so it looks like a badge 
-		// next to the cursor: 
-		//   ...Turns out the arrow cursor image is a 24 x 24 picture, and the 
-		//   arrow itself occupies only a small part of the lefthand side of 
-		//   that space. We have to resort to a hardcoded assumption that the 
-		//   actual arrow picture fills only half the full image. 
-		//   ...We subtract from y; that is the natural direction for a lowering 
-		//   offset. In a flipped view, negate that value.  
-		(*dragImageOffset).x +=  arrowSize.width/2;
-		(*dragImageOffset).y -= (arrowSize.height/2 + [dragImage size].height/2);
-	}
-	
-	return [dragImage autorelease];
-
-}//end dragImageWithOffset:
-
-
-//---------- gridSpacingForMode: -------------------------------------[static]--
-//
-// Purpose:		Translates the given grid spacing granularity into an actual 
-//				number of LDraw units, according to the user's preferences. 
-//
-// Notes:		This value represents distances "along the studs"--that is, 
-//			    horizontal along the brick. Vertical distances may be adjusted. 
-//
-//------------------------------------------------------------------------------
-+ (float) gridSpacingForMode:(gridSpacingModeT)gridMode
-{
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	float			 gridSpacing	= 0.0;
-	
-	switch(gridMode)
-	{
-		case gridModeFine:
-			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_FINE];
-			break;
-			
-		case gridModeMedium:
-			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_MEDIUM];
-			break;
-			
-		case gridModeCoarse:
-			gridSpacing		= [userDefaults floatForKey:GRID_SPACING_COARSE];
-			break;
-	}
-	
-	return gridSpacing;
-	
-}//end gridSpacingForMode:
 
 
 //---------- isLDrawFilenameValid: -----------------------------------[static]--
@@ -810,12 +730,12 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 	ViewOrientationT    testOrientation     = ViewOrientation3D;
 	
 	ViewOrientationT    orientations[]      = {	ViewOrientationFront,
-												ViewOrientationBack,
-												ViewOrientationLeft,
-												ViewOrientationRight,
-												ViewOrientationTop,
-												ViewOrientationBottom
-											  };
+		ViewOrientationBack,
+		ViewOrientationLeft,
+		ViewOrientationRight,
+		ViewOrientationTop,
+		ViewOrientationBottom
+	};
 	NSUInteger          orientationCount    = sizeof(orientations)/sizeof(ViewOrientationT);
 	
 	// See if the angle matches any of the head-on orientations.

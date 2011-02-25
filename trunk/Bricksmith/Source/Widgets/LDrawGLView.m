@@ -2122,7 +2122,7 @@
 			//---------- Start drag-and-drop ----------------------------------
 
 			imageLocation	= [self convertPoint:[theEvent locationInWindow] fromView:nil];
-			dragImage		= [LDrawUtilities dragImageWithOffset:&offset];
+			dragImage		= [BricksmithUtilities dragImageWithOffset:&offset];
 			
 			// Offset the image location so that the drag image appears to the 
 			// lower-right of the arrow like a dragging badge. 
@@ -2900,7 +2900,7 @@
 	Point3                  constrainedPosition     = ZeroPoint3;
 	Vector3                 displacement            = ZeroPoint3;
 	Vector3                 cumulativeDisplacement  = ZeroPoint3;
-	float                   gridSpacing             = [LDrawUtilities gridSpacingForMode:self->gridMode];
+	float                   gridSpacing             = [BricksmithUtilities gridSpacingForMode:self->gridMode];
 	NSUInteger              counter                 = 0;
 	BOOL                    moved                   = NO;
 	

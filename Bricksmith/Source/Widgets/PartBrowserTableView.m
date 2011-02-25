@@ -10,7 +10,7 @@
 //==============================================================================
 #import "PartBrowserTableView.h"
 
-#import "LDrawUtilities.h"
+#import "BricksmithUtilities.h"
 
 @implementation PartBrowserTableView
 
@@ -29,7 +29,7 @@
 								  offset:(NSPointPointer)dragImageOffset
 {
 	NSPoint	 offset				= NSZeroPoint;
-	NSImage	*dragImage			= [LDrawUtilities dragImageWithOffset:&offset];
+	NSImage	*dragImage			= [BricksmithUtilities dragImageWithOffset:&offset];
 	
 	// The NSTableView drag code automatically centers the drag image at the 
 	// mouse cursor. Start by counteracting that so it appears directly above 

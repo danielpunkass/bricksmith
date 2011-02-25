@@ -2,7 +2,8 @@
 //
 // File:		LDrawUtilities.h
 //
-// Purpose:		Convenience routines for managing LDraw directives.
+// Purpose:		Convenience routines for managing LDraw directives: their 
+//				syntax, manipulation, or display. 
 //
 //  Created by Allen Smith on 2/28/06.
 //  Copyright 2006. All rights reserved.
@@ -15,14 +16,6 @@
 @class LDrawDirective;
 @class LDrawPart;
 @class LDrawVertexes;
-
-// How much parts move when you nudge them in the viewer. 
-typedef enum gridSpacingMode
-{
-	gridModeFine	= 0,
-	gridModeMedium	= 1,
-	gridModeCoarse	= 2
-} gridSpacingModeT;
 
 
 // Viewing Angle
@@ -37,7 +30,6 @@ typedef enum
 	ViewOrientationBottom		= 6
 	
 } ViewOrientationT;
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,12 +62,9 @@ typedef enum
 + (GLuint) makeHitTagForObject:(LDrawDirective *)directive;
 + (void) resetHitTags;
 
-
 // Miscellaneous
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;
 + (Box3) boundingBox3ForDirectives:(NSArray *)directives;
-+ (NSImage *) dragImageWithOffset:(NSPointPointer)dragImageOffset;
-+ (float) gridSpacingForMode:(gridSpacingModeT)gridMode;
 + (BOOL) isLDrawFilenameValid:(NSString *)fileName;
 + (void) updateNameForMovedPart:(LDrawPart *)movedPart;
 + (ViewOrientationT) viewOrientationForAngle:(Tuple3)rotationAngle;

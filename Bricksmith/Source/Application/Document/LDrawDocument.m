@@ -712,7 +712,7 @@
 	NSArray                 *selectedObjects    = [self selectedObjects];
 	LDrawDrawableElement    *firstNudgable      = nil;
 	id                      currentObject       = nil;
-	float                   nudgeMagnitude      = [LDrawUtilities gridSpacingForMode:self->gridMode];
+	float                   nudgeMagnitude      = [BricksmithUtilities gridSpacingForMode:self->gridMode];
 	NSInteger               counter             = 0;
 	
 	//normalize just in case someone didn't get the message!

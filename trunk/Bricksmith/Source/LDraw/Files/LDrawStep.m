@@ -111,7 +111,7 @@
 		
 	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
-#ifdef NS_BLOCKS_AVAILABLE
+#if NS_BLOCKS_AVAILABLE
 	dispatch_queue_t    queue               = NULL;	
 	dispatch_group_t    stepDispatchGroup   = NULL;
 	

@@ -27,3 +27,7 @@
 // Carbon should be used very, *very* little, but it may be handy.
 #import <Carbon/Carbon.h>
 
+#if !NS_BLOCKS_AVAILABLE
+	#define dispatch_queue_t    void *
+	#define dispatch_group_t    void *
+#endif

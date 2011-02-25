@@ -706,21 +706,23 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	// predictability and allows better potential threading optimization. 
 	if(shouldParse == YES && newPartName != nil && [newPartName length] > 0)
 	{
+#if NS_BLOCKS_AVAILABLE
 		// Create a parsing group if needed.
 		if(parentGroup == NULL)
 			parseGroup = dispatch_group_create();
 		else
 			parseGroup = parentGroup;
-
+#endif
 		[[LDrawApplication sharedPartLibrary] loadModelForName:displayName inGroup:parseGroup];
 		
+#if NS_BLOCKS_AVAILABLE
 		if(parentGroup == NULL)
 		{
 			dispatch_group_wait(parseGroup, DISPATCH_TIME_FOREVER);
 			dispatch_release(parseGroup);
 		}
+#endif	
 	}
-	
 	[self removeDisplayList];
 	
 }//end setDisplayName:

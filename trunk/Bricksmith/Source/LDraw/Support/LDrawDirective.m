@@ -47,12 +47,18 @@
 			 inRange:(NSRange)range
 {
 	LDrawDirective      *directive  = nil;
-	dispatch_group_t    group       = dispatch_group_create();
+	dispatch_group_t    group       = NULL;
 	
+#if NS_BLOCKS_AVAILABLE
+	group = dispatch_group_create();
+#endif
+
 	directive = [self initWithLines:lines inRange:range parentGroup:group];
 	
+#if NS_BLOCKS_AVAILABLE
 	dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 	dispatch_release(group);
+#endif
 	
 	return directive;
 	

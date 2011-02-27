@@ -2909,6 +2909,8 @@
 		[undoManager setActionName:NSLocalizedString(@"UndoDrop", nil)];
 	}
 	
+	[[documentContents activeModel] optimizeVertexes];
+
 }//end LDrawGLView:acceptDrop:
 
 
@@ -3061,6 +3063,8 @@
 		success = YES;
 	}
 
+	[[documentContents activeModel] optimizeVertexes];
+	
 	return success;
 	
 }//end LDrawGLView:writeDirectivesToPasteboard:asCopy:

@@ -21,6 +21,8 @@
 {
 	Point3		vertex1;
 	Point3		vertex2;
+
+	NSArray		*dragHandles;
 }
 
 //Directives

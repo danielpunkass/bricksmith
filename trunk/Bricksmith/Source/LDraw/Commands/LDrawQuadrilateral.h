@@ -24,6 +24,8 @@
 	Point3		vertex4;
 	
 	Vector3		normal;
+
+	NSArray		*dragHandles;
 }
 
 // Directives

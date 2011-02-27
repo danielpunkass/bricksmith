@@ -23,6 +23,8 @@
 	Point3		vertex3;
 	
 	Vector3		normal;
+	
+	NSArray		*dragHandles;
 }
 
 //Accessors

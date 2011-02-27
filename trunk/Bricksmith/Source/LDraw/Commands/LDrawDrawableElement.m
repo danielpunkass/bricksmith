@@ -129,14 +129,6 @@
 	
 	if(self->hidden == NO)
 	{
-		// If the part is selected, we need to give some indication. We do this by 
-		// drawing it as a wireframe instead of a filled color. This setting also 
-		// conveniently applies to all referenced parts herein. 
-		if(self->isSelected == YES)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		
 		// Load names for mouse-selection, if that's the mode we're in.
 		if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
 		{
@@ -144,7 +136,7 @@
 			glLoadName( hitTag );
 		}
 		
-		//Draw, for goodness sake!
+		// Resolve color and draw
 		
 		switch([self->color colorCode])
 		{
@@ -162,14 +154,6 @@
 			default:
 				[self drawElement:optionsMask withColor:self->color];
 				break;
-		}
-		
-		// Done drawing a selected part? Then switch back to normal filled 
-		// drawing. 
-		if(self->isSelected == YES)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glEnable(GL_BLEND);
 		}
 	}
 	

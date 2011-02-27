@@ -22,6 +22,7 @@
 #import "LDrawQuadrilateral.h"
 
 #import "LDrawColor.h"
+#import "LDrawDragHandle.h"
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "MacLDraw.h"
@@ -257,6 +258,15 @@
 		
 		glDeleteBuffers(1, &vboTag);
 	}
+
+	if(self->dragHandles)
+	{
+		for(LDrawDragHandle *handle in self->dragHandles)
+		{
+			[handle draw:optionsMask parentColor:drawingColor];
+		}
+	}
+	
 }//end drawElement:parentColor:
 
 
@@ -444,6 +454,44 @@
 
 #pragma mark -
 
+//========== setSelected: ======================================================
+//
+// Purpose:		Identifies the object as selected.
+//
+//==============================================================================
+- (void) setSelected:(BOOL)flag
+{
+	[super setSelected:flag];
+	
+	// Create the drag handle objects
+	if(flag == YES)
+	{
+		LDrawDragHandle *handle1 = [[[LDrawDragHandle alloc] initWithTag:1 position:self->vertex1] autorelease];
+		LDrawDragHandle *handle2 = [[[LDrawDragHandle alloc] initWithTag:2 position:self->vertex2] autorelease];
+		LDrawDragHandle *handle3 = [[[LDrawDragHandle alloc] initWithTag:3 position:self->vertex3] autorelease];
+		LDrawDragHandle *handle4 = [[[LDrawDragHandle alloc] initWithTag:4 position:self->vertex4] autorelease];
+		
+		[handle1 setTarget:self];
+		[handle2 setTarget:self];
+		[handle3 setTarget:self];
+		[handle4 setTarget:self];
+		
+		[handle1 setAction:@selector(dragHandleChanged:)];
+		[handle2 setAction:@selector(dragHandleChanged:)];
+		[handle3 setAction:@selector(dragHandleChanged:)];
+		[handle4 setAction:@selector(dragHandleChanged:)];
+		
+		self->dragHandles = [[NSArray alloc] initWithObjects:handle1, handle2, handle3, handle4, nil];
+	}
+	else
+	{
+		[self->dragHandles release];
+		self->dragHandles = nil;
+	}
+	
+}//end setSelected:
+
+
 //========== setVertex1: =======================================================
 //
 // Purpose:		Sets the quadrilateral's first vertex.
@@ -453,6 +501,11 @@
 {
 	self->vertex1 = newVertex;
 	[self recomputeNormal];
+	
+	if(dragHandles)
+	{
+		[[self->dragHandles objectAtIndex:0] setPosition:newVertex updateTarget:NO];
+	}
 	
 }//end setVertex1:
 
@@ -467,6 +520,11 @@
 	self->vertex2 = newVertex;
 	[self recomputeNormal];
 	
+	if(dragHandles)
+	{
+		[[self->dragHandles objectAtIndex:1] setPosition:newVertex updateTarget:NO];
+	}
+	
 }//end setVertex2:
 
 
@@ -479,6 +537,11 @@
 {
 	self->vertex3 = newVertex;
 	[self recomputeNormal];
+	
+	if(dragHandles)
+	{
+		[[self->dragHandles objectAtIndex:2] setPosition:newVertex updateTarget:NO];
+	}
 	
 }//end setVertex3:
 
@@ -493,12 +556,38 @@
 	self->vertex4 = newVertex;
 	[self recomputeNormal];
 	
+	if(dragHandles)
+	{
+		[[self->dragHandles objectAtIndex:3] setPosition:newVertex updateTarget:NO];
+	}
+	
 }//end setVertex4:
 
 
 #pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
+
+//========== dragHandleChanged: ================================================
+//
+// Purpose:		One of the drag handles on our vertexes has changed.
+//
+//==============================================================================
+- (void) dragHandleChanged:(id)sender
+{
+	LDrawDragHandle *handle         = (LDrawDragHandle *)sender;
+	Point3          newPosition     = [handle position];
+	NSInteger       vertexNumber    = [handle tag];
+	
+	switch(vertexNumber)
+	{
+		case 1: [self setVertex1:newPosition]; break;
+		case 2: [self setVertex2:newPosition]; break;
+		case 3: [self setVertex3:newPosition]; break;
+		case 4: [self setVertex4:newPosition]; break;
+	}
+}//end dragHandleChanged:
+
 
 //========== moveBy: ===========================================================
 //
@@ -507,22 +596,16 @@
 //==============================================================================
 - (void) moveBy:(Vector3)moveVector
 {
-	vertex1.x += moveVector.x;
-	vertex1.y += moveVector.y;
-	vertex1.z += moveVector.z;
+	Point3 newVertex1 = V3Add(self->vertex1, moveVector);
+	Point3 newVertex2 = V3Add(self->vertex2, moveVector);
+	Point3 newVertex3 = V3Add(self->vertex3, moveVector);
+	Point3 newVertex4 = V3Add(self->vertex4, moveVector);
 	
-	vertex2.x += moveVector.x;
-	vertex2.y += moveVector.y;
-	vertex2.z += moveVector.z;
+	[self setVertex1:newVertex1];
+	[self setVertex2:newVertex2];
+	[self setVertex3:newVertex3];
+	[self setVertex4:newVertex4];
 	
-	vertex3.x += moveVector.x;
-	vertex3.y += moveVector.y;
-	vertex3.z += moveVector.z;
-	
-	vertex4.x += moveVector.x;
-	vertex4.y += moveVector.y;
-	vertex4.z += moveVector.z;
-
 }//end moveBy:
 
 
@@ -666,6 +749,23 @@
 	[undoManager setActionName:NSLocalizedString(@"UndoAttributesQuadrilateral", nil)];
 	
 }//end registerUndoActions:
+
+
+#pragma mark -
+#pragma mark DESTRUCTOR
+#pragma mark -
+
+//========== dealloc ===========================================================
+//
+// Purpose:		The Big Sleep.
+//
+//==============================================================================
+- (void) dealloc
+{
+	[dragHandles release];
+	
+	[super dealloc];
+}
 
 
 @end

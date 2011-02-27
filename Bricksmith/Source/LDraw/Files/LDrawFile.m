@@ -675,6 +675,19 @@
 }//end optimizeStructure
 
 
+//========== optimizeVertexes ==================================================
+//
+// Purpose:		Provide a pass-through method for optimizing if displaying a 
+//				file.  
+//
+//==============================================================================
+- (void) optimizeVertexes
+{
+	[[self activeModel] optimizeVertexes];
+
+}//end optimizeVertexes
+
+
 //========== renameModel:toName: ===============================================
 //
 // Purpose:		Sets the name of the given member submodel to the new name, and 

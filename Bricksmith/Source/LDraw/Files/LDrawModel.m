@@ -708,6 +708,33 @@
 	LDrawDirective  *currentDirective   = nil;
 	NSUInteger      counter             = 0;
 	
+	// Remove primitives from the previous dragging directives from the 
+	// optimized vertexes 
+	if(self->draggingDirectives)
+	{
+		NSMutableArray  *lines              = [NSMutableArray array];
+		NSMutableArray  *triangles          = [NSMutableArray array];
+		NSMutableArray  *quadrilaterals     = [NSMutableArray array];
+		
+		[self->draggingDirectives flattenIntoLines:lines
+										 triangles:triangles
+									quadrilaterals:quadrilaterals
+											 other:nil
+									  currentColor:[[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor]
+								  currentTransform:IdentityMatrix4
+								   normalTransform:IdentityMatrix3
+										 recursive:NO];
+
+		for(LDrawLine *directive in lines)
+			[self->vertexes removeLine:directive];
+
+		for(LDrawTriangle *directive in triangles)
+			[self->vertexes removeTriangle:directive];
+
+		for(LDrawQuadrilateral *directive in quadrilaterals)
+			[self->vertexes removeQuadrilateral:directive];
+	}
+	
 	// When we get sent nil directives, nil out the drag step.
 	if(directives != nil)
 	{
@@ -721,16 +748,44 @@
 			[dragStep addDirective:currentDirective];
 		}
 		
-		// Tell the element that it lives in us now. This is important for submodel 
-		// references being dragged; without it, they have no way of resolving their 
-		// part reference, and thus can't draw during their drag. 
+		// Tell the element that it lives in us now. This is important for 
+		// submodel references being dragged; without it, they have no way of 
+		// resolving their part reference, and thus can't draw during their 
+		// drag. 
 		[dragStep setEnclosingDirective:self];
+		
+		
+		//---------- Optimize primitives ---------------------------------------
+		
+		NSMutableArray  *lines              = [NSMutableArray array];
+		NSMutableArray  *triangles          = [NSMutableArray array];
+		NSMutableArray  *quadrilaterals     = [NSMutableArray array];
+		
+		[dragStep flattenIntoLines:lines
+						 triangles:triangles
+					quadrilaterals:quadrilaterals
+							 other:nil
+					  currentColor:[[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor]
+				  currentTransform:IdentityMatrix4
+				   normalTransform:IdentityMatrix3
+						 recursive:NO];
+		
+		for(LDrawLine *directive in lines)
+			[self->vertexes addLine:directive];
+		
+		for(LDrawTriangle *directive in triangles)
+			[self->vertexes addTriangle:directive];
+		
+		for(LDrawQuadrilateral *directive in quadrilaterals)
+			[self->vertexes addQuadrilateral:directive];
 	}
 	
 	[dragStep retain];
 	[self->draggingDirectives release];
 	
 	self->draggingDirectives = dragStep;
+	
+	[self optimizeVertexes];
 	
 }//end setDraggingDirectives:
 

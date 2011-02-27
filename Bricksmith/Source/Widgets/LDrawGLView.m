@@ -2743,6 +2743,11 @@
 					  withDragPosition:dragPointInWindow
 				   depthReferencePoint:modelReferencePoint
 						 constrainAxis:constrainDragAxis];
+						 
+		if([self->fileBeingDrawn respondsToSelector:@selector(optimizeVertexes)])
+		{
+			[(id)self->fileBeingDrawn optimizeVertexes];
+		}
 		
 		if(moved == YES)
 		{

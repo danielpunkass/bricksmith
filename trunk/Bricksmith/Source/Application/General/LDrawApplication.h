@@ -28,6 +28,7 @@
 	PartLibraryController	*partLibraryController;	// centralized location for part information.
 	Inspector				*inspector;				// system for graphically inspecting classes.
 	NSOpenGLContext			*sharedGLContext;		// OpenGL variables like display list numbers are shared through this.
+	UInt16			        connexionClientID;		// The identifier of client to a 3Dconnexion controller, if there is one.
 }
 
 //Actions
@@ -53,5 +54,7 @@
 //Utilities
 - (NSString *) findLDrawPath;
 - (void) openHelpAnchor:(NSString *)helpAnchor;
+
+void connexionMessageHandler(io_connect_t connection, natural_t messageType, void *messageArgument);
 
 @end

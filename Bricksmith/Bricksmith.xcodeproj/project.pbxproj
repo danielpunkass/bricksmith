@@ -1670,7 +1670,10 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"MACOSX_DEPLOYMENT_TARGET[arch=x86_64]" = 10.6;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					3DconnexionClient,
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Bricksmith;
 				SDKROOT = macosx10.5;
@@ -1697,7 +1700,10 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"MACOSX_DEPLOYMENT_TARGET[arch=x86_64]" = 10.6;
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					3DconnexionClient,
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Bricksmith;
 				SDKROOT = macosx10.5;
@@ -1712,6 +1718,10 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					3DconnexionClient.framework,
+				);
 				SDKROOT = macosx10.5;
 			};
 			name = Debug;
@@ -1720,6 +1730,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				OTHER_LDFLAGS = (
+					"-weak_framework",
+					3DconnexionClient.framework,
+				);
 				SDKROOT = macosx10.5;
 			};
 			name = Release;

@@ -2947,13 +2947,11 @@
 //==============================================================================
 - (void) LDrawGLViewPartsWereDraggedIntoOblivion:(LDrawGLView *)glView
 {
-	NSInteger   selectionCount      = [self->selectedDirectives count];
 	id          currentDirective    = nil;
-	NSInteger   counter             = 0;
 	
-	for(counter = 0; counter < selectionCount; counter++)
+	while([self->selectedDirectives count] > 0)
 	{
-		currentDirective	= [self->selectedDirectives objectAtIndex:counter];
+		currentDirective	= [self->selectedDirectives lastObject];
 		
 		if([currentDirective isKindOfClass:[LDrawDrawableElement class]])
 		{

@@ -14,6 +14,9 @@
 //==============================================================================
 #import "LDrawApplication.h"
 
+#import <3DConnexionClient/ConnexionClientAPI.h>
+#import <mach/mach_time.h>
+
 #import "DonationDialogController.h"
 #import "Inspector.h"
 #import "LDrawColorPanel.h"
@@ -25,8 +28,6 @@
 #import "PreferencesDialogController.h"
 #import "ToolPalette.h"
 #import "TransformerIntMinus1.h"
-#import <3DConnexionClient/ConnexionClientAPI.h>
-#include <mach/mach_time.h>
 
 //==============================================================================
 // Define a weak link to the 3DConnexion driver. See link below for more info on weak linking
@@ -69,12 +70,13 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 		// Install message handler and register our client
 		error = InstallConnexionHandlers(connexionMessageHandler, 0L, 0L);
 		
-		// This takes over in our application only. Note that the first field here is the
-		// "Bundle OS Type code" from the Info.plist file. Previously, this was set to '????',
-		// which isn't good. I just made up 'Brik', but if you want to change it, make the
-		// change both here and in the Info.plist file. Back in the OS 9 days, this code
-		// was hugely important, as it would identify who created a file. Not sure in the
-		// OS X world how much it matters.
+		// This takes over in our application only. Note that the first field 
+		// here is the "Bundle OS Type code" from the Info.plist file. 
+		// Previously, this was set to '????', which isn't good. I just made up 
+		// 'Brik', but if you want to change it, make the change both here and 
+		// in the Info.plist file. Back in the OS 9 days, this code was hugely 
+		// important, as it would identify who created a file. Not sure in the 
+		// OS X world how much it matters. 
 		connexionClientID = RegisterConnexionClient('Brik', "\pBricksmith", kConnexionClientModeTakeOver, kConnexionMaskAll);
 		
 		// This line was in the sample code, but doesn't compile, and doesn't seem to matter,
@@ -683,48 +685,59 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 }//end dealloc
 
 
-//========== connexionMessageHandler =====================================================
+#pragma mark -
+#pragma mark CALLBACKS
+#pragma mark -
+
+//========== connexionMessageHandler ===========================================
 //
-// Purpose:		Respond to motions made by a 3DConnexion mouse. Based on the documentation in the
-//				SDK (found at http://www.3dconnexion.com/service/software-developer.html), this
-//				code implements what the docs call "object mode", where motions of the mouse
-//              manipulate the bricks.
+// Purpose:		Respond to motions made by a 3DConnexion mouse. Based on the 
+//				documentation in the SDK (found at 
+//				http://www.3dconnexion.com/service/software-developer.html), 
+//				this code implements what the docs call "object mode", where 
+//				motions of the mouse manipulate the bricks. 
 //
-//				The mouse generates so many callbacks, that some throttling is needed to control
-//              the responsiveness. Unlike most 3d applications, Bricksmith uses "quantized" movement
-//              where bricks are shifted and rotated based on grid spacing, so the really fine tuning
-//              the mouse supplies is overkill. Also, the code performing the brick motion is slow
-//              relative to the callbacks, which causes them to accumulate in the queue. If not
-//              controlled, this makes move events happen long after the user lets go of the mouse, as
-//              the still full queue empties. So, code below generally just ignores mouse messages 
-//				that are "too old".
+//				The mouse generates so many callbacks, that some throttling is 
+//				needed to control the responsiveness. Unlike most 3d 
+//				applications, Bricksmith uses "quantized" movement where bricks 
+//				are shifted and rotated based on grid spacing, so the really 
+//				fine tuning the mouse supplies is overkill. Also, the code 
+//				performing the brick motion is slow relative to the callbacks, 
+//				which causes them to accumulate in the queue. If not controlled, 
+//				this makes move events happen long after the user lets go of the 
+//				mouse, as the still full queue empties. So, code below generally 
+//				just ignores mouse messages that are "too old". 
 //
-//				Motion from the mouse is remembered and accumulated, until it becomes large enough
-//				to result in a rotation or translation. On each event, the code is set up to only
-//				pay attention to the largest source of movement of the mouse. Again, this is unlike
-//				most 3D applications, but fits the way Bricksmith works better. The end result is
-//				that minor motion tends to be ignored, and using the mouse tends to use "snaps" rather
-//				than a "floating" sort of conrol. Also, this makes any give motion of the mouse do
-//				only one thing. For example, if the user pulls the mouse mostly in the +x direction,
-//				but also rotates the z axis slightly, only the +x motion is done (though the other
-//				movements are remembered and accumulated, until a peice actually moves).
+//				Motion from the mouse is remembered and accumulated, until it 
+//				becomes large enough to result in a rotation or translation. On 
+//				each event, the code is set up to only pay attention to the 
+//				largest source of movement of the mouse. Again, this is unlike 
+//				most 3D applications, but fits the way Bricksmith works better. 
+//				The end result is that minor motion tends to be ignored, and 
+//				using the mouse tends to use "snaps" rather than a "floating" 
+//				sort of conrol. Also, this makes any give motion of the mouse do 
+//				only one thing. For example, if the user pulls the mouse mostly 
+//				in the +x direction, but also rotates the z axis slightly, only 
+//				the +x motion is done (though the other movements are remembered 
+//				and accumulated, until a peice actually moves). 
 //
-//				Control follows the grid, unless the user holds down the control key. If they hold down
-//				this key, as in apps like Photoshop, the grid is ignored, and a more "free form" control
-//				is used.
+//				Control follows the grid, unless the user holds down the control 
+//				key. If they hold down this key, as in apps like Photoshop, the 
+//				grid is ignored, and a more "free form" control is used. 
 //
-//				TODO One trick here is that the performance should be the same regardless of processor 
-//				speed. I _think_ this code does that, but I'm not sure.
+//				TODO One trick here is that the performance should be the same 
+//				regardless of processor speed. I _think_ this code does that, 
+//				but I'm not sure. 
 //
-//				TODO The oneTypeOfMotionAtATime setting is hard-coded to true now. This should maybe
-//				be a preference, but maybe not.
+//				TODO The oneTypeOfMotionAtATime setting is hard-coded to true 
+//				now. This should maybe be a preference, but maybe not. 
 //
-//				TODO Bricksmith has a "spin model" tool. When that tool is active, the 3d mouse
-//              should probably switch to "camera mode". Since I almost never actually use the spin model
-//              tool, I'm not sure how much this matters.
+//				TODO Bricksmith has a "spin model" tool. When that tool is 
+//				active, the 3d mouse should probably switch to "camera mode". 
+//				Since I almost never actually use the spin model tool, I'm not 
+//				sure how much this matters. 
 //
 //==============================================================================
-// 
 void connexionMessageHandler(io_connect_t connection, natural_t messageType, void *messageArgument)
 {
 	static bool initialized = false;
@@ -914,4 +927,6 @@ void connexionMessageHandler(io_connect_t connection, natural_t messageType, voi
 			break;
 	}
 }
+
+
 @end

@@ -55,6 +55,7 @@
 		0B2700E8098203320058A7BE /* Arrow.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B2700E6098203320058A7BE /* Arrow.tiff */; };
 		0B27CFAA1318AA0F005C7E1A /* LDrawDragHandle.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B27CFA81318AA0F005C7E1A /* LDrawDragHandle.h */; };
 		0B27CFAB1318AA0F005C7E1A /* LDrawDragHandle.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B27CFA91318AA0F005C7E1A /* LDrawDragHandle.m */; };
+		0B27D22C132B3383005C7E1A /* 3DconnexionClient.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B27D22B132B3383005C7E1A /* 3DconnexionClient.framework */; };
 		0B2DD14A0CD810DC0093E8E5 /* PartBrowserTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2DD1480CD810DC0093E8E5 /* PartBrowserTableView.h */; };
 		0B2DD14B0CD810DC0093E8E5 /* PartBrowserTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */; };
 		0B2DD14E0CD810F20093E8E5 /* BezierPathCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B2DD14C0CD810F20093E8E5 /* BezierPathCategory.h */; };
@@ -345,6 +346,7 @@
 		0B2700E6098203320058A7BE /* Arrow.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Arrow.tiff; sourceTree = "<group>"; };
 		0B27CFA81318AA0F005C7E1A /* LDrawDragHandle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawDragHandle.h; sourceTree = "<group>"; };
 		0B27CFA91318AA0F005C7E1A /* LDrawDragHandle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawDragHandle.m; sourceTree = "<group>"; };
+		0B27D22B132B3383005C7E1A /* 3DconnexionClient.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = 3DconnexionClient.framework; path = ../ThirdParty/3DconnexionClient.framework; sourceTree = SOURCE_ROOT; };
 		0B2AAA4407C1D22A00085145 /* MacLDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MacLDraw.h; sourceTree = "<group>"; };
 		0B2DD1480CD810DC0093E8E5 /* PartBrowserTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserTableView.h; sourceTree = "<group>"; };
 		0B2DD1490CD810DC0093E8E5 /* PartBrowserTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserTableView.m; sourceTree = "<group>"; };
@@ -570,6 +572,7 @@
 				0B34B52E090B07AE00F3A001 /* Carbon.framework in Frameworks */,
 				2BB59F4309FEFE960077A885 /* AMSProgressBar.framework in Frameworks */,
 				2B1C603B09FF00B3001EE8FA /* AMSProgressBar.framework in Frameworks */,
+				0B27D22C132B3383005C7E1A /* 3DconnexionClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1051,6 +1054,7 @@
 			isa = PBXGroup;
 			children = (
 				2B1C603A09FF00B3001EE8FA /* AMSProgressBar.framework */,
+				0B27D22B132B3383005C7E1A /* 3DconnexionClient.framework */,
 				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
 				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
 			);
@@ -1655,7 +1659,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"",
+					"\"$(SRCROOT)/../ThirdParty\"",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -1687,7 +1694,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../AMSProgressBar/build/$(CONFIGURATION)\"",
+					"\"$(SRCROOT)/../ThirdParty\"",
+				);
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;

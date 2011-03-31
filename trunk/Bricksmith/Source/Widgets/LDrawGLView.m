@@ -40,6 +40,7 @@
 #import "LDrawColor.h"
 #import "LDrawDirective.h"
 #import "LDrawDocument.h"
+#import "LDrawDragHandle.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
 #import "LDrawPart.h"
@@ -1866,7 +1867,12 @@
 	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
 	MouseDragBehaviorT	 draggingBehavior	= [userDefaults integerForKey:MOUSE_DRAGGING_BEHAVIOR_KEY];
 	ToolModeT			 toolMode			= [ToolPalette toolMode];
-
+	
+	if(self->isTrackingDrag == NO)
+	{
+		self->isStartingDrag = YES;
+	}
+	
 	self->isTrackingDrag = YES;
 	[self resetCursor];
 	
@@ -1896,20 +1902,20 @@
 				// If the delay has elapsed, begin drag-and-drop. Otherwise, 
 				// just spin the model. 
 				if(self->canBeginDragAndDrop == YES)
-					[self dragAndDropDragged:theEvent];
+					[self directInteractionDragged:theEvent];
 				else			
 					[self rotationDragged:theEvent];
 				break;			
 				
 			case MouseDraggingBeginImmediately:
-				[self dragAndDropDragged:theEvent];
+				[self directInteractionDragged:theEvent];
 				break;
 				
 			case MouseDraggingImmediatelyInOrthoNeverInPerspective:
 				if([self projectionMode] == ProjectionModePerspective)
 					[self rotationDragged:theEvent];
 				else
-					[self dragAndDropDragged:theEvent];
+					[self directInteractionDragged:theEvent];
 				break;
 		}
 	}
@@ -1917,6 +1923,7 @@
 	// Don't wait for drag-and-drop anymore. We need to do this after we process 
 	// the drag, because it clears the can-drag flag. 
 	[self cancelClickAndHoldTimer];
+	self->isStartingDrag = NO;
 	
 }//end mouseDragged
 
@@ -2047,6 +2054,27 @@
 
 #pragma mark - Dragging
 
+//========== directInteractionDragged: =========================================
+//
+// Purpose:		This is a mouseDragged intended to directly modify onscreen 
+//				objects, by moving, deforming, or transforming them. 
+//
+//==============================================================================
+- (void) directInteractionDragged:(NSEvent *)theEvent
+{
+	if(self->activeDragHandle)
+	{
+		// move drag handle
+		[self dragHandleDragged:theEvent];
+	}
+	else
+	{
+		[self dragAndDropDragged:theEvent];
+	}
+
+}//end directInteractionDragged:
+
+
 //========== dragAndDropDragged: ===============================================
 //
 // Purpose:		This is a special mouseDragged which means to begin a Mac OS 
@@ -2143,6 +2171,53 @@
 	}
 
 }//end dragAndDropDragged:
+
+
+//========== dragHandleDragged: ================================================
+//
+// Purpose:		Move the active drag handle
+//
+//==============================================================================
+- (void) dragHandleDragged:(NSEvent *)theEvent
+{
+	NSPoint dragPointInWindow   = [theEvent locationInWindow];
+	Point3  modelReferencePoint = ZeroPoint3;
+	BOOL    constrainDragAxis   = NO;
+	BOOL    moved               = NO;
+
+	modelReferencePoint = [self->activeDragHandle position];
+	constrainDragAxis   = ([theEvent modifierFlags] & NSShiftKeyMask) != 0;
+	
+	// Give the document controller an opportunity for undo management!
+	if(self->isStartingDrag && [self->delegate respondsToSelector:@selector(LDrawGLView:willBeginDraggingHandle:)])
+	{
+		[self->delegate LDrawGLView:self willBeginDraggingHandle:self->activeDragHandle];
+	}
+
+	// Update with new position
+	moved = [self updateDirectives:[NSArray arrayWithObject:self->activeDragHandle]
+				  withDragPosition:dragPointInWindow
+			   depthReferencePoint:modelReferencePoint
+					 constrainAxis:constrainDragAxis];
+					 
+	if(moved)
+	{
+		if([self->fileBeingDrawn respondsToSelector:@selector(optimizeVertexes)])
+		{
+			[(id)self->fileBeingDrawn optimizeVertexes];
+		}
+
+		[[NSNotificationCenter defaultCenter]
+					 postNotificationName:LDrawDirectiveDidChangeNotification
+					               object:self->fileBeingDrawn ];
+
+		if([self->delegate respondsToSelector:@selector(LDrawGLView:dragHandleDidMove:)])
+		{
+			[self->delegate LDrawGLView:self dragHandleDidMove:self->activeDragHandle];
+		}
+	}
+
+}//end dragHandleDragged:
 
 
 //========== panDrag: ==========================================================
@@ -2371,23 +2446,35 @@
 		
 		if([fineDrawParts count] > 0)
 			clickedDirective = [fineDrawParts objectAtIndex:0];
-		
-		// If the clicked part is already selected, calling this method will 
-		// deselect it. Generally, we want to leave the current selection intact 
-		// (so we can drag it, maybe). The exception is multiple-selection mode, 
-		// which means we actually *want* to deselect it. 
-		if(		[clickedDirective isSelected] == NO
-		   ||	(	[clickedDirective isSelected] == YES // allow deselection
-				 && extendSelection == YES
-				)
-		  )
+			
+		// Primitive manipulation?
+		if([clickedDirective isKindOfClass:[LDrawDragHandle class]])
 		{
-			//Notify our delegate about this momentous event.
-			// It's okay to send nil; that means "deselect."
-			// We want to add this to the current selection if the shift key is down.
-			[self->delegate LDrawGLView:self
-				 wantsToSelectDirective:clickedDirective
-				   byExtendingSelection:extendSelection ];
+			self->activeDragHandle = (LDrawDragHandle*)clickedDirective;
+		}
+		else
+		{
+			// Normal selection
+			self->activeDragHandle = nil;
+			
+			// ----------------
+			// If the clicked part is already selected, calling this method will 
+			// deselect it. Generally, we want to leave the current selection intact 
+			// (so we can drag it, maybe). The exception is multiple-selection mode, 
+			// which means we actually *want* to deselect it. 
+			if(		[clickedDirective isSelected] == NO
+			   ||	(	[clickedDirective isSelected] == YES // allow deselection
+					 && extendSelection == YES
+					)
+			  )
+			{
+				//Notify our delegate about this momentous event.
+				// It's okay to send nil; that means "deselect."
+				// We want to add this to the current selection if the shift key is down.
+				[self->delegate LDrawGLView:self
+					 wantsToSelectDirective:clickedDirective
+					   byExtendingSelection:extendSelection ];
+			}
 		}
 	}
 
@@ -2744,13 +2831,13 @@
 				   depthReferencePoint:modelReferencePoint
 						 constrainAxis:constrainDragAxis];
 						 
-		if([self->fileBeingDrawn respondsToSelector:@selector(optimizeVertexes)])
-		{
-			[(id)self->fileBeingDrawn optimizeVertexes];
-		}
-		
 		if(moved == YES)
 		{
+			if([self->fileBeingDrawn respondsToSelector:@selector(optimizeVertexes)])
+			{
+				[(id)self->fileBeingDrawn optimizeVertexes];
+			}
+			
 			[[NSNotificationCenter defaultCenter]
 							postNotificationName:LDrawDirectiveDidChangeNotification
 										  object:self->fileBeingDrawn ];

@@ -884,10 +884,14 @@
 		// already-selected parts.
 		if(		[[fileContentsOutline selectedRowIndexes] containsIndex:indexToSelect]
 			&&	shouldExtend == YES )
+		{
 			[fileContentsOutline deselectRow:indexToSelect];
+		}
 		else
+		{
 			[fileContentsOutline selectRowIndexes:[NSIndexSet indexSetWithIndex:indexToSelect]
 							 byExtendingSelection:shouldExtend];
+		}
 		
 		[fileContentsOutline scrollRowToVisible:indexToSelect];
 	}
@@ -2270,6 +2274,39 @@
 }//end moveDirective:inDirection:
 
 
+//========== preserveDirectiveState: ===========================================
+//
+// Purpose:		Records the entire state of the object with the undo manager. 
+//
+//==============================================================================
+- (void) preserveDirectiveState:(LDrawDirective *)directive
+{
+	NSUndoManager	*undoManager	= [self undoManager];
+
+	[[self documentContents] lockForEditing];
+	{
+		// ** Read code bottom-to-top ** //
+
+		[[undoManager prepareWithInvocationTarget:[NSNotificationCenter defaultCenter]]
+				 postNotificationName:LDrawDirectiveDidChangeNotification
+				 object:directive];
+
+		[[undoManager prepareWithInvocationTarget:[directive enclosingModel]]
+				optimizeVertexes];
+		
+		[directive registerUndoActions:undoManager];
+		
+		[[undoManager prepareWithInvocationTarget:self]
+								preserveDirectiveState:directive ];
+	}
+	[[self documentContents] unlockEditor];
+	
+	//our part changed; notify!
+	[self updateInspector];
+								  
+}//end preserveDirectiveState:
+
+
 //========== rotatePart:onAxis:byDegrees: ======================================
 //
 // Purpose:		Undo-aware call to rotate the object in the direction indicated. 
@@ -2929,6 +2966,17 @@
 }//end LDrawGLViewBecameFirstResponder:
 
 
+//========== LDrawGLView:dragHandleDidMove: ====================================
+//
+// Purpose:		A primitive's geometry is being directly manipulated.
+//
+//==============================================================================
+- (void) LDrawGLView:(LDrawGLView *)glView dragHandleDidMove:(LDrawDragHandle *)dragHandle
+{
+	[self updateInspector];
+}
+
+
 //========== LDrawGLViewPartsWereDraggedIntoOblivion: ==========================
 //
 // Purpose:		The parts which originated the most recent drag operation have 
@@ -3002,6 +3050,20 @@
 	[self selectDirective:directiveToSelect byExtendingSelection:shouldExtend];
 	
 }//end LDrawGLView:wantsToSelectDirective:byExtendingSelection:
+
+
+//========== LDrawGLView:willBeginDraggingHandle: ==============================
+//
+// Purpose:		The view is about to begin direct primitive geometry 
+//				manipulation. We need to record the object state for undo. 
+//
+//==============================================================================
+- (void) LDrawGLView:(LDrawGLView *)glView willBeginDraggingHandle:(LDrawDragHandle *)dragHandle
+{
+	LDrawDirective *primitive = [dragHandle target];
+	
+	[self preserveDirectiveState:primitive];
+}
 
 
 //========== LDrawGLView:writeDirectivesToPasteboard:asCopy: ===================

@@ -29,10 +29,11 @@
 	self = [super init];
 	if(self)
 	{
-		tag         = tagIn;
-		position    = positionIn;
+		tag             = tagIn;
+		position        = positionIn;
+		initialPosition = positionIn;
 		
-		sphere      = gluNewQuadric();
+		sphere          = gluNewQuadric();
 	}
 	
 	return self;
@@ -43,6 +44,30 @@
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
+
+//========== initialPosition ===================================================
+//
+// Purpose:		Returns the coordinate this handle what at when initialized.
+//
+//==============================================================================
+- (Point3) initialPosition
+{
+	return self->initialPosition;
+}
+
+
+//========== isSelected ========================================================
+//
+// Purpose:		Drag handles only show up when their associated primitive is 
+//				selected, so we always report being selected. This will make us 
+//				more transparent to the view selection code. 
+//
+//==============================================================================
+- (BOOL) isSelected
+{
+	return YES;
+}
+
 
 //========== position ==========================================================
 //
@@ -64,6 +89,17 @@
 - (NSInteger) tag
 {
 	return self->tag;
+}
+
+
+//========== target ============================================================
+//
+// Purpose:		Returns the object which owns the drag handle.
+//
+//==============================================================================
+- (id) target
+{
+	return self->target;
 }
 
 
@@ -142,6 +178,30 @@
 	glPopMatrix();
 	
 }//end draw:parentColor:
+
+
+#pragma mark -
+#pragma mark ACTIONS
+#pragma mark -
+
+//========== moveBy: ===========================================================
+//
+// Purpose:		Displace the receiver by the given amounts in each direction. 
+//				The amounts in moveVector or relative to the element's current 
+//				location.
+//
+//				Subclasses are required to move by exactly this amount. Any 
+//				adjustments they wish to make need to be returned in 
+//				-displacementForNudge:.
+//
+//==============================================================================
+- (void) moveBy:(Vector3)moveVector
+{
+	Point3 newPosition = V3Add(self->position, moveVector);
+	
+	[self setPosition:newPosition updateTarget:YES];
+	
+}//end moveBy:
 
 
 #pragma mark -

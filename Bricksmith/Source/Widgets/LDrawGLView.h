@@ -19,6 +19,7 @@
 //Forward declarations
 @class FocusRingView;
 @class LDrawDirective;
+@class LDrawDragHandle;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +89,7 @@ typedef enum
 	// Event Tracking
 	BOOL                    isGesturing;			// true if performing a multitouch trackpad gesture.
 	BOOL                    isTrackingDrag;			// true if the last mousedown was followed by a drag, and we're tracking it (drag-and-drop doesn't count)
+	BOOL					isStartingDrag;			// this is the first event in a drag
 	NSTimer                 *mouseDownTimer;		// countdown to beginning drag-and-drop
 	BOOL                    canBeginDragAndDrop;	// the next mouse-dragged will initiate a drag-and-drop.
 	BOOL                    didPartSelection;		// tried part selection during this click
@@ -95,6 +97,7 @@ typedef enum
 	Vector3                 draggingOffset;			// displacement between part 0's position and the initial click point of the drag
 	Point3                  initialDragLocation;	// point in model where part was positioned at draggingEntered
 	Vector3					nudgeVector;			// direction of nudge action (valid only in nudgeAction callback)
+	LDrawDragHandle			*activeDragHandle;		// drag handle hit on last mouse-down (or nil)
 }
 
 - (void) internalInit;
@@ -140,10 +143,13 @@ typedef enum
 
 - (void) nudgeKeyDown:(NSEvent *)theEvent;
 
+- (void) directInteractionDragged:(NSEvent *)theEvent;
 - (void) dragAndDropDragged:(NSEvent *)theEvent;
+- (void) dragHandleDragged:(NSEvent *)theEvent;
 - (void) panDragged:(NSEvent *)theEvent;
 - (void) rotationDragged:(NSEvent *)theEvent;
 - (void) zoomDragged:(NSEvent *)theEvent;
+
 - (void) mouseCenterClick:(NSEvent*)theEvent ;
 - (void) mousePartSelection:(NSEvent *)theEvent;
 - (void) mouseZoomClick:(NSEvent*)theEvent;
@@ -207,6 +213,8 @@ typedef enum
 - (void)	LDrawGLView:(LDrawGLView *)glView
  wantsToSelectDirective:(LDrawDirective *)directiveToSelect
    byExtendingSelection:(BOOL) shouldExtend;
+- (void) LDrawGLView:(LDrawGLView *)glView willBeginDraggingHandle:(LDrawDragHandle *)dragHandle;
+- (void) LDrawGLView:(LDrawGLView *)glView dragHandleDidMove:(LDrawDragHandle *)dragHandle;
 
 @end
 

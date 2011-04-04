@@ -2353,11 +2353,12 @@
 //==============================================================================
 - (void) zoomDragged:(NSEvent *)theEvent
 {
-	CGFloat zoomChange	= -[theEvent deltaY];
-	CGFloat currentZoom	= [self zoomPercentage];
+	CGFloat pixelChange     = -[theEvent deltaY];		// Negative means down
+	CGFloat magnification   = pixelChange/100;			// 1 px = 1%
+	CGFloat zoomChange      = 1.0 + magnification;
+	CGFloat currentZoom     = [self zoomPercentage];
 	
-	//Negative means down
-	[self setZoomPercentage:currentZoom + zoomChange];
+	[self setZoomPercentage:(currentZoom * zoomChange)];
 	
 }//end zoomDragged:
 
@@ -2491,20 +2492,20 @@
 //==============================================================================
 - (void) mouseZoomClick:(NSEvent*)theEvent
 {
-	ToolModeT	toolMode	= [ToolPalette toolMode];
-	CGFloat		currentZoom	= [self zoomPercentage];
-	CGFloat		newZoom		= 0;
-	NSPoint		newCenter	= [self convertPoint:[theEvent locationInWindow]
-										fromView:nil ];
-
+	ToolModeT   toolMode            = [ToolPalette toolMode];
+	NSPoint     windowClickedPoint  = [theEvent locationInWindow];
+	NSPoint     viewClickedPoint    = [self convertPoint:windowClickedPoint fromView:nil ];
+	CGFloat     currentZoom         = [self zoomPercentage];
+	CGFloat     newZoom             = 0;
+	
+	// New zoom percentage
 	if(	toolMode == ZoomInTool )
 		newZoom = currentZoom * 2;
 	
 	else if( toolMode == ZoomOutTool )
 		newZoom = currentZoom / 2;
 		
-	[self setZoomPercentage:newZoom];
-	[self scrollCenterToPoint:newCenter];
+	[self setZoomPercentage:newZoom preservePoint:viewClickedPoint];
 	
 }//end mouseZoomClick:
 
@@ -2593,12 +2594,14 @@
 //==============================================================================
 - (void) magnifyWithEvent:(NSEvent *)theEvent
 {
+	NSPoint windowPoint     = [theEvent locationInWindow];
+	NSPoint viewPoint       = [self convertPoint:windowPoint fromView:nil ];
 	CGFloat magnification   = [theEvent magnification]; // 1 = increase 100%; -1 = decrease 100%
 	CGFloat zoomChange      = 1.0 + magnification;
 	CGFloat currentZoom     = [self zoomPercentage];
 	
 	//Negative means down
-	[self setZoomPercentage:(currentZoom * zoomChange)];
+	[self setZoomPercentage:(currentZoom * zoomChange) preservePoint:viewPoint];
 	
 }//end magnifyWithEvent:
 
@@ -3761,6 +3764,39 @@
 }//end saveImageToPath:
 
 
+//========== setZoomPercentage:preservePoint: ==================================
+//
+// Purpose:		Performs cursor-centric zooming on the given point, in view 
+//				coordinates. After the new zoom is applied, the 3D point 
+//				projected at viewPoint will still be in the same projected 
+//				location. 
+//
+//==============================================================================
+- (void) setZoomPercentage:(CGFloat)newPercentage
+			 preservePoint:(NSPoint)viewPoint
+{
+	NSPoint viewportProportion  = NSZeroPoint;
+	NSRect  visibleRect         = [self visibleRect];
+	Point3  modelPoint          = ZeroPoint3;
+	
+	// Cursor-centric zooming: when the new zoom factor is applied, the point in 
+	// the model we clicked on should still be directly under the mouse. 
+	modelPoint = [self modelPointForPoint:viewPoint];
+	
+	viewportProportion.x = (viewPoint.x - NSMinX(visibleRect)) / NSWidth(visibleRect);
+	viewportProportion.y = (viewPoint.y - NSMinY(visibleRect)) / NSHeight(visibleRect);
+	
+	if([self isFlipped] == YES)
+	{
+		viewportProportion.y = 1.0 - viewportProportion.y;
+	}
+	
+	[self setZoomPercentage:newPercentage];
+	[self scrollModelPoint:modelPoint toViewportProportionalPoint:viewportProportion];
+
+}//end setZoomPercentage:preservePoint:
+
+
 //========== scrollCenterToModelPoint: =========================================
 //
 // Purpose:		Scrolls the receiver (if it is inside a scroll view) so that 
@@ -3769,6 +3805,21 @@
 //
 //==============================================================================
 - (void) scrollCenterToModelPoint:(Point3)modelPoint
+{
+	[self scrollModelPoint:modelPoint toViewportProportionalPoint:NSMakePoint(0.5, 0.5)];
+}
+
+
+//========== scrollModelPoint:toViewportProportionalPoint: =====================
+//
+// Purpose:		Scrolls viewport so the projection of the given 3D point appears 
+//				at the given fraction of the viewport. (0,0) means the 
+//				bottom-right corner of the viewport; (0.5, 0.5) means the 
+//				center; (1.0, 1.0) means the top-right. 
+//
+//==============================================================================
+- (void)     scrollModelPoint:(Point3)modelPoint
+  toViewportProportionalPoint:(NSPoint)viewportPoint
 {
 	Point3  cameraPoint         = V3Make(0, 0, self->cameraDistance);
 	NSPoint newCenter           = NSZeroPoint;
@@ -3808,8 +3859,8 @@
 		// Calculate a NEW frustum clipping rect centered on the clicked point's 
 		// projection onto the near clipping plane. 
 		newClippingRect.size        = currentClippingRect.size;
-		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
-		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
+		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect) * viewportPoint.x;
+		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect) * viewportPoint.y;
 		
 		// Reverse-derive the correct Cocoa view visible rect which will result 
 		// in the desired clipping rect to be used. 
@@ -3825,8 +3876,8 @@
 		
 		// Calculate a clipping rect centered on the clicked point's projection. 
 		newClippingRect.size        = currentClippingRect.size;
-		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect)/2;
-		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect)/2;
+		newClippingRect.origin.x    = newCenter.x - NSWidth(currentClippingRect) * viewportPoint.x;
+		newClippingRect.origin.y    = newCenter.y - NSHeight(currentClippingRect) * viewportPoint.y;
 		
 		// Reverse-derive the correct Cocoa view visible rect which will result 
 		// in the desired clipping rect to be used. 

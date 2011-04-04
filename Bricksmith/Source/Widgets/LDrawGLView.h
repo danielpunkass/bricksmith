@@ -172,7 +172,9 @@ typedef enum
 - (void) restoreConfiguration;
 - (void) saveConfiguration;
 - (void) saveImageToPath:(NSString *)path;
+- (void) setZoomPercentage:(CGFloat)newPercentage preservePoint:(NSPoint)viewPoint;
 - (void) scrollCenterToModelPoint:(Point3)modelPoint;
+- (void) scrollModelPoint:(Point3)modelPoint toViewportProportionalPoint:(NSPoint)viewportPoint;
 - (void) scrollCenterToPoint:(NSPoint)newCenter;
 - (void) takeBackgroundColorFromUserDefaults;
 

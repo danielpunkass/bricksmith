@@ -43,7 +43,7 @@
 	IBOutlet NSView					*nudgeXToolView;
 	IBOutlet NSView					*nudgeYToolView;
 	IBOutlet NSView					*nudgeZToolView;
-	IBOutlet NSTextField			*zoomToolTextField; //enter zoom percentage.
+	IBOutlet NSView					*zoomToolView; //enter zoom percentage.
 	
 	IBOutlet NSSegmentedControl		*gridSegmentedControl;
 }
@@ -62,16 +62,17 @@
 - (NSToolbarItem *) makeSnapToGridItem;
 - (NSToolbarItem *) makeZoomInItem;
 - (NSToolbarItem *) makeZoomOutItem;
-- (NSToolbarItem *) makeZoomTextFieldItem;
+- (NSToolbarItem *) makeZoomItem;
 
 //Accessors
 - (void) setGridSpacingMode:(gridSpacingModeT)newMode;
 
 //Actions
-- (void) gridSpacingSegmentedControlClicked:(id)sender;
+- (IBAction) gridSpacingSegmentedControlClicked:(id)sender;
 - (IBAction) nudgeXClicked:(id)sender;
 - (IBAction) nudgeYClicked:(id)sender;
 - (IBAction) nudgeZClicked:(id)sender;
+- (IBAction) zoomSegmentedControlClicked:(id)sender;
 - (IBAction) zoomScaleChanged:(id)sender;
 
 @end

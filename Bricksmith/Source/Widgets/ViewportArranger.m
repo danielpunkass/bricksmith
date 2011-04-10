@@ -105,6 +105,8 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 	// Autosaves for row heights in each column.
 	[self updateAutosaveNames];
 	
+	[self doFrameSanityCheck];
+	
 }//end setAutosaveName:
 
 
@@ -310,6 +312,7 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 	if([self->delegate respondsToSelector:@selector(viewportArrangerDidRemoveViewports:)])
 		[self->delegate viewportArrangerDidRemoveViewports:self];
 		
+	[self doFrameSanityCheck];
 	[self updatePlacardsForViewports];
 	[self storeViewports];
 
@@ -340,9 +343,9 @@ const NSString *VIEWS_PER_COLUMN				= @"ViewsPerColumn";
 //				double-clicked. 
 //
 //==============================================================================
-- (BOOL)				splitView:(NSSplitView *)splitView
-shouldCollapseSubview:(NSView *)subview
-forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
+- (BOOL)              splitView:(NSSplitView *)splitView
+		  shouldCollapseSubview:(NSView *)subview
+ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 {
 	return YES;
 	
@@ -478,6 +481,70 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 
 #pragma mark -
 
+//========== doFrameSanityCheck ================================================
+//
+// Purpose:		It's possible to have no views visible, and Cocoa will blithely 
+//				restore this bad state across saves. Here's how it happens:
+//				 * Create two rows in a column
+//				 * Collapse a row by dragging the divider to the top or bottom. 
+//				   (Do not double click!) 
+//				 * Close the remaining visible view.
+//
+//				Poof! Now nothing is visible in the column. Ahh, an Apple bug!
+//
+//==============================================================================
+- (void) doFrameSanityCheck
+{
+	NSArray     *columns        = [self subviews];
+	NSSplitView	*currentColumn	= nil;
+	NSUInteger  columnCounter   = 0;
+	
+	// Fix column sanity
+	[self doFrameSanityCheckForSplitView:self];
+	
+	// Fix row sanity
+	for(columnCounter = 0; columnCounter < [columns count]; columnCounter++)
+	{
+		currentColumn   = [columns objectAtIndex:columnCounter];
+		[self doFrameSanityCheckForSplitView:currentColumn];
+	}
+	
+}//end doFrameSanityCheck
+
+
+//========== doFrameSanityCheckForSplitView: ===================================
+//
+// Purpose:		Ensure there is at least one visible subview in the split view. 
+//				See -doFrameSanityCheck for discussion. 
+//
+//==============================================================================
+- (void) doFrameSanityCheckForSplitView:(NSSplitView *)splitView
+{
+	NSArray     *subviews       = [splitView subviews];
+	BOOL        isSane          = NO;
+	NSSplitView *currentView    = nil;
+	NSUInteger  counter         = 0;
+	
+	// Try to find a sane row
+	for(counter = 0; counter < [subviews count] && isSane == NO; counter++)
+	{
+		currentView = [subviews objectAtIndex:counter];
+		if([splitView isSubviewCollapsed:currentView] == NO)
+		{
+			isSane = YES;
+		}
+	}
+	
+	if(isSane == NO)
+	{
+		// We use an quasi-documented trick, mentioned only in the Leopard 
+		// release notes, that collapsed subviews are merely hidden. 
+		[currentView setHidden:NO];
+		[splitView adjustSubviews];
+	}
+}//end doFrameSanityCheckForSplitView:
+
+
 //========== restoreViewports ==================================================
 //
 // Purpose:		Restores the number, layout, and sizes of the user-configurable 
@@ -511,7 +578,9 @@ forDoubleClickOnDividerAtIndex:(NSInteger)dividerIndex
 	
 	// Remove all existing views
 	while([[self subviews] count] > 0)
+	{
 		[[[self subviews] objectAtIndex:0] removeFromSuperview];
+	}
 	
 	// Recreate whatever was in use last
 	for(columnCounter = 0; columnCounter < [viewCountPerColumn count]; columnCounter++)

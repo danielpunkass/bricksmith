@@ -43,6 +43,8 @@
 - (NSView *) newSplitPlacard;
 - (NSView *) newSplitClosePlacard;
 - (ExtendedScrollView *) newViewport;
+- (void) doFrameSanityCheck;
+- (void) doFrameSanityCheckForSplitView:(NSSplitView *)splitView;
 - (void) restoreViewportsWithAutosaveName:(NSString *)autosaveName;
 - (void) storeViewports;
 - (void) updateAutosaveNames;

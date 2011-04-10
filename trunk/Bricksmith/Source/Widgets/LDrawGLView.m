@@ -1067,7 +1067,7 @@
 //									this is how humans see the world.
 //
 //==============================================================================
-- (void) setProjectionMode:(ProjectionModeT) newProjectionMode
+- (void) setProjectionMode:(ProjectionModeT)newProjectionMode
 {
 	self->projectionMode = newProjectionMode;
 	
@@ -3657,12 +3657,17 @@
 {
 	if(self->autosaveName != nil)
 	{
-		NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
-		NSString		*viewingAngleKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_ANGLE, self->autosaveName];
-		NSString		*projectionModeKey	= [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_PROJECTION, self->autosaveName];
+		NSUserDefaults      *userDefaults       = [NSUserDefaults standardUserDefaults];
+		NSString            *viewingAngleKey    = [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_ANGLE, self->autosaveName];
+		NSString            *projectionModeKey  = [NSString stringWithFormat:@"%@ %@", LDRAW_GL_VIEW_PROJECTION, self->autosaveName];
+		ViewOrientationT    orientation         = [userDefaults integerForKey:viewingAngleKey];
+		ProjectionModeT     projection			= [userDefaults integerForKey:projectionModeKey];
 		
-		[self setViewOrientation:[userDefaults integerForKey:viewingAngleKey] ];
-		[self setProjectionMode:[userDefaults integerForKey:projectionModeKey] ];
+		// It's imperative to read the modes from defaults prior to calling this 
+		// methods, since -setViewOrientation automatically saves current values 
+		// back into defaults! 
+		[self setViewOrientation:orientation];
+		[self setProjectionMode:projection];
 	}
 	
 }//end restoreConfiguration

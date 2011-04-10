@@ -38,13 +38,13 @@
 	[nudgeXToolView			retain];
 	[nudgeYToolView			retain];
 	[nudgeZToolView			retain];
-	[zoomToolTextField		retain];
+	[zoomToolView			retain];
 	
 	[gridSegmentedControl	removeFromSuperview];
 	[nudgeXToolView			removeFromSuperview];
 	[nudgeYToolView			removeFromSuperview];
 	[nudgeZToolView			removeFromSuperview];
-	[zoomToolTextField		removeFromSuperview];
+	[zoomToolView			removeFromSuperview];
 	
 }//end awakeFromNib
 
@@ -74,8 +74,8 @@
 										TOOLBAR_SHOW_COLORS,
 										TOOLBAR_SHOW_INSPECTOR,
 										TOOLBAR_SNAP_TO_GRID,
-										TOOLBAR_ZOOM_IN,
-										TOOLBAR_ZOOM_OUT,
+//										TOOLBAR_ZOOM_IN,
+//										TOOLBAR_ZOOM_OUT,
 										TOOLBAR_ZOOM_SPECIFY,
 
 										//Cocoa doodads
@@ -95,12 +95,13 @@
 //==============================================================================
 - (NSArray *) toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
 {
-	return [NSArray arrayWithObjects:	TOOLBAR_ZOOM_IN,
+	return [NSArray arrayWithObjects:
+//										TOOLBAR_ZOOM_IN,
 										TOOLBAR_ZOOM_SPECIFY,
-										TOOLBAR_ZOOM_OUT,
+//										TOOLBAR_ZOOM_OUT,
 										NSToolbarSeparatorItemIdentifier,
-										TOOLBAR_GRID_SPACING_IDENTIFIER,
 										TOOLBAR_SNAP_TO_GRID,
+										TOOLBAR_GRID_SPACING_IDENTIFIER,
 										NSToolbarSeparatorItemIdentifier,
 										TOOLBAR_ROTATE_POSITIVE_X,
 										TOOLBAR_ROTATE_NEGATIVE_X,
@@ -186,13 +187,15 @@
 	}
 	
 	else if([itemIdentifier isEqualToString:TOOLBAR_ZOOM_IN]) {
-		newItem = [self makeZoomInItem];
+//		newItem = [self makeZoomInItem];
+		newItem = nil; // deprecated in Bricksmith 2.5
 	}
 	else if([itemIdentifier isEqualToString:TOOLBAR_ZOOM_OUT]) {
-		newItem = [self makeZoomOutItem];
+//		newItem = [self makeZoomOutItem];
+		newItem = nil; // deprecated in Bricksmith 2.5
 	}
 	else if([itemIdentifier isEqualToString:TOOLBAR_ZOOM_SPECIFY]) {
-		newItem = [self makeZoomTextFieldItem];
+		newItem = [self makeZoomItem];
 	}
 	
 	return newItem;
@@ -479,6 +482,8 @@
 //
 // Purpose:		Button that enlarges the object being viewed
 //
+// Note:		Obsoleted in Bricksmith 2.5 by unified zoom control.
+//
 //==============================================================================
 - (NSToolbarItem *) makeZoomInItem
 {
@@ -501,6 +506,8 @@
 //
 // Purpose:		Button that shrinks the object being viewed
 //
+// Note:		Obsoleted in Bricksmith 2.5 by unified zoom control.
+//
 //==============================================================================
 - (NSToolbarItem *) makeZoomOutItem
 {
@@ -519,25 +526,28 @@
 }//end makeZoomOutItem
 
 
-//========== makeZoomTextFieldItem =============================================
+//========== makeZoomItem ======================================================
 //
 // Purpose:		Hooks up the text entry field which is used to specify an 
 //				exact zoom percentage.
 //
+// Notes:		In Bricksmith 2.5, the zoom text/in/out controls were melded 
+//				into a single unit, produced by this method. 
+//
 //==============================================================================
-- (NSToolbarItem *) makeZoomTextFieldItem
+- (NSToolbarItem *) makeZoomItem
 {
 	NSToolbarItem *newItem = [[NSToolbarItem alloc]
 									initWithItemIdentifier:TOOLBAR_ZOOM_SPECIFY];
 	
-	[newItem setLabel:NSLocalizedString(@"ZoomScale", nil)];
-	[newItem setPaletteLabel:NSLocalizedString(@"ZoomScale", nil)];
-	[newItem setView:zoomToolTextField];
-	[newItem setMinSize:[zoomToolTextField frame].size];
+	[newItem setLabel:NSLocalizedString(@"Zoom", nil)];
+	[newItem setPaletteLabel:NSLocalizedString(@"Zoom", nil)];
+	[newItem setView:zoomToolView];
+	[newItem setMinSize:[zoomToolView frame].size];
 	
 	return [newItem autorelease];
 	
-}//end makeZoomTextFieldItem
+}//end makeZoomItem
 
 
 #pragma mark -
@@ -613,6 +623,26 @@
 	[document nudgeSelectionBy:nudgeVector];
 	
 }//end nudgeZClicked:
+
+
+//========== zoomSegmentedControlClicked: ======================================
+//
+// Purpose:		For nicer modern looks, the zoom control is a segmented cell 
+//				which acts like push buttons. 
+//
+//==============================================================================
+- (void) zoomSegmentedControlClicked:(id)sender
+{
+	NSUInteger selectedSegment = [sender selectedSegment];
+	
+	switch(selectedSegment)
+	{
+		case 0:	[document zoomOut:sender];	break;
+		case 1:								break; // center cell is just a spacer hidden behind zoom text field.
+		case 2: [document zoomIn:sender];	break;
+	}
+	
+}//end zoomSegmentedControlClicked:
 
 
 //========== zoomScaleChanged: =================================================
@@ -695,7 +725,7 @@
 	[nudgeXToolView			release];
 	[nudgeYToolView			release];
 	[nudgeZToolView			release];
-	[zoomToolTextField		release];
+	[zoomToolView			release];
 	
 	[super dealloc];
 	

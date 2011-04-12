@@ -188,7 +188,7 @@
 		0B9FE5A008AD97670046511D /* Rotate-X.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58608AD97670046511D /* Rotate-X.tiff */; };
 		0B9FE5A108AD97670046511D /* Rotate-Y.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58708AD97670046511D /* Rotate-Y.tiff */; };
 		0B9FE5A208AD97670046511D /* Rotate-Z.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58808AD97670046511D /* Rotate-Z.tiff */; };
-		0B9FE5A308AD97670046511D /* Snap To Grid.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58908AD97670046511D /* Snap To Grid.tiff */; };
+		0B9FE5A308AD97670046511D /* Snap To Grid.png in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58908AD97670046511D /* Snap To Grid.png */; };
 		0B9FE5A408AD97670046511D /* SyntaxColoring.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58A08AD97670046511D /* SyntaxColoring.tiff */; };
 		0B9FE5A508AD97670046511D /* ZoomIn.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58B08AD97670046511D /* ZoomIn.tiff */; };
 		0B9FE5A608AD97670046511D /* ZoomOut.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58C08AD97670046511D /* ZoomOut.tiff */; };
@@ -203,6 +203,9 @@
 		0B9FE5D308AD97990046511D /* Bricksmith.icns in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5CA08AD97990046511D /* Bricksmith.icns */; };
 		0BA24BEA0EFF2A6500BF9915 /* StringUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */; };
 		0BA24BEB0EFF2A6500BF9915 /* StringUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */; };
+		0BB010E01352BC9F006F3122 /* GridCoarseTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BB010DD1352BC9F006F3122 /* GridCoarseTemplate.pdf */; };
+		0BB010E11352BC9F006F3122 /* GridFineTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BB010DE1352BC9F006F3122 /* GridFineTemplate.pdf */; };
+		0BB010E21352BC9F006F3122 /* GridMediumTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BB010DF1352BC9F006F3122 /* GridMediumTemplate.pdf */; };
 		0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BB129E90D7BD208004E8CEC /* Spin.tiff */; };
 		0BC6992B08B5719000DAF996 /* LDrawMPDModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F384107C82025007B1075 /* LDrawMPDModel.h */; };
 		0BC6992C08B5719100DAF996 /* LDrawConditionalLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F3FA907CB0253007B1075 /* LDrawConditionalLine.h */; };
@@ -221,9 +224,6 @@
 		0BC71D650E6CB26A0007F10D /* ScopeBar.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BC71D630E6CB26A0007F10D /* ScopeBar.h */; };
 		0BC71D660E6CB26A0007F10D /* ScopeBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BC71D640E6CB26A0007F10D /* ScopeBar.m */; };
 		0BC71D910E6CC8340007F10D /* AMSProgressBar.framework in Copy Frameworks (1) */ = {isa = PBXBuildFile; fileRef = 2BB5975E09FEFD250077A885 /* AMSProgressBar.framework */; };
-		0BC71E440E6E51F20007F10D /* GridCoarseTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */; };
-		0BC71E450E6E51F20007F10D /* GridFineTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */; };
-		0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */; };
 		0BCD0C6507FD0BA10066A536 /* LDrawContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */; };
 		0BCD0C6607FD0BA10066A536 /* LDrawContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */; };
 		0BDC146F0B9D0502001D1FF1 /* PartBrowserPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */; };
@@ -489,7 +489,7 @@
 		0B9FE58608AD97670046511D /* Rotate-X.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "Rotate-X.tiff"; sourceTree = "<group>"; };
 		0B9FE58708AD97670046511D /* Rotate-Y.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "Rotate-Y.tiff"; sourceTree = "<group>"; };
 		0B9FE58808AD97670046511D /* Rotate-Z.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "Rotate-Z.tiff"; sourceTree = "<group>"; };
-		0B9FE58908AD97670046511D /* Snap To Grid.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "Snap To Grid.tiff"; sourceTree = "<group>"; };
+		0B9FE58908AD97670046511D /* Snap To Grid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Snap To Grid.png"; sourceTree = "<group>"; };
 		0B9FE58A08AD97670046511D /* SyntaxColoring.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = SyntaxColoring.tiff; sourceTree = "<group>"; };
 		0B9FE58B08AD97670046511D /* ZoomIn.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomIn.tiff; sourceTree = "<group>"; };
 		0B9FE58C08AD97670046511D /* ZoomOut.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomOut.tiff; sourceTree = "<group>"; };
@@ -504,15 +504,15 @@
 		0B9FE5CA08AD97990046511D /* Bricksmith.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Bricksmith.icns; sourceTree = "<group>"; };
 		0BA24BE80EFF2A6500BF9915 /* StringUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringUtilities.h; sourceTree = "<group>"; };
 		0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringUtilities.m; sourceTree = "<group>"; };
+		0BB010DD1352BC9F006F3122 /* GridCoarseTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = GridCoarseTemplate.pdf; sourceTree = "<group>"; };
+		0BB010DE1352BC9F006F3122 /* GridFineTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = GridFineTemplate.pdf; sourceTree = "<group>"; };
+		0BB010DF1352BC9F006F3122 /* GridMediumTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = GridMediumTemplate.pdf; sourceTree = "<group>"; };
 		0BB129E90D7BD208004E8CEC /* Spin.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Spin.tiff; sourceTree = "<group>"; };
 		0BC699CB08B93A0500DAF996 /* DimensionsPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DimensionsPanel.h; sourceTree = "<group>"; };
 		0BC699CC08B93A0500DAF996 /* DimensionsPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DimensionsPanel.m; sourceTree = "<group>"; };
 		0BC6AACD0987296700505A88 /* English */ = {isa = PBXFileReference; lastKnownFileType = folder; name = English; path = English.lproj/Help; sourceTree = "<group>"; };
 		0BC71D630E6CB26A0007F10D /* ScopeBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScopeBar.h; sourceTree = "<group>"; };
 		0BC71D640E6CB26A0007F10D /* ScopeBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScopeBar.m; sourceTree = "<group>"; };
-		0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridCoarseTemplate.tiff; sourceTree = "<group>"; };
-		0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridFineTemplate.tiff; sourceTree = "<group>"; };
-		0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = GridMediumTemplate.tiff; sourceTree = "<group>"; };
 		0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LDrawContainer.h; path = Source/LDraw/Files/LDrawContainer.h; sourceTree = SOURCE_ROOT; };
 		0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LDrawContainer.m; path = Source/LDraw/Files/LDrawContainer.m; sourceTree = SOURCE_ROOT; };
 		0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserPanel.h; sourceTree = "<group>"; };
@@ -825,7 +825,7 @@
 				0B9FE58108AD97670046511D /* LDrawLogo.tiff */,
 				0BFD36390EEA49E100A1AAF5 /* PartBrowser.pdf */,
 				0B9FE58208AD97670046511D /* Rotation */,
-				0B9FE58908AD97670046511D /* Snap To Grid.tiff */,
+				0B9FE58908AD97670046511D /* Snap To Grid.png */,
 				0B9FE58A08AD97670046511D /* SyntaxColoring.tiff */,
 				0B9FE58B08AD97670046511D /* ZoomIn.tiff */,
 				0B9FE58C08AD97670046511D /* ZoomOut.tiff */,
@@ -855,9 +855,9 @@
 		0B9FE57D08AD97670046511D /* Grid */ = {
 			isa = PBXGroup;
 			children = (
-				0BC71E410E6E51F20007F10D /* GridCoarseTemplate.tiff */,
-				0BC71E420E6E51F20007F10D /* GridFineTemplate.tiff */,
-				0BC71E430E6E51F20007F10D /* GridMediumTemplate.tiff */,
+				0BB010DD1352BC9F006F3122 /* GridCoarseTemplate.pdf */,
+				0BB010DE1352BC9F006F3122 /* GridFineTemplate.pdf */,
+				0BB010DF1352BC9F006F3122 /* GridMediumTemplate.pdf */,
 			);
 			path = Grid;
 			sourceTree = "<group>";
@@ -1252,7 +1252,7 @@
 				0B9FE5A008AD97670046511D /* Rotate-X.tiff in Resources */,
 				0B9FE5A108AD97670046511D /* Rotate-Y.tiff in Resources */,
 				0B9FE5A208AD97670046511D /* Rotate-Z.tiff in Resources */,
-				0B9FE5A308AD97670046511D /* Snap To Grid.tiff in Resources */,
+				0B9FE5A308AD97670046511D /* Snap To Grid.png in Resources */,
 				0B9FE5A408AD97670046511D /* SyntaxColoring.tiff in Resources */,
 				0B9FE5A508AD97670046511D /* ZoomIn.tiff in Resources */,
 				0B9FE5A608AD97670046511D /* ZoomOut.tiff in Resources */,
@@ -1276,9 +1276,6 @@
 				0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */,
 				0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */,
 				0B9907630DD7EDBB003F6B13 /* LDConfig.ldr in Resources */,
-				0BC71E440E6E51F20007F10D /* GridCoarseTemplate.tiff in Resources */,
-				0BC71E450E6E51F20007F10D /* GridFineTemplate.tiff in Resources */,
-				0BC71E460E6E51F20007F10D /* GridMediumTemplate.tiff in Resources */,
 				0B17D2490ECE89C000F8B5FA /* RotationStep.pdf in Resources */,
 				0B17D2FF0ED0D4C400F8B5FA /* RotationStepEnd.pdf in Resources */,
 				0B30E08B0ED90D3000470615 /* Triangle.pdf in Resources */,
@@ -1315,6 +1312,9 @@
 				0B04E9921093BB4200E201EE /* RotationPanel.xib in Resources */,
 				0B04E9931093BB4200E201EE /* ToolPalette.xib in Resources */,
 				0B4BFB4B10D46C2E0002D482 /* DragAndDrop.tiff in Resources */,
+				0BB010E01352BC9F006F3122 /* GridCoarseTemplate.pdf in Resources */,
+				0BB010E11352BC9F006F3122 /* GridFineTemplate.pdf in Resources */,
+				0BB010E21352BC9F006F3122 /* GridMediumTemplate.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

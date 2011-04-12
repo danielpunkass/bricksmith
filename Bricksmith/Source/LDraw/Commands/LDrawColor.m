@@ -788,6 +788,17 @@
 }
 
 
+//========== compare: ==========================================================
+//
+// Purpose:		Compatibility method directing to our specialized comparison.
+//
+//==============================================================================
+- (NSComparisonResult) compare:(LDrawColor *)otherColor
+{
+	return [self HSVACompare:otherColor];
+}
+
+
 //========== HSVACompare: ======================================================
 //
 // Purpose:		Orders colors according to their Hue, Saturation, and 

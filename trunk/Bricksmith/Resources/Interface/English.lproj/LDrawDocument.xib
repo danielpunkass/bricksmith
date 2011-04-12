@@ -11,8 +11,8 @@
 			<string key="NS.object.0">804</string>
 		</object>
 		<array class="NSMutableArray" key="IBDocument.EditedObjectIDs">
-			<integer value="969"/>
 			<integer value="964"/>
+			<integer value="82"/>
 		</array>
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2205,7 +2205,7 @@ v9ORgAAAAAAAAAAAAAAAAAAAAAB0ZXh0AAAAAENvcHlyaWdodCBBcHBsZSwgSW5jLiwgMjAwOAA</byt
 									</object>
 									<string key="NSSegmentItemLabel"/>
 									<bool key="NSSegmentItemSelected">YES</bool>
-									<int key="NSSegmentItemImageScaling">0</int>
+									<int key="NSSegmentItemImageScaling">2</int>
 								</object>
 								<object class="NSSegmentItem">
 									<double key="NSSegmentItemWidth">24</double>
@@ -3675,6 +3675,7 @@ v9ORgAAAAAAAAAAAAAAAAAAAAAB0ZXh0AAAAAENvcHlyaWdodCBBcHBsZSwgSW5jLiwgMjAwOAA</byt
 				<string key="863.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="864.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="865.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<integer value="2" key="865.IBSegmentedControlInspectorSelectedSegmentMetadataKey"/>
 				<string key="866.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="867.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="868.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -5200,9 +5201,9 @@ v9ORgAAAAAAAAAAAAAAAAAAAAAB0ZXh0AAAAAENvcHlyaWdodCBBcHBsZSwgSW5jLiwgMjAwOAA</byt
 			<string key="ArrowW">{10, 15}</string>
 			<string key="ArrowW-">{10, 26}</string>
 			<string key="FavoriteAdd">{12, 12}</string>
-			<string key="GridCoarseTemplate">{16, 16}</string>
-			<string key="GridFineTemplate">{16, 16}</string>
-			<string key="GridMediumTemplate">{16, 16}</string>
+			<string key="GridCoarseTemplate">{17, 17}</string>
+			<string key="GridFineTemplate">{17, 17}</string>
+			<string key="GridMediumTemplate">{17, 17}</string>
 			<string key="NSAddTemplate">{8, 8}</string>
 			<string key="NSGoLeftTemplate">{9, 9}</string>
 			<string key="NSGoRightTemplate">{9, 9}</string>

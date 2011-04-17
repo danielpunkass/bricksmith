@@ -77,10 +77,6 @@
 		[self setDocumentContents:[LDrawFile file]];
         insertionMode = insertAtEnd;
 		[self setGridSpacingMode:gridModeMedium];
-		
-		// Add your subclass-specific initialization here.
-        // If an error occurs here, send a [self release] message and return nil.
-    
     }
     return self;
 	
@@ -1998,6 +1994,14 @@
 	LDrawLine       *newLine        = [[[LDrawLine alloc] init] autorelease];
 	NSUndoManager   *undoManager    = [self undoManager];
 	LDrawColor      *selectedColor  = [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	Point3          position        = ZeroPoint3;
+	
+	if(self->lastSelectedPart)
+	{
+		position = [lastSelectedPart position];
+	}
+	[newLine setVertex1:position];
+	[newLine setVertex2:V3Make(position.x + 80, position.y - 80, position.z)];
 	
 	[newLine setLDrawColor:selectedColor];
 	
@@ -2014,11 +2018,20 @@
 // Purpose:		Adds a new triangle primitive to the currently-displayed model.
 //
 //==============================================================================
-- (IBAction) addTriangleClicked:(id)sender {
-	
+- (IBAction) addTriangleClicked:(id)sender
+{
 	LDrawTriangle	*newTriangle	= [[[LDrawTriangle alloc] init] autorelease];
 	NSUndoManager	*undoManager	= [self undoManager];
 	LDrawColor      *selectedColor  = [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	Point3          position        = ZeroPoint3;
+	
+	if(self->lastSelectedPart)
+	{
+		position = [lastSelectedPart position];
+	}
+	[newTriangle setVertex1:position];
+	[newTriangle setVertex2:V3Make(position.x + 80, position.y -   0, position.z)];
+	[newTriangle setVertex3:V3Make(position.x + 40, position.y -  40, position.z)];
 	
 	[newTriangle setLDrawColor:selectedColor];
 	
@@ -2026,6 +2039,7 @@
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddTriangle", nil)];
 	[[self documentContents] setNeedsDisplay];
+	
 }//end addTriangleClicked:
 
 
@@ -2040,6 +2054,16 @@
 	LDrawQuadrilateral  *newQuadrilateral   = [[[LDrawQuadrilateral alloc] init] autorelease];
 	NSUndoManager       *undoManager        = [self undoManager];
 	LDrawColor          *selectedColor      = [[LDrawColorPanel sharedColorPanel] LDrawColor];
+	Point3              position            = ZeroPoint3;
+	
+	if(self->lastSelectedPart)
+	{
+		position = [lastSelectedPart position];
+	}
+	[newQuadrilateral setVertex1:position];
+	[newQuadrilateral setVertex2:V3Make(position.x + 80, position.y -   0, position.z)];
+	[newQuadrilateral setVertex3:V3Make(position.x + 80, position.y -  80, position.z)];
+	[newQuadrilateral setVertex4:V3Make(position.x +  0, position.y -  80, position.z)];
 	
 	[newQuadrilateral setLDrawColor:selectedColor];
 	
@@ -2196,6 +2220,7 @@
 		
 		[parent insertDirective:newDirective atIndex:index];
 	}
+	[[self documentContents] optimizeVertexes];
 	[[self documentContents] unlockEditor];
 	
 	[self updateInspector];
@@ -2224,6 +2249,7 @@
 		
 		[parent removeDirective:doomedDirective];
 		[self updateInspector];
+		[[self documentContents] optimizeVertexes];
 	}
 	[[self documentContents] unlockEditor];
 

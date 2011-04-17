@@ -40,24 +40,6 @@ ToolPalette *sharedToolPalette = nil;
 - (void) awakeFromNib
 {
 	NSNotificationCenter	*notificationCenter	= [NSNotificationCenter defaultCenter];
-	NSUserDefaults			*userDefaults		= [NSUserDefaults standardUserDefaults];
-	
-	//Tweak the panel.
-	
-	NSRect paletteFrame = [self->palettePanel	frame];
-	NSRect buttonFrame	= [self->toolButtons	frame];
-	
-	//narrow to the button width.
-	paletteFrame.size.width = NSWidth(buttonFrame) + NSMinX(buttonFrame) * 2;
-	[palettePanel setFrame:paletteFrame display:NO];
-	[palettePanel setBecomesKeyOnlyIfNeeded:YES];
-	[palettePanel setWorksWhenModal:YES];
-	
-	
-	//remove other window widgets (kosher by Human Interface Guidelines!)
-	[[palettePanel standardWindowButton:NSWindowMiniaturizeButton]	setHidden:YES];
-	[[palettePanel standardWindowButton:NSWindowZoomButton]			setHidden:YES];
-	
 	
 	[self->colorWell setLDrawColor:[[LDrawColorPanel sharedColorPanel] LDrawColor]];
 	
@@ -81,10 +63,6 @@ ToolPalette *sharedToolPalette = nil;
 						   selector:@selector(applicationDidBecomeActive:)
 							   name:NSApplicationDidBecomeActiveNotification
 							 object:nil ];
-	
-	//bring the palette onscreen
-	if([userDefaults boolForKey:TOOL_PALETTE_HIDDEN] == NO)
-		[palettePanel orderFront:self];
 	
 }//end awakeFromNib
 
@@ -124,6 +102,33 @@ ToolPalette *sharedToolPalette = nil;
 	
 	[NSBundle loadNibNamed:@"ToolPalette" owner:self];
 	
+	//---------- Create the tool window ----------------------------------------
+	
+	NSScreen    *primaryScreen  = [[NSScreen screens] objectAtIndex:0];
+	NSRect      toolRect        = [primaryScreen visibleFrame];
+	BOOL        showTools       = ([[NSUserDefaults standardUserDefaults] boolForKey:TOOL_PALETTE_HIDDEN] == NO);
+	
+	toolRect.size.width = 34;
+	toolRect.size.height = NSHeight([self->paletteContents frame]);
+	toolRect.origin.y += NSHeight([primaryScreen visibleFrame]) - NSHeight(toolRect);
+	
+	self->palettePanel = [[NSPanel alloc] initWithContentRect:toolRect
+													styleMask:NSBorderlessWindowMask
+													  backing:NSBackingStoreBuffered
+														defer:YES];
+	[self->palettePanel setReleasedWhenClosed:NO];
+	[self->palettePanel setContentView:self->paletteContents];
+	[self->palettePanel setFloatingPanel:YES];
+	[self->palettePanel setBecomesKeyOnlyIfNeeded:YES];
+	[self->palettePanel setWorksWhenModal:YES];
+	
+	if(showTools)
+	{
+		[self->palettePanel orderFront:self];
+	}
+	
+	[self->paletteContents release];
+	
 	return self;
 	
 }//end init
@@ -144,6 +149,17 @@ ToolPalette *sharedToolPalette = nil;
 	return [[ToolPalette sharedToolPalette] toolMode];
 	
 }//end toolMode
+
+
+//========== isVisible =========================================================
+//
+// Purpose:		True if the tools are onscreen
+//
+//==============================================================================
+- (BOOL) isVisible
+{
+	return [self->palettePanel isVisible];
+}
 
 
 //========== toolMode ==========================================================
@@ -185,6 +201,24 @@ ToolPalette *sharedToolPalette = nil;
 #pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
+
+//========== hideToolPalette: ==================================================
+//
+// Purpose:		Closes the mouse Tool Palette.
+//
+//==============================================================================
+- (void) hideToolPalette:(id)sender
+{
+	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
+	
+	//record this preference.
+	[userDefaults setBool:YES forKey:TOOL_PALETTE_HIDDEN];
+	
+	//open the window.
+	[palettePanel close];
+	
+}//end hideToolPalette:
+
 
 //========== showToolPalette: ==================================================
 //
@@ -539,9 +573,9 @@ ToolPalette *sharedToolPalette = nil;
 //				given characters and modifiers.
 //
 //------------------------------------------------------------------------------
-+ (BOOL) toolMode:(ToolModeT)toolMode
-matchesCharacters:(NSString *)characters
-		modifiers:(NSUInteger)modifiers
++ (BOOL)  toolMode:(ToolModeT)toolMode
+ matchesCharacters:(NSString *)characters
+		 modifiers:(NSUInteger)modifiers
 {
 	NSString    *testCharacters = nil;
 	NSUInteger  testModifiers   = 0;

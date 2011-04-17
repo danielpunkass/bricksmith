@@ -3705,6 +3705,7 @@
 		//
 		[modelMenu insertItem:modelItem atIndex:separatorIndex+counter+1];
 		[referenceMenu addItem:referenceItem];
+		[[addReferenceButton menu] addItem:[[referenceItem copy] autorelease]];
 		[[self->submodelPopUpMenu menu] addItem:[[modelItem copy] autorelease]];
 		
 		//
@@ -3742,6 +3743,9 @@
 	
 	for(counter = [referenceMenu numberOfItems]-1; counter >= 0; counter--)
 		[referenceMenu removeItemAtIndex:counter];
+		
+	for(counter = [addReferenceButton numberOfItems]-1; counter > 0; counter--)
+		[self->addReferenceButton removeItemAtIndex:counter];
 		
 	[self->submodelPopUpMenu removeAllItems];
 	

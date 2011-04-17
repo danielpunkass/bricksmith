@@ -100,6 +100,7 @@
 		0B6F3FC007CB0253007B1075 /* LDrawPart.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6F3FB207CB0253007B1075 /* LDrawPart.m */; };
 		0B6F3FC207CB0253007B1075 /* LDrawQuadrilateral.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6F3FB407CB0253007B1075 /* LDrawQuadrilateral.m */; };
 		0B6F3FC407CB0253007B1075 /* LDrawTriangle.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6F3FB607CB0253007B1075 /* LDrawTriangle.m */; };
+		0B70D0A7135A616800BC8B0A /* InsertModelTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B70D0A6135A616800BC8B0A /* InsertModelTemplate.pdf */; };
 		0B74F28D0D0BB5AD00ED8419 /* ScrollViewCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B74F28B0D0BB5AD00ED8419 /* ScrollViewCategory.h */; };
 		0B74F28E0D0BB5AD00ED8419 /* ScrollViewCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B74F28C0D0BB5AD00ED8419 /* ScrollViewCategory.m */; };
 		0B74F2910D0BB5BB00ED8419 /* CenteringClipView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B74F28F0D0BB5BB00ED8419 /* CenteringClipView.h */; };
@@ -190,8 +191,6 @@
 		0B9FE5A208AD97670046511D /* Rotate-Z.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58808AD97670046511D /* Rotate-Z.tiff */; };
 		0B9FE5A308AD97670046511D /* Snap To Grid.png in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58908AD97670046511D /* Snap To Grid.png */; };
 		0B9FE5A408AD97670046511D /* SyntaxColoring.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58A08AD97670046511D /* SyntaxColoring.tiff */; };
-		0B9FE5A508AD97670046511D /* ZoomIn.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58B08AD97670046511D /* ZoomIn.tiff */; };
-		0B9FE5A608AD97670046511D /* ZoomOut.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE58C08AD97670046511D /* ZoomOut.tiff */; };
 		0B9FE5B308AD97770046511D /* Brick.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5AB08AD97770046511D /* Brick.tiff */; };
 		0B9FE5B408AD97770046511D /* Comment.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5AC08AD97770046511D /* Comment.tiff */; };
 		0B9FE5B508AD97770046511D /* ConditionalLine.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B9FE5AD08AD97770046511D /* ConditionalLine.tiff */; };
@@ -230,6 +229,12 @@
 		0BDC14700B9D0502001D1FF1 /* PartBrowserPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */; };
 		0BE84A1F1300F91F004E7626 /* BricksmithUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BE84A1D1300F91F004E7626 /* BricksmithUtilities.h */; };
 		0BE84A201300F91F004E7626 /* BricksmithUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BE84A1E1300F91F004E7626 /* BricksmithUtilities.m */; };
+		0BF246931355624A0043AAAF /* InsertCommentTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BF2468F1355624A0043AAAF /* InsertCommentTemplate.pdf */; };
+		0BF246941355624A0043AAAF /* InsertPrimitiveTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BF246901355624A0043AAAF /* InsertPrimitiveTemplate.pdf */; };
+		0BF246951355624A0043AAAF /* InsertReferenceTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BF246911355624A0043AAAF /* InsertReferenceTemplate.pdf */; };
+		0BF246961355624A0043AAAF /* InsertStepTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BF246921355624A0043AAAF /* InsertStepTemplate.pdf */; };
+		0BF246B31355670B0043AAAF /* ZoomIn.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BF246B11355670B0043AAAF /* ZoomIn.pdf */; };
+		0BF246B41355670B0043AAAF /* ZoomOut.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BF246B21355670B0043AAAF /* ZoomOut.pdf */; };
 		0BF729B808AD849300E3DA53 /* DocumentToolbarController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BF729A708AD849300E3DA53 /* DocumentToolbarController.h */; };
 		0BF729B908AD849300E3DA53 /* DocumentToolbarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BF729A808AD849300E3DA53 /* DocumentToolbarController.m */; };
 		0BF729BA08AD849300E3DA53 /* LDrawDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BF729A908AD849300E3DA53 /* LDrawDocument.h */; };
@@ -401,6 +406,7 @@
 		0B6F3FB407CB0253007B1075 /* LDrawQuadrilateral.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawQuadrilateral.m; sourceTree = "<group>"; };
 		0B6F3FB507CB0253007B1075 /* LDrawTriangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawTriangle.h; sourceTree = "<group>"; };
 		0B6F3FB607CB0253007B1075 /* LDrawTriangle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawTriangle.m; sourceTree = "<group>"; };
+		0B70D0A6135A616800BC8B0A /* InsertModelTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = InsertModelTemplate.pdf; sourceTree = "<group>"; };
 		0B74F28B0D0BB5AD00ED8419 /* ScrollViewCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScrollViewCategory.h; sourceTree = "<group>"; };
 		0B74F28C0D0BB5AD00ED8419 /* ScrollViewCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScrollViewCategory.m; sourceTree = "<group>"; };
 		0B74F28F0D0BB5BB00ED8419 /* CenteringClipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CenteringClipView.h; sourceTree = "<group>"; };
@@ -491,8 +497,6 @@
 		0B9FE58808AD97670046511D /* Rotate-Z.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = "Rotate-Z.tiff"; sourceTree = "<group>"; };
 		0B9FE58908AD97670046511D /* Snap To Grid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Snap To Grid.png"; sourceTree = "<group>"; };
 		0B9FE58A08AD97670046511D /* SyntaxColoring.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = SyntaxColoring.tiff; sourceTree = "<group>"; };
-		0B9FE58B08AD97670046511D /* ZoomIn.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomIn.tiff; sourceTree = "<group>"; };
-		0B9FE58C08AD97670046511D /* ZoomOut.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ZoomOut.tiff; sourceTree = "<group>"; };
 		0B9FE5AB08AD97770046511D /* Brick.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Brick.tiff; sourceTree = "<group>"; };
 		0B9FE5AC08AD97770046511D /* Comment.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Comment.tiff; sourceTree = "<group>"; };
 		0B9FE5AD08AD97770046511D /* ConditionalLine.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ConditionalLine.tiff; sourceTree = "<group>"; };
@@ -519,6 +523,12 @@
 		0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserPanel.m; sourceTree = "<group>"; };
 		0BE84A1D1300F91F004E7626 /* BricksmithUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BricksmithUtilities.h; sourceTree = "<group>"; };
 		0BE84A1E1300F91F004E7626 /* BricksmithUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BricksmithUtilities.m; sourceTree = "<group>"; };
+		0BF2468F1355624A0043AAAF /* InsertCommentTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = InsertCommentTemplate.pdf; sourceTree = "<group>"; };
+		0BF246901355624A0043AAAF /* InsertPrimitiveTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = InsertPrimitiveTemplate.pdf; sourceTree = "<group>"; };
+		0BF246911355624A0043AAAF /* InsertReferenceTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = InsertReferenceTemplate.pdf; sourceTree = "<group>"; };
+		0BF246921355624A0043AAAF /* InsertStepTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = InsertStepTemplate.pdf; sourceTree = "<group>"; };
+		0BF246B11355670B0043AAAF /* ZoomIn.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = ZoomIn.pdf; sourceTree = "<group>"; };
+		0BF246B21355670B0043AAAF /* ZoomOut.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = ZoomOut.pdf; sourceTree = "<group>"; };
 		0BF729A708AD849300E3DA53 /* DocumentToolbarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DocumentToolbarController.h; sourceTree = "<group>"; };
 		0BF729A808AD849300E3DA53 /* DocumentToolbarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DocumentToolbarController.m; sourceTree = "<group>"; };
 		0BF729A908AD849300E3DA53 /* LDrawDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawDocument.h; sourceTree = "<group>"; };
@@ -723,6 +733,7 @@
 				0B639757106F3CF800C93F6E /* PlacardButtonSplit12.pdf */,
 				0B9FE5AA08AD97770046511D /* Badges */,
 				0B8EBCEE0938383000D87E0C /* Cursors */,
+				0BF2468E1355624A0043AAAF /* Insert Buttons */,
 				0B9FE56F08AD97670046511D /* Toolbar Items */,
 			);
 			path = Graphics;
@@ -827,8 +838,8 @@
 				0B9FE58208AD97670046511D /* Rotation */,
 				0B9FE58908AD97670046511D /* Snap To Grid.png */,
 				0B9FE58A08AD97670046511D /* SyntaxColoring.tiff */,
-				0B9FE58B08AD97670046511D /* ZoomIn.tiff */,
-				0B9FE58C08AD97670046511D /* ZoomOut.tiff */,
+				0BF246B11355670B0043AAAF /* ZoomIn.pdf */,
+				0BF246B21355670B0043AAAF /* ZoomOut.pdf */,
 			);
 			path = "Toolbar Items";
 			sourceTree = "<group>";
@@ -900,6 +911,18 @@
 				0B9FE5CA08AD97990046511D /* Bricksmith.icns */,
 			);
 			path = Icon;
+			sourceTree = "<group>";
+		};
+		0BF2468E1355624A0043AAAF /* Insert Buttons */ = {
+			isa = PBXGroup;
+			children = (
+				0BF2468F1355624A0043AAAF /* InsertCommentTemplate.pdf */,
+				0B70D0A6135A616800BC8B0A /* InsertModelTemplate.pdf */,
+				0BF246901355624A0043AAAF /* InsertPrimitiveTemplate.pdf */,
+				0BF246911355624A0043AAAF /* InsertReferenceTemplate.pdf */,
+				0BF246921355624A0043AAAF /* InsertStepTemplate.pdf */,
+			);
+			path = "Insert Buttons";
 			sourceTree = "<group>";
 		};
 		0BF729A608AD849300E3DA53 /* Document */ = {
@@ -1254,8 +1277,6 @@
 				0B9FE5A208AD97670046511D /* Rotate-Z.tiff in Resources */,
 				0B9FE5A308AD97670046511D /* Snap To Grid.png in Resources */,
 				0B9FE5A408AD97670046511D /* SyntaxColoring.tiff in Resources */,
-				0B9FE5A508AD97670046511D /* ZoomIn.tiff in Resources */,
-				0B9FE5A608AD97670046511D /* ZoomOut.tiff in Resources */,
 				0B9FE5B308AD97770046511D /* Brick.tiff in Resources */,
 				0B9FE5B408AD97770046511D /* Comment.tiff in Resources */,
 				0B9FE5B508AD97770046511D /* ConditionalLine.tiff in Resources */,
@@ -1315,6 +1336,13 @@
 				0BB010E01352BC9F006F3122 /* GridCoarseTemplate.pdf in Resources */,
 				0BB010E11352BC9F006F3122 /* GridFineTemplate.pdf in Resources */,
 				0BB010E21352BC9F006F3122 /* GridMediumTemplate.pdf in Resources */,
+				0BF246931355624A0043AAAF /* InsertCommentTemplate.pdf in Resources */,
+				0BF246941355624A0043AAAF /* InsertPrimitiveTemplate.pdf in Resources */,
+				0BF246951355624A0043AAAF /* InsertReferenceTemplate.pdf in Resources */,
+				0BF246961355624A0043AAAF /* InsertStepTemplate.pdf in Resources */,
+				0BF246B31355670B0043AAAF /* ZoomIn.pdf in Resources */,
+				0BF246B41355670B0043AAAF /* ZoomOut.pdf in Resources */,
+				0B70D0A7135A616800BC8B0A /* InsertModelTemplate.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

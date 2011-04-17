@@ -722,7 +722,7 @@
      inkscape:cy="80"
      inkscape:window-x="-7"
      inkscape:window-y="0"
-     inkscape:current-layer="layer6"
+     inkscape:current-layer="layer8"
      inkscape:window-maximized="0"
      inkscape:snap-global="false">
     <inkscape:grid
@@ -804,11 +804,11 @@
        height="43.75515"
        width="155"
        id="rect4547"
-       style="fill:url(#linearGradient5845);fill-opacity:1;stroke:#7d7d7d;stroke-width:5.47898817;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:url(#linearGradient5845);fill-opacity:1;stroke:#8e8d8d;stroke-width:5.47898817000000005;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        clip-path="url(#clipPath4575-2)"
        transform="matrix(0.93551956,0,0,0.89019752,5.1612012,-2.4037903)" />
     <rect
-       style="fill:#000000;fill-opacity:0;stroke:#767575;stroke-width:5.00000048;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#000000;fill-opacity:0;stroke:#8e8d8d;stroke-width:5.00000047999999975;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect5461"
        width="145.00554"
        height="125.00001"

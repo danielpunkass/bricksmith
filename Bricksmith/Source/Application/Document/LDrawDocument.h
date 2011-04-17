@@ -66,6 +66,7 @@ typedef enum insertionMode {
 	// Window contents
 	IBOutlet ExtendedSplitView			*fileContentsSplitView;
 	IBOutlet LDrawFileOutlineView		*fileContentsOutline;
+	IBOutlet NSPopUpButton				*addReferenceButton;
 	
 	// LDraw graphic view
 	IBOutlet ViewportArranger			*viewportArranger;

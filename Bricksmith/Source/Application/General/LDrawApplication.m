@@ -320,6 +320,18 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 }//end showMouseTools:
 
 
+//========== hideMouseTools: ===================================================
+//
+// Purpose:		Closes the mouse tools palette.
+//
+//==============================================================================
+- (IBAction) hideMouseTools:(id)sender
+{
+	[[ToolPalette sharedToolPalette] hideToolPalette:sender];
+	
+}//end hideMouseTools:
+
+
 #pragma mark -
 #pragma mark Part Menu
 
@@ -505,6 +517,51 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 	return NSTerminateNow;
 	
 }//end applicationShouldTerminate:
+
+
+//========== validateMenuItem: =================================================
+//
+// Purpose:		Determines whether the given menu item should be available.
+//				This method is called automatically each time a menu is opened.
+//				We identify the menu item by its tag, which is defined in 
+//				MacLDraw.h.
+//
+// Notes:		Menu items targeted at the document are handled in 
+//				LDrawDocument. 
+//
+//==============================================================================
+- (BOOL) validateMenuItem:(NSMenuItem *)menuItem
+{
+	NSInteger       tag             = [menuItem tag];
+	BOOL            enable          = NO;
+	
+	switch(tag)
+	{
+		////////////////////////////////////////
+		//
+		// Tools Menu
+		//
+		////////////////////////////////////////
+			
+		case showMouseToolsMenuTag:
+			[menuItem setHidden:[[ToolPalette sharedToolPalette] isVisible]];
+			enable = YES;
+			break;
+			
+		case hideMouseToolsMenuTag:
+			[menuItem setHidden:([[ToolPalette sharedToolPalette] isVisible] == NO)];
+			enable = YES;
+			break;
+			
+		default:
+			enable = YES;
+			break;
+			
+	}
+	
+	return enable;
+	
+}//end validateMenuItem:
 
 
 #pragma mark -

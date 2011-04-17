@@ -49,8 +49,10 @@ typedef enum
 	BOOL					 mouseButton3IsDown;
 	NSPointingDeviceType	 tabletPointingDevice;	// current pen-tablet device currently in proximity
 
+	NSPanel					*palettePanel;
+
 	//Nib connections
-	IBOutlet NSPanel		*palettePanel;
+	IBOutlet NSView			*paletteContents;
 	IBOutlet NSMatrix		*toolButtons;
 	IBOutlet LDrawColorWell	*colorWell;
 }
@@ -61,10 +63,12 @@ typedef enum
 
 //Accessors
 + (ToolModeT) toolMode;
+- (BOOL) isVisible;
 - (ToolModeT) toolMode;
 - (void) setToolMode:(ToolModeT)newToolMode;
 
 //Actions
+- (void) hideToolPalette:(id)sender;
 - (void) showToolPalette:(id)sender;
 - (IBAction) toolButtonClicked:(id)sender;
 

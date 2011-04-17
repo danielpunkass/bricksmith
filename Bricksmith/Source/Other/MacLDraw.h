@@ -327,6 +327,8 @@ typedef enum MenuTags
 	// Tools Menu
 	toolsMenuTag					= 3,
 	fileContentsMenuTag				= 302,
+	showMouseToolsMenuTag			= 303,
+	hideMouseToolsMenuTag			= 304,
 	gridFineMenuTag					= 305,
 	gridMediumMenuTag				= 306,
 	gridCoarseMenuTag				= 307,

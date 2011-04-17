@@ -39,7 +39,9 @@
 - (IBAction) doGettingNewPartsHelp:(id)sender;
 - (IBAction) showColors:(id)sender;
 - (IBAction) showInspector:(id)sender;
+- (IBAction) doPartBrowser:(id)sender;
 - (IBAction) showMouseTools:(id)sender;
+- (IBAction) hideMouseTools:(id)sender;
 
 //Accessors
 + (NSOpenGLPixelFormat *) openGLPixelFormat;

@@ -82,16 +82,16 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	glCallList(tags.displayListTag);
 	
 //	// Lines
-//	glBindVertexArrayAPPLE(self->linesVAOTag);
-//	glDrawArrays(GL_LINES, 0, [self->lines count] * 2);
+//	glBindVertexArrayAPPLE(tags.linesVAOTag);
+//	glDrawArrays(GL_LINES, 0, tags.lineCount * 2);
 //	
 //	// Triangles
-//	glBindVertexArrayAPPLE(self->trianglesVAOTag);
-//	glDrawArrays(GL_TRIANGLES, 0, [self->triangles count] * 3);
+//	glBindVertexArrayAPPLE(tags.trianglesVAOTag);
+//	glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
 //	
 //	// Quadrilaterals
-//	glBindVertexArrayAPPLE(self->quadsVAOTag);
-//	glDrawArrays(GL_QUADS, 0, [self->quadrilaterals count] * 4);
+//	glBindVertexArrayAPPLE(tags.quadsVAOTag);
+//	glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
 }
 
 
@@ -312,9 +312,6 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 {
 	VBOVertexData           *buffer                 = NULL;
 	struct OptimizationTags tags                    = {};
-	size_t                  visibleLineCount        = 0;
-	size_t                  visibleTriangleCount    = 0;
-	size_t                  visibleQuadCount        = 0;
 	
 	//---------- Lines VBO -----------------------------------------------------
 	{
@@ -330,7 +327,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 			if([currentDirective isHidden] == NO)
 			{
 				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				visibleLineCount++;
+				tags.lineCount++;
 			}
 		}
 		
@@ -345,7 +342,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glBindBuffer(GL_ARRAY_BUFFER, tags.linesVBOTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), 0);
+		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
 		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
 		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 	}
@@ -364,7 +361,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 			if([currentDirective isHidden] == NO)
 			{
 				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				visibleTriangleCount++;
+				tags.triangleCount++;
 			}
 		}
 		
@@ -379,7 +376,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glBindBuffer(GL_ARRAY_BUFFER, tags.trianglesVAOTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), 0);
+		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
 		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
 		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 	}
@@ -398,7 +395,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 			if([currentDirective isHidden] == NO)
 			{
 				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				visibleQuadCount++;
+				tags.quadCount++;
 			}
 		}
 		
@@ -413,7 +410,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), 0);
+		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
 		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
 		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 	}
@@ -426,15 +423,15 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	{
 		// Lines
 		glBindVertexArrayAPPLE(tags.linesVAOTag);
-		glDrawArrays(GL_LINES, 0, visibleLineCount * 2);
+		glDrawArrays(GL_LINES, 0, tags.lineCount * 2);
 		
 		// Triangles
 		glBindVertexArrayAPPLE(tags.trianglesVAOTag);
-		glDrawArrays(GL_TRIANGLES, 0, visibleTriangleCount * 3);
+		glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
 		
 		// Quadrilaterals
 		glBindVertexArrayAPPLE(tags.quadsVAOTag);
-		glDrawArrays(GL_QUADS, 0, visibleQuadCount * 4);
+		glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
 	}
 	glEndList();
 	

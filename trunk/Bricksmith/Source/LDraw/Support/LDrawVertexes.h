@@ -28,6 +28,10 @@ struct OptimizationTags
 	GLuint          trianglesVAOTag;
 	GLuint          quadsVAOTag;
 	
+	GLsizei			lineCount;
+	GLsizei			triangleCount;
+	GLsizei			quadCount;
+	
 	GLuint          displayListTag;
 };
 

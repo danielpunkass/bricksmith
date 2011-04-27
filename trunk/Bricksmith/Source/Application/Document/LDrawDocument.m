@@ -266,6 +266,7 @@
 		[self doMissingModelnameExtensionCheck:self];
 		
 		// Now that all the parts are at their final name, we can optimize.
+		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
 		[[self documentContents] optimizeOpenGL];
 	}
 	
@@ -2220,7 +2221,13 @@
 		
 		[parent insertDirective:newDirective atIndex:index];
 	}
-	[[self documentContents] optimizeVertexes];
+	CGLLockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
+	{
+		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
+		[[self documentContents] optimizeVertexes];
+		
+	}
+	CGLUnlockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	[[self documentContents] unlockEditor];
 	
 	[self updateInspector];

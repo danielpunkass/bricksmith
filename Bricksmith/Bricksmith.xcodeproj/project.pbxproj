@@ -254,7 +254,6 @@
 		0BFC4CFD1076F61900293B60 /* ViewportArranger.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BFC4CFB1076F61900293B60 /* ViewportArranger.h */; };
 		0BFC4CFE1076F61900293B60 /* ViewportArranger.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BFC4CFC1076F61900293B60 /* ViewportArranger.m */; };
 		0BFD363A0EEA49E100A1AAF5 /* PartBrowser.png in Resources */ = {isa = PBXBuildFile; fileRef = 0BFD36390EEA49E100A1AAF5 /* PartBrowser.png */; };
-		2B1C603B09FF00B3001EE8FA /* AMSProgressBar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B1C603A09FF00B3001EE8FA /* AMSProgressBar.framework */; };
 		2BB59F4309FEFE960077A885 /* AMSProgressBar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BB5975E09FEFD250077A885 /* AMSProgressBar.framework */; };
 		2BF2E2CD0AB0FBB50026D5DB /* MLCad.ini in Resources */ = {isa = PBXBuildFile; fileRef = 2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */; };
 		2BF2E3030AB0FC5E0026D5DB /* MovePanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2E2FF0AB0FC5E0026D5DB /* MovePanel.h */; };
@@ -581,7 +580,6 @@
 				0B65543A081367E800EA7F4F /* GLUT.framework in Frameworks */,
 				0B34B52E090B07AE00F3A001 /* Carbon.framework in Frameworks */,
 				2BB59F4309FEFE960077A885 /* AMSProgressBar.framework in Frameworks */,
-				2B1C603B09FF00B3001EE8FA /* AMSProgressBar.framework in Frameworks */,
 				0B27D22C132B3383005C7E1A /* 3DconnexionClient.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

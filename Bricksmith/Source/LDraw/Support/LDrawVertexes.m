@@ -79,19 +79,26 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	// On the bright side, the display list contains nothing but a VAO, so I 
 	// have an "upgrade" path if needed! 
 	
-	glCallList(tags.displayListTag);
+	if(tags.displayListTag)
+	{
+		glCallList(tags.displayListTag);
+	}
+	else
+	{
+		// Display lists with VAOs don't work on 10.5
 	
-//	// Lines
-//	glBindVertexArrayAPPLE(tags.linesVAOTag);
-//	glDrawArrays(GL_LINES, 0, tags.lineCount * 2);
-//	
-//	// Triangles
-//	glBindVertexArrayAPPLE(tags.trianglesVAOTag);
-//	glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
-//	
-//	// Quadrilaterals
-//	glBindVertexArrayAPPLE(tags.quadsVAOTag);
-//	glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
+		// Lines
+		glBindVertexArrayAPPLE(tags.linesVAOTag);
+		glDrawArrays(GL_LINES, 0, tags.lineCount * 2);
+		
+		// Triangles
+		glBindVertexArrayAPPLE(tags.trianglesVAOTag);
+		glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
+		
+		// Quadrilaterals
+		glBindVertexArrayAPPLE(tags.quadsVAOTag);
+		glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
+	}
 }
 
 
@@ -418,22 +425,36 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	//---------- Wrap it all in a display list ---------------------------------
 	
 	// Display lists are 28% faster than VAOs. What the heck?
-	tags.displayListTag = glGenLists(1);
-	glNewList(tags.displayListTag, GL_COMPILE);
+	
+	// But you can't embed multiple VAOs in a display list on 10.5. (Not 
+	// documented; experimentally determined.) 
+	static SInt32  systemVersion  = 0;
+	static BOOL    useDisplayList = YES;
+	if(systemVersion == 0)
 	{
-		// Lines
-		glBindVertexArrayAPPLE(tags.linesVAOTag);
-		glDrawArrays(GL_LINES, 0, tags.lineCount * 2);
-		
-		// Triangles
-		glBindVertexArrayAPPLE(tags.trianglesVAOTag);
-		glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
-		
-		// Quadrilaterals
-		glBindVertexArrayAPPLE(tags.quadsVAOTag);
-		glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
+		Gestalt(gestaltSystemVersion, &systemVersion);
+		useDisplayList = (systemVersion >= 0x1060);
 	}
-	glEndList();
+	
+	if(useDisplayList)
+	{
+		tags.displayListTag = glGenLists(1);
+		glNewList(tags.displayListTag, GL_COMPILE);
+		{
+			// Lines
+			glBindVertexArrayAPPLE(tags.linesVAOTag);
+			glDrawArrays(GL_LINES, 0, tags.lineCount * 2);
+			
+			// Triangles
+			glBindVertexArrayAPPLE(tags.trianglesVAOTag);
+			glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
+			
+			// Quadrilaterals
+			glBindVertexArrayAPPLE(tags.quadsVAOTag);
+			glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
+		}
+		glEndList();
+	}
 	
 	// Cache
 	id      key     = color;

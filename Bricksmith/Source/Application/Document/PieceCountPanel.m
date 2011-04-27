@@ -15,9 +15,11 @@
 #import "LDrawFile.h"
 #import "LDrawGLView.h"
 #import "LDrawMPDModel.h"
+#import "LDrawPart.h"
 #import "MacLDraw.h"
 #import "PartLibrary.h"
 #import "PartReport.h"
+
 
 @implementation PieceCountPanel
 
@@ -365,12 +367,11 @@
 //==============================================================================
 - (void) syncSelectionAndPartDisplayed
 {
-	NSDictionary    *partRecord     = nil;
-	NSString        *partName       = nil;
-	LDrawColor      *partColor      = nil;
-	PartLibrary     *partLibrary    = [LDrawApplication sharedPartLibrary];
-	id              modelToView     = nil;
-	NSInteger       rowIndex        = [pieceCountTable selectedRow];
+	NSDictionary   *partRecord    = nil;
+	NSString       *partName      = nil;
+	LDrawColor     *partColor     = nil;
+	LDrawPart      *newPart       = nil;
+	NSInteger      rowIndex       = [pieceCountTable selectedRow];
 	
 	if(rowIndex >= 0)
 	{
@@ -378,8 +379,20 @@
 		partName	= [partRecord objectForKey:PART_NUMBER_KEY];
 		partColor	= [partRecord objectForKey:LDRAW_COLOR];
 		
-		modelToView = [partLibrary modelForName:partName];
-		[partPreview setLDrawDirective:modelToView];
+		newPart		= [[[LDrawPart alloc] init] autorelease];
+		
+		// Not this simple anymore. We have to make sure to draw the optimized 
+		// vertexes. The easiest way to do that is to create a part referencing 
+		// the model. 
+//		modelToView = [partLibrary modelForName:partName];
+
+		//Set up the part attributes
+		[newPart setLDrawColor:partColor];
+		[newPart setDisplayName:partName];
+		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
+		[newPart optimizeOpenGL];
+
+		[partPreview setLDrawDirective:newPart];
 		[partPreview setLDrawColor:partColor];
 	}
 	

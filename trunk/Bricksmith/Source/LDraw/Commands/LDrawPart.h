@@ -8,8 +8,8 @@
 //  Created by Allen Smith on 2/19/05.
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
-#import <Cocoa/Cocoa.h>
-#import <OpenGL/gl.h>
+#import <Foundation/Foundation.h>
+#import OPEN_GL_HEADER
 
 #import "ColorLibrary.h"
 #import "LDrawDirective.h"

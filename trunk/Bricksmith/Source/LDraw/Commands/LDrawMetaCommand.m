@@ -21,8 +21,8 @@
 
 #import "LDrawColor.h"
 #import "LDrawComment.h"
+#import "LDrawKeywords.h"
 #import "LDrawUtilities.h"
-#import "MacLDraw.h"
 
 @implementation LDrawMetaCommand
 

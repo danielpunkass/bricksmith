@@ -31,3 +31,7 @@
 	#define dispatch_queue_t    void *
 	#define dispatch_group_t    void *
 #endif
+
+#ifndef OPEN_GL_HEADER
+#define OPEN_GL_HEADER <OpenGL/OpenGL.h>
+#endif

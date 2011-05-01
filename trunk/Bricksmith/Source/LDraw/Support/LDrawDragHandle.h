@@ -9,7 +9,7 @@
 // Modified:	02/25/2011 Allen Smith. Creation Date.
 //
 //==============================================================================
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 #import <OpenGL/glu.h>
 
 #import "LDrawDrawableElement.h"

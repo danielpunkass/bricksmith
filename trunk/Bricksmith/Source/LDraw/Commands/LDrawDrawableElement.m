@@ -11,8 +11,6 @@
 //==============================================================================
 #import "LDrawDrawableElement.h"
 
-#import <OpenGL/glu.h>
-
 #import "ColorLibrary.h"
 #import "LDrawColor.h"
 #import "LDrawContainer.h"
@@ -255,87 +253,54 @@
 //				object's bounds. 
 //
 //==============================================================================
-- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
-								projection:(const GLdouble *)projectionGLMatrix
-									  view:(const GLint *)viewport
+- (Box3) projectedBoundingBoxWithModelView:(Matrix4)modelView
+								projection:(Matrix4)projection
+									  view:(Box2)viewport;
 {
-	Box3        bounds              = [self boundingBox3];
-	GLdouble    windowGLPoint[3];
-	Point3      windowPoint         = ZeroPoint3;
-	Box3        projectedBounds     = InvalidBox;
+	Box3    bounds          = [self boundingBox3];
+	Point3  windowPoint     = ZeroPoint3;
+	Box3    projectedBounds = InvalidBox;
 	
 	if(V3EqualBoxes(bounds, InvalidBox) == NO)
 	{		
 		// front lower left
-		gluProject(bounds.min.x, bounds.min.y, bounds.min.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(bounds.min,
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 		
 		// front lower right
-		gluProject(bounds.max.x, bounds.min.y, bounds.min.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(V3Make(bounds.max.x, bounds.min.y, bounds.min.z),
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 		
 		// front upper right
-		gluProject(bounds.max.x, bounds.max.y, bounds.min.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(V3Make(bounds.max.x, bounds.max.y, bounds.min.z),
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 		
 		// front upper left
-		gluProject(bounds.min.x, bounds.max.y, bounds.min.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(V3Make(bounds.min.x, bounds.max.y, bounds.min.z),
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 		
 		// back lower left
-		gluProject(bounds.min.x, bounds.min.y, bounds.max.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(V3Make(bounds.min.x, bounds.min.y, bounds.max.z),
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 		
 		// back lower right
-		gluProject(bounds.max.x, bounds.min.y, bounds.max.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(V3Make(bounds.max.x, bounds.min.y, bounds.max.z),
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 		
 		// back upper right
-		gluProject(bounds.max.x, bounds.max.y, bounds.max.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(V3Make(bounds.max.x, bounds.max.y, bounds.max.z),
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 		
 		// back upper left
-		gluProject(bounds.min.x, bounds.max.y, bounds.max.z, 
-				   modelViewGLMatrix, 
-				   projectionGLMatrix, 
-				   viewport, 
-				   &windowGLPoint[0], &windowGLPoint[1], &windowGLPoint[2]);
-		windowPoint     = V3Make(windowGLPoint[0], windowGLPoint[1], windowGLPoint[2]);
+		windowPoint     = V3Project(V3Make(bounds.min.x, bounds.max.y, bounds.max.z),
+									modelView, projection, viewport);
 		projectedBounds = V3UnionBoxAndPoint(projectedBounds, windowPoint);
 	}
 	

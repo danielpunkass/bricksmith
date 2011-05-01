@@ -556,9 +556,9 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 // Purpose:		Returns the 2D projection (ignore the z) of the object's bounds.
 //
 //==============================================================================
-- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
-								projection:(const GLdouble *)projectionGLMatrix
-									  view:(const GLint *)viewport
+- (Box3) projectedBoundingBoxWithModelView:(Matrix4)modelView
+								projection:(Matrix4)projection
+									  view:(Box2)viewport;
 {
 	LDrawModel  *modelToDraw    = [[LDrawApplication sharedPartLibrary] modelForPart:self];
 	Box3        projectedBounds = InvalidBox;
@@ -782,7 +782,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 //==============================================================================
 - (void) setTransformationMatrix:(Matrix4 *)newMatrix
 {
-	Matrix4GetGLMatrix4(*newMatrix, glTransformation);
+	Matrix4GetGLMatrix4(*newMatrix, self->glTransformation);
 	
 	[self removeDisplayList];
 	

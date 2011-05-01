@@ -9,7 +9,7 @@
 // Modified:	11/16/2010 Allen Smith. Creation Date.
 //
 //==============================================================================
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 #import "LDrawDirective.h"
 

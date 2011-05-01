@@ -8,7 +8,7 @@
 //  Created by Allen Smith on 2/28/06.
 //  Copyright 2006. All rights reserved.
 //==============================================================================
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 #import "ColorLibrary.h"
 #import "MatrixMath.h"

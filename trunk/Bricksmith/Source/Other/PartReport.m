@@ -24,8 +24,9 @@
 //==============================================================================
 #import "PartReport.h"
 
-#import "LDrawContainer.h"
 #import "LDrawApplication.h"
+#import "LDrawContainer.h"
+#import "LDrawKeywords.h"
 #import "LDrawPart.h"
 #import "MacLDraw.h"
 #import "PartLibrary.h"

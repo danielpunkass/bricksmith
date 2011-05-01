@@ -8,18 +8,27 @@
 //  Created by Allen Smith on 2/19/05.
 //  Copyright 2005. All rights reserved.
 //==============================================================================
-#import <Cocoa/Cocoa.h>
-#import <OpenGL/OpenGL.h>
-#import <OpenGL/gl.h>
+#import <Foundation/Foundation.h>
+#import OPEN_GL_HEADER
 
-#import "ColorLibrary.h"
 #import "MatrixMath.h"
 #import "ObjectInspectionController.h"
 
+@class LDrawColor;
 @class LDrawContainer;
 @class LDrawFile;
 @class LDrawModel;
 @class LDrawStep;
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+#pragma mark		Drawing Mask bits and Constants
+//
+////////////////////////////////////////////////////////////////////////////////
+#define DRAW_NO_OPTIONS							0
+#define DRAW_HIT_TEST_MODE						1 << 1
+#define DRAW_BOUNDS_ONLY						1 << 3
 
 
 ////////////////////////////////////////////////////////////////////////////////

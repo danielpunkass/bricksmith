@@ -8,7 +8,7 @@
 //  Created by Allen Smith on 4/20/05.
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 #import "ColorLibrary.h"
 #import "LDrawDirective.h"
@@ -42,9 +42,9 @@ typedef struct
 
 // Accessors
 - (Box3) boundingBox3;
-- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
-								projection:(const GLdouble *)projectionGLMatrix
-									  view:(const GLint *)viewport;
+- (Box3) projectedBoundingBoxWithModelView:(Matrix4)modelView
+								projection:(Matrix4)projection
+									  view:(Box2)viewport;
 - (BOOL) isHidden;
 - (Point3) position;
 

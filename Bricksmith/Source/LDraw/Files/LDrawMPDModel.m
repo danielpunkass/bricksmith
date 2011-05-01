@@ -25,8 +25,8 @@
 #import "LDrawMPDModel.h"
 
 #import "LDrawFile.h"
+#import "LDrawKeywords.h"
 #import "LDrawUtilities.h"
-#import "MacLDraw.h"
 #import "StringCategory.h"
 
 
@@ -43,9 +43,14 @@
 //------------------------------------------------------------------------------
 + (id) model
 {
-	LDrawMPDModel *newModel = [[LDrawMPDModel alloc] initNew];
+	LDrawMPDModel   *newModel   = [super model];
+	NSString        *name       = nil;
 	
-	return [newModel autorelease];
+	// Set the spec-compliant model name with extension
+	name = NSLocalizedString(@"UntitledModel", nil);
+	[newModel setModelDisplayName:name];
+	
+	return newModel;
 	
 }//end model
 
@@ -64,26 +69,6 @@
 	return self;
 	
 }//end init
-
-
-//========== initNew ===========================================================
-//
-// Purpose:		Creates a submodel ready for editing.
-//
-//==============================================================================
-- (id) initNew
-{
-	NSString	*newModelName	= nil;
-
-	self = [super initNew];
-	
-	// Set the spec-compliant model name with extension
-	newModelName = NSLocalizedString(@"UntitledModel", nil);
-	[self setModelDisplayName:newModelName];
-	
-	return self;
-	
-}//end initNew
 
 
 //========== initWithLines:inRange:parentGroup: ================================

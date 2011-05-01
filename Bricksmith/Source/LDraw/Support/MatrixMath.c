@@ -12,9 +12,13 @@
 #include "MatrixMath.h"
 
 #include <math.h>
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+const Box2 ZeroBox2 = {	{0.0, 0.0},
+						{0.0, 0.0} };
 
 //Box which represents no bounds. It is defined in such a way that it can 
 // be used transparently in size comparisons -- its minimum is inifinity,
@@ -41,6 +45,7 @@ const Matrix4 IdentityMatrix4 = {{	{1, 0, 0, 0},
 									{0, 0, 1, 0},
 									{0, 0, 0, 1} }};
 
+const Point2 ZeroPoint2 = {0.0, 0.0};
 const Point3 ZeroPoint3 = {0.0, 0.0, 0.0};
 const Point4 ZeroPoint4 = {0.0, 0.0, 0.0, 0.0};
 
@@ -122,6 +127,43 @@ bool FloatsApproximatelyEqual(float float1, float float2)
 
 #pragma mark -
 #pragma mark 2-D LIBRARY
+#pragma mark -
+
+//========== Box2MakeFromDimensions ============================================
+//
+// Purpose:		Makes a box from width and height.
+//
+//==============================================================================
+Box2 Box2MakeFromDimensions(float x, float y, float width, float height)
+{
+	Box2 box;
+	
+	box.min.x = x;
+	box.min.y = y;
+	
+	box.max.x = x + width;
+	box.max.y = y + height;
+	
+	return box;
+}
+
+
+//========== Box2Height ========================================================
+//==============================================================================
+float Box2Height(Box2 box)
+{
+	return (box.max.y - box.min.y);
+}
+
+
+//========== Box2Width =========================================================
+//==============================================================================
+float Box2Width(Box2 box)
+{
+	return (box.max.x - box.min.x);
+}
+
+
 #pragma mark -
 
 //========== Matrix2x2Determinant ==============================================
@@ -710,6 +752,56 @@ Point3 V3MulPointByProjMatrix(Point3 pin, Matrix4 m)
 }//end V3MulPointByProjMatrix
 
 
+//========== V3Project =========================================================
+//
+// Purpose:		Projects the given object point into viewport coordinates. 
+//
+//				(Drop-in replacement for gluProject) 
+//
+//==============================================================================
+Point3 V3Project(Point3 objPoint, Matrix4 modelview, Matrix4 projection, Box2 viewport)
+{
+	Point3  transformedPoint    = ZeroPoint3;
+	Point3  windowPoint         = ZeroPoint3;
+	
+	transformedPoint = V3MulPointByProjMatrix(objPoint, Matrix4Multiply(modelview, projection));
+	
+	windowPoint.x = viewport.min.x + (Box2Width(viewport)  * (transformedPoint.x + 1)) / 2;
+	windowPoint.y = viewport.min.y + (Box2Height(viewport) * (transformedPoint.y + 1)) / 2;
+	windowPoint.z = (transformedPoint.z + 1) / 2;
+	
+	return windowPoint;
+	
+}//end V3Project
+
+
+//========== V3Unproject =======================================================
+//
+// Purpose:		Given a point in viewport coordinates, returns the location in 
+//				object coordinates. 
+//
+// Notes:		viewportPoint.z is the depth buffer location.
+//
+//				(Drop-in replacement for gluUnProject)
+//
+//==============================================================================
+Point3 V3Unproject(Point3 viewportPoint, Matrix4 modelview, Matrix4 projection, Box2 viewport)
+{
+	Matrix4 inversePM   = IdentityMatrix4;
+	Point3  normalized  = ZeroPoint3;
+	Point3  modelPoint  = ZeroPoint3;
+	
+	normalized.x = 2 * (viewportPoint.x - viewport.min.x) / Box2Width(viewport) - 1;
+	normalized.y = 2 * (viewportPoint.y - viewport.min.y) / Box2Height(viewport) - 1;
+	normalized.z = 2 * (viewportPoint.z) - 1;
+	
+	inversePM   = Matrix4Invert( Matrix4Multiply(modelview, projection) );
+	modelPoint  = V3MulPointByProjMatrix(normalized, inversePM);
+	
+	return modelPoint;
+}
+
+
 //========== Matrix3x3Determinant ==============================================
 //
 // Purpose:		Calculate the determinant of a 3x3 matrix in the form 
@@ -735,7 +827,7 @@ float Matrix3x3Determinant( float a1, float a2, float a3, float b1, float b2, fl
 //
 // Purpose:		Normal vectors (for lighting) cannot be transformed by the same 
 //				matrix which transforms vertexes. This method returns the 
-//				correct matrix to transforming normals for the given vertex 
+//				correct matrix to transform normals for the given vertex 
 //				transform (modelview) matrix. 
 //
 // Notes:		See "Matrices" notes in Bricksmith/Information for derivation.
@@ -806,16 +898,16 @@ Vector4 V4Make(float x, float y, float z, float w)
 //				for vectors.) 
 //
 //==============================================================================
-Vector4 V4FromPoint3(Vector3 originalVector)
+Point4 V4FromPoint3(Vector3 originalPoint)
 {
-	Vector4 newVector;
+	Point4 newPoint;
 	
-	newVector.x = originalVector.x;
-	newVector.y = originalVector.y;
-	newVector.z = originalVector.z;
-	newVector.w = 1; // By setting this to 1, the returned value is a point. Vectors would be set to 0.
+	newPoint.x = originalPoint.x;
+	newPoint.y = originalPoint.y;
+	newPoint.z = originalPoint.z;
+	newPoint.w = 1; // By setting this to 1, the returned value is a point. Vectors would be set to 0.
 	
-	return newVector;
+	return newPoint;
 	
 }//end V4FromPoint3
 

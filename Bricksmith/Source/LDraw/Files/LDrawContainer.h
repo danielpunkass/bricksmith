@@ -8,7 +8,7 @@
 //  Created by Allen Smith on 3/31/05.
 //  Copyright (c) 2005. All rights reserved.
 //==============================================================================
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 #import "LDrawDirective.h"
 #import "MatrixMath.h"
@@ -30,9 +30,9 @@
 //Accessors
 - (NSArray *) allEnclosedElements;
 - (Box3) boundingBox3;
-- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
-								projection:(const GLdouble *)projectionGLMatrix
-									  view:(const GLint *)viewport;
+- (Box3) projectedBoundingBoxWithModelView:(Matrix4)modelView
+								projection:(Matrix4)projection
+									  view:(Box2)viewport;
 - (NSInteger) indexOfDirective:(LDrawDirective *)directive;
 - (NSArray *) subdirectives;
 

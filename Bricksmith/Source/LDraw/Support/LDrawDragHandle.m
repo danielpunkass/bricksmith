@@ -9,7 +9,7 @@
 //==============================================================================
 #import "LDrawDragHandle.h"
 
-#import <OpenGL/OpenGL.h>
+#import OPEN_GL_HEADER
 
 #import "MacLDraw.h"
 #import "LDrawUtilities.h"

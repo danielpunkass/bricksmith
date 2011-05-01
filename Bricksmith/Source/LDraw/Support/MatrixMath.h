@@ -12,12 +12,30 @@
 #ifndef _MatrixMath_
 #define _MatrixMath_
 
-
-#include <OpenGL/GL.h>
+#include OPEN_GL_HEADER
 #include <stdbool.h>
 
 #pragma mark Data Types
 #pragma mark -
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// 2D geometry types
+//
+////////////////////////////////////////////////////////////////////////////////
+typedef struct Point2Struct
+{
+	float x, y;
+	
+} Point2;
+
+
+typedef struct Box2Struct
+{
+	Point2 min, max;
+	
+} Box2;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -42,7 +60,7 @@ typedef struct IntPoint3Struct
 
 
 // 3D Box
-typedef struct Box3dStruct
+typedef struct Box3Struct
 {
 	Point3 min, max;
 	
@@ -105,10 +123,12 @@ typedef struct
 #define PI				M_PI
 #define SMALL_NUMBER	1.e-6		//"close enough" zero for floating-point. 1e-8 is too small.
 
+extern const Box2					ZeroBox2;
 extern const Box3					InvalidBox;
 extern const TransformComponents	IdentityComponents;
 extern const Matrix3				IdentityMatrix3;
 extern const Matrix4				IdentityMatrix4;
+extern const Point2					ZeroPoint2;
 extern const Point3					ZeroPoint3;
 extern const Point4					ZeroPoint4;
 
@@ -186,6 +206,10 @@ extern const Point4					ZeroPoint4;
 extern bool		FloatsApproximatelyEqual(float float1, float float2);
 
 // 2-D
+extern Box2		Box2MakeFromDimensions(float x, float y, float width, float height);
+extern float	Box2Height(Box2 box);
+extern float	Box2Width(Box2 box);
+
 extern float	Matrix2x2Determinant( float, float, float, float);
 
 // 3-D
@@ -219,12 +243,15 @@ extern Box3		V3UnionBoxAndPoint(Box3 box, Point3 point);
 
 extern Point3	V3MulPointByMatrix(Point3 pin, Matrix3 m);
 extern Vector3	V3MulPointByProjMatrix(Point3 pin, Matrix4 m);
+extern Point3	V3Project(Point3 objPoint, Matrix4 modelview, Matrix4 projection, Box2 viewport);
+extern Point3	V3Unproject(Point3 viewportPoint, Matrix4 modelview, Matrix4 projection, Box2 viewport);
+
 extern float	Matrix3x3Determinant( float, float, float, float, float, float, float, float, float );
 extern Matrix3	Matrix3MakeNormalTransformFromProjMatrix(Matrix4 transformationMatrix);
 
 // 4-D
 extern Vector4	V4Make(float x, float y, float z, float w);
-extern Vector4	V4FromPoint3(Vector3 originalVector);
+extern Point4	V4FromPoint3(Vector3 originalPoint);
 extern Vector4	V4MulPointByMatrix(Vector4 pin, Matrix4 m);
 extern Matrix4	Matrix4CreateFromGLMatrix4(const GLfloat *glMatrix);
 extern Matrix4	Matrix4CreateTransformation(TransformComponents *);

@@ -14,9 +14,9 @@
 //==============================================================================
 #import "LDrawColor.h"
 
+#import "LDrawKeywords.h"
 #import "LDrawModel.h"
 #import "LDrawStep.h"
-#import "MacLDraw.h"
 
 @implementation LDrawColor
 

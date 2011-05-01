@@ -149,9 +149,9 @@
 //				object's bounds. 
 //
 //==============================================================================
-- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
-								projection:(const GLdouble *)projectionGLMatrix
-									  view:(const GLint *)viewport
+- (Box3) projectedBoundingBoxWithModelView:(Matrix4)modelView
+								projection:(Matrix4)projection
+									  view:(Box2)viewport;
 {
 	Box3        bounds              = InvalidBox;
 	Box3        partBounds          = InvalidBox;
@@ -164,8 +164,8 @@
 		currentDirective = [self->containedObjects objectAtIndex:counter];
 		if([currentDirective respondsToSelector:@selector(projectedBoundingBoxWithModelView:projection:view:)])
 		{
-			partBounds  = [currentDirective projectedBoundingBoxWithModelView:modelViewGLMatrix
-																   projection:projectionGLMatrix
+			partBounds  = [currentDirective projectedBoundingBoxWithModelView:modelView
+																   projection:projection
 																		 view:viewport];
 			bounds      = V3UnionBox(bounds, partBounds);
 		}

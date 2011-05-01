@@ -14,6 +14,7 @@
 #import "LDrawColor.h"
 #import "LDrawConditionalLine.h"
 #import "LDrawContainer.h"
+#import "LDrawKeywords.h"
 #import "LDrawLine.h"
 #import "LDrawMetaCommand.h"
 #import "LDrawPart.h"

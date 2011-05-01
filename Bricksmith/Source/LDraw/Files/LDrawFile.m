@@ -612,12 +612,12 @@
 //				object's bounds. 
 //
 //==============================================================================
-- (Box3) projectedBoundingBoxWithModelView:(const GLdouble *)modelViewGLMatrix
-								projection:(const GLdouble *)projectionGLMatrix
-									  view:(const GLint *)viewport
+- (Box3) projectedBoundingBoxWithModelView:(Matrix4)modelView
+								projection:(Matrix4)projection
+									  view:(Box2)viewport;
 {
-	return [[self activeModel] projectedBoundingBoxWithModelView:modelViewGLMatrix
-													  projection:projectionGLMatrix
+	return [[self activeModel] projectedBoundingBoxWithModelView:modelView
+													  projection:projection
 															view:viewport];
 	
 }//end projectedBoundingBoxWithModelView:projection:view:

@@ -1294,18 +1294,21 @@
 //==============================================================================
 - (IBAction) zoomToFit:(id)sender
 {
-	NSRect      visibleRect             = [self visibleRect];
-	NSRect      windowVisibleRect       = [self convertRect:visibleRect toView:nil];
-	NSSize		maxContentSize			= [[self enclosingScrollView] contentSize];
-	Box3        bounds                  = InvalidBox;
-	Point3      center                  = ZeroPoint3;
-	GLdouble    modelViewGLMatrix	[16];
-	GLdouble    projectionGLMatrix	[16];
-	GLint       viewport			[4];
-	Box3        projectedBounds         = InvalidBox;
-	NSRect      projectionRect          = NSZeroRect;
-	NSSize      zoomScale2D             = NSZeroSize;
-	CGFloat     zoomScaleFactor         = 0.0;
+	NSRect  visibleRect             = [self visibleRect];
+	NSRect  windowVisibleRect       = [self convertRect:visibleRect toView:nil];
+	NSSize  maxContentSize          = [[self enclosingScrollView] contentSize];
+	Box3    bounds                  = InvalidBox;
+	Point3  center                  = ZeroPoint3;
+	Matrix4 modelView               = IdentityMatrix4;
+	Matrix4 projection              = IdentityMatrix4;
+	Box2    viewport                = ZeroBox2;
+	GLfloat modelViewGLMatrix	[16];
+	GLfloat projectionGLMatrix	[16];
+	GLint   GLViewport			[4];
+	Box3    projectedBounds         = InvalidBox;
+	NSRect  projectionRect          = NSZeroRect;
+	NSSize  zoomScale2D             = NSZeroSize;
+	CGFloat zoomScaleFactor         = 0.0;
 	
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
@@ -1318,14 +1321,18 @@
 			if(V3EqualBoxes(bounds, InvalidBox) == NO)
 			{		
 				// Project the bounds onto the 2D "canvas"
-				glGetDoublev(GL_PROJECTION_MATRIX, projectionGLMatrix);
-				glGetDoublev(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
-				glGetIntegerv(GL_VIEWPORT, viewport);
+				glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
+				glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
+				glGetIntegerv(GL_VIEWPORT, GLViewport);
 				
+				modelView   = Matrix4CreateFromGLMatrix4(modelViewGLMatrix);
+				projection  = Matrix4CreateFromGLMatrix4(projectionGLMatrix);
+				viewport    = Box2MakeFromDimensions(GLViewport[0], GLViewport[1], GLViewport[2], GLViewport[3]);
+
 				projectedBounds = [(id)self->fileBeingDrawn
-										   projectedBoundingBoxWithModelView:modelViewGLMatrix
-																  projection:projectionGLMatrix
-																		view:viewport];
+										   projectedBoundingBoxWithModelView:modelView
+																  projection:projection
+																		view:viewport ];
 				projectionRect  = NSMakeRect(projectedBounds.min.x, projectedBounds.min.y,   // origin
 											 projectedBounds.max.x - projectedBounds.min.x,  // width
 											 projectedBounds.max.y - projectedBounds.min.y); // height
@@ -3375,8 +3382,8 @@
 					glLoadIdentity();
 					
 					//Lastly, convert to viewport coordinates:
-					GLdouble pickX = viewClickedPoint.x - NSMinX(visibleRect);
-					GLdouble pickY = viewClickedPoint.y - NSMinY(visibleRect);
+					GLfloat pickX = viewClickedPoint.x - NSMinX(visibleRect);
+					GLfloat pickY = viewClickedPoint.y - NSMinY(visibleRect);
 					
 					gluPickMatrix(pickX,
 								  pickY,
@@ -4068,15 +4075,15 @@
 //==============================================================================
 - (Point3) modelPointForPoint:(NSPoint)viewPoint
 {
-	GLfloat             depth                   = 0.0; 
 	NSPoint             windowPoint             = [self convertPoint:viewPoint toView:nil];
 	NSRect              windowVisibleRect       = [self convertRect:[self visibleRect] toView:nil]; //window coordinates.
+	
+	GLfloat             depth                   = 0.0; 
 	TransformComponents partTransform           = IdentityComponents;
-	NSPoint				contextPoint			= NSZeroPoint;
-	GLdouble            modelViewGLMatrix	[16];
-	GLdouble            projectionGLMatrix	[16];
+	Point3              contextPoint            = ZeroPoint3;
+	GLfloat             modelViewGLMatrix	[16];
+	GLfloat             projectionGLMatrix	[16];
 	GLint               viewport			[4];
-	GLdouble            glModelPoint		[3];
 	Point3              modelPoint              = ZeroPoint3;
 	
 	// convert to viewport coordinates
@@ -4112,21 +4119,17 @@
 		}
 		else
 		{
+			contextPoint.z = depth;
+		
 			// Convert back to a point in the model.
-			glGetDoublev(GL_PROJECTION_MATRIX, projectionGLMatrix);
-			glGetDoublev(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
+			glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
+			glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
 			glGetIntegerv(GL_VIEWPORT, viewport);
 			
-			gluUnProject(contextPoint.x, contextPoint.y,
-						 depth, //z
-						 modelViewGLMatrix,
-						 projectionGLMatrix,
-						 viewport,
-						 &glModelPoint[0],
-						 &glModelPoint[1],
-						 &glModelPoint[2] );
-			
-			modelPoint = V3Make(glModelPoint[0], glModelPoint[1], glModelPoint[2]);
+			modelPoint = V3Unproject(contextPoint,
+									 Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
+									 Matrix4CreateFromGLMatrix4(projectionGLMatrix),
+									 Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
 		}
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
@@ -4166,17 +4169,19 @@
 - (Point3) modelPointForPoint:(NSPoint)viewPoint
 		  depthReferencePoint:(Point3)depthPoint
 {
-	GLdouble	modelViewGLMatrix	[16];
-	GLdouble	projectionGLMatrix	[16];
-	GLint		viewport			[4];
-	GLdouble	glNearModelPoint	[3];
-	GLdouble	glFarModelPoint		[3];
-	Point3		modelPoint				= ZeroPoint3;
-	NSRect		windowVisibleRect		= [self convertRect:[self visibleRect] toView:nil];
-	NSPoint		windowPoint				= [self convertPoint:viewPoint toView:nil];
-	NSPoint		contextPoint			= NSZeroPoint;
-	Vector3		modelZ;
-	float		t						= 0; //parametric variable
+	NSRect  windowVisibleRect       = [self convertRect:[self visibleRect] toView:nil];
+	NSPoint windowPoint             = [self convertPoint:viewPoint toView:nil];
+	
+	GLfloat modelViewGLMatrix	[16];
+	GLfloat projectionGLMatrix	[16];
+	GLint   viewport			[4];
+	
+	Point3  nearModelPoint          = ZeroPoint3;
+	Point3  farModelPoint           = ZeroPoint3;
+	Point3  modelPoint              = ZeroPoint3;
+	Point2  contextPoint            = ZeroPoint2;
+	Vector3 modelZ;
+	float   t                       = 0; //parametric variable
 	
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
@@ -4195,34 +4200,24 @@
 		contextPoint.x = windowPoint.x - NSMinX(windowVisibleRect);
 		contextPoint.y = windowPoint.y - NSMinY(windowVisibleRect);
 		
-		glGetDoublev(GL_PROJECTION_MATRIX, projectionGLMatrix);
-		glGetDoublev(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
+		glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
+		glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		// gluUnProject takes a window "z" coordinate. These values range from 
 		// 0.0 (on the near clipping plane) to 1.0 (the far clipping plane). 
 		
 		// - Near clipping plane unprojection
-		gluUnProject( contextPoint.x,
-					  contextPoint.y,
-					  0.0, //z
-					  modelViewGLMatrix,
-					  projectionGLMatrix,
-					  viewport,
-					  &glNearModelPoint[0],
-					  &glNearModelPoint[1],
-					  &glNearModelPoint[2] );
+		nearModelPoint = V3Unproject(V3Make(contextPoint.x, contextPoint.y, 0.0),
+									 Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
+									 Matrix4CreateFromGLMatrix4(projectionGLMatrix),
+									 Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
 		
 		// - Far clipping plane unprojection
-		gluUnProject( contextPoint.x,
-					  contextPoint.y,
-					  1.0, //z
-					  modelViewGLMatrix,
-					  projectionGLMatrix,
-					  viewport,
-					  &glFarModelPoint[0],
-					  &glFarModelPoint[1],
-					  &glFarModelPoint[2] );
+		farModelPoint = V3Unproject(V3Make(contextPoint.x, contextPoint.y, 1.0),
+									Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
+									Matrix4CreateFromGLMatrix4(projectionGLMatrix),
+									Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
 		
 		//---------- Derive the actual point from the depth point --------------
 		//
@@ -4255,19 +4250,22 @@
 		
 		// Find the value of the parameter at the depth point.
 		if(modelZ.x != 0)
-			t = (glNearModelPoint[0] - depthPoint.x) / (glNearModelPoint[0] - glFarModelPoint[0]);
-		
+		{
+			t = (nearModelPoint.x - depthPoint.x) / (nearModelPoint.x - farModelPoint.x);
+		}
 		else if(modelZ.y != 0)
-			t = (glNearModelPoint[1] - depthPoint.y) / (glNearModelPoint[1] - glFarModelPoint[1]);
-		
+		{
+			t = (nearModelPoint.y - depthPoint.y) / (nearModelPoint.y - farModelPoint.y);
+		}
 		else if(modelZ.z != 0)
-			t = (glNearModelPoint[2] - depthPoint.z) / (glNearModelPoint[2] - glFarModelPoint[2]);
-		
+		{
+			t = (nearModelPoint.z - depthPoint.z) / (nearModelPoint.z - farModelPoint.z);
+		}
 		// Evaluate the equation of the near-to-far line at the parameter for 
 		// the depth point. 
-		modelPoint.x = LERP(t, glNearModelPoint[0], glFarModelPoint[0]);
-		modelPoint.y = LERP(t, glNearModelPoint[1], glFarModelPoint[1]);
-		modelPoint.z = LERP(t, glNearModelPoint[2], glFarModelPoint[2]);
+		modelPoint.x = LERP(t, nearModelPoint.x, farModelPoint.x);
+		modelPoint.y = LERP(t, nearModelPoint.y, farModelPoint.y);
+		modelPoint.z = LERP(t, nearModelPoint.z, farModelPoint.z);
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
 

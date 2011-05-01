@@ -23,13 +23,13 @@
 #import "LDrawColor.h"
 #import "LDrawConditionalLine.h"
 #import "LDrawFile.h"
+#import "LDrawKeywords.h"
 #import "LDrawLine.h"
 #import "LDrawQuadrilateral.h"
 #import "LDrawStep.h"
 #import "LDrawTriangle.h"
 #import "LDrawUtilities.h"
 #import "LDrawVertexes.h"
-#import "MacLDraw.h"
 #import "StringCategory.h"
 
 
@@ -47,8 +47,24 @@
 //------------------------------------------------------------------------------
 + (id) model
 {
-	LDrawModel *newModel = [[LDrawModel alloc] initNew];
+	LDrawModel *newModel = [[[self class] alloc] init];
 	
+	//Then fill it up with useful initial attributes
+	[newModel setModelDescription:NSLocalizedString(@"UntitledModel", nil)];
+	[newModel setFileName:@""];
+	
+	//Create the author name by looking up the name from the system.
+	ABPerson    *userInfo   = [[ABAddressBook sharedAddressBook] me];
+	NSString    *firstName  = [userInfo valueForProperty:kABFirstNameProperty];
+	NSString    *lastName   = [userInfo valueForProperty:kABLastNameProperty];
+	if([firstName length] > 0 && [lastName length] > 0)
+	{
+		[newModel setAuthor:[NSString stringWithFormat:@"%@ %@", firstName, lastName]];
+	}
+	
+	//Need to create a blank step.
+	[newModel addStep];
+
 	return [newModel autorelease];
 	
 }//end model
@@ -76,36 +92,6 @@
 	
 }//end init
 
-
-//========== initNew ===========================================================
-//
-// Purpose:		Creates a new model file ready for editing, with one step.
-//
-//==============================================================================
-- (id) initNew
-{
-	//First, get a nice blank model.
-	self = [self init];
-	
-	//Then fill it up with useful initial attributes
-	[self setModelDescription:NSLocalizedString(@"UntitledModel", nil)];
-	[self setFileName:@""];
-	
-	//Create the author name by looking up the name from the system.
-	ABPerson    *userInfo   = [[ABAddressBook sharedAddressBook] me];
-	NSString    *firstName  = [userInfo valueForProperty:kABFirstNameProperty];
-	NSString    *lastName   = [userInfo valueForProperty:kABLastNameProperty];
-	if([firstName length] > 0 && [lastName length] > 0)
-	{
-		[self setAuthor:[NSString stringWithFormat:@"%@ %@", firstName, lastName]];
-	}
-	
-	//Need to create a blank step.
-	[self addStep];
-	
-	return self;
-	
-}//end initNew
 
 //========== initWithLines:inRange:parentGroup: ================================
 //

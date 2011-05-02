@@ -10,7 +10,7 @@
 //
 //==============================================================================
 #import <Foundation/Foundation.h>
-#import <OpenGL/glu.h>
+#import OPEN_GL_HEADER
 
 #import "LDrawDrawableElement.h"
 
@@ -25,8 +25,6 @@
 	NSInteger   tag;
 	Point3		position;
 	Point3		initialPosition;
-	
-	GLUquadric	*sphere;
 	
 	id          target;
 	SEL			action;
@@ -44,7 +42,11 @@
 - (void) setPosition:(Point3)positionIn updateTarget:(BOOL)update;
 - (void) setTarget:(id)sender;
 
+// Draw
 - (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor;
 
+// Utilities
++ (void) makeSphereWithLongitudinalCount:(int)longitudeSections
+						latitudinalCount:(int)latitudeSections;
 @end
 

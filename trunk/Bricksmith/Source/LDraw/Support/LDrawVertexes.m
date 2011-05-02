@@ -382,7 +382,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
-		glBindBuffer(GL_ARRAY_BUFFER, tags.trianglesVAOTag);
+		glBindBuffer(GL_ARRAY_BUFFER, tags.trianglesVBOTag);
 		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
 		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
 		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );

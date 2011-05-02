@@ -2875,6 +2875,8 @@
 	NSInteger		selectedStepIndex	= 0;
 	NSInteger       counter             = 0;
 	
+	[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
+	
 	//Deselect all the previously-selected directives
 	// (clears the internal directive flag used for drawing)
 	for(counter = 0; counter < [self->selectedDirectives count]; counter++)

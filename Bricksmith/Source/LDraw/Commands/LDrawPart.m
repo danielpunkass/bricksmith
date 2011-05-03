@@ -31,7 +31,6 @@
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "LDrawVertexes.h"
-#import "MacLDraw.h"
 #import "PartLibrary.h"
 #import "PartReport.h"
 
@@ -756,10 +755,6 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	
 	[self setTransformationMatrix:&transformation];
 
-	[[NSNotificationCenter defaultCenter]
-			postNotificationName:LDrawDirectiveDidChangeNotification
-						  object:self];
-						  
 }//end setTransformComponents:
 
 

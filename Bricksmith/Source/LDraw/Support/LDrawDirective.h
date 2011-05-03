@@ -20,6 +20,11 @@
 @class LDrawStep;
 
 
+//A directive was modified, either explicitly by the user or by undo/redo.
+// Object is the LDrawDirective that changed. No userInfo.
+#define LDrawDirectiveDidChangeNotification				@"LDrawDirectiveDidChangeNotification"
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 #pragma mark		Drawing Mask bits and Constants
@@ -81,6 +86,7 @@
 		  normalTransform:(Matrix3)normalTransform
 				recursive:(BOOL)recursive;
 - (BOOL) isAncestorInList:(NSArray *)containers;
+- (void) noteNeedsDisplay;
 - (void) optimizeOpenGL;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;
 

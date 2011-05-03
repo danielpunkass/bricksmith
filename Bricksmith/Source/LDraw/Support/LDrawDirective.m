@@ -12,7 +12,6 @@
 #import "LDrawContainer.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
-#import "MacLDraw.h"
 	
 @implementation LDrawDirective
 
@@ -527,6 +526,21 @@
 	return foundInList;
 	
 }//end isAncestorInList:
+
+
+//========== noteNeedsDisplay ==================================================
+//
+// Purpose:		An object can certainly be displayed in multiple views, and we 
+//				don't really care to find out which ones here. So we just post 
+//				a notification, and anyone can pick that up.
+//
+//==============================================================================
+- (void) noteNeedsDisplay
+{
+	[[NSNotificationCenter defaultCenter]
+					postNotificationName:LDrawDirectiveDidChangeNotification
+								  object:self];
+}//end setNeedsDisplay
 
 
 //========== optimizeOpenGL ====================================================

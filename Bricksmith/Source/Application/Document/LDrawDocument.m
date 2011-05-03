@@ -528,7 +528,7 @@
 		if([activeModel stepDisplay] == YES)
 		{
 			[self updateViewingAngleToMatchStep];
-			[[self documentContents] setNeedsDisplay];
+			[[self documentContents] noteNeedsDisplay];
 		}
 	}
 	
@@ -648,7 +648,7 @@
 			[activeModel setStepDisplay:NO];
 		}
 		
-		[[self documentContents] setNeedsDisplay];
+		[[self documentContents] noteNeedsDisplay];
 	}
 	
 	// Set scope button state no matter what. The scope buttons are really 
@@ -958,7 +958,7 @@
 			[self setObject:currentObject toColor:newColor];
 	}
 	if([selectedObjects count] > 0)
-		[[self documentContents] setNeedsDisplay];
+		[[self documentContents] noteNeedsDisplay];
 		
 }//end changeLDrawColor:
 
@@ -1450,7 +1450,7 @@
 	}
 	
 	[fileContentsOutline deselectAll:sender];
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 }//end delete:
 
 
@@ -1885,7 +1885,7 @@
 		
 	}//end update loop
 	
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 }//end snapSelectionToGrid
 
 
@@ -1903,7 +1903,7 @@
 
 	[self addModel:newModel preventNameCollisions:YES];
 	[self setActiveModel:newModel];
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 	
 }//end modelSelected
 
@@ -2009,7 +2009,7 @@
 	[self addStepComponent:newLine];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddLine", nil)];
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 	
 }//end addLineClicked:
 
@@ -2039,7 +2039,7 @@
 	[self addStepComponent:newTriangle];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddTriangle", nil)];
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 	
 }//end addTriangleClicked:
 
@@ -2071,7 +2071,7 @@
 	[self addStepComponent:newQuadrilateral];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddQuadrilateral", nil)];
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 	
 }//end addQuadrilateralClicked:
 
@@ -2093,7 +2093,7 @@
 	[self addStepComponent:newConditional];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddConditionalLine", nil)];
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 	
 }//end addConditionalClicked:
 
@@ -2300,9 +2300,7 @@
 	
 	//our part changed; notify!
 	[self updateInspector];
-	[[NSNotificationCenter defaultCenter]
-					postNotificationName:LDrawDirectiveDidChangeNotification
-								  object:object];
+	[object noteNeedsDisplay];
 								  
 }//end moveDirective:inDirection:
 
@@ -2324,10 +2322,7 @@
 	{
 		// ** Read code bottom-to-top ** //
 
-		[[undoManager prepareWithInvocationTarget:[NSNotificationCenter defaultCenter]]
-				 postNotificationName:LDrawDirectiveDidChangeNotification
-				 object:directive];
-
+		[[undoManager prepareWithInvocationTarget:directive] noteNeedsDisplay];
 		[[undoManager prepareWithInvocationTarget:[directive enclosingModel]] optimizeVertexes];
 		[directive registerUndoActions:undoManager];
 		
@@ -2384,9 +2379,7 @@
 
 	
 	[self updateInspector];
-	[[NSNotificationCenter defaultCenter]
-					postNotificationName:LDrawDirectiveDidChangeNotification
-								  object:part];
+	[part noteNeedsDisplay];
 	
 } //rotatePart:onAxis:byDegrees:
 
@@ -2417,9 +2410,8 @@
 		[element setHidden:hideFlag];
 		[[element enclosingModel] optimizeVertexes];
 	}
-	[[NSNotificationCenter defaultCenter]
-					postNotificationName:LDrawDirectiveDidChangeNotification
-								  object:element];
+	[element noteNeedsDisplay];
+
 }//end setElement:toHidden:
 
 
@@ -2445,9 +2437,8 @@
 	}
 	[[self documentContents] unlockEditor];
 	[self updateInspector];
-	[[NSNotificationCenter defaultCenter]
-					postNotificationName:LDrawDirectiveDidChangeNotification
-								  object:object];
+	[object noteNeedsDisplay];
+
 }//end setObject:toColor:
 
 
@@ -2477,6 +2468,7 @@
 		[undoManager setActionName:NSLocalizedString(@"UndoSnapToGrid", nil)];
 	}
 	[self updateInspector];
+	[part noteNeedsDisplay];
 	
 }//end setTransformation:forPart:
 
@@ -2906,7 +2898,7 @@
 			}
 		}
 	}
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 	
 	//See if we just selected a new part; if so, we must remember it.
 	if([lastSelectedItem isKindOfClass:[LDrawPart class]])
@@ -3399,7 +3391,12 @@
 	
 	if([[changedDirective ancestors] containsObject:[self documentContents]])
 	{
-		[[self documentContents] setNeedsDisplay];
+		// Since a component of the file changed, mark the entire file as 
+		// changed too. 
+		if(changedDirective != [self documentContents])
+		{
+			[[self documentContents] noteNeedsDisplay];
+		}
 		[fileContentsOutline reloadData];
 		
 		//Model menu needs to change if:
@@ -4137,7 +4134,7 @@
 		[self addStepComponent:newPart];
 		
 		[undoManager setActionName:NSLocalizedString(@"UndoAddPart", nil)];
-		[[self documentContents] setNeedsDisplay];
+		[[self documentContents] noteNeedsDisplay];
 	}
 }//end addPartNamed:
 
@@ -4715,7 +4712,7 @@
 
 	//As this is the centralized conduit through which all "pasting" operations 
 	// flow, this is where we refresh.
-	[[self documentContents] setNeedsDisplay];
+	[[self documentContents] noteNeedsDisplay];
 	
 	return addedObjects;
 	

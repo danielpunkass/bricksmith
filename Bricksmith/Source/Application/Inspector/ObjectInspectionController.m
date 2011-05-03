@@ -159,9 +159,7 @@
 	//done editing; clean up
 	[representedObject unlockEditor];
 	
-	[[NSNotificationCenter defaultCenter]
-			postNotificationName:LDrawDirectiveDidChangeNotification
-						  object:[self object]];
+	[representedObject noteNeedsDisplay];
 
 }//end finishedEditing:
 

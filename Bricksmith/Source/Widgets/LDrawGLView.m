@@ -1011,13 +1011,13 @@
 		[self setNeedsDisplay:YES];
 
 		//Register for important notifications.
-		[[NSNotificationCenter defaultCenter] removeObserver:self name:LDrawFileDidChangeNotification object:nil];
+		[[NSNotificationCenter defaultCenter] removeObserver:self name:LDrawDirectiveDidChangeNotification object:nil];
 		[[NSNotificationCenter defaultCenter] removeObserver:self name:LDrawFileActiveModelDidChangeNotification object:nil];
 			
 		[[NSNotificationCenter defaultCenter]
 				addObserver:self
 				   selector:@selector(displayNeedsUpdating:)
-					   name:LDrawFileDidChangeNotification
+					   name:LDrawDirectiveDidChangeNotification
 					 object:self->fileBeingDrawn ];
 		
 		[[NSNotificationCenter defaultCenter]
@@ -2214,9 +2214,7 @@
 			[(id)self->fileBeingDrawn optimizeVertexes];
 		}
 
-		[[NSNotificationCenter defaultCenter]
-					 postNotificationName:LDrawDirectiveDidChangeNotification
-					               object:self->fileBeingDrawn ];
+		[self->fileBeingDrawn noteNeedsDisplay];
 
 		if([self->delegate respondsToSelector:@selector(LDrawGLView:dragHandleDidMove:)])
 		{
@@ -2786,9 +2784,7 @@
 	{
 		[(id)self->fileBeingDrawn setDraggingDirectives:directives];
 		
-		[[NSNotificationCenter defaultCenter]
-					postNotificationName:LDrawDirectiveDidChangeNotification
-								  object:self->fileBeingDrawn ];
+		[self->fileBeingDrawn noteNeedsDisplay];
 	}
 	
 	return dragOperation;
@@ -2848,9 +2844,7 @@
 				[(id)self->fileBeingDrawn optimizeVertexes];
 			}
 			
-			[[NSNotificationCenter defaultCenter]
-							postNotificationName:LDrawDirectiveDidChangeNotification
-										  object:self->fileBeingDrawn ];
+			[self->fileBeingDrawn noteNeedsDisplay];
 		}
 	}
 	
@@ -2922,9 +2916,7 @@
 	{
 		[(id)self->fileBeingDrawn setDraggingDirectives:nil];
 		
-		[[NSNotificationCenter defaultCenter]
-						postNotificationName:LDrawDirectiveDidChangeNotification
-									  object:self->fileBeingDrawn ];
+		[self->fileBeingDrawn noteNeedsDisplay];
 	}
 }//end concludeDragOperation:
 

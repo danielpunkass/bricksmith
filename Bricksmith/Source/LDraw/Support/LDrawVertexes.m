@@ -23,7 +23,6 @@
 #import "LDrawLine.h"
 #import "LDrawTriangle.h"
 #import "LDrawQuadrilateral.h"
-#import "MacLDraw.h"
 
 static void DeleteOptimizationTags(struct OptimizationTags tags);
 

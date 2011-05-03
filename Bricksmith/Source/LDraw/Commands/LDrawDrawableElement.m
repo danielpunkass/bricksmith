@@ -15,7 +15,7 @@
 #import "LDrawColor.h"
 #import "LDrawContainer.h"
 #import "LDrawUtilities.h"
-#import "MacLDraw.h"
+
 
 @implementation LDrawDrawableElement
 

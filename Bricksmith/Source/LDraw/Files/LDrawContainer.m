@@ -13,7 +13,6 @@
 #import "LDrawContainer.h"
 
 #import "LDrawUtilities.h"
-#import "MacLDraw.h"
 #import "PartReport.h"
 
 @implementation LDrawContainer
@@ -306,9 +305,7 @@
 
 	if(self->postsNotifications == YES)
 	{
-		[[NSNotificationCenter defaultCenter]
-				postNotificationName:LDrawDirectiveDidChangeNotification
-							  object:self];
+		[self noteNeedsDisplay];
 	}
 	
 }//end insertDirective:atIndex:
@@ -330,9 +327,7 @@
 	
 	if(self->postsNotifications == YES)
 	{
-		[[NSNotificationCenter defaultCenter]
-				postNotificationName:LDrawDirectiveDidChangeNotification
-							  object:self];
+		[self noteNeedsDisplay];
 	}
 						  
 }//end removeDirectiveAtIndex:

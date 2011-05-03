@@ -27,7 +27,6 @@
 #import "LDrawMPDModel.h"
 #import "LDrawPart.h"
 #import "LDrawUtilities.h"
-#import "MacLDraw.h"
 #import "PartReport.h"
 #import "StringCategory.h"
 
@@ -733,21 +732,6 @@
 	}
 	
 }//end renameModel:toName:
-
-
-//========== setNeedsDisplay ===================================================
-//
-// Purpose:		A file can certainly be displayed in multiple views, and we 
-//				don't really care to find out which ones here. So we just post 
-//				a notification, and anyone can pick that up.
-//
-//==============================================================================
-- (void) setNeedsDisplay
-{
-	[[NSNotificationCenter defaultCenter]
-			postNotificationName:LDrawFileDidChangeNotification
-						  object:self];
-}//end setNeedsDisplay
 
 
 #pragma mark -

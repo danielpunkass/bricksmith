@@ -25,7 +25,6 @@
 #import "LDrawDragHandle.h"
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
-#import "MacLDraw.h"
 
 
 @implementation LDrawQuadrilateral

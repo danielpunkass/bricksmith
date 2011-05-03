@@ -199,21 +199,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//A directive was modified, either explicitly by the user or by undo/redo.
-// Object is the LDrawDirective that changed. No userInfo.
-#define LDrawDirectiveDidChangeNotification				@"LDrawDirectiveDidChangeNotification"
-
 //The color which will be assigned to new parts has changed.
 // Object is the new LDrawColorT, as an NSNumber. No userInfo.
 #define LDrawColorDidChangeNotification					@"LDrawColorDidChangeNotification"
-
-//Active model changed.
-// Object is the LDrawFile in which the model resides. No userInfo.
-#define LDrawFileActiveModelDidChangeNotification		@"LDrawFileActiveModelDidChangeNotification"
-
-//File has changed in some way that it should be redisplayed. Object is the LDrawFile that changed. No userInfo.
-// Note: this should probably replace LDrawDirectiveDidChangeNotification in some places.
-#define LDrawFileDidChangeNotification					@"LDrawFileDidChangeNotification"
 
 //the keys on the keyboard which were depressed just changed.
 // Object is an NSEvent: keyUp, keyDown, or flagsChanged.

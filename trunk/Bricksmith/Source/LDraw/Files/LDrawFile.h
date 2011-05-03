@@ -16,6 +16,11 @@
 @class LDrawMPDModel;
 
 
+//Active model changed.
+// Object is the LDrawFile in which the model resides. No userInfo.
+#define LDrawFileActiveModelDidChangeNotification		@"LDrawFileActiveModelDidChangeNotification"
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // class LDrawFile
@@ -55,6 +60,5 @@
 - (void) optimizeStructure;
 - (void) optimizeVertexes;
 - (void) renameModel:(LDrawMPDModel *)submodel toName:(NSString *)newName;
-- (void) setNeedsDisplay;
 
 @end

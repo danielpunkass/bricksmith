@@ -211,9 +211,7 @@
 	
 	//Note that the part has changed.
 	[representedObject unlockEditor];
-	[[NSNotificationCenter defaultCenter]
-			postNotificationName:LDrawDirectiveDidChangeNotification
-						  object:[self object]];
+	[representedObject noteNeedsDisplay];
 	
 	//For a relative rotation, prepare for the next additive rotation by 
 	// resetting the rotations values to zero

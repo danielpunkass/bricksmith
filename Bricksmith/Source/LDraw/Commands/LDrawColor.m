@@ -18,6 +18,8 @@
 #import "LDrawModel.h"
 #import "LDrawStep.h"
 
+void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v );
+
 @implementation LDrawColor
 
 #pragma mark -
@@ -807,45 +809,46 @@
 //==============================================================================
 - (NSComparisonResult) HSVACompare:(LDrawColor *)otherColor
 {
-	NSColor             *ourNSColor     = nil;
-	NSColor             *otherNSColor   = nil;
-	NSComparisonResult  result          = NSOrderedSame;
+	NSComparisonResult  result              = NSOrderedSame;
+	float               ourHSV[4]           = {0.0};
+	float               otherColorHSV[4]    = {0.0};
 	
-	ourNSColor      = [NSColor colorWithCalibratedRed:self->colorRGBA[0]
-												green:self->colorRGBA[1]
-												 blue:self->colorRGBA[2]
-												alpha:self->colorRGBA[3] ];
+	// Convert both to Hue-saturation-brightness
+	RGBtoHSV(self->colorRGBA[0], self->colorRGBA[1], self->colorRGBA[2],
+			 &ourHSV[0], &ourHSV[1], &ourHSV[2]);
 	
-	otherNSColor    = [NSColor colorWithCalibratedRed:otherColor->colorRGBA[0]
-												green:otherColor->colorRGBA[1]
-												 blue:otherColor->colorRGBA[2]
-												alpha:otherColor->colorRGBA[3] ];
+	RGBtoHSV(otherColor->colorRGBA[0], otherColor->colorRGBA[1], otherColor->colorRGBA[2],
+			 &otherColorHSV[0], &otherColorHSV[1], &otherColorHSV[2]);
+			 
+	// Alpha
+	ourHSV[3]           = self->colorRGBA[3];
+	otherColorHSV[3]    = self->colorRGBA[3];
 	
 	// Hue
-	if( [ourNSColor hueComponent] > [otherNSColor hueComponent] )
+	if( ourHSV[0] > otherColorHSV[0] )
 		result = NSOrderedDescending;
-	else if( [ourNSColor hueComponent] < [otherNSColor hueComponent] )
+	else if( ourHSV[0] < otherColorHSV[0] )
 		result = NSOrderedAscending;
 	else
 	{
 		// Saturation
-		if( [ourNSColor saturationComponent] > [otherNSColor saturationComponent] )
+		if( ourHSV[1] > otherColorHSV[1] )
 			result = NSOrderedDescending;
-		else if( [ourNSColor saturationComponent] < [otherNSColor saturationComponent] )
+		else if( ourHSV[1] < otherColorHSV[1] )
 			result = NSOrderedAscending;
 		else
 		{
 			// Brightness
-			if( [ourNSColor brightnessComponent] > [otherNSColor brightnessComponent] )
+			if( ourHSV[2] > otherColorHSV[2] )
 				result = NSOrderedDescending;
-			else if( [ourNSColor brightnessComponent] < [otherNSColor brightnessComponent] )
+			else if( ourHSV[2] < otherColorHSV[2] )
 				result = NSOrderedAscending;
 			else
 			{
 				// Alpha
-				if( [ourNSColor alphaComponent] > [otherNSColor alphaComponent] )
+				if( ourHSV[3] > otherColorHSV[3] )
 					result = NSOrderedDescending;
-				else if( [ourNSColor alphaComponent] < [otherNSColor alphaComponent] )
+				else if( ourHSV[3] < otherColorHSV[3] )
 					result = NSOrderedAscending;
 				else
 				{
@@ -943,3 +946,49 @@
 
 
 @end
+
+
+#pragma mark -
+
+//========== RGBtoHSV ==========================================================
+//
+// Purpose:		Converts an RGB color into Hue-Saturation-Brightness
+//
+// Parameters:	r,g,b values are from 0 to 1
+//				h = [0,360], s = [0,1], v = [0,1]
+//					if s == 0, then h = -1 (undefined)
+//
+// Notes:		from http://www.cs.rit.edu/~ncs/color/t_convert.html
+//
+//==============================================================================
+void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v )
+{
+	float min, max, delta;
+	
+	min = MIN( r, MIN(g, b) );
+	max = MAX( r, MAX(g, b) );
+	*v = max;				// v
+	
+	delta = max - min;
+	
+	if( max != 0 )
+		*s = delta / max;		// s
+	else {
+		// r = g = b = 0		// s = 0, v is undefined
+		*s = 0;
+		*h = -1;
+		return;
+	}
+	
+	if( r == max )
+		*h = ( g - b ) / delta;		// between yellow & magenta
+	else if( g == max )
+		*h = 2 + ( b - r ) / delta;	// between cyan & yellow
+	else
+		*h = 4 + ( r - g ) / delta;	// between magenta & cyan
+	
+	*h *= 60;				// degrees
+	if( *h < 0 )
+		*h += 360;
+	
+}

@@ -37,18 +37,3 @@
 
 @end
 
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//		Inspectable protocol
-//			defines methods which should be implemented by inspectable objects 
-//			in order to provide undo support.
-//
-////////////////////////////////////////////////////////////////////////////////
-@protocol Inspectable
-
-- (void) snapshot;
-- (void) lockForEditing;
-- (void) unlockEditor;
-
-@end

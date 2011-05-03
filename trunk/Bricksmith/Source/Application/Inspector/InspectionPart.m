@@ -11,12 +11,14 @@
 //==============================================================================
 #import "InspectionPart.h"
 
+#import "FormCategory.h"
 #import "LDrawApplication.h"
+#import "LDrawDocument.h"
 #import "LDrawFile.h"
 #import "LDrawPart.h"
-#import "PartLibrary.h"
-#import "FormCategory.h"
 #import "MacLDraw.h"
+#import "PartLibrary.h"
+
 
 @implementation InspectionPart
 
@@ -178,12 +180,13 @@
 //==============================================================================
 - (IBAction) applyRotationClicked:(id)sender
 {
-	LDrawPart	*representedObject	= [self object];
-	RotationT	 rotationType		= [[rotationTypePopUp selectedItem] tag];
+	LDrawPart       *representedObject  = [self object];
+	LDrawDocument   *currentDocument    = [[NSDocumentController sharedDocumentController] currentDocument];
+	RotationT       rotationType        = [[rotationTypePopUp selectedItem] tag];
 	
 	//Save out the current state.
-	[representedObject snapshot];
-	[[representedObject enclosingFile] lockForEditing];
+	[currentDocument preserveDirectiveState:representedObject];
+	[representedObject lockForEditing];
 	
 	if(rotationType == rotationRelative)
 	{
@@ -207,7 +210,7 @@
 	}
 	
 	//Note that the part has changed.
-	[[representedObject enclosingFile] unlockEditor];
+	[representedObject unlockEditor];
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawDirectiveDidChangeNotification
 						  object:[self object]];

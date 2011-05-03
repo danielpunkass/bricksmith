@@ -2311,6 +2311,10 @@
 //
 // Purpose:		Records the entire state of the object with the undo manager. 
 //
+// Note:		Undo operations are stored on a *stack*, so the order of undo 
+//				registration in the code is the opposite from the order in 
+//				which the undo operations are executed.
+//
 //==============================================================================
 - (void) preserveDirectiveState:(LDrawDirective *)directive
 {
@@ -2324,9 +2328,7 @@
 				 postNotificationName:LDrawDirectiveDidChangeNotification
 				 object:directive];
 
-		[[undoManager prepareWithInvocationTarget:[directive enclosingModel]]
-				optimizeVertexes];
-		
+		[[undoManager prepareWithInvocationTarget:[directive enclosingModel]] optimizeVertexes];
 		[directive registerUndoActions:undoManager];
 		
 		[[undoManager prepareWithInvocationTarget:self]
@@ -2334,9 +2336,6 @@
 	}
 	[[self documentContents] unlockEditor];
 	
-	//our part changed; notify!
-	[self updateInspector];
-								  
 }//end preserveDirectiveState:
 
 

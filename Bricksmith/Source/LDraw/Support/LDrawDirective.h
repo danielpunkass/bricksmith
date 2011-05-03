@@ -12,7 +12,6 @@
 #import OPEN_GL_HEADER
 
 #import "MatrixMath.h"
-#import "ObjectInspectionController.h"
 
 @class LDrawColor;
 @class LDrawContainer;
@@ -36,7 +35,7 @@
 // LDrawDirective
 //
 ////////////////////////////////////////////////////////////////////////////////
-@interface LDrawDirective : NSObject <NSCoding, NSCopying, Inspectable>
+@interface LDrawDirective : NSObject <NSCoding, NSCopying>
 {
 
 	LDrawContainer *enclosingDirective; //LDraw files are a hierarchy.
@@ -44,21 +43,21 @@
 	
 }
 
-//Initialization
+// Initialization
 - (id) initWithLines:(NSArray *)lines inRange:(NSRange)range;
 - (id) initWithLines:(NSArray *)lines inRange:(NSRange)range parentGroup:(dispatch_group_t)parentGroup;
 + (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index inLines:(NSArray *)lines maxIndex:(NSUInteger)maxIndex;
 
-//Directives
+// Directives
 - (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor;
 - (NSString *) write;
 
-//Display
+// Display
 - (NSString *) browsingDescription;
 - (NSString *) iconName;
 - (NSString *) inspectorClassName;
 
-//Accessors
+// Accessors
 - (NSArray *)ancestors;
 - (LDrawContainer *) enclosingDirective;
 - (LDrawFile *) enclosingFile;
@@ -68,12 +67,11 @@
 - (void) setEnclosingDirective:(LDrawContainer *)newParent;
 - (void) setSelected:(BOOL)flag;
 
-//protocol Inspectable
-- (void) snapshot;
+// protocol Inspectable
 - (void) lockForEditing;
 - (void) unlockEditor;
 
-//Utilities
+// Utilities
 - (void) flattenIntoLines:(NSMutableArray *)lines
 				triangles:(NSMutableArray *)triangles
 		   quadrilaterals:(NSMutableArray *)quadrilaterals

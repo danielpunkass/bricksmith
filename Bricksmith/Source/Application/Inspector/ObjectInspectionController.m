@@ -12,7 +12,10 @@
 //==============================================================================
 #import "ObjectInspectionController.h"
 
+#import "LDrawDirective.h"
+#import "LDrawDocument.h"
 #import "MacLDraw.h"
+
 
 @implementation ObjectInspectionController
 
@@ -133,25 +136,28 @@
 //==============================================================================
 - (IBAction)finishedEditing:(id)sender
 {
-	id representedObject = [self object];
+	LDrawDirective  *representedObject  = [self object];
+	LDrawDocument   *currentDocument    = [[NSDocumentController sharedDocumentController] currentDocument];
+	
+	// Note: This code is tightly coupled to the LDrawDocument to support 
+	//		 registering undo actions and providing a persistent target for 
+	//		 receiving invertible redo actions. 
+	//
+	//		 Apple's Interface Builder 2.0 palette model (upon which this was 
+	//		 based) had a magic method called 
+	//		 -noteAttributesWillChangeForObject:. Somehow, it just *knew* how to 
+	//		 record state changes for undo. I have absolutely no idea how that 
+	//		 worked. 
 	
 	//prepare: do undo stuff and thread safety.
-	if([representedObject conformsToProtocol:@protocol(Inspectable)])
-	{
-		[representedObject snapshot];
-		[representedObject lockForEditing];
-	}
-	
+	[currentDocument preserveDirectiveState:representedObject];
+	[representedObject lockForEditing];
 	
 	//let the subclass have a go at it.
 	[self commitChanges:sender];
 	
-	
 	//done editing; clean up
-	if([representedObject conformsToProtocol:@protocol(Inspectable)])
-	{
-		[representedObject unlockEditor];
-	}
+	[representedObject unlockEditor];
 	
 	[[NSNotificationCenter defaultCenter]
 			postNotificationName:LDrawDirectiveDidChangeNotification

@@ -428,44 +428,6 @@
 #pragma mark <INSPECTABLE>
 #pragma mark -
 
-//========== snapshot ==========================================================
-//
-// Purpose:		Record the current state of our object in a way suitable for 
-//				undo/redo.
-//
-// Note:		Undo operations are stored on a *stack*, so the order of undo 
-//				registration in the code is the opposite from the order in 
-//				which the undo operations are executed.
-//
-//				Subclasses should only override this method to provide a custom 
-//				undo name, but even that can be placed just as well in 
-//				-registerUndoActions:.
-//
-//==============================================================================
-- (void) snapshot
-{
-	// ** Read code bottom-to-top ** //
-	
-	NSDocument		*currentDocument	= [[NSDocumentController sharedDocumentController] currentDocument];
-	NSUndoManager	*undoManager		= [currentDocument undoManager];
-	
-
-	//Now that all the undo actions have happened, post a notification that 
-	// the object has changed.
-	[[undoManager prepareWithInvocationTarget:[NSNotificationCenter defaultCenter]]
-			postNotificationName:LDrawDirectiveDidChangeNotification
-						  object:self];
-	
-	[self registerUndoActions:undoManager];
-	//Now issue the commands necessary to revert our object to current values.
-	
-	[[undoManager prepareWithInvocationTarget:self] snapshot];
-	//First thing to call is snapshot, so that redo commands are filled 
-	// with the values of the current state.
-	
-}//end snapshot
-
-
 //========== lockForEditing ====================================================
 //
 // Purpose:		Provide thread-safety for this object during inspection.

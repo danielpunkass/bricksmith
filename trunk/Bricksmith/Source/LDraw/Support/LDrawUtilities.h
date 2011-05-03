@@ -51,6 +51,7 @@ typedef enum
 + (NSString *) stringFromFileData:(NSData *)fileData;
 
 // Writing
++ (void) setColumnizesOutput:(BOOL)flag;
 + (NSString *) outputStringForColor:(LDrawColor *)color;
 + (NSString *) outputStringForFloat:(float)number;
 

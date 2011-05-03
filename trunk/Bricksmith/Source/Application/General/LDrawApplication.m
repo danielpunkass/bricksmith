@@ -413,11 +413,14 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 //==============================================================================
 - (void) applicationWillFinishLaunching:(NSNotification *)aNotification
 {
-	NSOpenGLPixelFormat	*pixelFormat	= [LDrawApplication openGLPixelFormat];
+	NSOpenGLPixelFormat *pixelFormat    = [LDrawApplication openGLPixelFormat];
+	NSUserDefaults      *userDefaults   = [NSUserDefaults standardUserDefaults];
 	
 	//Make sure the standard preferences exist so they will be available 
 	// throughout the application.
 	[PreferencesDialogController ensureDefaults];
+	
+	[LDrawUtilities setColumnizesOutput:[userDefaults boolForKey:COLUMNIZE_OUTPUT_KEY]];
 	
 	//Create shared objects.
 	self->inspector					= [Inspector new];

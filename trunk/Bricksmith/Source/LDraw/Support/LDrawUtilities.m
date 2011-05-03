@@ -21,11 +21,11 @@
 #import "LDrawQuadrilateral.h"
 #import "LDrawTriangle.h"
 #import "LDrawVertexes.h"
-#import "MacLDraw.h"
 #import "PartLibrary.h"
 
-static LDrawVertexes        *boundingCube   = nil;
-static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDirective objects
+static LDrawVertexes        *boundingCube       = nil;
+static NSMutableDictionary  *hitTags            = nil; // NSNumber keys to LDrawDirective objects
+static BOOL                 ColumnizesOutput    = NO;
 
 @implementation LDrawUtilities
 
@@ -283,6 +283,37 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 #pragma mark WRITING
 #pragma mark -
 
+//---------- setColumnizesOutput: ------------------------------------[static]--
+//
+// Purpose:		Sets whether certain variable-width fields will be padded to 
+//				make them all the same size in outputted files. 
+//
+// Notes:		Historically, LDraw programs truncate numbers as much as 
+//				possible and insert exactly one space in between: 
+//					4 16 -40 0 -20 -40 24 -20 40 24 -20 40 0 -20
+//					4 16 40 0 20 40 24 20 -40 24 20 -40 0 20
+//
+//				Bricksmith 1.0 - 2.3 instead formatted the output into columns 
+//				for easy readability, like so: 
+//					4  16   -40.000000     0.000000   -20.000000   -40.000000    24.000000   -20.000000    40.000000    24.000000   -20.000000    40.000000     0.000000   -20.000000
+//					4  16    40.000000     0.000000    20.000000    40.000000    24.000000    20.000000   -40.000000    24.000000    20.000000   -40.000000     0.000000    20.000000
+//
+//				But LDraw traditionalists hated that.
+//
+//				This method checks preferences to see which format is specified 
+//				and outputs the chosen format. The result may be concatenated 
+//				together with exactly one space; the columnizable string will 
+//				already contain the necessary padding spaces. 
+//
+//------------------------------------------------------------------------------
++ (void) setColumnizesOutput:(BOOL)flag
+{
+	ColumnizesOutput = flag;
+}
+
+
+#pragma mark -
+
 //---------- outputStringForColorCode:RGB: ---------------------------[static]--
 //
 // Purpose:		Returns the string representing the color code which should be 
@@ -293,8 +324,6 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 //------------------------------------------------------------------------------
 + (NSString *) outputStringForColor:(LDrawColor *)color
 {
-	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
-	BOOL            columnizeOutput = [userDefaults boolForKey:COLUMNIZE_OUTPUT_KEY];
 	NSString        *outputString   = nil;
 	GLfloat			components[4]	= {};
 	LDrawColorT		colorCode		= LDrawColorBogus;
@@ -322,7 +351,7 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 	}
 	else
 	{
-		if(columnizeOutput == YES)
+		if(ColumnizesOutput == YES)
 		{
 			outputString = [NSString stringWithFormat:@"%3d", colorCode];
 		}
@@ -343,31 +372,12 @@ static NSMutableDictionary  *hitTags        = nil; // NSNumber keys to LDrawDire
 // Purpose:		Returns a formatted float appropriate for inserting into an 
 //				LDraw file. 
 //
-// Notes:		Historically, LDraw programs truncate the number as much as 
-//				possible and insert exactly one space between numbers: 
-//					4 16 -40 0 -20 -40 24 -20 40 24 -20 40 0 -20
-//					4 16 40 0 20 40 24 20 -40 24 20 -40 0 20
-//
-//				Bricksmith 1.0 - 2.3 instead formatted the output into columns 
-//				for easy readability, like so: 
-//					4  16   -40.000000     0.000000   -20.000000   -40.000000    24.000000   -20.000000    40.000000    24.000000   -20.000000    40.000000     0.000000   -20.000000
-//					4  16    40.000000     0.000000    20.000000    40.000000    24.000000    20.000000   -40.000000    24.000000    20.000000   -40.000000     0.000000    20.000000
-//
-//				But LDraw traditionalists hated that.
-//
-//				This method checks preferences to see which format is specified 
-//				and outputs the chosen format. The result may be concatenated 
-//				together with exactly one space; the columnizable string will 
-//				already contain the necessary padding spaces. 
-//
 //------------------------------------------------------------------------------
 + (NSString *) outputStringForFloat:(float)number
 {
-	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
-	BOOL            columnizeOutput = [userDefaults boolForKey:COLUMNIZE_OUTPUT_KEY];
 	NSString        *outputString   = nil;
 	
-	if(columnizeOutput == YES)
+	if(ColumnizesOutput == YES)
 	{
 		// Make a nice wide fixed-width string which will force the numbers into 
 		// columns. 

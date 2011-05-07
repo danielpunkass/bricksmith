@@ -55,6 +55,7 @@
 //Utilities
 - (void) findLDrawPath;
 - (void) openHelpAnchor:(NSString *)helpAnchor;
+- (NSString *) userName;
 
 void connexionMessageHandler(io_connect_t connection, natural_t messageType, void *messageArgument);
 

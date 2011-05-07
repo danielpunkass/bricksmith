@@ -15,6 +15,7 @@
 #import "LDrawApplication.h"
 
 #import <3DConnexionClient/ConnexionClientAPI.h>
+#import <AddressBook/AddressBook.h>
 #import <mach/mach_time.h>
 
 #import "DonationDialogController.h"
@@ -400,6 +401,7 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 	[PreferencesDialogController ensureDefaults];
 	
 	[LDrawUtilities setColumnizesOutput:[userDefaults boolForKey:COLUMNIZE_OUTPUT_KEY]];
+	[LDrawUtilities setDefaultAuthor:[self userName]];
 	
 	//Create shared objects.
 	self->inspector					= [Inspector new];
@@ -668,6 +670,27 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 	}
 	
 }//end findLDrawPath
+
+
+//========== userName ==========================================================
+//
+// Purpose:		Returns the name of the current user of the computer.
+//
+//==============================================================================
+- (NSString *) userName
+{
+	ABPerson    *userInfo   = [[ABAddressBook sharedAddressBook] me];
+	NSString    *firstName  = [userInfo valueForProperty:kABFirstNameProperty];
+	NSString    *lastName   = [userInfo valueForProperty:kABLastNameProperty];
+	NSString    *fullName   = nil;
+	
+	if([firstName length] > 0 && [lastName length] > 0)
+	{
+		fullName = [NSString stringWithFormat:@"%@ %@", firstName, lastName];
+	}
+	
+	return fullName;
+}
 
 
 #pragma mark -

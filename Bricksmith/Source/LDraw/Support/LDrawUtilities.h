@@ -42,6 +42,12 @@ typedef enum
 
 }
 
+// Configuration
++ (NSString *) defaultAuthor;
+
++ (void) setColumnizesOutput:(BOOL)flag;
++ (void) setDefaultAuthor:(NSString *)nameIn;
+
 // Parsing
 + (Class) classForDirectiveBeginningWithLine:(NSString *)line;
 + (LDrawColor *) parseColorFromField:(NSString *)colorField;
@@ -51,7 +57,6 @@ typedef enum
 + (NSString *) stringFromFileData:(NSData *)fileData;
 
 // Writing
-+ (void) setColumnizesOutput:(BOOL)flag;
 + (NSString *) outputStringForColor:(LDrawColor *)color;
 + (NSString *) outputStringForFloat:(float)number;
 

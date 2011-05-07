@@ -17,7 +17,6 @@
 #import "LDrawModel.h"
 
 #import <string.h>
-#import <AddressBook/AddressBook.h>
 
 #import "ColorLibrary.h"
 #import "LDrawColor.h"
@@ -53,14 +52,7 @@
 	[newModel setModelDescription:NSLocalizedString(@"UntitledModel", nil)];
 	[newModel setFileName:@""];
 	
-	//Create the author name by looking up the name from the system.
-	ABPerson    *userInfo   = [[ABAddressBook sharedAddressBook] me];
-	NSString    *firstName  = [userInfo valueForProperty:kABFirstNameProperty];
-	NSString    *lastName   = [userInfo valueForProperty:kABLastNameProperty];
-	if([firstName length] > 0 && [lastName length] > 0)
-	{
-		[newModel setAuthor:[NSString stringWithFormat:@"%@ %@", firstName, lastName]];
-	}
+	[newModel setAuthor:[LDrawUtilities defaultAuthor]];
 	
 	//Need to create a blank step.
 	[newModel addStep];

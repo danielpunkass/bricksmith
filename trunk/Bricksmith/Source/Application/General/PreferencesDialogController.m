@@ -10,14 +10,15 @@
 //==============================================================================
 #import "PreferencesDialogController.h"
 
-#import "MacLDraw.h"
 #import "LDrawApplication.h"
 #import "LDrawGLView.h"			//for ViewOrientationT
+#import "LDrawPaths.h"
+#import "MacLDraw.h"
 #import "PartLibrary.h"
 #import "PartLibraryController.h"
 #import "UserDefaultsCategory.h"
 #import "WindowCategory.h"
-#import <AMSProgressBar/AMSProgressBar.h>
+
 
 @implementation PreferencesDialogController
 
@@ -804,11 +805,12 @@ PreferencesDialogController *preferencesDialog = nil;
 	PartLibraryController   *libraryController  = [LDrawApplication sharedPartLibraryController];
 	NSUserDefaults          *userDefaults       = [NSUserDefaults standardUserDefaults];
 	
-	//Record this new folder in preferences whether it's right or not. We'll let 
-	// them sink their own ship here.
-	[userDefaults setObject:folderPath
-					 forKey:LDRAW_PATH_KEY];
 	[LDrawPathTextField setStringValue:folderPath];
+	
+	// Record this new folder in preferences whether it's right or not. We'll 
+	// let them sink their own ship here. 
+	[userDefaults setObject:folderPath forKey:LDRAW_PATH_KEY];
+	[[LDrawPaths sharedPaths] setPreferredLDrawPath:folderPath];
 	
 	if([libraryController validateLDrawFolderWithMessage:folderPath] == YES)
 	{

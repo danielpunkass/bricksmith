@@ -24,7 +24,6 @@
 #import <math.h>
 #import <string.h>
 
-#import "LDrawApplication.h"
 #import "LDrawColor.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
@@ -298,7 +297,7 @@
 					// different colors in one draw, so we can't cache their 
 					// optimized drawable. We have to retrieve their optimized 
 					// drawable on-the-fly. 
-					drawable = [[LDrawApplication sharedPartLibrary] optimizedDrawableForPart:self color:drawingColor];
+					drawable = [[PartLibrary sharedPartLibrary] optimizedDrawableForPart:self color:drawingColor];
 				}
 			}
 			
@@ -332,7 +331,7 @@
 	//Pull the bounds directly from the model; we can't use the part's because 
 	// it mangles them based on rotation. In this case, we want to do a raw 
 	// draw and let the model matrix transform our drawing appropriately.
-	LDrawModel	*modelToDraw	= [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	LDrawModel	*modelToDraw	= [[PartLibrary sharedPartLibrary] modelForPart:self];
 	
 	//If the model can't be found, we can't draw good bounds for it!
 	if(modelToDraw != nil)
@@ -408,7 +407,7 @@
 //==============================================================================
 - (NSString *) browsingDescription
 {
-	return [[LDrawApplication sharedPartLibrary] descriptionForPart:self];
+	return [[PartLibrary sharedPartLibrary] descriptionForPart:self];
 	
 }//end browsingDescription
 
@@ -451,7 +450,7 @@
 //==============================================================================
 - (Box3) boundingBox3
 {
-	LDrawModel  *modelToDraw        = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	LDrawModel  *modelToDraw        = [[PartLibrary sharedPartLibrary] modelForPart:self];
 	Box3        bounds              = InvalidBox;
 	Box3        transformedBounds   = InvalidBox;
 	Matrix4     transformation      = [self transformationMatrix];
@@ -559,7 +558,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 								projection:(Matrix4)projection
 									  view:(Box2)viewport;
 {
-	LDrawModel  *modelToDraw    = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+	LDrawModel  *modelToDraw    = [[PartLibrary sharedPartLibrary] modelForPart:self];
 	Box3        projectedBounds = InvalidBox;
 	
 	projectedBounds = [modelToDraw projectedBoundingBoxWithModelView:modelViewGLMatrix
@@ -728,7 +727,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 		else
 			parseGroup = parentGroup;
 #endif
-		[[LDrawApplication sharedPartLibrary] loadModelForName:displayName inGroup:parseGroup];
+		[[PartLibrary sharedPartLibrary] loadModelForName:displayName inGroup:parseGroup];
 		
 #if NS_BLOCKS_AVAILABLE
 		if(parentGroup == NULL)
@@ -1115,7 +1114,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 		// glMultMatrix inside a glBegin; the only way to draw all like geometry at 
 		// once is to have a flat, transformed copy of it.) 
 		
-		modelToDraw = [[LDrawApplication sharedPartLibrary] modelForPart:self];
+		modelToDraw = [[PartLibrary sharedPartLibrary] modelForPart:self];
 		flatCopy    = [modelToDraw copy];
 		
 		// concatenate the transform and pass it down
@@ -1183,7 +1182,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 		
 		if(referencedSubmodel == nil)
 		{
-			self->optimizedDrawable = [[LDrawApplication sharedPartLibrary]
+			self->optimizedDrawable = [[PartLibrary sharedPartLibrary]
 											optimizedDrawableForPart:self
 															   color:self->color];
 		}

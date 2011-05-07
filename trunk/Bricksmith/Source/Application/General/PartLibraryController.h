@@ -23,12 +23,8 @@
 @interface PartLibraryController : NSObject <PartLibraryReloadPartsDelegate>
 {
 	AMSProgressPanel    *progressPanel;
-	PartLibrary			*partLibrary;
 
 }
-
-// Accessors
-- (PartLibrary *) partLibrary;
 
 // Actions
 - (BOOL) loadPartCatalog;

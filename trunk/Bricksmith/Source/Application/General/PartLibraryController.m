@@ -10,6 +10,8 @@
 #import "PartLibraryController.h"
 
 #import <AMSProgressBar/AMSProgressBar.h>
+
+#import "LDrawPaths.h"
 #import "MacLDraw.h"
 
 @implementation PartLibraryController
@@ -28,27 +30,9 @@
 {
 	self = [super init];
 	
-	self->partLibrary = [PartLibrary new];
-	
 	return self;
 
 }//end initWithPartLibrary:
-
-
-#pragma mark -
-#pragma mark ACCESSORS
-#pragma mark -
-
-//========== partLibrary =======================================================
-//
-// Purpose:		Returns the data-model object encapsulated by the receiver.
-//
-//==============================================================================
-- (PartLibrary *) partLibrary
-{
-	return self->partLibrary;
-	
-}//end partLibrary
 
 
 #pragma mark -
@@ -66,7 +50,7 @@
 	BOOL            success			= NO;
 	
 	// Try loading an existing library first.
-	success = [self->partLibrary load];
+	success = [[PartLibrary sharedPartLibrary] load];
 	
 	if(success == NO)
 	{
@@ -94,7 +78,7 @@
 	[self->progressPanel setMessage:@"Loading Parts"];
 	[self->progressPanel showProgressPanel];
 	
-	success = [self->partLibrary reloadPartsWithDelegate:self];
+	success = [[PartLibrary sharedPartLibrary] reloadPartsWithDelegate:self];
 	
 	[self->progressPanel close];
 	
@@ -111,7 +95,7 @@
 //==============================================================================
 - (BOOL) validateLDrawFolderWithMessage:(NSString *) folderPath
 {
-	BOOL folderIsValid = [self->partLibrary validateLDrawFolder:folderPath];
+	BOOL folderIsValid = [[LDrawPaths sharedPaths] validateLDrawFolder:folderPath];
 	
 	if(folderIsValid == NO)
 	{
@@ -174,8 +158,6 @@
 //==============================================================================
 - (void) dealloc
 {
-	[partLibrary release];
-
 	[super dealloc];
 	
 }//end dealloc

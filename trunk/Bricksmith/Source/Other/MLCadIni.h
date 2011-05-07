@@ -11,8 +11,8 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface MLCadIni : NSObject {
-	
+@interface MLCadIni : NSObject
+{
 	//Minifigure Generator
 	NSMutableArray		*minifigureHats;
 	NSMutableArray		*minifigureHeads;
@@ -59,8 +59,5 @@
 - (void) parseFromPath:(NSString *) path;
 - (NSArray *) readSection:(NSString *)sectionName fromLines:(NSArray *)lines;
 - (NSArray *) partsFromMinifigureLines:(NSArray *)lines;
-
-//Utilities
-+ (NSString *) preferredPath;
 
 @end

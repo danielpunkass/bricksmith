@@ -31,7 +31,7 @@
 - (void) awakeFromNib
 {
 	LDrawColorCell  *colorCell      = [[[LDrawColorCell alloc] init] autorelease];
-	NSTableColumn   *colorColumn    = [pieceCountTable tableColumnWithIdentifier:LDRAW_COLOR];
+	NSTableColumn   *colorColumn    = [pieceCountTable tableColumnWithIdentifier:PART_REPORT_LDRAW_COLOR];
 	
 	[colorColumn setDataCell:colorCell];
 	
@@ -316,7 +316,7 @@
 //	}
 //	
 //	else if([identifier isEqualToString:PART_NAME_KEY])
-//		object = [[LDrawApplication sharedPartLibrary] descriptionForPartName:[partRecord objectForKey:PART_NUMBER_KEY]];
+//		object = [[PartLibrary sharedPartLibrary] descriptionForPartName:[partRecord objectForKey:PART_NUMBER_KEY]];
 //	
 //	else if([identifier isEqualToString:COLOR_NAME])
 //		object = [LDrawColor nameForLDrawColor:[[partRecord objectForKey:LDRAW_COLOR] intValue]];
@@ -376,8 +376,8 @@
 	if(rowIndex >= 0)
 	{
 		partRecord	= [flattenedReport objectAtIndex:rowIndex];
-		partName	= [partRecord objectForKey:PART_NUMBER_KEY];
-		partColor	= [partRecord objectForKey:LDRAW_COLOR];
+		partName	= [partRecord objectForKey:PART_REPORT_NUMBER_KEY];
+		partColor	= [partRecord objectForKey:PART_REPORT_LDRAW_COLOR];
 		
 		newPart		= [[[LDrawPart alloc] init] autorelease];
 		

@@ -23,7 +23,7 @@
 #import "LDrawColor.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
-#import "MacLDraw.h"
+#import "LDrawPaths.h"
 
 @implementation ColorLibrary
 
@@ -50,7 +50,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 		//---------- Read colors in ldconfig.ldr -------------------------------
 		
 		// Read it in.
-		ldconfigPath		= [self ldconfigPath];
+		ldconfigPath		= [[LDrawPaths sharedPaths] ldconfigPath];
 		ldconfigFile		= [LDrawFile fileFromContentsAtPath:ldconfigPath];
 		
 		// "Draw" it so that all the colors are recorded in the library
@@ -260,59 +260,6 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 	[self->privateColors setObject:newColor forKey:key];
 	
 }//end addPrivateColor:
-
-
-#pragma mark -
-#pragma mark UTILITIES
-#pragma mark -
-
-//---------- ldconfigPath --------------------------------------------[static]--
-//
-// Purpose:		Returns the path to LDraw/ldconfig.ldr, or maybe our fallback 
-//				internal file. If this method returns a path that doesn't 
-//				actually exist, it means somebody was messing with the 
-//				application bundle. 
-//
-//------------------------------------------------------------------------------
-+ (NSString *) ldconfigPath
-{
-	NSUserDefaults	*userDefaults	= [NSUserDefaults standardUserDefaults];
-	NSFileManager	*fileManager	= [[[NSFileManager alloc] init] autorelease];
-	NSBundle		*mainBundle		= nil;
-	NSString		*ldrawPath		= [userDefaults objectForKey:LDRAW_PATH_KEY];
-	NSString		*installedPath	= [ldrawPath stringByAppendingPathComponent:@"LDConfig.ldr"];
-	NSString		*builtInPath	= nil;
-	NSString		*ldconfigPath	= nil;
-	BOOL			 installSuccess	= NO;
-	
-	// Try in the LDraw folder first
-	if(installedPath != nil) // could be nil if no LDraw folder is set in prefs
-	{
-		if([fileManager fileExistsAtPath:installedPath] == YES)
-			ldconfigPath = installedPath;
-	}
-	
-	// Try inside the application bundle instead
-	if(ldconfigPath == nil)
-	{
-		mainBundle	= [NSBundle mainBundle];
-		builtInPath	= [mainBundle pathForResource:@"LDConfig" ofType:@"ldr"];
-		
-		// Attempt to install it
-		if(installedPath != nil)
-		{
-			installSuccess = [fileManager copyItemAtPath:builtInPath toPath:installedPath error:NULL];
-		}
-		
-		if(installSuccess == YES)
-			ldconfigPath = installedPath;
-		else
-			ldconfigPath = builtInPath;
-	}
-	
-	return ldconfigPath;
-	
-}//end ldconfigPath
 
 
 #pragma mark -

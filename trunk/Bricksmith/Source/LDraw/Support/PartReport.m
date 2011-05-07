@@ -24,12 +24,17 @@
 //==============================================================================
 #import "PartReport.h"
 
-#import "LDrawApplication.h"
 #import "LDrawContainer.h"
 #import "LDrawKeywords.h"
 #import "LDrawPart.h"
-#import "MacLDraw.h"
 #import "PartLibrary.h"
+
+NSString    *PART_REPORT_NUMBER_KEY     = @"Part Number";
+NSString    *PART_REPORT_NAME_KEY       = @"Part Name";
+NSString    *PART_REPORT_LDRAW_COLOR    = @"LDraw Color";
+NSString    *PART_REPORT_COLOR_NAME     = @"Color Name";
+NSString    *PART_REPORT_PART_QUANTITY  = @"QuantityKey";
+
 
 @implementation PartReport
 
@@ -115,7 +120,7 @@
 //==============================================================================
 - (void) getMissingPiecesReport
 {
-	PartLibrary		*partLibrary		= [LDrawApplication sharedPartLibrary];
+	PartLibrary		*partLibrary		= [PartLibrary sharedPartLibrary];
 	NSArray			*elements			= [self->reportedObject allEnclosedElements];
 	id				 currentElement		= nil;
 	LDrawModel		*partModel			= nil;
@@ -235,7 +240,7 @@
 //				a table view.
 //
 //				Each entry in the array is a dictionary containing the keys:
-//				PART_NUMBER_KEY, LDRAW_COLOR, PART_QUANTITY
+//				PART_REPORT_NUMBER_KEY, LDRAW_COLOR, PART_QUANTITY
 //
 //==============================================================================
 - (NSArray *) flattenedReport
@@ -245,7 +250,7 @@
 	NSDictionary    *quantitiesForPart      = nil;
 	NSArray         *allColors              = nil;
 	
-	PartLibrary     *partLibrary            = [LDrawApplication sharedPartLibrary];
+	PartLibrary     *partLibrary            = [PartLibrary sharedPartLibrary];
 	
 	NSDictionary    *currentPartRecord      = nil;
 	NSString        *currentPartNumber      = nil;
@@ -276,11 +281,11 @@
 			//Now we have all the information we need. Flatten it into a single
 			// record.
 			currentPartRecord = [NSDictionary dictionaryWithObjectsAndKeys:
-						currentPartNumber,		PART_NUMBER_KEY,
-						currentPartName,		PART_NAME_KEY,
-						currentPartColor,		LDRAW_COLOR,
-						currentColorName,		COLOR_NAME,
-						currentPartQuantity,	PART_QUANTITY,
+						currentPartNumber,		PART_REPORT_NUMBER_KEY,
+						currentPartName,		PART_REPORT_NAME_KEY,
+						currentPartColor,		PART_REPORT_LDRAW_COLOR,
+						currentColorName,		PART_REPORT_COLOR_NAME,
+						currentPartQuantity,	PART_REPORT_PART_QUANTITY,
 						nil ];
 			[flattenedReport addObject:currentPartRecord];
 		}//end loop for color/quantity pairs within each part
@@ -377,10 +382,10 @@
 		partRecord	= [flattenedReport objectAtIndex:counter];
 		
 		[text appendFormat: lineFormat,
-									[partRecord objectForKey:PART_QUANTITY],
-									[partRecord objectForKey:PART_NUMBER_KEY],
-									[partRecord objectForKey:PART_NAME_KEY],
-									[partRecord objectForKey:COLOR_NAME] ];
+									[partRecord objectForKey:PART_REPORT_PART_QUANTITY],
+									[partRecord objectForKey:PART_REPORT_NUMBER_KEY],
+									[partRecord objectForKey:PART_REPORT_NAME_KEY],
+									[partRecord objectForKey:PART_REPORT_COLOR_NAME] ];
 	}
 	
 	return text;

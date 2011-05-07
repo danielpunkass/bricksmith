@@ -92,7 +92,7 @@
 {
 	LDrawPart			*representedObject	= [self object];
 	TransformComponents	 components			= [representedObject transformComponents];
-	NSString			*description		= [[LDrawApplication sharedPartLibrary] descriptionForPart:representedObject];
+	NSString			*description		= [[PartLibrary sharedPartLibrary] descriptionForPart:representedObject];
 	Point3				 position			= ZeroPoint3;
 	Vector3				 scaling			= ZeroPoint3;
 	Tuple3				 shear				= ZeroPoint3;

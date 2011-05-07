@@ -16,10 +16,11 @@
 //==============================================================================
 #import "PartLibrary.h"
 
-#import "LDrawApplication.h"
 #import "LDrawFile.h"
 #import "LDrawModel.h"
 #import "LDrawPart.h"
+#import "LDrawPathNames.h"
+#import "LDrawPaths.h"
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "LDrawVertexes.h"
@@ -27,7 +28,53 @@
 #import "StringCategory.h"
 
 
+//The part catalog was regenerated from disk.
+// Object is the new catalog. No userInfo.
+NSString *LDrawPartLibraryDidChangeNotification = @"LDrawPartLibraryDidChangeNotification";
+
+
+// The parts list file is stored at LDraw/PARTS_LIST_NAME.
+// It contains a dictionary of parts. Each element in the dictionary 
+// is an array of parts for a category; the key under which the array 
+// is stored is the category name.
+//
+//The part catalog is a dictionary of parts filed by Category name.
+#define PARTS_CATALOG_KEY						@"Part Catalog"
+	//subdictionary keys.
+	#define PART_NUMBER_KEY						@"Part Number"
+	#define PART_NAME_KEY						@"Part Name"
+	//#define PART_CATEGORY_KEY					@"Category"
+
+//Raw dictionary containing each part filed by number.
+#define PARTS_LIST_KEY							@"Part List"
+	//subdictionary keys.
+	//PART_NUMBER_KEY							(defined above)
+	//PART_NAME_KEY								(defined above)
+
 @implementation PartLibrary
+
+static PartLibrary *SharedPartLibrary = nil;
+
+//---------- sharedPartLibrary ---------------------------------------[static]--
+//
+// Purpose:		Returns the part libary, which contains the part catalog, which 
+//				is read in from the file LDRAW_PATH_KEY/PART_CATALOG_NAME when 
+//				the application launches.
+//				This is a rather big XML file, so it behooves us to read it 
+//				once then save it in memory.
+//
+//------------------------------------------------------------------------------
++ (PartLibrary *) sharedPartLibrary
+{
+	if(SharedPartLibrary == nil)
+	{
+		SharedPartLibrary = [[PartLibrary alloc] init];
+	}
+	
+	return SharedPartLibrary;
+	
+}//end sharedPartLibrary
+
 
 //========== init ==============================================================
 //
@@ -179,27 +226,22 @@
 //==============================================================================
 - (BOOL) load
 {
-	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
 	NSFileManager   *fileManager    = [[[NSFileManager alloc] init] autorelease];
-	
-	NSString        *ldrawPath      = [userDefaults stringForKey:LDRAW_PATH_KEY];
-	NSString        *pathToPartList = nil;
+	NSString        *catalogPath    = [[LDrawPaths sharedPaths] partCatalogPath];
 	BOOL            partsListExists = NO;
-	NSDictionary	*newCatalog		= nil;
+	NSDictionary    *newCatalog     = nil;
 	
 	// Do we have an LDraw folder?
-	if(ldrawPath != nil)
+	if(catalogPath != nil)
 	{
-		pathToPartList = [ldrawPath stringByAppendingPathComponent:PART_CATALOG_NAME];
-		
-		if([fileManager fileExistsAtPath:pathToPartList])
+		if([fileManager fileExistsAtPath:catalogPath])
 			partsListExists = YES;
 	}
 	
 	// Do we have a part list already? 
 	if(partsListExists == YES)
 	{
-		newCatalog = [NSDictionary dictionaryWithContentsOfFile:pathToPartList];
+		newCatalog = [NSDictionary dictionaryWithContentsOfFile:catalogPath];
 		
 		[self setPartCatalog:newCatalog];
 	}
@@ -242,28 +284,25 @@
 - (BOOL) reloadPartsWithDelegate:(id <PartLibraryReloadPartsDelegate>)delegate
 {
 	NSFileManager		*fileManager		= [[[NSFileManager alloc] init] autorelease];
-	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
-	
-	NSString			*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
-	NSString			*unofficialPath		= [ldrawPath stringByAppendingPathComponent:UNOFFICIAL_DIRECTORY_NAME]; //base for unofficial directories
+	NSString			*ldrawPath			= [[LDrawPaths sharedPaths] preferredLDrawPath];
 	
 	//make sure the LDraw folder is still valid; otherwise, why bother doing anything?
-	if([self validateLDrawFolder:ldrawPath] == NO)
+	if([[LDrawPaths sharedPaths] validateLDrawFolder:ldrawPath] == NO)
 		return NO;
 	
 	//assemble all the pathnames to be searched.
-	NSString            *primitivesPath             = [ldrawPath				stringByAppendingPathComponent:PRIMITIVES_DIRECTORY_NAME];
-	NSString            *primitives48Path           = [primitivesPath			stringByAppendingPathComponent:PRIMITIVES_48_DIRECTORY_NAME];
-	NSString            *partsPath                  = [ldrawPath				stringByAppendingPathComponent:PARTS_DIRECTORY_NAME];
-	NSString            *subpartsPath               = [partsPath				stringByAppendingPathComponent:SUBPARTS_DIRECTORY_NAME];
+	NSString            *primitivesPath             = [[LDrawPaths sharedPaths] primitivesPathForDomain:LDrawOfficial];
+	NSString            *primitives48Path           = [[LDrawPaths sharedPaths] primitives48PathForDomain:LDrawOfficial];
+	NSString            *partsPath                  = [[LDrawPaths sharedPaths] partsPathForDomain:LDrawOfficial];
+	NSString            *subpartsPath               = [[LDrawPaths sharedPaths] subpartsPathForDomain:LDrawOfficial];
 	
 	//search unofficial directories as well.
-	NSString            *unofficialPrimitivesPath   = [unofficialPath			stringByAppendingPathComponent:PRIMITIVES_DIRECTORY_NAME];
-	NSString            *unofficialPrimitives48Path = [unofficialPrimitivesPath	stringByAppendingPathComponent:PRIMITIVES_48_DIRECTORY_NAME];
-	NSString            *unofficialPartsPath        = [unofficialPath			stringByAppendingPathComponent:PARTS_DIRECTORY_NAME];
-	NSString            *unofficialSubpartsPath     = [unofficialPartsPath		stringByAppendingPathComponent:SUBPARTS_DIRECTORY_NAME];
+	NSString            *unofficialPrimitivesPath   = [[LDrawPaths sharedPaths] primitivesPathForDomain:LDrawUnofficial];
+	NSString            *unofficialPrimitives48Path = [[LDrawPaths sharedPaths] primitives48PathForDomain:LDrawUnofficial];
+	NSString            *unofficialPartsPath        = [[LDrawPaths sharedPaths] partsPathForDomain:LDrawUnofficial];
+	NSString            *unofficialSubpartsPath     = [[LDrawPaths sharedPaths] subpartsPathForDomain:LDrawUnofficial];
 	
-	NSString            *partCatalogPath            = [ldrawPath				stringByAppendingPathComponent:PART_CATALOG_NAME];
+	NSString            *partCatalogPath            = [[LDrawPaths sharedPaths] partCatalogPath];
 	NSMutableDictionary *newPartCatalog             = [NSMutableDictionary dictionary];
 	
 	// Start the progress bar so that we know what's happening.
@@ -278,12 +317,12 @@
 	[delegate partLibrary:self maximumPartCountToLoad:partCount];
 	
 	
-	//Create the new part catalog. We will then fill it with folder contents.
+	// Create the new part catalog. We will then fill it with folder contents.
 	[newPartCatalog setObject:[NSMutableDictionary dictionary] forKey:PARTS_CATALOG_KEY];
 	[newPartCatalog setObject:[NSMutableDictionary dictionary] forKey:PARTS_LIST_KEY];
 	
 	
-	//Scan for each part folder.
+	// Scan for each part folder.
 	[self addPartsInFolder:primitivesPath
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil) //override all internal categories
@@ -456,7 +495,7 @@
 				dispatch_group_async(parentGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 				^{
 #endif
-					NSString    *partPath   = [self pathForPartName:partName];
+					NSString    *partPath   = [[LDrawPaths sharedPaths] pathForPartName:partName];
 						
 #if NS_BLOCKS_AVAILABLE //------------------------------------------------------
 					[self readModelAtPath:partPath asynchronously:YES completionHandler:^(LDrawModel *model)
@@ -525,7 +564,7 @@
 	if(model == nil)
 	{
 		//Well, this means we have to try getting it off the disk!
-		partPath	= [self pathForPartName:partName];
+		partPath	= [[LDrawPaths sharedPaths] pathForPartName:partName];
 		model		= [self readModelAtPath:partPath asynchronously:NO completionHandler:NULL];
 		
 		if(model != nil)
@@ -573,75 +612,6 @@
 	return model;
 	
 }//end modelForPart:
-
-
-//========== pathForFileName: ==================================================
-//
-// Purpose:		Ferret out where this part is defined in the LDraw folder.
-//				Parts can be defined in any of the following folders:
-//				LDraw/p				(primitives)
-//				LDraw/parts			(parts)
-//				LDraw/parts/s		(subparts)
-//				LDraw/unofficial	(unofficial parts root -- Allen's addition)
-//
-//				For regular parts and primitives, the partName is simply the 
-//				filename as found in LDraw/parts or LDraw/p. But for subparts, 
-//				partName is "s\partname.dat".
-//
-//				This method automatically converts any occurance of the DOS 
-//				path-separator ('\') found in partName to the UNIX path separator 
-//				('/'), then searches LDraw/parts/partName and LDraw/p/partName 
-//				for the file. Thus, any subfolder can be specified this way, if 
-//				the overlords of LDraw should choose to inflict another naming 
-//				nightmare like this one.
-//
-// Returns:		The path of the part if it is found in one of the  folders, or 
-//				nil if the part is not defined in the LDraw folder.
-//
-//==============================================================================
-- (NSString *) pathForPartName:(NSString *)partName
-{
-	NSMutableString	*fixedPartName		= [NSMutableString stringWithString:partName];
-	[fixedPartName replaceOccurrencesOfString:@"\\" //DOS path separator (doubled for escape-sequence)
-								   withString:@"/"
-									  options:0
-										range:NSMakeRange(0, [fixedPartName length]) ];
-	
-	NSFileManager	*fileManager		= [[[NSFileManager alloc] init] autorelease];
-	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
-	
-	NSString		*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
-	NSString		*unofficialPath		= [ldrawPath stringByAppendingPathComponent:UNOFFICIAL_DIRECTORY_NAME];
-	
-	NSString		*primitivesPath				= [NSString stringWithFormat:@"%@/%@/%@", ldrawPath,		PRIMITIVES_DIRECTORY_NAME,	fixedPartName];
-	NSString		*partsPath					= [NSString stringWithFormat:@"%@/%@/%@", ldrawPath,		PARTS_DIRECTORY_NAME,		fixedPartName];
-	NSString		*unofficialPrimitivesPath	= [NSString stringWithFormat:@"%@/%@/%@", unofficialPath,	PRIMITIVES_DIRECTORY_NAME,	fixedPartName];
-	NSString		*unofficialPartsPath		= [NSString stringWithFormat:@"%@/%@/%@", unofficialPath,	PARTS_DIRECTORY_NAME,		fixedPartName];
-	//searching in the subparts folder will be accomplished by fixedPartName --
-	// remember, parts in subfolders of LDraw/parts and LDraw/p are referenced by 
-	// their relative pathnames in DOS (e.g., "s\765s01.dat", which we converted 
-	// to UNIX above.
-	
-	NSString		*partPath			= nil;
-	
-	//If we pass an empty string, we'll wind up test for directories' existences--
-	// not what we want to do.
-	if([partName length] == 0)
-		partPath = nil;
-	
-	//We have a file path name; try each directory.
-	else if([fileManager fileExistsAtPath:partsPath])
-		partPath = partsPath;
-	else if([fileManager fileExistsAtPath:primitivesPath])
-		partPath = primitivesPath;
-	else if([fileManager fileExistsAtPath:unofficialPartsPath])
-		partPath = unofficialPartsPath;
-	else if([fileManager fileExistsAtPath:unofficialPrimitivesPath])
-		partPath = unofficialPrimitivesPath;
-	
-	return partPath;
-	
-}//end pathForPartName:
 
 
 //========== modelFromNeighboringFileForPart: ==================================
@@ -1134,34 +1104,6 @@
 	return model;
 	
 }//end readModelAtPath:
-
-
-//========== validateLDrawFolder: ==============================================
-//
-// Purpose:		Checks to see that the folder at path is indeed a valid LDraw 
-//				folder and contains the vital Parts and P directories.
-//
-//==============================================================================
-- (BOOL) validateLDrawFolder:(NSString *) folderPath
-{
-	//Check and see if this folder is any good.
-	NSString *partsFolderPath		= [folderPath stringByAppendingPathComponent:PARTS_DIRECTORY_NAME];
-	NSString *primitivesFolderPath	= [folderPath stringByAppendingPathComponent:PRIMITIVES_DIRECTORY_NAME];
-	
-	NSFileManager	*fileManager = [[[NSFileManager alloc] init] autorelease];
-	BOOL			folderIsValid = NO;
-	
-	if(		[fileManager fileExistsAtPath:folderPath]
-		&&	[fileManager fileExistsAtPath:partsFolderPath]
-		&&	[fileManager fileExistsAtPath:primitivesFolderPath]
-	   )
-	{
-		folderIsValid = YES;
-	}
-	
-	return folderIsValid;
-	
-}//end validateLDrawFolder:
 
 
 #pragma mark -

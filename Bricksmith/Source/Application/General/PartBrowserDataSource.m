@@ -31,6 +31,9 @@
 #import "PartLibrary.h"
 #import "StringCategory.h"
 
+NSString    *PART_NUMBER_KEY    = @"Part Number";
+NSString    *PART_NAME_KEY      = @"Part Name";
+
 
 @implementation PartBrowserDataSource
 
@@ -110,7 +113,7 @@
 		
 		//---------- Set Data --------------------------------------------------
 		
-		[self setPartLibrary:[LDrawApplication sharedPartLibrary]];
+		[self setPartLibrary:[PartLibrary sharedPartLibrary]];
 		[self loadCategory:startingCategory];
 		
 		[partsTable scrollRowToVisible:startingRow];
@@ -253,7 +256,7 @@
 			partDescription = [self->partLibrary descriptionForPartName:partNumber];
 			
 			partRecord      = [NSDictionary dictionaryWithObjectsAndKeys:
-							   partNumber,			PART_NUMBER_KEY,
+							   partNumber,		PART_NUMBER_KEY,
 							   partDescription,	PART_NAME_KEY,
 							   nil ];
 			

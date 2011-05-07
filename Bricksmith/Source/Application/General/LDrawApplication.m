@@ -21,6 +21,7 @@
 #import "Inspector.h"
 #import "LDrawColorPanel.h"
 #import "LDrawDocument.h"
+#import "LDrawPaths.h"
 #import "MacLDraw.h"
 #import "PartBrowserPanel.h"
 #import "PartLibrary.h"
@@ -139,28 +140,6 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 	return [[NSApp delegate] openGLContext];
 	
 }//end sharedOpenGLContext
-
-
-//---------- sharedPartLibrary ---------------------------------------[static]--
-//
-// Purpose:		Returns the part libary, which contains the part catalog, which 
-//				is read in from the file LDRAW_PATH_KEY/PART_CATALOG_NAME when 
-//				the application launches.
-//				This is a rather big XML file, so it behooves us to read it 
-//				once then save it in memory.
-//
-// Note:		This method is static, so we don't have to keep passing pointers 
-//				to this class around.
-//
-//------------------------------------------------------------------------------
-+ (PartLibrary *) sharedPartLibrary
-{
-	PartLibraryController   *libraryController  = [self sharedPartLibraryController];
-	PartLibrary             *library            = [libraryController partLibrary];
-
-	return library;
-	
-}//end sharedPartLibrary
 
 
 //---------- sharedPartLibraryController -----------------------------[static]--
@@ -426,7 +405,6 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 	self->inspector					= [Inspector new];
 	self->partLibraryController		= [[PartLibraryController alloc] init];
 	self->sharedGLContext			= [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-	[ToolPalette sharedToolPalette];
 	
 	[sharedGLContext makeCurrentContext];
 	
@@ -662,65 +640,32 @@ extern OSErr InstallConnexionHandlers() __attribute__((weak_import));
 
 //========== findLDrawPath =====================================================
 //
-// Purpose:		Figure out whether we have an LDraw folder, whether we can use 
-//				it, stuff like that. This ever-so-clever method will try to find 
-//				a folder for us if the one we have defined doesn't pan out.
+// Purpose:		Search for an LDraw folder and display failure UI if it's not 
+//				found. 
 //
 //==============================================================================
-- (NSString *) findLDrawPath
+- (void) findLDrawPath
 {
-	NSUserDefaults  *userDefaults       = [NSUserDefaults standardUserDefaults];
-	NSInteger       counter             = 0;
-	BOOL            foundAPath          = NO;
+	NSUserDefaults  *userDefaults   = [NSUserDefaults standardUserDefaults];
+	LDrawPaths      *paths          = [LDrawPaths sharedPaths];
+	NSString        *preferencePath = [userDefaults stringForKey:LDRAW_PATH_KEY];
+	NSString        *ldrawPath      = preferencePath;
 	
-	NSString        *applicationPath    = [[NSBundle mainBundle] bundlePath];
-	NSString        *applicationFolder  = [applicationPath stringByDeletingLastPathComponent];
-	NSString        *siblingFolder      = [applicationFolder stringByDeletingLastPathComponent];
-	NSString        *library            = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSLocalDomainMask, YES) objectAtIndex:0];
-	NSString        *userLibrary        = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask,  YES) objectAtIndex:0];
+	// Search
+	[paths setPreferredLDrawPath:preferencePath];
+	ldrawPath = [paths findLDrawPath];
 	
-	//Try User Defaults first; maybe we've already saved one.
-	NSString		*preferencePath		= [userDefaults stringForKey:LDRAW_PATH_KEY];
-	NSString		*ldrawPath			= preferencePath;
-	
-	if(preferencePath == nil)
-		preferencePath = @""; //we're going to add this to an array. Can't have a nil object.
-	
-	applicationFolder	= [applicationFolder	stringByAppendingPathComponent:LDRAW_DIRECTORY_NAME];
-	siblingFolder		= [siblingFolder		stringByAppendingPathComponent:LDRAW_DIRECTORY_NAME];
-	library				= [library				stringByAppendingPathComponent:LDRAW_DIRECTORY_NAME];
-	userLibrary			= [userLibrary			stringByAppendingPathComponent:LDRAW_DIRECTORY_NAME];
-	
-	//Tries user defaults first, then others
-	NSArray *potentialPaths = [NSArray arrayWithObjects:preferencePath,
-														applicationFolder,
-														siblingFolder,
-														library,
-														userLibrary,
-														nil ];
-	for(counter = 0; counter < [potentialPaths count] && foundAPath == NO; counter++)
-	{
-		ldrawPath = [potentialPaths objectAtIndex:counter];
-		foundAPath = [[self->partLibraryController partLibrary] validateLDrawFolder:ldrawPath];
-	}
-
 	//We found one.
-	if(foundAPath == YES)
+	if(ldrawPath != nil)
 	{
+		[paths setPreferredLDrawPath:ldrawPath];
 		[userDefaults setObject:ldrawPath forKey:LDRAW_PATH_KEY];
 	}
 	else
-	{	//never mind.
-		//If they *thought* they had a selection then display a message 
-		// telling them their selection is no good.
-		if([preferencePath length] >= 0)
-		{
-			[self->partLibraryController validateLDrawFolderWithMessage:preferencePath];
-		}
+	{
+		[self->partLibraryController validateLDrawFolderWithMessage:preferencePath];
 		ldrawPath = nil;
 	}
-	
-	return ldrawPath;
 	
 }//end findLDrawPath
 

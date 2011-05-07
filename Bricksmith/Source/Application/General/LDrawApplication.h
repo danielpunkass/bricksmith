@@ -47,14 +47,13 @@
 + (NSOpenGLPixelFormat *) openGLPixelFormat;
 + (Inspector *) sharedInspector;
 + (NSOpenGLContext *) sharedOpenGLContext;
-+ (PartLibrary *) sharedPartLibrary;
 + (PartLibraryController *) sharedPartLibraryController;
 - (Inspector *) inspector;
 - (PartLibraryController *) partLibraryController;
 - (NSOpenGLContext *) openGLContext;
 
 //Utilities
-- (NSString *) findLDrawPath;
+- (void) findLDrawPath;
 - (void) openHelpAnchor:(NSString *)helpAnchor;
 
 void connexionMessageHandler(io_connect_t connection, natural_t messageType, void *messageArgument);

@@ -57,7 +57,6 @@
 - (void) addPrivateColor:(LDrawColor *)newColor;
 
 // Utilities
-+ (NSString *) ldconfigPath;
 
 void complimentColor(const GLfloat *originalColor, GLfloat *complimentColor);
 

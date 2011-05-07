@@ -8,7 +8,7 @@
 //  Created by Allen Smith on 3/12/05.
 //  Copyright 2005. All rights reserved.
 //==============================================================================
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 #import "ColorLibrary.h"
 
@@ -16,6 +16,11 @@
 @class LDrawModel;
 @class LDrawPart;
 @protocol PartLibraryReloadPartsDelegate;
+
+//The part catalog was regenerated from disk.
+// Object is the new catalog. No userInfo.
+extern NSString *LDrawPartLibraryDidChangeNotification;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -33,6 +38,7 @@
 }
 
 // Initialization
++ (PartLibrary *) sharedPartLibrary;
 
 // Accessors
 - (NSArray *) allPartNames;
@@ -54,7 +60,6 @@
 - (void) loadModelForName:(NSString *)name inGroup:(dispatch_group_t)parentGroup;
 - (LDrawModel *) modelForName:(NSString *) partName;
 - (LDrawModel *) modelForPart:(LDrawPart *) part;
-- (NSString *) pathForPartName:(NSString *)partName;
 - (LDrawModel *) modelFromNeighboringFileForPart:(LDrawPart *)part;
 - (LDrawDirective *) optimizedDrawableForPart:(LDrawPart *) part color:(LDrawColor *)color;
 // Utilites
@@ -71,7 +76,6 @@
 - (LDrawModel *) readModelAtPath:(NSString *)partPath
 				  asynchronously:(BOOL)asynchronous
 			   completionHandler:(void (^)(LDrawModel *))completionBlock;
-- (BOOL) validateLDrawFolder:(NSString *) folderPath;
 
 @end
 

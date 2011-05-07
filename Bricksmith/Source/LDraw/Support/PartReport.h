@@ -9,10 +9,18 @@
 //  Created by Allen Smith on 9/10/05.
 //  Copyright 2005. All rights reserved.
 //==============================================================================
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 @class LDrawPart;
 @class LDrawContainer;
+
+
+extern NSString *PART_REPORT_NUMBER_KEY;
+extern NSString *PART_REPORT_NAME_KEY;
+extern NSString *PART_REPORT_LDRAW_COLOR;	// LDrawColor object
+extern NSString *PART_REPORT_COLOR_NAME;	// NSString representing localized name
+extern NSString *PART_REPORT_PART_QUANTITY;	// NSNumber of how many of this part there are
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //

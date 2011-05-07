@@ -10,7 +10,6 @@
 //==============================================================================
 #import "LDrawUtilities.h"
 
-#import "LDrawApplication.h"
 #import "LDrawColor.h"
 #import "LDrawConditionalLine.h"
 #import "LDrawContainer.h"
@@ -710,7 +709,7 @@ static BOOL                 ColumnizesOutput    = NO;
 //------------------------------------------------------------------------------
 + (void) updateNameForMovedPart:(LDrawPart *)movedPart
 {
-	NSString	*description	= [[LDrawApplication sharedPartLibrary] descriptionForPart:movedPart];
+	NSString	*description	= [[PartLibrary sharedPartLibrary] descriptionForPart:movedPart];
 	NSString	*newName		= nil;
 	
 	if([description hasPrefix:LDRAW_MOVED_DESCRIPTION_PREFIX])

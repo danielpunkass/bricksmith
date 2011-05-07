@@ -125,58 +125,6 @@
 
 #define MINIFIGURE_HEAD_ELEVATION					@"Minifigure Head Elevation"
 
-////////////////////////////////////////////////////////////////////////////////
-//
-#pragma mark		Dictionary Keys
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-// The parts list file is stored at LDraw/PARTS_LIST_NAME.
-// It contains a dictionary of parts. Each element in the dictionary 
-// is an array of parts for a category; the key under which the array 
-// is stored is the category name.
-//
-//The part catalog is a dictionary of parts filed by Category name.
-#define PARTS_CATALOG_KEY						@"Part Catalog"
-	//subdictionary keys.
-	#define PART_NUMBER_KEY						@"Part Number"
-	#define PART_NAME_KEY						@"Part Name"
-	//#define PART_CATEGORY_KEY					@"Category"
-
-//Raw dictionary containing each part filed by number.
-#define PARTS_LIST_KEY							@"Part List"
-	//subdictionary keys.
-	//PART_NUMBER_KEY							(defined above)
-	//PART_NAME_KEY								(defined above)
-
-
-//Color Keys
-#define LDRAW_COLOR								@"LDraw Color"		// NSNumber 0-512
-#define COLOR_NAME								@"Color Name"			// NSString representing localized name
-
-//Part Report keys
-#define PART_QUANTITY							@"QuantityKey"			// NSNumber of how many of this part there are
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-#pragma mark		File Names
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#define LDRAW_DIRECTORY_NAME					@"LDraw"
-
-#define PRIMITIVES_DIRECTORY_NAME				@"p"
-	#define PRIMITIVES_48_DIRECTORY_NAME		@"48"
-
-#define PARTS_DIRECTORY_NAME					@"parts" //match case of LDraw.org complete distribution zip package.
-	#define SUBPARTS_DIRECTORY_NAME				@"s"
-
-#define UNOFFICIAL_DIRECTORY_NAME				@"Unofficial"
-
-#define PART_CATALOG_NAME						@"Bricksmith Parts.plist"
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -214,10 +162,6 @@
 //tablet pointing device changed.
 // Object is an NSEvent: NSTabletProximity.
 #define LDrawPointingDeviceDidChangeNotification		@"LDrawPointingDeviceDidChangeNotification"
-
-//The part catalog was regenerated from disk.
-// Object is the new catalog. No userInfo.
-#define LDrawPartLibraryDidChangeNotification			@"LDrawPartLibraryDidChangeNotification"
 
 //Part Browser should be shown a different way.
 // Object is NSNumber of new style. No userInfo.

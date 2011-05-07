@@ -21,11 +21,12 @@
 //==============================================================================
 #import "MLCadIni.h"
 
+#import "LDrawColor.h"
 #import "LDrawPart.h"
+#import "LDrawPaths.h"
 #import "LDrawUtilities.h"
 
 #import "MacLDraw.h"
-#import "LDrawColor.h"
 #import "StringCategory.h"
 
 //---------- Section Headers ---------------------------------------------------
@@ -73,7 +74,7 @@ static MLCadIni *sharedIniFile = nil;
 	if(sharedIniFile == nil)
 	{
 		mlcadini	= [MLCadIni new];
-		filePath	= [MLCadIni preferredPath];
+		filePath	= [[LDrawPaths sharedPaths] MLCadIniPath];
 		
 		[mlcadini parseFromPath:filePath];
 		
@@ -596,60 +597,6 @@ static MLCadIni *sharedIniFile = nil;
 	return parts;
 	
 }//end partsFromMinifigureLines:
-
-
-#pragma mark -
-#pragma mark UTILITIES
-#pragma mark -
-
-//---------- preferredPath -------------------------------------------[static]--
-//
-// Purpose:		Returns the path to a valid MLCad.ini file. By default, this is 
-//				LDraw/MLCad.ini. 
-//
-//				Because MLCad.ini is a third-party add-on not distributed with 
-//				LDraw, Bricksmith comes bundled with its own copy. But it will 
-//				use the one in LDraw/ if it exists. 
-//
-//------------------------------------------------------------------------------
-+ (NSString *) preferredPath
-{
-	NSFileManager	*fileManager		= [[[NSFileManager alloc] init] autorelease];
-	NSUserDefaults	*userDefaults		= [NSUserDefaults standardUserDefaults];
-	
-	NSString		*ldrawPath			= [userDefaults stringForKey:LDRAW_PATH_KEY];
-	NSString		*preferredPath		= [ldrawPath stringByAppendingPathComponent:@"MLCad.ini"];
-	NSString		*actualPath			= nil;
-	
-	//we want MLCad.ini to be in the LDraw folder.
-	if([fileManager isReadableFileAtPath:preferredPath] == YES)
-		actualPath = preferredPath;
-	else
-	{
-		//we have to fish it out of the application bundle and install it.
-		NSBundle	*mainBundle		= [NSBundle mainBundle];
-		NSString	*builtInPath	= [mainBundle pathForResource:@"MLCad" ofType:@"ini"];
-
-		actualPath = builtInPath;
-		
-		// Bricksmith used to install MLCad.ini if the user didn't have it. But 
-		// I decided that didn't make a lot of since, since MLCad.ini is not 
-		// part of the official LDraw distribution. People probably wouldn't 
-		// realize they had to upgrade this file. 
-//		BOOL		 installSuccess	= NO;
-//		
-//		installSuccess = [fileManager copyPath:builtInPath toPath:preferredPath handler:nil];
-//		
-//		if(installSuccess == YES)
-//			actualPath = preferredPath;
-//		else
-//			actualPath = builtInPath; //couldn't install; just use our internal copy.
-		
-	}
-	
-	return actualPath;
-	
-}//end preferredPath
 
 
 @end

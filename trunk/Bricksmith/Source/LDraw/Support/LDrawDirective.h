@@ -31,7 +31,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #define DRAW_NO_OPTIONS							0
-#define DRAW_HIT_TEST_MODE						1 << 1
 #define DRAW_BOUNDS_ONLY						1 << 3
 
 
@@ -55,6 +54,7 @@
 
 // Directives
 - (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor;
+- (void) hitTest:(Ray3)pickRay transform:(Matrix4)transform scaleFactor:(double)scaleFactor boundsOnly:(BOOL)boundsOnly creditObject:(id)creditObject hits:(NSMutableDictionary *)hits;
 - (NSString *) write;
 
 // Display

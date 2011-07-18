@@ -270,6 +270,22 @@
 }//end draw:parentColor:
 
 
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Hit-test the geometry.
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	[activeModel hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+}
+
+
 //========== write =============================================================
 //
 // Purpose:		Write out all the submodels sequentially.

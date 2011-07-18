@@ -127,13 +127,6 @@
 	
 	if(self->hidden == NO)
 	{
-		// Load names for mouse-selection, if that's the mode we're in.
-		if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
-		{
-			GLuint hitTag = [LDrawUtilities makeHitTagForObject:self];
-			glLoadName( hitTag );
-		}
-		
 		// Resolve color and draw
 		
 		switch([self->color colorCode])

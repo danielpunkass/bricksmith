@@ -75,6 +75,20 @@ typedef struct Matrix3Struct
 } Matrix3;
 
 
+typedef struct Ray3Struct
+{
+	Point3	origin;
+	Vector3	direction;
+	
+} Ray3;
+
+typedef struct Segment3Struct
+{
+	Point3	point0;
+	Point3	point1;
+} Segment3;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // 4D geometry types
@@ -206,6 +220,8 @@ extern const Point4					ZeroPoint4;
 extern bool		FloatsApproximatelyEqual(float float1, float float2);
 
 // 2-D
+extern Point2	V2Make(float x, float y);
+
 extern Box2		Box2MakeFromDimensions(float x, float y, float width, float height);
 extern float	Box2Height(Box2 box);
 extern float	Box2Width(Box2 box);
@@ -229,11 +245,15 @@ extern float	V3Dot(Vector3 a, Vector3 b);
 extern Vector3	V3Lerp(Vector3 lo, Vector3 hi, float alpha);
 extern Vector3	V3Combine(Vector3 a, Vector3 b, float ascl, float bscl);
 extern Vector3	V3Mul(Vector3 a, Vector3 b);
+extern Vector3	V3MulScalar(Vector3 a, float scalar);
 extern float	V3DistanceBetween2Points(Point3 a, Point3 b);
 extern Vector3	V3Cross(Vector3 a, Vector3 b);
 extern Point3	V3Midpoint(Point3 point1, Point3 point2);
 extern Vector3	V3IsolateGreatestComponent(Vector3 vector);
 extern void		V3Print(Point3 point);
+extern bool		V3RayIntersectsTriangle(Ray3 ray, Point3 vert0, Point3 vert1, Point3 vert2, float *distanceOut, Point2 *intersectPointOut);
+extern bool		V3RayIntersectsSegment(Ray3 segment1, Segment3 segment2, float tolerance, float *distanceOut);
+extern bool		V3RayIntersectsSphere(Ray3 ray, Point3 sphereCenter, float radius, float *distanceOut);
 
 extern Box3		V3BoundsFromPoints(Point3 point1, Point3 point2);
 extern Point3	V3CenterOfBox(Box3 box);
@@ -262,6 +282,7 @@ extern Matrix4	Matrix4Multiply(Matrix4 a, Matrix4 b);
 extern void		Matrix4MultiplyGLMatrices(GLfloat *a, GLfloat *b, GLfloat *result);
 extern void		Matrix4GetGLMatrix4(Matrix4 matrix, GLfloat *glTransformation);
 extern Matrix4	Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate);
+extern Matrix4	Matrix4Scale(Matrix4 original, Tuple3 scaleFactors);
 extern Matrix4	Matrix4Translate(Matrix4 original, Vector3 displacement);
 extern Matrix4	Matrix4Transpose(Matrix4 a);
 extern Matrix4	Matrix4Invert(Matrix4 in);

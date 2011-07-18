@@ -209,6 +209,35 @@
 }//end draw:parentColor:
 
 
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Tests the directive and any of its children for intersections 
+//				between the pickRay and the directive's drawn content. 
+//
+// Parameters:	pickRay - in world coordinates
+//				transform - transformation to apply to directive points to get 
+//						to world coordinates 
+//				scaleFactor - the window zoom level (1.0 == 100%)
+//				boundsOnly - test the bounding box, rather than the 
+//						fully-detailed geometry 
+//				creditObject - object which should get credit if the 
+//						current object has been hit. (Used to credit nested 
+//						geometry to its parent.) If nil, the hit object credits 
+//						itself. 
+//				hits - keys are hit objects. Values are NSNumbers of hit depths.
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	//subclasses should override this with hit-detection code
+}
+
+
 //========== write =============================================================
 //
 // Purpose:		Returns the LDraw code for this directive, which can then be 

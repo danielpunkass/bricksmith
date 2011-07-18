@@ -166,8 +166,7 @@ typedef enum
 - (NSArray *) getDirectivesUnderMouse:(NSEvent *)theEvent
 					  amongDirectives:(NSArray *)directives
 							 fastDraw:(BOOL)fastDraw;
-- (NSArray *) getPartsFromHits:(GLuint *)nameBuffer hitCount:(GLuint)numberHits;
-- (LDrawDirective *) getDirectiveFromHitCode:(GLuint)name;
+- (NSArray *) getPartsFromHits:(NSDictionary *)hits;
 - (void) resetFrameSize;
 - (void) restoreConfiguration;
 - (void) saveConfiguration;

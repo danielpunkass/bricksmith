@@ -182,38 +182,6 @@
 //==============================================================================
 - (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
 {
-	// Ordinarily, primitives are not responsible for drawing themselves 
-	// (because it's really slow!); the get rendered in bulk. The exception is 
-	// for part selection, where each element must be rendered individually with 
-	// its own hit tag. 
-	if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
-	{
-		// Render to a one-off VBO, since immediate mode is deprecated.
-		
-		GLuint          vboTag      = 0;
-		VBOVertexData   vertexes[2] = {};
-		
-		glGenBuffers(1, &vboTag);
-		glBindBuffer(GL_ARRAY_BUFFER, vboTag);
-		
-		[self writeToVertexBuffer:vertexes parentColor:drawingColor];
-		
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertexes), vertexes, GL_STREAM_DRAW);
-		
-		// Draw
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glBindBuffer(GL_ARRAY_BUFFER, vboTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), 0);
-		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
-		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
-		
-		glDrawArrays(GL_LINES, 0, 1 * 2);
-		
-		glDeleteBuffers(1, &vboTag);
-	}
-
 	if(self->dragHandles)
 	{
 		for(LDrawDragHandle *handle in self->dragHandles)
@@ -223,6 +191,52 @@
 	}
 	
 }//end drawElement:drawingColor:
+
+
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Tests the directive and any of its children for intersections 
+//				between the pickRay and the directive's drawn content. 
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	if(self->hidden == NO)
+	{
+		Vector3     worldVertex1    = V3MulPointByProjMatrix(self->vertex1, transform);
+		Vector3     worldVertex2    = V3MulPointByProjMatrix(self->vertex2, transform);
+		Segment3    segment         = {worldVertex1, worldVertex2};
+		float       tolerance       = 1.0 / scaleFactor;
+		float       intersectDepth  = 0;
+		bool        intersects      = false;
+		
+		// Lines drawn to 1 pixel regardless of scale, so the pick tolerance must be 
+		// 1 pixel. We approximate this by relying on the view providing a 1 pixel 
+		// to 1 unit correspondence at 100%. 
+		tolerance   = 1.0 / scaleFactor; 
+		tolerance  *= 1.5; // allow a little fudge
+
+		intersects = V3RayIntersectsSegment(pickRay, segment, tolerance, &intersectDepth);
+		
+		if(intersects)
+		{
+			[LDrawUtilities registerHitForObject:self depth:intersectDepth creditObject:creditObject hits:hits];
+		}
+		
+		if(self->dragHandles)
+		{
+			for(LDrawDragHandle *handle in self->dragHandles)
+			{
+				[handle hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:nil hits:hits];
+			}
+		}
+	}
+}//end hitTest:transform:scaleFactor:boundsOnly:creditObject:hits:
 
 
 //========== write =============================================================

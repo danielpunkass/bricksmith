@@ -132,7 +132,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #define DRAW_NO_OPTIONS							0
-#define DRAW_HIT_TEST_MODE						1 << 1
 #define DRAW_BOUNDS_ONLY						1 << 3
 
 //Number of degrees to rotate in each grid mode.

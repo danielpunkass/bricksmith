@@ -101,6 +101,64 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 }
 
 
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Hit-test the geometry.
+//
+// Notes:		This being an optimized structure really intended only for 
+//				drawing, the idea of hit-testing the geometry is dubvious. This 
+//				is here because we use LDrawVertexes objects to draw bounding 
+//				boxes, and it's easier to leverage the existing hit test code in 
+//				the contained directives. 
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	NSArray     *commands           = nil;
+	NSUInteger  commandCount        = 0;
+	LDrawStep   *currentDirective   = nil;
+	NSUInteger  counter             = 0;
+	
+	// Triangles
+	commands        = triangles;
+	commandCount    = [commands count];
+	for(counter = 0; counter < commandCount; counter++)
+	{
+		currentDirective = [commands objectAtIndex:counter];
+		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+	}
+	// Quadrilaterals
+	commands        = quadrilaterals;
+	commandCount    = [commands count];
+	for(counter = 0; counter < commandCount; counter++)
+	{
+		currentDirective = [commands objectAtIndex:counter];
+		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+	}
+	// Lines
+	commands        = lines;
+	commandCount    = [commands count];
+	for(counter = 0; counter < commandCount; counter++)
+	{
+		currentDirective = [commands objectAtIndex:counter];
+		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+	}
+	// All else
+	commands        = everythingElse;
+	commandCount    = [commands count];
+	for(counter = 0; counter < commandCount; counter++)
+	{
+		currentDirective = [commands objectAtIndex:counter];
+		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+	}
+}
+
+
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -

@@ -161,12 +161,6 @@ static GLuint   vboVertexCount  = 0;
 //==============================================================================
 - (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
 {
-	if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
-	{
-		GLuint hitTag = [LDrawUtilities makeHitTagForObject:self];
-		glLoadName( hitTag );
-	}
-	
 	glPushMatrix();
 	{
 		glTranslatef(self->position.x, self->position.y, self->position.z);
@@ -179,6 +173,31 @@ static GLuint   vboVertexCount  = 0;
 	glPopMatrix();
 	
 }//end draw:parentColor:
+
+
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Tests the directive for an intersection between the pickRay and 
+//				spherical drag handle. 
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	float   intersectDepth  = 0;
+	bool    intersects      = false;
+	
+	intersects = V3RayIntersectsSphere(pickRay, self->position, 2.0, &intersectDepth);
+
+	if(intersects)
+	{
+		[LDrawUtilities registerHitForObject:self depth:intersectDepth creditObject:creditObject hits:hits];
+	}
+}//end hitTest:transform:scaleFactor:boundsOnly:creditObject:hits:
 
 
 #pragma mark -

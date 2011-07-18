@@ -262,14 +262,6 @@
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 	
-	if((optionsMask & DRAW_HIT_TEST_MODE) != 0)
-	{
-		// The superclass already provided a name for this element, and we do 
-		// not want any other subelements to override it. So we filter the 
-		// selection mode flag out of the options we pass down. 
-		optionsMask = optionsMask ^ DRAW_HIT_TEST_MODE; //XOR
-	}
-
 	// Multithreading finally works with one display list per displayed part 
 	// AND mutexes around the glCallList. But the mutex contention causes a 
 	// 50% increase in drawing time. Gah! 
@@ -347,6 +339,60 @@
 		[unitCube draw:DRAW_NO_OPTIONS parentColor:drawingColor];
 	}
 }//end drawBounds
+
+
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Hit-test the geometry.
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	if(self->hidden == NO)
+	{
+		Matrix4     partTransform       = [self transformationMatrix];
+		Matrix4     combinedTransform   = Matrix4Multiply(partTransform, transform);
+		LDrawModel  *modelToDraw        = nil;
+		
+		// Credit all subgeometry to ourselves (unless we are already a child part)
+		if(creditObject == nil)
+		{
+			creditObject = self;
+		}
+		
+		modelToDraw	= [self referencedMPDSubmodel];
+		if(modelToDraw == nil)
+		{
+			modelToDraw = [[PartLibrary sharedPartLibrary] modelForPart:self];
+		}
+		
+		if(boundsOnly == NO)
+		{
+			[modelToDraw hitTest:pickRay transform:combinedTransform scaleFactor:scaleFactor boundsOnly:NO creditObject:creditObject hits:hits];
+		}
+		else
+		{
+			// Hit test the bounding cube
+			LDrawVertexes   *unitCube   = [LDrawUtilities boundingCube];
+			Box3            bounds      = [modelToDraw boundingBox3];
+			Tuple3          extents     = V3Sub(bounds.max, bounds.min);
+			Matrix4	boxTransform = IdentityMatrix4;
+			
+			// Expand and position the unit cube to match the model
+			boxTransform = Matrix4Scale(boxTransform, extents);
+			boxTransform = Matrix4Translate(boxTransform, bounds.min);
+			
+			combinedTransform = Matrix4Multiply(boxTransform, partTransform);
+			
+			[unitCube hitTest:pickRay transform:combinedTransform scaleFactor:scaleFactor boundsOnly:NO creditObject:creditObject hits:hits];
+		}
+	}
+}//end hitTest:transform:scaleFactor:boundsOnly:creditObject:hits:
 
 
 //========== write =============================================================
@@ -1118,7 +1164,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 		flatCopy    = [modelToDraw copy];
 		
 		// concatenate the transform and pass it down
-		combinedTransform   = Matrix4Multiply(transform, partTransform);
+		combinedTransform   = Matrix4Multiply(partTransform, transform);
 		
 		// Normals are actually transformed by a different matrix.
 		normalTransform     = Matrix3MakeNormalTransformFromProjMatrix(combinedTransform);

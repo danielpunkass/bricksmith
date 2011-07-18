@@ -134,7 +134,7 @@ static GLuint   vboVertexCount  = 0;
 	
 	if(update)
 	{
-		[NSApp sendAction:self->action to:self->target from:self];
+		[self->target performSelector:self->action withObject:self];
 	}
 }//end setPosition:updateTarget:
 

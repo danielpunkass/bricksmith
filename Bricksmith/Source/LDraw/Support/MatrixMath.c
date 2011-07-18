@@ -105,8 +105,9 @@ bool FloatsApproximatelyEqual(float float1, float float2)
 	// number was pulled out of my hat. Each integer difference equals a 
 	// different number depending on the magnitute of the float value. 
 	if(abs(value1.intValue - value2.intValue) < 5)
+	{
 		closeEnough = true;
-	
+	}
 	// The int method doesn't seem to work very well for numbers very close to 
 	// zero, where float values can have extremely precise representations. So 
 	// if we are trying to compare a float to 0, we fall back on the old 
@@ -127,6 +128,24 @@ bool FloatsApproximatelyEqual(float float1, float float2)
 
 #pragma mark -
 #pragma mark 2-D LIBRARY
+#pragma mark -
+
+//========== V2Make ============================================================
+//
+// Purpose:		Make a 2D point.
+//
+//==============================================================================
+Point2 V2Make(float x, float y)
+{
+	Point2 point;
+	
+	point.x = x;
+	point.y = y;
+	
+	return point;
+}
+
+
 #pragma mark -
 
 //========== Box2MakeFromDimensions ============================================
@@ -286,6 +305,8 @@ bool V3PointsWithinTolerance(Point3 point1, Point3 point2)
 //
 // Purpose:		returns squared length of input vector
 //
+//				Same as V3Dot(a,a)
+//
 //==============================================================================
 float V3SquaredLength(Vector3 a) 
 {
@@ -409,7 +430,9 @@ Vector3 V3Sub(Vector3 a, Vector3 b)
 //==============================================================================
 float V3Dot(Vector3 a, Vector3 b) 
 {
-	return ((a.x * b.x) + (a.y * b.y) + (a.z * b.z));
+	return (	(a.x * b.x)
+			+	(a.y * b.y)
+			+	(a.z * b.z) );
 	
 }//end V3Dot
 
@@ -468,6 +491,24 @@ Vector3 V3Mul(Vector3 a, Vector3 b)
 	result.x = a.x * b.x;
 	result.y = a.y * b.y;
 	result.z = a.z * b.z;
+	
+	return(result);
+	
+}//end V3Mul
+
+
+//========== V3MulScalar =======================================================
+//
+// Purpose:		Returns (a * scalar).
+//
+//==============================================================================
+Vector3 V3MulScalar(Vector3 a, float scalar) 
+{
+	Vector3 result;
+	
+	result.x = a.x * scalar;
+	result.y = a.y * scalar;
+	result.z = a.z * scalar;
 	
 	return(result);
 	
@@ -573,6 +614,275 @@ void V3Print(Point3 point)
 	printf("(%12.6f, %12.6f, %12.6f)\n", point.x, point.y, point.z);
 	
 }//end V3Print
+
+
+//========== V3RayIntersectsTriangle ===========================================
+//
+// Purpose:		Returns whether the given (normalized) ray intersects the 
+//				triangle. 
+//				http://www.graphics.cornell.edu/pubs/1997/MT97.html
+//
+// Parameters:	ray - selection ray
+//				vert[0-2] - vertexes of triangle (in same coordinates as ray)
+//				intersectDepth - on return, distance from ray origin to triangle 
+//						intersection 
+//				intersectPoint - on return, barycentric coordinates within 
+//						triangle of intersection point (can be NULL). 
+//
+//==============================================================================
+bool V3RayIntersectsTriangle(Ray3 ray,
+							 Point3 vert0, Point3 vert1, Point3 vert2,
+							 float *intersectDepth, Point2 *intersectPointOut)
+{
+	Vector3 edge1;
+	Vector3 edge2;
+	Vector3 tvec;
+	Vector3 pvec;
+	Vector3 qvec;
+	double  det         = 0;
+	double  inv_det     = 0;
+	float   distance    = 0;
+	float   u           = 0;
+	float   v           = 0;
+	
+	// find vectors for two edges sharing vert0
+	edge1 = V3Sub(vert1, vert0);
+	edge2 = V3Sub(vert2, vert0);
+	
+	// begin calculating determinant - also used to calculate U parameter
+	pvec = V3Cross(ray.direction, edge2);
+	
+	// if determinant is near zero, ray lies in plane of triangle
+	det = V3Dot(edge1, pvec);
+	
+	if (det > -SMALL_NUMBER && det < SMALL_NUMBER)
+		return false;
+	inv_det = 1.0 / det;
+	
+	// calculate distance from vert0 to ray origin
+	tvec = V3Sub(ray.origin, vert0);
+	
+	// calculate U parameter and test bounds
+	u = V3Dot(tvec, pvec) * inv_det;
+	if (u < 0.0 || u > 1.0)
+		return false;
+	
+	// prepare to test V parameter
+	qvec = V3Cross(tvec, edge1);
+	
+	// calculate V parameter and test bounds
+	v = V3Dot(ray.direction, qvec) * inv_det;
+	if (v < 0.0 || u + v > 1.0)
+		return false;
+	
+	// calculate t, ray intersects triangle
+	distance = V3Dot(edge2, qvec) * inv_det;
+	
+	// Intersects; return info
+	if(intersectDepth)      *intersectDepth     = distance;
+	if(intersectPointOut)   *intersectPointOut  = V2Make(u, v);
+	
+	return true;
+}
+
+
+//========== V3RayIntersectsSegment ============================================
+//
+// Purpose:		Determines if the shortest distance between the ray and segment 
+//				is within the tolerance. 
+//
+// Notes:		The tolerance is necessary because two lines in 3D graphics will 
+//				almost never actually intersect. But they may be within 1 pixel 
+//				of each other! 
+//
+//				Adapted from
+//				http://softsurfer.com/Archive/algorithm_0106/algorithm_0106.htm
+//				The body contains commented-out code for determining the closest 
+//				points between two line segments, rather than an infinite ray 
+//				and a finite segment. 
+//
+// Parameters:	ray - selection ray
+//				segment2 - line segment to test (in same coordinates as ray)
+//				tolerance - max distance to consider intersection
+//				intersectDepth - on return, distance from ray origin to segment 
+//						intersection 
+//
+//==============================================================================
+bool V3RayIntersectsSegment(Ray3 segment1, Segment3 segment2,
+							float tolerance,
+							float *intersectDepth)
+{
+	Vector3 u           = segment1.direction; //V3Sub(segment1.point1, segment1.point0);
+	Vector3 v           = V3Sub(segment2.point1, segment2.point0);
+	Vector3 w           = V3Sub(segment1.origin, segment2.point0);
+	float   a           = V3Dot(u,u);        // always >= 0
+	float   b           = V3Dot(u,v);
+	float   c           = V3Dot(v,v);        // always >= 0
+	float   d           = V3Dot(u,w);
+	float   e           = V3Dot(v,w);
+	float   D           = a*c - b*b;       // always >= 0
+	float   sc          = 0; // sc = sN / sD, default sD = D >= 0
+	float   sN          = 0;
+	float   sD          = 0;
+	float   tc          = 0; // tc = tN / tD, default tD = D >= 0
+	float   tN          = 0;
+	float   tD          = 0;
+	bool    intersects  = false;
+
+	// compute the line parameters of the two closest points
+	if (D < SMALL_NUMBER)
+	{	// the lines are almost parallel
+		sN = 0.0;        // force using point0 on segment S1
+		sD = 1.0;        // to prevent possible division by 0.0 later
+		
+		tN = e;
+		tD = c;
+	}
+	else
+	{
+		// get the closest points on the infinite lines
+		
+		sN = (b*e - c*d);
+		sD = D;
+		
+		tN = (a*e - b*d);
+		tD = D;
+		
+		if (sN < 0.0)		// sc < 0 => the s=0 edge is visible
+		{
+			sN = 0.0;
+			tN = e;
+			tD = c;
+		}
+//		else if (sN > sD)	// sc > 1 => the s=1 edge is visible
+//		{
+// I think this is the part needed if the ray had been a segment instead of a ray
+// As it is, we only care that sN >= 0
+//			sN = sD;
+//			tN = e + b;
+//			tD = c;
+//		}
+	}
+
+	if (tN < 0.0)			// tc < 0 => the t=0 edge is visible
+	{
+		tN = 0.0;
+		// recompute sc for this edge
+		if (-d < 0.0)
+		{
+			sN = 0.0;
+		}
+//		else if (-d > a)
+//		{
+// I think this is the part needed if the ray had been a segment instead of a ray
+// As it is, we only care that sN >= 0
+//			sN = sD;
+//		}
+		else
+		{
+			sN = -d;
+			sD = a;
+		}
+	}
+	else if (tN > tD)		// tc > 1 => the t=1 edge is visible
+	{
+		tN = tD;
+		// recompute sc for this edge
+		if ((-d + b) < 0.0)
+		{
+			sN = 0;
+		}
+//		else if ((-d + b) > a)
+//		{
+// I think this is the part needed if the ray had been a segment instead of a ray
+// As it is, we only care that sN >= 0
+//			sN = sD;
+//		}
+		else
+		{
+			sN = (-d + b);
+			sD = a;
+		}
+	}
+	// finally do the division to get sc and tc
+	sc = (fabs(sN) < SMALL_NUMBER ? 0.0 : sN / sD);
+	tc = (fabs(tN) < SMALL_NUMBER ? 0.0 : tN / tD);
+
+	// get the difference of the two closest points
+	// distance = S1(sc) - S2(tc)
+	//
+//	Point3  s1  = V3Add(segment1.point0, V3MulScalar(u, sc));
+//	Point3  s2  = V3Add(segment2.point0, V3MulScalar(v, tc));
+//	Vector3 dP  = V3Sub(s1, s2);
+	// a more compact form: dP  =   w + (sc * u) - (tc * v)   =   S1(sc) - S2(tc)
+	Vector3 dP              = V3Add(w, V3Sub( V3MulScalar(u, sc), V3MulScalar(v, tc)) );
+	float   minCloseness    = V3Length(dP);   // return the closest distance
+	
+//	printf("closeness = %f\n", minCloseness);
+	
+	if(minCloseness <= tolerance)
+	{
+		if(intersectDepth)	*intersectDepth = sc;
+		intersects = true;
+	}
+
+	return intersects;
+}
+
+
+//========== V3RayIntersectsSphere =============================================
+//
+// Purpose:		Returns whether the given (normalized) ray intersects the 
+//				sphere. 
+//
+// Notes:		Derived from solving:
+//				R(t) = O + td								// ray starting at (xO, yO, zO) extending in direction (dx, dy, dz)
+//				r^2 = (x - xc)^2 + (y - yc)^2 + (z - zc)^2  // sphere radius r centered at (xc, yc, zc)
+//
+//				http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter1.htm
+//
+//==============================================================================
+bool V3RayIntersectsSphere(Ray3 ray, Point3 sphereCenter, float radius,
+						   float *intersectDepth)
+{
+	float   b               = 0;
+	float   c               = 0;
+	float   discriminant;
+	float   distance        = 0;
+	bool    intersects      = false;
+	
+	// b and c stand for terms in the quadratic equation which solves for the 
+	// depth of an intersection along the ray. (a is always 1 when the ray is 
+	// normalized). 
+	
+	b = 2 * (  ray.direction.x * (ray.origin.x - sphereCenter.x)
+			 + ray.direction.y * (ray.origin.y - sphereCenter.y)
+			 + ray.direction.z * (ray.origin.z - sphereCenter.z) );
+
+	c =		   pow(ray.origin.x - sphereCenter.x, 2)
+			 + pow(ray.origin.y - sphereCenter.y, 2)
+			 + pow(ray.origin.z - sphereCenter.z, 2)
+			 - (radius * radius);
+			 
+	// Find the discriminant (the part under the square root) of the quadratic 
+	// formula to determine if there are solutions (intersections). 
+	discriminant = b*b - 4*c;
+	
+	if(discriminant >= 0.0)
+	{
+		distance = (-b - sqrt(discriminant))/2;
+		
+		if(distance <= 0)
+		{
+			distance = (-b + sqrt(discriminant))/2;
+		}
+		intersects = true;
+		
+		if(intersectDepth) *intersectDepth = distance;
+	}
+	
+	return intersects;
+}
 
 
 #pragma mark -
@@ -1416,14 +1726,12 @@ void Matrix4MultiplyGLMatrices(GLfloat *a, GLfloat *b, GLfloat *result)
 //
 //				Rotation order is first X, then Y, and lastly Z.
 //
-// Note:		You may safely pass the same matrix for original and result.
-//
 //==============================================================================
 Matrix4 Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate)
 {
-	TransformComponents	rotateComponents	= IdentityComponents;
-	Matrix4				addedRotation		= IdentityMatrix4;
-	Matrix4				newMatrix			= IdentityMatrix4;
+	TransformComponents rotateComponents    = IdentityComponents;
+	Matrix4             addedRotation       = IdentityMatrix4;
+	Matrix4             result              = IdentityMatrix4;
 
 	//Create a new matrix that causes the rotation we want.
 	//  (start with identity matrix)
@@ -1432,11 +1740,35 @@ Matrix4 Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate)
 	rotateComponents.rotate.z = radians(degreesToRotate.z);
 	addedRotation = Matrix4CreateTransformation(&rotateComponents);
 	
-	newMatrix = Matrix4Multiply(original, addedRotation); //rotate at rotationCenter
+	result = Matrix4Multiply(original, addedRotation); //rotate at rotationCenter
 	
-	return newMatrix;
+	return result;
 
 }//end Matrix4Rotate
+
+
+//========== Matrix4Scale() ====================================================
+//
+// Purpose:		Scales the given matrix by the given factors along 
+//				each axis. Returns result.
+//
+//==============================================================================
+Matrix4 Matrix4Scale(Matrix4 original, Tuple3 scaleFactors)
+{
+	TransformComponents components      = IdentityComponents;
+	Matrix4             scalingMatrix   = IdentityMatrix4;
+	Matrix4             result          = IdentityMatrix4;
+
+	//Create a new matrix that causes the rotation we want.
+	//  (start with identity matrix)
+	components.scale = scaleFactors;
+	scalingMatrix = Matrix4CreateTransformation(&components);
+	
+	result = Matrix4Multiply(original, scalingMatrix);
+	
+	return result;
+
+}//end Matrix4Scale
 
 
 //========== Matrix4Translate() ================================================
@@ -1444,8 +1776,6 @@ Matrix4 Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate)
 // Purpose:		Translates the given matrix by the given displacement, placing 
 //				the translated matrix into the Matrix specified by the result 
 //				parameter. Also returns result.
-//
-// Note:		You may safely pass the same matrix for original and result.
 //
 //==============================================================================
 Matrix4 Matrix4Translate(Matrix4 original, Vector3 displacement)

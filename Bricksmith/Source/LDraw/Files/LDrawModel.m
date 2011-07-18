@@ -244,6 +244,32 @@
 }//end draw:parentColor:
 
 
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Hit-test the geometry.
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	NSArray     *steps              = [self subdirectives];
+	NSUInteger  maxIndex            = [self maxStepIndexToOutput];
+	LDrawStep   *currentDirective   = nil;
+	NSUInteger  counter             = 0;
+	
+	// Draw all the steps in the model
+	for(counter = 0; counter <= maxIndex; counter++)
+	{
+		currentDirective = [steps objectAtIndex:counter];
+		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+	}
+}
+
+
 //========== write =============================================================
 //
 // Purpose:		Writes out the MPD submodel, wrapped in the MPD file commands.

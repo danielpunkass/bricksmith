@@ -23,7 +23,6 @@
 #import "PartLibrary.h"
 
 static LDrawVertexes        *boundingCube       = nil;
-static NSMutableDictionary  *hitTags            = nil; // NSNumber keys to LDrawDirective objects
 static BOOL                 ColumnizesOutput    = NO;
 static NSString				*defaultAuthor		= @"anonymous";
 
@@ -542,65 +541,51 @@ static NSString				*defaultAuthor		= @"anonymous";
 #pragma mark HIT DETECTION
 #pragma mark -
 
-//---------- objectForHitTag: ----------------------------------------[static]--
+//---------- registerHitForObject:depth:creditObject:hits: -----------[static]--
 //
-// Purpose:		Returns the object associated with the given hit-detection tag. 
-//				This method should be called after completing a hit-detection 
-//				draw to resolve the objects which were hit. 
+// Purpose:		Adds a hit record to the hits dictionary such that only the 
+//				nearest hits per credit object survive. 
 //
-//------------------------------------------------------------------------------
-+ (LDrawDirective *) objectForHitTag:(GLuint)hitTag
-{
-	NSNumber        *key    = [NSNumber numberWithUnsignedInt:hitTag];
-	LDrawDirective  *object = [hitTags objectForKey:key];
-	
-	return object;
-	
-}//end objectForHitTag:
-
-
-
-//---------- makeHitTagForObject: ------------------------------------[static]--
-//
-// Purpose:		Assigns a hit-detection tag to the given object and returns it. 
-//				Tags are NOT persistent from draw to draw; you must call 
-//				+resetHitTags at the beginning of each hit-detection draw. 
-//
-// Note:		Tags are internally 1-relative, but that's purely an 
-//				implementation detail. 
+// Parameters:	hitObject - the exact object whose geometry was hit
+//				depth - the distance in the depth of field
+//				creditObject - an object to which the hit should be attributed 
+//						(instead of the hitObject itself) 
+//				hits - the list of hit records to modify
 //
 //------------------------------------------------------------------------------
-+ (GLuint) makeHitTagForObject:(LDrawDirective *)directive
++ (void) registerHitForObject:(id)hitObject depth:(float)hitDepth creditObject:(id)creditObject hits:(NSMutableDictionary *)hits
 {
-	NSUInteger  previousTag = [hitTags count];
-	GLuint      newTag      = previousTag + 1;
-	NSNumber    *key        = [NSNumber numberWithUnsignedInt:newTag];
+	NSNumber    *existingRecord = [hits objectForKey:creditObject];
+	float       existingDepth   = 0;
+	NSValue     *key            = nil;
 	
-	[hitTags setObject:directive forKey:key];
-	
-	return newTag;
-	
-}//end makeHitTagForObject:
-
-
-//---------- resetHitTags --------------------------------------------[static]--
-//
-// Purpose:		Clears the list of tags used for hit detection. This must be 
-//				called before each hit-detection draw. 
-//
-//------------------------------------------------------------------------------
-+ (void) resetHitTags
-{
-	if(hitTags == nil)
+	// NSDictionary copies its keys (which we don't want to do!), so we'll just 
+	// wrap the pointers. 
+	if(creditObject == nil)
 	{
-		hitTags = [[NSMutableDictionary alloc] init];
+		key = [NSValue valueWithPointer:hitObject];
 	}
 	else
 	{
-		[hitTags removeAllObjects];
+		key = [NSValue valueWithPointer:creditObject];
 	}
 
-}//end resetHitTags
+	existingRecord = [hits objectForKey:key];
+	if(existingRecord == nil)
+	{
+		existingDepth = INFINITY;
+	}
+	else
+	{
+		existingDepth = [existingRecord floatValue];
+	}
+	
+	// Found a shallower intersection point? Record the hit.
+	if(hitDepth < existingDepth)
+	{
+		[hits setObject:[NSNumber numberWithFloat:hitDepth] forKey:key];
+	}
+}
 
 
 #pragma mark -

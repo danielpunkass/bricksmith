@@ -64,9 +64,7 @@ typedef enum
 + (LDrawVertexes *) boundingCube;
 
 // Hit Detection
-+ (LDrawDirective *) objectForHitTag:(GLuint)hitTag;
-+ (GLuint) makeHitTagForObject:(LDrawDirective *)directive;
-+ (void) resetHitTags;
++ (void) registerHitForObject:(id)hitObject depth:(float)depth creditObject:(id)creditObject hits:(NSMutableDictionary *)hits;
 
 // Miscellaneous
 + (Tuple3) angleForViewOrientation:(ViewOrientationT)orientation;

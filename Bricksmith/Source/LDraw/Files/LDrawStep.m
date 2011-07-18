@@ -352,6 +352,32 @@
 }//end draw:parentColor:
 
 
+//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//
+// Purpose:		Hit-test the geometry.
+//
+//==============================================================================
+- (void) hitTest:(Ray3)pickRay
+	   transform:(Matrix4)transform
+	 scaleFactor:(double)scaleFactor
+	  boundsOnly:(BOOL)boundsOnly
+	creditObject:(id)creditObject
+			hits:(NSMutableDictionary *)hits
+{
+	NSArray     *commandsInStep     = [self subdirectives];
+	NSUInteger  commandCount        = [commandsInStep count];
+	LDrawStep   *currentDirective   = nil;
+	NSUInteger  counter             = 0;
+	
+	// Draw all the steps in the model
+	for(counter = 0; counter < commandCount; counter++)
+	{
+		currentDirective = [commandsInStep objectAtIndex:counter];
+		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+	}
+}
+
+
 //========== write =============================================================
 //
 // Purpose:		Write out all the commands in the step, prefaced by the line 

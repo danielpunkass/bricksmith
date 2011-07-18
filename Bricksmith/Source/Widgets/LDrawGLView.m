@@ -3336,76 +3336,56 @@
 	}
 	else
 	{
+		NSPoint             windowPoint             = [theEvent locationInWindow]; //window coordinates
+		Point3              contextNear             = ZeroPoint3;
+		Point3              contextFar              = ZeroPoint3;
+		Ray3                pickRay                 = {{0}};
+		Point3              end                     = ZeroPoint3;
+		NSRect              windowVisibleRect       = [self convertRect:[self visibleRect] toView:nil]; //window coordinates.
+		GLint               viewport[4]             = {0};
+		GLfloat             projectionGLMatrix[16]  = {0.0};
+		GLfloat             modelViewGLMatrix[16]   = {0.0};
+		NSMutableDictionary *hits                   = [NSMutableDictionary dictionary];
+		
+		// Get view and projection
 		CGLLockContext([[self openGLContext] CGLContextObj]);
 		{
 			[[self openGLContext] makeCurrentContext];
 			
-			NSPoint			 viewClickedPoint			= [theEvent locationInWindow]; //window coordinates
-			NSRect			 visibleRect				= [self convertRect:[self visibleRect] toView:nil]; //window coordinates.
-			GLuint			 nameBuffer			[512]	= {0};
-			GLint			 viewport			[4]		= {0};
-			GLfloat			 projectionMatrix	[16]	= {0.0};
-			NSUInteger		 numberOfHits				= 0;
-			NSUInteger		 counter					= 0;
-			NSUInteger		 drawOptions				= DRAW_HIT_TEST_MODE;
-			
-			if(fastDraw == YES)
-				drawOptions |= DRAW_BOUNDS_ONLY;
-			
 			glGetIntegerv(GL_VIEWPORT, viewport);
-			glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
-			
-			//Prepare OpenGL to record hits in the viewing area. We need to feed it 
-			// a buffer which will be filled with the tags of things that got hit.
-			glSelectBuffer(512, nameBuffer);
-			glRenderMode(GL_SELECT); //switch to hit-testing mode.
-			{
-				//Prepare for recording names. These functions must be called 
-				// *after* switching to render mode.
-				[LDrawUtilities resetHitTags];
-				glInitNames();
-				glPushName(UINT_MAX); //0 would be a valid choice, after all...
-				
-				//Restrict our rendering area (and thus our hit-testing region) to 
-				// a very small rectangle around the mouse position.
-				glMatrixMode(GL_PROJECTION);
-				glPushMatrix();
-				{
-					glLoadIdentity();
-					
-					//Lastly, convert to viewport coordinates:
-					GLfloat pickX = viewClickedPoint.x - NSMinX(visibleRect);
-					GLfloat pickY = viewClickedPoint.y - NSMinY(visibleRect);
-					
-					gluPickMatrix(pickX,
-								  pickY,
-								  1, //width
-								  1, //height
-								  viewport);
-					
-					// Now re-apply the original camera matrix
-					glMultMatrixf(projectionMatrix);
-					
-					glMatrixMode(GL_MODELVIEW);
-					
-					//draw all the requested directives
-					for(counter = 0; counter < [directives count]; counter++)
-						[[directives objectAtIndex:counter] draw:drawOptions parentColor:color];
-				}
-				//Restore original viewing matrix after mangling for the hit area.
-				glMatrixMode(GL_PROJECTION);
-				glPopMatrix();
-				
-				// Note that picking doesn't actually render anything, so our 
-				// framebuffer is undisturbed. But we *might* still need to 
-				// glFlush; I'm not sure. 
-				glFlush();
-			}
-			numberOfHits = glRenderMode(GL_RENDER);
-			
-			clickedDirectives = [self getPartsFromHits:nameBuffer hitCount:numberOfHits];
+			glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
+			glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
 		}
 		CGLUnlockContext([[self openGLContext] CGLContextObj]);
+		
+		// convert to viewport coordinates
+		contextNear.x   = windowPoint.x - NSMinX(windowVisibleRect);
+		contextNear.y   = windowPoint.y - NSMinY(windowVisibleRect);
+		contextNear.z   = 0.0;
+		
+		contextFar		= V3Make(contextNear.x, contextNear.y, 1.0);
+		
+		// Pick Ray
+		pickRay.origin      = V3Unproject(contextNear,
+										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
+										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
+										  Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
+		end                 = V3Unproject(contextFar,
+										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
+										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
+										  Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
+		pickRay.direction   = V3Sub(end, pickRay.origin);
+		pickRay.direction	= V3Normalize(pickRay.direction);
+		
+		// Do hit test
+		[fileBeingDrawn hitTest:pickRay
+					  transform:IdentityMatrix4
+					scaleFactor:[self zoomPercentage]/100.
+					 boundsOnly:fastDraw
+				   creditObject:nil
+						   hits:hits];
+						   
+		clickedDirectives = [self getPartsFromHits:hits];
 	}
 
 	return clickedDirectives;
@@ -3416,108 +3396,52 @@
 //========== getPartFromHits:hitCount: =========================================
 //
 // Purpose:		Deduce the parts that were clicked on, given the selection data 
-//				returned from glMatrixMode(GL_SELECT). This hit data is created 
-//				by OpenGL when we click the mouse.
+//				returned from -[LDrawDirective hitTest:...]
 //
-// Parameters	numberHits is the number of hit records recorded in nameBuffer.
-//					It seems to return -1 if the buffer overflowed.
-//				nameBuffer is structured as follows:
-//					nameBuffer[0] = number of names in first record
-//					nameBuffer[1] = minimum depth hit in field of view
-//					nameBuffer[2] = maximum depth hit in field of view
-//					nameBuffer[3] = bottom entry on name stack
-//						....
-//					nameBuffer[n] = top entry on name stack
-//					nameBuffer[n+1] = number names in second record
-//						.... etc.
-//
-//				Each time something gets rendered into our picking region around 
-//				the mouse (and it has a different name), it generates a hit 
-//				record. So we have to investigate our buffer and figure out 
-//				which hit was the nearest to the front (smallest minimum depth); 
-//				that is the one we clicked on.
+//				Each time something's geometry intersects our pick ray under the 
+//				mouse (and it has a different name), it generates a hit record. 
+//				So we have to investigate our hits and figure out which hit was 
+//				the nearest to the front (smallest minimum depth); that is the 
+//				one we clicked on. 
 //
 // Returns:		Array of all the parts under the click. The nearest part is 
 //				guaranteed to be the first entry in the array. There is no 
 //				defined order for the rest of the parts.
 //
 //==============================================================================
-- (NSArray *) getPartsFromHits:(GLuint *)nameBuffer
-					  hitCount:(GLuint)numberHits
+- (NSArray *) getPartsFromHits:(NSDictionary *)hits
 {
-	NSMutableArray	*clickedParts		= [NSMutableArray arrayWithCapacity:numberHits];
-	LDrawDirective	*currentDirective	= nil;
+	NSMutableArray  *clickedDirectives  = [NSMutableArray arrayWithCapacity:[hits count]];
+	LDrawDirective  *currentDirective   = nil;
+	float           minimumDepth        = INFINITY;
+	float           currentDepth        = 0;
 	
-	// The hit record depths are mapped between 0 and UINT_MAX, where the 
-	// maximum integer is the deepest point. We are looking for the shallowest 
-	// point, because that's what we clicked on. 
-	GLuint  minimumDepth        = UINT_MAX;
-	GLuint  currentName         = 0;
-	GLuint  currentDepth        = 0;
-	GLuint  numberNames         = 0;
-	GLuint  hitCounter          = 0;
-	GLuint  counter             = 0;
-	GLuint  hitRecordBaseIndex  = 0;
+	// The hit record depths are mapped as depths along the pick ray. We are 
+	// looking for the shallowest point, because that's what we clicked on. 
 	
-	//Process all the hits. In theory, each hit record can be of variable 
-	// length, so the logic is a little messy. (In Bricksmith, each it record 
-	// is exactly 4 entries long, but we're being all general here!)
-	for(hitCounter = 0; hitCounter < numberHits; hitCounter++)
+	for(NSValue *key in hits)
 	{
-		//We find hit records by reckoning them as starting at an 
-		// offset in the buffer. hitRecordBaseIndex is the index of the 
-		// first entry in the record.
+		currentDirective    = [key pointerValue];
+		currentDepth        = [[hits objectForKey:key] floatValue];
 		
-		numberNames		= nameBuffer[hitRecordBaseIndex + 0]; //first entry.
-		currentDepth	= nameBuffer[hitRecordBaseIndex + 1];
+//		NSLog(@"Hit depth %f %@", currentDepth, currentDirective);
 		
-		//By convention in Bricksmith, we only have one name per hit, so 
-		// numberNames == 1.
-		for(counter = 0; counter < numberNames; counter++)
-		{
-			//Names start in the fourth entry of the hit.
-			currentName = nameBuffer[hitRecordBaseIndex + 3 + counter];
-		}
-		currentDirective = [self getDirectiveFromHitCode:currentName];
-		
-		//Is this hit closer than the last closest one?
 		if(currentDepth < minimumDepth)
 		{
+			// guarantee shallowest object is first in array
+			[clickedDirectives insertObject:currentDirective atIndex:0];
 			minimumDepth = currentDepth;
-			
-			//If this was closer, we need to record the name at the top of the 
-			// array
-			[clickedParts insertObject:currentDirective atIndex:0];
 		}
 		else
-			[clickedParts addObject:currentDirective];
-		
-		//Advance past this entire hit record. (Three standard entries followed 
-		// by a variable number of names per record.)
-		hitRecordBaseIndex += 3 + numberNames;
+		{
+			[clickedDirectives addObject:currentDirective];
+		}
 	}
-		
-	return clickedParts;
+//	NSLog(@"===============================================");
+	
+	return clickedDirectives;
 	
 }//end getPartFromHits:hitCount:
-
-
-//========== getDirectiveFromHitCode: ==========================================
-//
-// Purpose:		When we click the mouse, it generates an OpenGL hit-test in 
-//				which parts that were "hit" leave a signature behind. That 
-//				signature in an one-off integer assigned during the draw from 
-//				+[LDrawUtilities makeHitTagForObject:]. The tags are not 
-//				persistent from draw to draw. 
-//
-//==============================================================================
-- (LDrawDirective *) getDirectiveFromHitCode:(GLuint)name
-{
-	LDrawDirective	*clickedDirective	= [LDrawUtilities objectForHitTag:name];
-	
-	return clickedDirective;
-	
-}//end getDirectiveFromHitCode:
 
 
 //========== resetFrameSize: ===================================================

@@ -265,7 +265,7 @@
 }//end write
 
 
-//========== writeElementToVertexBuffer:withColor: =============================
+//========== writeElementToVertexBuffer:withColor:wireframe: ===================
 //
 // Purpose:		Writes this object into the specified vertex buffer, which is a 
 //				pointer to the offset into which the first vertex point's data 
@@ -274,6 +274,7 @@
 //==============================================================================
 - (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
 									 withColor:(LDrawColor *)drawingColor
+									 wireframe:(BOOL)wireframe
 {
 	// This should never be called, but just in case...
 	return NULL;

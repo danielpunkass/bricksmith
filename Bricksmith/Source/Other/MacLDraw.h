@@ -2,8 +2,8 @@
 //
 // File:		MacLDraw.h
 //
-// Purpose:		Keys, enumerations, constants, and build flags used in the 
-//				Bricksmith project. 
+// Purpose:		Keys, enumerations, and constants used in the Bricksmith 
+//				project. 
 //
 // Notes:		Bricksmith was originally titled "Mac LDraw"; hence the name of 
 //				this file. That name was dropped shortly before the 1.0 release 
@@ -13,18 +13,6 @@
 // Modified:	2/14/05 Allen Smith.
 //
 //==============================================================================
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
-#pragma mark		Build Flags
-//					Special options to configure the program behavior.
-//
-////////////////////////////////////////////////////////////////////////////////
-
-#define TESSELATE_QUADS								0
-#define TESSELATE_QUADS_TO_STRIP					0
-#define TRY_DISPLAY_LIST_WRAPPER_FOR_VAO			1
 
 
 ////////////////////////////////////////////////////////////////////////////////

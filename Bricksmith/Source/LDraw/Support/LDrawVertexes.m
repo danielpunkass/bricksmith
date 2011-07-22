@@ -78,11 +78,13 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	// On the bright side, the display list contains nothing but a VAO, so I 
 	// have an "upgrade" path if needed! 
 	
+#if TRY_DISPLAY_LIST_WRAPPER_FOR_VAO
 	if(tags.displayListTag)
 	{
 		glCallList(tags.displayListTag);
 	}
 	else
+#endif
 	{
 		// Display lists with VAOs don't work on 10.5
 	
@@ -95,8 +97,13 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
 		
 		// Quadrilaterals
+#if (TESSELATE_QUADS == 0)
 		glBindVertexArrayAPPLE(tags.quadsVAOTag);
 		glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
+#elif (TESSELATE_QUADS_TO_STRIP == 1)
+		glBindVertexArrayAPPLE(tags.quadsVAOTag);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, tags.quadCount * 5);
+#endif
 	}
 }
 
@@ -416,11 +423,20 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glGenBuffers(1, &tags.trianglesVBOTag);
 		glBindBuffer(GL_ARRAY_BUFFER, tags.trianglesVBOTag);
 		
-		size_t          trianglesBufferSize = [self->triangles count] * sizeof(VBOVertexData) * 3;
-		VBOVertexData   *triangleVertexes   = malloc(trianglesBufferSize);
+		size_t			maxTriangleCount	= [self->triangles count];
+		size_t          trianglesBufferSize = 0;
+		VBOVertexData   *triangleVertexes   = NULL;
+		
+#if TESSELATE_QUADS
+		// Draws each quad using two independent triangles. 
+		// Datsville: 0.95 fps
+		maxTriangleCount += ([self->quadrilaterals count] * 2);
+#endif
+		trianglesBufferSize = maxTriangleCount * sizeof(VBOVertexData) * 3;
+		triangleVertexes    = malloc(trianglesBufferSize);
 		
 		buffer = triangleVertexes;
-		for(LDrawQuadrilateral *currentDirective in self->triangles)
+		for(LDrawTriangle *currentDirective in self->triangles)
 		{
 			if([currentDirective isHidden] == NO)
 			{
@@ -428,6 +444,17 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 				tags.triangleCount++;
 			}
 		}
+		
+#if TESSELATE_QUADS
+		for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
+		{
+			if([currentDirective isHidden] == NO)
+			{
+				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
+				tags.triangleCount += 2;
+			}
+		}
+#endif
 		
 		glBufferData(GL_ARRAY_BUFFER, trianglesBufferSize, triangleVertexes, GL_STATIC_DRAW);
 		free(triangleVertexes);
@@ -446,6 +473,9 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	}
 	
 	//---------- Quadrilaterals VBO --------------------------------------------
+	// Draws quads in as quads. 
+	// Datsville: 0.94 fps
+#if (TESSELATE_QUADS == 0)
 	{
 		glGenBuffers(1, &tags.quadsVBOTag);
 		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
@@ -478,9 +508,49 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
 		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 	}
+#endif
+	
+	//---------- Quadrilaterals-as-triangle-strips VBO -------------------------
+	// Draws quads in triangle strips to reduce the vertex load. 
+	// Datsville: 1.02 fps
+#if (TESSELATE_QUADS_TO_STRIP == 1)
+	{
+		glGenBuffers(1, &tags.quadsVBOTag);
+		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
+		
+		size_t          quadsBufferSize = [self->quadrilaterals count] * sizeof(VBOVertexData) * 5;
+		VBOVertexData   *quadVertexes   = malloc(quadsBufferSize);
+		
+		buffer = quadVertexes;
+		for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
+		{
+			if([currentDirective isHidden] == NO)
+			{
+				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
+				tags.quadCount++;
+			}
+		}
+		
+		glBufferData(GL_ARRAY_BUFFER, quadsBufferSize, quadVertexes, GL_STATIC_DRAW);
+		free(quadVertexes);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		
+		// Encapsulate in a VAO
+		glGenVertexArraysAPPLE(1, &tags.quadsVAOTag);
+		glBindVertexArrayAPPLE(tags.quadsVAOTag);
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_NORMAL_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
+		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
+		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
+		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
+	}
+#endif
 	
 	//---------- Wrap it all in a display list ---------------------------------
 	
+#if TRY_DISPLAY_LIST_WRAPPER_FOR_VAO
 	// Display lists are 28% faster than VAOs. What the heck?
 	
 	// But you can't embed multiple VAOs in a display list on 10.5. (Not 
@@ -507,11 +577,17 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 			glDrawArrays(GL_TRIANGLES, 0, tags.triangleCount * 3);
 			
 			// Quadrilaterals
+#if (TESSELATE_QUADS == 0)
 			glBindVertexArrayAPPLE(tags.quadsVAOTag);
 			glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
+#elif (TESSELATE_QUADS_TO_STRIP == 1)
+			glBindVertexArrayAPPLE(tags.quadsVAOTag);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, tags.quadCount * 5);
+#endif
 		}
 		glEndList();
 	}
+#endif
 	
 	// Cache
 	id      key     = color;

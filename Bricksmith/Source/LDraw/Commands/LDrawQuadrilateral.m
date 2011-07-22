@@ -332,7 +332,8 @@
 - (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
 									 withColor:(LDrawColor *)drawingColor
 {
-	GLfloat components[4] = {};
+	GLfloat components[4]   = {};
+	int     vertexCount     = 0;
 	
 	[drawingColor getColorRGBA:components];
 
@@ -348,11 +349,45 @@
 	memcpy(&vertexBuffer[2].normal,   &normal,		sizeof(Point3));
 	memcpy(&vertexBuffer[2].color,    components,	sizeof(GLfloat)*4);
 
+#if TESSELATE_QUADS
+	// Draw the quad as two triangles
+	memcpy(&vertexBuffer[3].position, &vertex3,		sizeof(Point3));
+	memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
+	memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
+
+	memcpy(&vertexBuffer[4].position, &vertex4,		sizeof(Point3));
+	memcpy(&vertexBuffer[4].normal,   &normal,		sizeof(Point3));
+	memcpy(&vertexBuffer[4].color,    components,	sizeof(GLfloat)*4);
+	
+	memcpy(&vertexBuffer[5].position, &vertex1,		sizeof(Point3));
+	memcpy(&vertexBuffer[5].normal,   &normal,		sizeof(Point3));
+	memcpy(&vertexBuffer[5].color,    components,	sizeof(GLfloat)*4);
+
+	vertexCount = 6;
+	
+#elif TESSELATE_QUADS_TO_STRIP
+	memcpy(&vertexBuffer[3].position, &vertex3,		sizeof(Point3));
+	memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
+	memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
+	
+	// Add a degenerate triangle which will allow us to jump to the next 
+	// freestanding quad 
+	memcpy(&vertexBuffer[4].position, &vertex3,		sizeof(Point3));
+	memcpy(&vertexBuffer[4].normal,   &normal,		sizeof(Point3));
+	memcpy(&vertexBuffer[4].color,    components,	sizeof(GLfloat)*4);
+
+	vertexCount = 5;
+	
+#else
+	// Last vertex makes the full quad
 	memcpy(&vertexBuffer[3].position, &vertex4,		sizeof(Point3));
 	memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
 	memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
 	
-	return vertexBuffer + 4;
+	vertexCount = 4;
+#endif
+
+	return vertexBuffer + vertexCount;
 	
 }//end writeElementToVertexBuffer:withColor:
 

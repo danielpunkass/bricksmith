@@ -259,7 +259,11 @@
 	// also conveniently applies to all referenced parts herein. 
 	if(self->isSelected == YES)
 	{
+#if (USE_AUTOMATIC_WIREFRAMES)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#else
+		optionsMask = optionsMask | DRAW_WIREFRAME;
+#endif
 	}
 	
 	// Multithreading finally works with one display list per displayed part 
@@ -302,12 +306,12 @@
 	}
 	glPopMatrix();
 
-	// Done drawing a selected part? Then switch back to normal filled 
-	// drawing. 
+	// Done drawing a selected part? Then switch back to normal filled drawing. 
 	if(self->isSelected == YES)
 	{
+#if (USE_AUTOMATIC_WIREFRAMES)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glEnable(GL_BLEND);
+#endif
 	}
 
 }//end drawElement:parentColor:

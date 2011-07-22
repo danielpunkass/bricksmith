@@ -263,7 +263,7 @@
 }//end write
 
 
-//========== writeElementToVertexBuffer:withColor: =============================
+//========== writeElementToVertexBuffer:withColor:wireframe: ===================
 //
 // Purpose:		Writes this object into the specified vertex buffer, which is a 
 //				pointer to the offset into which the first vertex point's data 
@@ -272,7 +272,10 @@
 //==============================================================================
 - (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
 									 withColor:(LDrawColor *)drawingColor
+									 wireframe:(BOOL)wireframe
 {
+	#pragma unused(wireframe)
+	
 	Vector3 normal          = V3Make(0.0, -1.0, 0.0); //lines need normals! Who knew?
 	GLfloat components[4]   = {};
 	

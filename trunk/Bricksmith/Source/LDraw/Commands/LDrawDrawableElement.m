@@ -158,6 +158,7 @@
 //==============================================================================
 - (VBOVertexData *) writeToVertexBuffer:(VBOVertexData *)vertexBuffer
 							parentColor:(LDrawColor *)parentColor
+							  wireframe:(BOOL)wireframe
 {
 	VBOVertexData *endPointer = NULL;
 	
@@ -171,19 +172,19 @@
 		case LDrawCurrentColor:
 			//Just draw; don't fool with colors. A significant portion of our 
 			// drawing code probably falls into this category.
-			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:parentColor];
+			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:parentColor wireframe:wireframe];
 			break;
 			
 		case LDrawEdgeColor:
 			// We'll need to turn this on to support file-local colors.
 			//				ColorLibrary	*colorLibrary	= [[[self enclosingDirective] enclosingModel] colorLibrary];
 			//				LDrawColor		*colorObject	= [colorLibrary colorForCode:self->color];
-			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:[parentColor complimentColor]];
+			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:[parentColor complimentColor] wireframe:wireframe];
 			break;
 			
 		case LDrawColorCustomRGB:
 		default:
-			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:self->color];
+			endPointer = [self writeElementToVertexBuffer:vertexBuffer withColor:self->color wireframe:wireframe];
 			break;
 	}
 	
@@ -206,7 +207,7 @@
 }//end drawElement:withColor:
 
 
-//========== writeElementToVertexBuffer:withColor: =============================
+//========== writeElementToVertexBuffer:withColor:wireframe: ===================
 //
 // Purpose:		Copies the actual vertex data into the buffer, now that setup 
 //				has been done in -writeToVertexBuffer: 
@@ -214,6 +215,7 @@
 //==============================================================================
 - (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
 									 withColor:(LDrawColor *)drawingColor
+									 wireframe:(BOOL)wireframe
 {
 	//implemented by subclasses.
 	return NULL;

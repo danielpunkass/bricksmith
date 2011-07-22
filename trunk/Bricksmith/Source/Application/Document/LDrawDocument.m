@@ -267,7 +267,14 @@
 		
 		// Now that all the parts are at their final name, we can optimize.
 		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
+		
+		CFAbsoluteTime  startTime       = CFAbsoluteTimeGetCurrent();
+		CFTimeInterval  optimizeTime    = 0;
+		
 		[[self documentContents] optimizeOpenGL];
+		
+		optimizeTime = CFAbsoluteTimeGetCurrent() - startTime;
+		NSLog(@"optimize time = %f", optimizeTime);
 	}
 	
 	return success;

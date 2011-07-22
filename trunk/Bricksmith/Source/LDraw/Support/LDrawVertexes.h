@@ -50,6 +50,7 @@ struct OptimizationTags
 	NSMutableArray          *everythingElse;
 	
 	NSMutableDictionary		*colorOptimizations; // key is @"%f %f %f %f", value is OptimizationTags in NSValue
+	NSMutableDictionary		*colorWireframeOptimizations; // key is @"%f %f %f %f", value is OptimizationTags in NSValue
 }
 
 // Accessors
@@ -73,6 +74,8 @@ struct OptimizationTags
 
 // Optimize
 - (void) optimizeOpenGLWithParentColor:(LDrawColor *)parentColor;
+- (void) optimizeSolidWithParentColor:(LDrawColor *)color;
+- (void) optimizeWireframeWithParentColor:(LDrawColor *)color;
 - (void) rebuildAllOptimizations;
 - (void) removeAllOptimizations;
 

@@ -35,3 +35,17 @@
 #ifndef OPEN_GL_HEADER
 #define OPEN_GL_HEADER <OpenGL/OpenGL.h>
 #endif
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+#pragma mark		Build Flags
+//					Special options to configure the program behavior.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+#define TESSELATE_QUADS								0
+#define TRY_DISPLAY_LIST_WRAPPER_FOR_VAO			1
+#define USE_AUTOMATIC_WIREFRAMES					1
+
+

@@ -288,7 +288,7 @@
 }//end write
 
 
-//========== writeElementToVertexBuffer:withColor: =============================
+//========== writeElementToVertexBuffer:withColor:wireframe: ===================
 //
 // Purpose:		Writes this object into the specified vertex buffer, which is a 
 //				pointer to the offset into which the first vertex point's data 
@@ -297,24 +297,62 @@
 //==============================================================================
 - (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
 									 withColor:(LDrawColor *)drawingColor
+									 wireframe:(BOOL)wireframe
 {
-	GLfloat components[4] = {};
+	GLfloat components[4]   = {};
+	int     vertexCount     = 0;
 	
 	[drawingColor getColorRGBA:components];
 	
-	memcpy(&vertexBuffer[0].position, &vertex1,    sizeof(Point3));
-	memcpy(&vertexBuffer[0].normal,   &normal,     sizeof(Point3));
-	memcpy(&vertexBuffer[0].color,    components,  sizeof(GLfloat)*4);
+	if(wireframe == NO)
+	{
+		memcpy(&vertexBuffer[0].position, &vertex1,    sizeof(Point3));
+		memcpy(&vertexBuffer[0].normal,   &normal,     sizeof(Point3));
+		memcpy(&vertexBuffer[0].color,    components,  sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[1].position, &vertex2,    sizeof(Point3));
+		memcpy(&vertexBuffer[1].normal,   &normal,     sizeof(Point3));
+		memcpy(&vertexBuffer[1].color,    components,  sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[2].position, &vertex3,    sizeof(Point3));
+		memcpy(&vertexBuffer[2].normal,   &normal,     sizeof(Point3));
+		memcpy(&vertexBuffer[2].color,    components,  sizeof(GLfloat)*4);
+		
+		vertexCount = 3;
+	}
+	else
+	{
+		// edge1
+		memcpy(&vertexBuffer[0].position, &vertex1,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[1].position, &vertex2,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].color,    components,	sizeof(GLfloat)*4);
+		
+		// edge2
+		memcpy(&vertexBuffer[2].position, &vertex2,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[3].position, &vertex3,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
+		
+		// edge3
+		memcpy(&vertexBuffer[4].position, &vertex3,		sizeof(Point3));
+		memcpy(&vertexBuffer[4].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[4].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[5].position, &vertex1,		sizeof(Point3));
+		memcpy(&vertexBuffer[5].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[5].color,    components,	sizeof(GLfloat)*4);
+		
+		vertexCount = 6;
+	}
 	
-	memcpy(&vertexBuffer[1].position, &vertex2,    sizeof(Point3));
-	memcpy(&vertexBuffer[1].normal,   &normal,     sizeof(Point3));
-	memcpy(&vertexBuffer[1].color,    components,  sizeof(GLfloat)*4);
-	
-	memcpy(&vertexBuffer[2].position, &vertex3,    sizeof(Point3));
-	memcpy(&vertexBuffer[2].normal,   &normal,     sizeof(Point3));
-	memcpy(&vertexBuffer[2].color,    components,  sizeof(GLfloat)*4);
-	
-	return vertexBuffer + 3;
+	return vertexBuffer + vertexCount;
 	
 }//end writeElementToVertexBuffer:withColor:
 

@@ -322,7 +322,7 @@
 }//end write
 
 
-//========== writeElementToVertexBuffer:withColor: =============================
+//========== writeElementToVertexBuffer:withColor:wireframe: ===================
 //
 // Purpose:		Writes this object into the specified vertex buffer, which is a 
 //				pointer to the offset into which the first vertex point's data 
@@ -331,61 +331,104 @@
 //==============================================================================
 - (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer
 									 withColor:(LDrawColor *)drawingColor
+									 wireframe:(BOOL)wireframe
 {
 	GLfloat components[4]   = {};
 	int     vertexCount     = 0;
 	
 	[drawingColor getColorRGBA:components];
 
-	memcpy(&vertexBuffer[0].position, &vertex1,		sizeof(Point3));
-	memcpy(&vertexBuffer[0].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[0].color,    components,	sizeof(GLfloat)*4);
+	if(wireframe == NO)
+	{
+	#if TESSELATE_QUADS
+		memcpy(&vertexBuffer[0].position, &vertex1,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].color,    components,	sizeof(GLfloat)*4);
 
-	memcpy(&vertexBuffer[1].position, &vertex2,		sizeof(Point3));
-	memcpy(&vertexBuffer[1].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[1].color,    components,	sizeof(GLfloat)*4);
+		memcpy(&vertexBuffer[1].position, &vertex2,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].color,    components,	sizeof(GLfloat)*4);
 
-	memcpy(&vertexBuffer[2].position, &vertex3,		sizeof(Point3));
-	memcpy(&vertexBuffer[2].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[2].color,    components,	sizeof(GLfloat)*4);
+		memcpy(&vertexBuffer[2].position, &vertex3,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].color,    components,	sizeof(GLfloat)*4);
 
-#if TESSELATE_QUADS
-	// Draw the quad as two triangles
-	memcpy(&vertexBuffer[3].position, &vertex3,		sizeof(Point3));
-	memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
+		// Draw the quad as two triangles
+		memcpy(&vertexBuffer[3].position, &vertex3,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
 
-	memcpy(&vertexBuffer[4].position, &vertex4,		sizeof(Point3));
-	memcpy(&vertexBuffer[4].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[4].color,    components,	sizeof(GLfloat)*4);
-	
-	memcpy(&vertexBuffer[5].position, &vertex1,		sizeof(Point3));
-	memcpy(&vertexBuffer[5].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[5].color,    components,	sizeof(GLfloat)*4);
+		memcpy(&vertexBuffer[4].position, &vertex4,		sizeof(Point3));
+		memcpy(&vertexBuffer[4].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[4].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[5].position, &vertex1,		sizeof(Point3));
+		memcpy(&vertexBuffer[5].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[5].color,    components,	sizeof(GLfloat)*4);
 
-	vertexCount = 6;
-	
-#elif TESSELATE_QUADS_TO_STRIP
-	memcpy(&vertexBuffer[3].position, &vertex3,		sizeof(Point3));
-	memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
-	
-	// Add a degenerate triangle which will allow us to jump to the next 
-	// freestanding quad 
-	memcpy(&vertexBuffer[4].position, &vertex3,		sizeof(Point3));
-	memcpy(&vertexBuffer[4].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[4].color,    components,	sizeof(GLfloat)*4);
+		vertexCount = 6;
+		
+	#else
+		memcpy(&vertexBuffer[0].position, &vertex1,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[1].position, &vertex2,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[2].position, &vertex3,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].color,    components,	sizeof(GLfloat)*4);
 
-	vertexCount = 5;
-	
-#else
-	// Last vertex makes the full quad
-	memcpy(&vertexBuffer[3].position, &vertex4,		sizeof(Point3));
-	memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
-	memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
-	
-	vertexCount = 4;
-#endif
+		// Last vertex makes the full quad
+		memcpy(&vertexBuffer[3].position, &vertex4,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
+		
+		vertexCount = 4;
+	#endif
+	}
+	else
+	{
+		// edge1
+		memcpy(&vertexBuffer[0].position, &vertex1,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[0].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[1].position, &vertex2,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[1].color,    components,	sizeof(GLfloat)*4);
+		
+		// edge2
+		memcpy(&vertexBuffer[2].position, &vertex2,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[2].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[3].position, &vertex3,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[3].color,    components,	sizeof(GLfloat)*4);
+		
+		// edge3
+		memcpy(&vertexBuffer[4].position, &vertex3,		sizeof(Point3));
+		memcpy(&vertexBuffer[4].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[4].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[5].position, &vertex4,		sizeof(Point3));
+		memcpy(&vertexBuffer[5].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[5].color,    components,	sizeof(GLfloat)*4);
+		
+		// edge4
+		memcpy(&vertexBuffer[6].position, &vertex4,		sizeof(Point3));
+		memcpy(&vertexBuffer[6].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[6].color,    components,	sizeof(GLfloat)*4);
+		
+		memcpy(&vertexBuffer[7].position, &vertex1,		sizeof(Point3));
+		memcpy(&vertexBuffer[7].normal,   &normal,		sizeof(Point3));
+		memcpy(&vertexBuffer[7].color,    components,	sizeof(GLfloat)*4);
+		
+		vertexCount = 8;
+	}
 
 	return vertexBuffer + vertexCount;
 	

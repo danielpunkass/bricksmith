@@ -38,12 +38,13 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
     self = [super init];
     if (self)
 	{
-		self->lines                 = [[NSMutableArray alloc] init];
-		self->triangles             = [[NSMutableArray alloc] init];
-		self->quadrilaterals        = [[NSMutableArray alloc] init];
-		self->everythingElse        = [[NSMutableArray alloc] init];
+		self->lines                         = [[NSMutableArray alloc] init];
+		self->triangles                     = [[NSMutableArray alloc] init];
+		self->quadrilaterals                = [[NSMutableArray alloc] init];
+		self->everythingElse                = [[NSMutableArray alloc] init];
 		
-		self->colorOptimizations    = [[NSMutableDictionary alloc] init];
+		self->colorOptimizations            = [[NSMutableDictionary alloc] init];
+		self->colorWireframeOptimizations   = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -67,8 +68,17 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 - (void) draw:(NSUInteger)optionsMask parentColor:(LDrawColor *)color
 {
 	id                      key     = color;
-	NSValue                 *value  = [self->colorOptimizations objectForKey:key];
+	NSValue                 *value  = nil;
 	struct OptimizationTags tags    = {};
+	
+	if(optionsMask & DRAW_WIREFRAME)
+	{
+		value = [self->colorWireframeOptimizations objectForKey:key];
+	}
+	else
+	{
+		value = [self->colorOptimizations objectForKey:key];
+	}
 
 	[value getValue:&tags];
 	
@@ -100,9 +110,6 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 #if (TESSELATE_QUADS == 0)
 		glBindVertexArrayAPPLE(tags.quadsVAOTag);
 		glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
-#elif (TESSELATE_QUADS_TO_STRIP == 1)
-		glBindVertexArrayAPPLE(tags.quadsVAOTag);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, tags.quadCount * 5);
 #endif
 	}
 }
@@ -381,6 +388,21 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 //==============================================================================
 - (void) optimizeOpenGLWithParentColor:(LDrawColor *)color
 {
+	[self optimizeSolidWithParentColor:color];
+
+#if (USE_AUTOMATIC_WIREFRAMES == 0)
+	[self optimizeWireframeWithParentColor:color];
+#endif
+}
+
+
+//========== optimizeSolidWithParentColor: =====================================
+//
+// Purpose:		Optimizes the filled geometry.
+//
+//==============================================================================
+- (void) optimizeSolidWithParentColor:(LDrawColor *)color
+{
 	VBOVertexData           *buffer                 = NULL;
 	struct OptimizationTags tags                    = {};
 	
@@ -389,33 +411,38 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		glGenBuffers(1, &tags.linesVBOTag);
 		glBindBuffer(GL_ARRAY_BUFFER, tags.linesVBOTag);
 		
-		size_t          linesBufferSize     = [self->lines count] * sizeof(VBOVertexData) * 2;
-		VBOVertexData   *lineVertexes       = malloc(linesBufferSize);
+		size_t maxLineCount = [self->lines count];
 		
-		buffer = lineVertexes;
-		for(LDrawQuadrilateral *currentDirective in self->lines)
+		if(maxLineCount)
 		{
-			if([currentDirective isHidden] == NO)
+			size_t          linesBufferSize     = maxLineCount * sizeof(VBOVertexData) * 2;
+			VBOVertexData   *lineVertexes       = malloc(linesBufferSize);
+			
+			buffer = lineVertexes;
+			for(LDrawLine *currentDirective in self->lines)
 			{
-				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				tags.lineCount++;
+				if([currentDirective isHidden] == NO)
+				{
+					buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color wireframe:NO];
+					tags.lineCount++;
+				}
 			}
-		}
-		
-		glBufferData(GL_ARRAY_BUFFER, linesBufferSize, lineVertexes, GL_STATIC_DRAW);
-		free(lineVertexes);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+			
+			glBufferData(GL_ARRAY_BUFFER, linesBufferSize, lineVertexes, GL_STATIC_DRAW);
+			free(lineVertexes);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		// Encapsulate in a VAO
-		glGenVertexArraysAPPLE(1, &tags.linesVAOTag);
-		glBindVertexArrayAPPLE(tags.linesVAOTag);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glBindBuffer(GL_ARRAY_BUFFER, tags.linesVBOTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
-		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
-		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
+			// Encapsulate in a VAO
+			glGenVertexArraysAPPLE(1, &tags.linesVAOTag);
+			glBindVertexArrayAPPLE(tags.linesVAOTag);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glEnableClientState(GL_COLOR_ARRAY);
+			glBindBuffer(GL_ARRAY_BUFFER, tags.linesVBOTag);
+			glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
+			glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
+			glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
+		}
 	}
 	
 	//---------- Triangles VBO -------------------------------------------------
@@ -429,123 +456,94 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		
 #if TESSELATE_QUADS
 		// Draws each quad using two independent triangles. 
-		// Datsville: 0.95 fps
+		// Datsville: 1.04 fps
 		maxTriangleCount += ([self->quadrilaterals count] * 2);
 #endif
-		trianglesBufferSize = maxTriangleCount * sizeof(VBOVertexData) * 3;
-		triangleVertexes    = malloc(trianglesBufferSize);
-		
-		buffer = triangleVertexes;
-		for(LDrawTriangle *currentDirective in self->triangles)
+		if(maxTriangleCount > 0)
 		{
-			if([currentDirective isHidden] == NO)
+			trianglesBufferSize = maxTriangleCount * sizeof(VBOVertexData) * 3;
+			triangleVertexes    = malloc(trianglesBufferSize);
+			
+			buffer = triangleVertexes;
+			for(LDrawTriangle *currentDirective in self->triangles)
 			{
-				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				tags.triangleCount++;
+				if([currentDirective isHidden] == NO)
+				{
+					buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color wireframe:NO];
+					tags.triangleCount++;
+				}
 			}
-		}
-		
-#if TESSELATE_QUADS
-		for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
-		{
-			if([currentDirective isHidden] == NO)
+			
+	#if TESSELATE_QUADS
+			for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
 			{
-				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				tags.triangleCount += 2;
+				if([currentDirective isHidden] == NO)
+				{
+					buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color wireframe:NO];
+					tags.triangleCount += 2;
+				}
 			}
+	#endif
+			
+			glBufferData(GL_ARRAY_BUFFER, trianglesBufferSize, triangleVertexes, GL_STATIC_DRAW);
+			free(triangleVertexes);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			
+			// Encapsulate in a VAO
+			glGenVertexArraysAPPLE(1, &tags.trianglesVAOTag);
+			glBindVertexArrayAPPLE(tags.trianglesVAOTag);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glEnableClientState(GL_COLOR_ARRAY);
+			glBindBuffer(GL_ARRAY_BUFFER, tags.trianglesVBOTag);
+			glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
+			glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
+			glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 		}
-#endif
-		
-		glBufferData(GL_ARRAY_BUFFER, trianglesBufferSize, triangleVertexes, GL_STATIC_DRAW);
-		free(triangleVertexes);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-		// Encapsulate in a VAO
-		glGenVertexArraysAPPLE(1, &tags.trianglesVAOTag);
-		glBindVertexArrayAPPLE(tags.trianglesVAOTag);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glBindBuffer(GL_ARRAY_BUFFER, tags.trianglesVBOTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
-		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
-		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 	}
 	
 	//---------- Quadrilaterals VBO --------------------------------------------
 	// Draws quads in as quads. 
-	// Datsville: 0.94 fps
+	// Datsville: 1.3 fps
 #if (TESSELATE_QUADS == 0)
 	{
 		glGenBuffers(1, &tags.quadsVBOTag);
 		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
 		
-		size_t          quadsBufferSize  = [self->quadrilaterals count] * sizeof(VBOVertexData) * 4;
-		VBOVertexData   *quadVertexes   = malloc(quadsBufferSize);
+		size_t			maxQuadCount	= [self->quadrilaterals count];
 		
-		buffer = quadVertexes;
-		for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
+		if(maxQuadCount)
 		{
-			if([currentDirective isHidden] == NO)
+			size_t          quadsBufferSize = maxQuadCount * sizeof(VBOVertexData) * 4;
+			VBOVertexData   *quadVertexes   = malloc(quadsBufferSize);
+			
+			buffer = quadVertexes;
+			for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
 			{
-				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				tags.quadCount++;
+				if([currentDirective isHidden] == NO)
+				{
+					buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color wireframe:NO];
+					tags.quadCount++;
+				}
 			}
+			
+			glBufferData(GL_ARRAY_BUFFER, quadsBufferSize, quadVertexes, GL_STATIC_DRAW);
+			free(quadVertexes);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			
+			// Encapsulate in a VAO
+			glGenVertexArraysAPPLE(1, &tags.quadsVAOTag);
+			glBindVertexArrayAPPLE(tags.quadsVAOTag);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glEnableClientState(GL_COLOR_ARRAY);
+			glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
+			glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
+			glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
+			glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 		}
-		
-		glBufferData(GL_ARRAY_BUFFER, quadsBufferSize, quadVertexes, GL_STATIC_DRAW);
-		free(quadVertexes);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-		// Encapsulate in a VAO
-		glGenVertexArraysAPPLE(1, &tags.quadsVAOTag);
-		glBindVertexArrayAPPLE(tags.quadsVAOTag);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
-		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
-		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
 	}
-#endif
 	
-	//---------- Quadrilaterals-as-triangle-strips VBO -------------------------
-	// Draws quads in triangle strips to reduce the vertex load. 
-	// Datsville: 1.02 fps
-#if (TESSELATE_QUADS_TO_STRIP == 1)
-	{
-		glGenBuffers(1, &tags.quadsVBOTag);
-		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
-		
-		size_t          quadsBufferSize = [self->quadrilaterals count] * sizeof(VBOVertexData) * 5;
-		VBOVertexData   *quadVertexes   = malloc(quadsBufferSize);
-		
-		buffer = quadVertexes;
-		for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
-		{
-			if([currentDirective isHidden] == NO)
-			{
-				buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color];
-				tags.quadCount++;
-			}
-		}
-		
-		glBufferData(GL_ARRAY_BUFFER, quadsBufferSize, quadVertexes, GL_STATIC_DRAW);
-		free(quadVertexes);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-		// Encapsulate in a VAO
-		glGenVertexArraysAPPLE(1, &tags.quadsVAOTag);
-		glBindVertexArrayAPPLE(tags.quadsVAOTag);
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glBindBuffer(GL_ARRAY_BUFFER, tags.quadsVBOTag);
-		glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
-		glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
-		glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
-	}
 #endif
 	
 	//---------- Wrap it all in a display list ---------------------------------
@@ -580,9 +578,6 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 #if (TESSELATE_QUADS == 0)
 			glBindVertexArrayAPPLE(tags.quadsVAOTag);
 			glDrawArrays(GL_QUADS, 0, tags.quadCount * 4);
-#elif (TESSELATE_QUADS_TO_STRIP == 1)
-			glBindVertexArrayAPPLE(tags.quadsVAOTag);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, tags.quadCount * 5);
 #endif
 		}
 		glEndList();
@@ -593,6 +588,114 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	id      key     = color;
 	NSValue *value  = [NSValue valueWithBytes:&tags objCType:@encode(struct OptimizationTags)];
 	[self->colorOptimizations setObject:value forKey:key];
+	
+}//end optimizeOpenGL
+
+
+//========== optimizeWireframeWithParentColor: =================================
+//
+// Purpose:		The caller is asking this instance to optimize itself for faster 
+//				drawing as a wireframe. 
+//
+//==============================================================================
+- (void) optimizeWireframeWithParentColor:(LDrawColor *)color
+{
+	VBOVertexData           *buffer                 = NULL;
+	struct OptimizationTags tags                    = {};
+	
+	//---------- Lines VBO -----------------------------------------------------
+	{
+		glGenBuffers(1, &tags.linesVBOTag);
+		glBindBuffer(GL_ARRAY_BUFFER, tags.linesVBOTag);
+		
+		size_t          maxVertexCount  = 0;
+		size_t          linesBufferSize = 0;
+		VBOVertexData   *lineVertexes   = 0;
+		
+		maxVertexCount += [self->lines count] * 2;
+		maxVertexCount += [self->triangles count] * 6;
+		maxVertexCount += [self->quadrilaterals count] * 8;
+		
+		if(maxVertexCount)
+		{
+			linesBufferSize = maxVertexCount * sizeof(VBOVertexData);
+			lineVertexes    = malloc(linesBufferSize);
+			buffer          = lineVertexes;
+			
+			for(LDrawLine *currentDirective in self->lines)
+			{
+				if([currentDirective isHidden] == NO)
+				{
+					buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color wireframe:YES];
+					tags.lineCount++;
+				}
+			}
+			for(LDrawTriangle *currentDirective in self->triangles)
+			{
+				if([currentDirective isHidden] == NO)
+				{
+					buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color wireframe:YES];
+					tags.lineCount++;
+				}
+			}
+			for(LDrawQuadrilateral *currentDirective in self->quadrilaterals)
+			{
+				if([currentDirective isHidden] == NO)
+				{
+					buffer = [currentDirective writeToVertexBuffer:buffer parentColor:color wireframe:YES];
+					tags.lineCount++;
+				}
+			}
+			
+			glBufferData(GL_ARRAY_BUFFER, linesBufferSize, lineVertexes, GL_STATIC_DRAW);
+			free(lineVertexes);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			// Encapsulate in a VAO
+			glGenVertexArraysAPPLE(1, &tags.linesVAOTag);
+			glBindVertexArrayAPPLE(tags.linesVAOTag);
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
+			glEnableClientState(GL_COLOR_ARRAY);
+			glBindBuffer(GL_ARRAY_BUFFER, tags.linesVBOTag);
+			glVertexPointer(3, GL_FLOAT, sizeof(VBOVertexData), NULL);
+			glNormalPointer(GL_FLOAT,    sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3));
+			glColorPointer(4, GL_FLOAT,  sizeof(VBOVertexData), (GLvoid*)(sizeof(float)*3 + sizeof(float)*3) );
+		}
+	}
+	
+	//---------- Wrap it all in a display list ---------------------------------
+	
+#if TRY_DISPLAY_LIST_WRAPPER_FOR_VAO
+	// Display lists are 28% faster than VAOs. What the heck?
+	
+	// But you can't embed multiple VAOs in a display list on 10.5. (Not 
+	// documented; experimentally determined.) 
+	static SInt32  systemVersion  = 0;
+	static BOOL    useDisplayList = YES;
+	if(systemVersion == 0)
+	{
+		Gestalt(gestaltSystemVersion, &systemVersion);
+		useDisplayList = (systemVersion >= 0x1060);
+	}
+	
+	if(useDisplayList)
+	{
+		tags.displayListTag = glGenLists(1);
+		glNewList(tags.displayListTag, GL_COMPILE);
+		{
+			// Lines
+			glBindVertexArrayAPPLE(tags.linesVAOTag);
+			glDrawArrays(GL_LINES, 0, tags.lineCount * 2);
+		}
+		glEndList();
+	}
+#endif
+	
+	// Cache
+	id      key     = color;
+	NSValue *value  = [NSValue valueWithBytes:&tags objCType:@encode(struct OptimizationTags)];
+	[self->colorWireframeOptimizations setObject:value forKey:key];
 	
 }//end optimizeOpenGL
 
@@ -635,6 +738,16 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 		DeleteOptimizationTags(tags);
 	}
 	
+	for(LDrawColor *color in self->colorWireframeOptimizations)
+	{
+		NSValue                 *value  = [self->colorWireframeOptimizations objectForKey:color];
+		struct OptimizationTags tags    = {};
+		
+		[value getValue:&tags];
+		
+		DeleteOptimizationTags(tags);
+	}
+	
 	[self->colorOptimizations removeAllObjects];
 	
 }//end removeAllOptimizations
@@ -653,12 +766,13 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 {
 	[self removeAllOptimizations];
 	
-	[lines				release];
-	[triangles			release];
-	[quadrilaterals		release];
-	[everythingElse		release];
+	[lines							release];
+	[triangles						release];
+	[quadrilaterals					release];
+	[everythingElse					release];
 	
-	[colorOptimizations	release];
+	[colorOptimizations				release];
+	[colorWireframeOptimizations	release];
 
 	[super dealloc];
 	
@@ -677,7 +791,9 @@ void DeleteOptimizationTags(struct OptimizationTags tags)
 {
 	if(tags.displayListTag != 0)
 	{
+#if TRY_DISPLAY_LIST_WRAPPER_FOR_VAO
 		glDeleteLists(tags.displayListTag, 1);
+#endif
 		
 		glDeleteBuffers(1, &tags.linesVBOTag);
 		glDeleteBuffers(1, &tags.trianglesVBOTag);

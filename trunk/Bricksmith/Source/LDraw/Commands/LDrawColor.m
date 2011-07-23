@@ -322,19 +322,20 @@ void RGBtoHSV( float r, float g, float b, float *h, float *s, float *v );
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		"Draws" the color.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	// Need to add this color to the model's color library.
 	ColorLibrary *colorLibrary = [[(LDrawStep*)[self enclosingDirective] enclosingModel] colorLibrary];
 	
 	[colorLibrary addColor:self];
 		
-}//end draw:parentColor:
+}//end draw:viewScale:parentColor:
 
 
 //========== write =============================================================

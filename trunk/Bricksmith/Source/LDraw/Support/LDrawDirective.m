@@ -194,7 +194,7 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Issues the OpenGL code necessary to draw this element.
 //
@@ -202,14 +202,15 @@
 //				LDrawDirective's implementation does nothing.
 //
 //==============================================================================
-- (void) draw:(NSUInteger)optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	//subclasses should override this with OpenGL code to draw the line.
 	
-}//end draw:parentColor:
+}//end draw:viewScale:parentColor:
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Tests the directive and any of its children for intersections 
 //				between the pickRay and the directive's drawn content. 
@@ -229,7 +230,7 @@
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits

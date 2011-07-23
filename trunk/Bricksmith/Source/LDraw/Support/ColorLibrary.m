@@ -54,7 +54,7 @@ static ColorLibrary	*sharedColorLibrary	= nil;
 		ldconfigFile		= [LDrawFile fileFromContentsAtPath:ldconfigPath];
 		
 		// "Draw" it so that all the colors are recorded in the library
-		[ldconfigFile draw:DRAW_NO_OPTIONS parentColor:nil];
+		[ldconfigFile draw:DRAW_NO_OPTIONS viewScale:1.0 parentColor:nil];
 		
 		sharedColorLibrary	= [[[ldconfigFile activeModel] colorLibrary] retain];
 		

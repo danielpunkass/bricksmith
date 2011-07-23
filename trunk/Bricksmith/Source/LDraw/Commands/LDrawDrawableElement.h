@@ -36,7 +36,7 @@ typedef struct
 
 // Directives
 - (VBOVertexData *) writeToVertexBuffer:(VBOVertexData *)vertexBuffer parentColor:(LDrawColor *)parentColor wireframe:(BOOL)wireframe;
-- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor;
+- (void) drawElement:(NSUInteger)optionsMask viewScale:(float)scaleFactor withColor:(LDrawColor *)drawingColor;
 - (VBOVertexData *) writeElementToVertexBuffer:(VBOVertexData *)vertexBuffer withColor:(LDrawColor *)drawingColor wireframe:(BOOL)wireframe;
 
 

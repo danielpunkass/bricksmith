@@ -329,7 +329,7 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Draw all the commands in the step.
 //
@@ -338,7 +338,8 @@
 //				so we need call glBegin only once for the entire step.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	NSArray         *commandsInStep     = [self subdirectives];
 	LDrawDirective  *currentDirective   = nil;
@@ -346,20 +347,20 @@
 	//Draw each element in the step.
 	for(currentDirective in commandsInStep)
 	{
-		[currentDirective draw:optionsMask parentColor:parentColor];
+		[currentDirective draw:optionsMask viewScale:scaleFactor parentColor:parentColor];
 	}
 
-}//end draw:parentColor:
+}//end draw:viewScale:parentColor:
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Hit-test the geometry.
 //
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits
@@ -373,7 +374,7 @@
 	for(counter = 0; counter < commandCount; counter++)
 	{
 		currentDirective = [commandsInStep objectAtIndex:counter];
-		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+		[currentDirective hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
 	}
 }
 

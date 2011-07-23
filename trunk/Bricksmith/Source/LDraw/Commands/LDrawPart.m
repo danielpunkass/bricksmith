@@ -243,13 +243,13 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== drawElement =======================================================
+//========== drawElement:viewScale:withColor: ==================================
 //
 // Purpose:		Draws the graphic of the element represented. This call is a 
 //				subroutine of -draw: in LDrawDrawableElement.
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
+- (void) drawElement:(NSUInteger)optionsMask viewScale:(float)scaleFactor withColor:(LDrawColor *)drawingColor
 {
 	LDrawDirective  *drawable       = nil;
 	BOOL            drawBoundsOnly  = ((optionsMask & DRAW_BOUNDS_ONLY) != 0);
@@ -297,7 +297,7 @@
 				}
 			}
 			
-			[drawable draw:optionsMask parentColor:drawingColor];
+			[drawable draw:optionsMask viewScale:scaleFactor parentColor:drawingColor];
 		}
 		else
 		{
@@ -340,19 +340,19 @@
 		glTranslatef(bounds.min.x, bounds.min.y, bounds.min.z);
 		glScalef(extents.x, extents.y, extents.z);
 		
-		[unitCube draw:DRAW_NO_OPTIONS parentColor:drawingColor];
+		[unitCube draw:DRAW_NO_OPTIONS viewScale:1.0 parentColor:drawingColor];
 	}
 }//end drawBounds
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Hit-test the geometry.
 //
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits
@@ -377,7 +377,7 @@
 		
 		if(boundsOnly == NO)
 		{
-			[modelToDraw hitTest:pickRay transform:combinedTransform scaleFactor:scaleFactor boundsOnly:NO creditObject:creditObject hits:hits];
+			[modelToDraw hitTest:pickRay transform:combinedTransform viewScale:scaleFactor boundsOnly:NO creditObject:creditObject hits:hits];
 		}
 		else
 		{
@@ -393,10 +393,10 @@
 			
 			combinedTransform = Matrix4Multiply(boxTransform, partTransform);
 			
-			[unitCube hitTest:pickRay transform:combinedTransform scaleFactor:scaleFactor boundsOnly:NO creditObject:creditObject hits:hits];
+			[unitCube hitTest:pickRay transform:combinedTransform viewScale:scaleFactor boundsOnly:NO creditObject:creditObject hits:hits];
 		}
 	}
-}//end hitTest:transform:scaleFactor:boundsOnly:creditObject:hits:
+}//end hitTest:transform:viewScale:boundsOnly:creditObject:hits:
 
 
 //========== write =============================================================

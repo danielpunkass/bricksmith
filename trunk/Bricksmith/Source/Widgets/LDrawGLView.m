@@ -449,7 +449,9 @@
 			glLineWidth(MIN([self zoomPercentage]/100 * 0.5, 1.0));
 
 			// DRAW!
-			[self->fileBeingDrawn draw:options parentColor:color];
+			[self->fileBeingDrawn draw:options
+							 viewScale:[self zoomPercentage]/100.
+						   parentColor:color];
 			
 			//glFlush(); //implicit in -flushBuffer
 			[[self openGLContext] flushBuffer];
@@ -3380,7 +3382,7 @@
 		// Do hit test
 		[fileBeingDrawn hitTest:pickRay
 					  transform:IdentityMatrix4
-					scaleFactor:[self zoomPercentage]/100.
+					  viewScale:[self zoomPercentage]/100.
 					 boundsOnly:fastDraw
 				   creditObject:nil
 						   hits:hits];

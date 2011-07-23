@@ -24,7 +24,8 @@
 - (BOOL) finishParsing:(NSScanner *)scanner;
 
 // Directives
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor;
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+;
 - (NSString *) write;
 
 //Accessors

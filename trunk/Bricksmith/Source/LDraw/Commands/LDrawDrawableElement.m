@@ -114,14 +114,15 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Draws the part. This is a wrapper method that just sets up the 
 //				drawing context (the color), then calls a subroutine which 
 //				actually draws the element.
 //
 //==============================================================================
-- (void) draw:(NSUInteger)optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	//[super draw]; //does nothing anyway; don't call it.
 	
@@ -134,16 +135,16 @@
 			case LDrawCurrentColor:
 				// Just draw; don't fool with colors. A significant portion of our 
 				// drawing code probably falls into this category.
-				[self drawElement:optionsMask withColor:parentColor];
+				[self drawElement:optionsMask viewScale:scaleFactor withColor:parentColor];
 				break;
 				
 			case LDrawEdgeColor:
-				[self drawElement:optionsMask withColor:[self->color complimentColor]];
+				[self drawElement:optionsMask viewScale:scaleFactor withColor:[self->color complimentColor]];
 				break;
 			
 			case LDrawColorCustomRGB:
 			default:
-				[self drawElement:optionsMask withColor:self->color];
+				[self drawElement:optionsMask viewScale:scaleFactor withColor:self->color];
 				break;
 		}
 	}
@@ -193,14 +194,14 @@
 }//end writeToVertexBuffer:parentColor:
 
 
-//========== drawElement:withColor: ============================================
+//========== drawElement:viewScale:withColor: ==================================
 //
 // Purpose:		Draws the actual drawable stuff (polygons, etc.) of the element. 
 //				This is a subroutine of the -draw: method, which wraps some 
 //				shared functionality such as setting colors.
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
+- (void) drawElement:(NSUInteger)optionsMask viewScale:(float)scaleFactor withColor:(LDrawColor *)drawingColor
 {
 	//implemented by subclasses.
 	

@@ -211,16 +211,17 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Draws the part.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	// Nothing to do here.
 	
-}//end draw:parentColor:
+}//end draw:viewScale:parentColor:
 
 
 //========== write =============================================================

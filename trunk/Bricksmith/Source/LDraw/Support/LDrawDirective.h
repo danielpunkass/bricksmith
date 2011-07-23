@@ -54,8 +54,9 @@
 + (NSRange) rangeOfDirectiveBeginningAtIndex:(NSUInteger)index inLines:(NSArray *)lines maxIndex:(NSUInteger)maxIndex;
 
 // Directives
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor;
-- (void) hitTest:(Ray3)pickRay transform:(Matrix4)transform scaleFactor:(double)scaleFactor boundsOnly:(BOOL)boundsOnly creditObject:(id)creditObject hits:(NSMutableDictionary *)hits;
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+;
+- (void) hitTest:(Ray3)pickRay transform:(Matrix4)transform viewScale:(float)scaleFactor boundsOnly:(BOOL)boundsOnly creditObject:(id)creditObject hits:(NSMutableDictionary *)hits;
 - (NSString *) write;
 
 // Display

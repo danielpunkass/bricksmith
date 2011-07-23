@@ -54,7 +54,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 #pragma mark DRAWING
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Submits the vertex buffer object to OpenGL.
 //
@@ -65,9 +65,9 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 //				in isolation. 
 //
 //==============================================================================
-- (void) draw:(NSUInteger)optionsMask parentColor:(LDrawColor *)color
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
 {
-	id                      key     = color;
+	id                      key     = parentColor;
 	NSValue                 *value  = nil;
 	struct OptimizationTags tags    = {};
 	
@@ -115,7 +115,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 }
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Hit-test the geometry.
 //
@@ -128,7 +128,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits
@@ -144,7 +144,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	for(counter = 0; counter < commandCount; counter++)
 	{
 		currentDirective = [commands objectAtIndex:counter];
-		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+		[currentDirective hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
 	}
 	// Quadrilaterals
 	commands        = quadrilaterals;
@@ -152,7 +152,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	for(counter = 0; counter < commandCount; counter++)
 	{
 		currentDirective = [commands objectAtIndex:counter];
-		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+		[currentDirective hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
 	}
 	// Lines
 	commands        = lines;
@@ -160,7 +160,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	for(counter = 0; counter < commandCount; counter++)
 	{
 		currentDirective = [commands objectAtIndex:counter];
-		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+		[currentDirective hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
 	}
 	// All else
 	commands        = everythingElse;
@@ -168,7 +168,7 @@ static void DeleteOptimizationTags(struct OptimizationTags tags);
 	for(counter = 0; counter < commandCount; counter++)
 	{
 		currentDirective = [commands objectAtIndex:counter];
-		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+		[currentDirective hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
 	}
 }
 

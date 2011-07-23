@@ -232,7 +232,7 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Draw only the active model. The other submodels in an MPD file 
 //				are only meant to be seen when they are are referenced from the 
@@ -248,7 +248,8 @@
 //				complete. Thus, no draws can happen during that time.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	//this is like calling the non-existent method
 	//			[editLock setCondition:([editLock condition] + 1)]
@@ -260,29 +261,29 @@
 	// Draw!
 	//	(only the active model.)
 	//
-	[activeModel draw:optionsMask parentColor:parentColor];
+	[activeModel draw:optionsMask viewScale:scaleFactor parentColor:parentColor];
 	
 	//done drawing; decrement the lock's condition
 	[editLock lock];
 	self->drawCount -= 1;
 	[editLock unlockWithCondition:(self->drawCount)];
 	
-}//end draw:parentColor:
+}//end draw:viewScale:parentColor:
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Hit-test the geometry.
 //
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits
 {
-	[activeModel hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+	[activeModel hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
 }
 
 

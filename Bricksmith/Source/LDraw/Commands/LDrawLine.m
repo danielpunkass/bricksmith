@@ -174,26 +174,26 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== drawElement:parentColor: ==========================================
+//========== drawElement:viewScale:withColor: ==================================
 //
 // Purpose:		Draws the graphic of the element represented. This call is a 
 //				subroutine of -draw: in LDrawDrawableElement.
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
+- (void) drawElement:(NSUInteger)optionsMask viewScale:(float)scaleFactor withColor:(LDrawColor *)drawingColor
 {
 	if(self->dragHandles)
 	{
 		for(LDrawDragHandle *handle in self->dragHandles)
 		{
-			[handle draw:optionsMask parentColor:drawingColor];
+			[handle draw:optionsMask viewScale:scaleFactor parentColor:drawingColor];
 		}
 	}
 	
 }//end drawElement:drawingColor:
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Tests the directive and any of its children for intersections 
 //				between the pickRay and the directive's drawn content. 
@@ -201,7 +201,7 @@
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits
@@ -232,11 +232,11 @@
 		{
 			for(LDrawDragHandle *handle in self->dragHandles)
 			{
-				[handle hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:nil hits:hits];
+				[handle hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:nil hits:hits];
 			}
 		}
 	}
-}//end hitTest:transform:scaleFactor:boundsOnly:creditObject:hits:
+}//end hitTest:transform:viewScale:boundsOnly:creditObject:hits:
 
 
 //========== write =============================================================

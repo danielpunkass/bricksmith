@@ -214,13 +214,14 @@
 #pragma mark DIRECTIVES
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Simply draw all the steps; they will worry about drawing all 
 //				their constituents.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	NSArray     *steps              = [self subdirectives];
 	NSUInteger  maxIndex            = [self maxStepIndexToOutput];
@@ -231,27 +232,27 @@
 	for(counter = 0; counter <= maxIndex; counter++)
 	{
 		currentDirective = [steps objectAtIndex:counter];
-		[currentDirective draw:optionsMask parentColor:parentColor];
+		[currentDirective draw:optionsMask viewScale:scaleFactor parentColor:parentColor];
 	}
 	
 	// Draw primitives
-	[self->vertexes draw:optionsMask parentColor:parentColor];
+	[self->vertexes draw:optionsMask viewScale:scaleFactor parentColor:parentColor];
 	
 	// Draw Drag-and-Drop pieces if we've got 'em.
 	if(self->draggingDirectives != nil)
-		[self->draggingDirectives draw:optionsMask parentColor:parentColor];
+		[self->draggingDirectives draw:optionsMask viewScale:scaleFactor parentColor:parentColor];
 		
-}//end draw:parentColor:
+}//end draw:viewScale:parentColor:
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Hit-test the geometry.
 //
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits
@@ -265,7 +266,7 @@
 	for(counter = 0; counter <= maxIndex; counter++)
 	{
 		currentDirective = [steps objectAtIndex:counter];
-		[currentDirective hitTest:pickRay transform:transform scaleFactor:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
+		[currentDirective hitTest:pickRay transform:transform viewScale:scaleFactor boundsOnly:boundsOnly creditObject:creditObject hits:hits];
 	}
 }
 

@@ -211,14 +211,15 @@
 //				absolutely kill performance. 
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
+
 {
 	//do nothing.
 	
 }//end draw:optionsMask:
 
 
-//========== drawElement:withColor: ============================================
+//========== drawElement:viewScale:withColor: ==================================
 //
 // Purpose:		Draws the graphic of the element represented. This call is a 
 //				subroutine of -draw: in LDrawDrawableElement.
@@ -226,9 +227,9 @@
 // Note:		DISABLED. See -draw:parentColor:
 //
 //==============================================================================
-- (void) drawElement:(NSUInteger) optionsMask withColor:(LDrawColor *)drawingColor
+- (void) drawElement:(NSUInteger)optionsMask viewScale:(float)scaleFactor withColor:(LDrawColor *)drawingColor
 {
-	[super drawElement:optionsMask withColor:drawingColor];
+	[super drawElement:optionsMask viewScale:scaleFactor withColor:drawingColor];
 	
 }//end drawElement:withColor:
 

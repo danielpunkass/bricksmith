@@ -19,6 +19,8 @@ static GLuint   vaoTag          = 0;
 static GLuint   vboTag          = 0;
 static GLuint   vboVertexCount  = 0;
 
+static const float HandleDiameter	= 7.0;
+
 
 @implementation LDrawDragHandle
 
@@ -154,17 +156,23 @@ static GLuint   vboVertexCount  = 0;
 #pragma mark DRAWING
 #pragma mark -
 
-//========== draw:parentColor: =================================================
+//========== draw:viewScale:parentColor: =======================================
 //
 // Purpose:		Draw the drag handle.
 //
 //==============================================================================
-- (void) draw:(NSUInteger) optionsMask parentColor:(LDrawColor *)parentColor
+- (void) draw:(NSUInteger)optionsMask viewScale:(float)scaleFactor parentColor:(LDrawColor *)parentColor
 {
+	float   handleScale = 0.0;
+	float   drawRadius  = 0.0;
+	
+	handleScale = 1.0 / scaleFactor;
+	drawRadius  = HandleDiameter/2 * handleScale;
+	
 	glPushMatrix();
 	{
 		glTranslatef(self->position.x, self->position.y, self->position.z);
-		glScalef(2.0, 2.0, 2.0);
+		glScalef(drawRadius, drawRadius, drawRadius);
 		
 		glBindVertexArrayAPPLE(vaoTag);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, vboVertexCount);
@@ -172,10 +180,10 @@ static GLuint   vboVertexCount  = 0;
 	}
 	glPopMatrix();
 	
-}//end draw:parentColor:
+}//end draw:viewScale:parentColor:
 
 
-//========== hitTest:transform:scaleFactor:boundsOnly:creditObject:hits: =======
+//========== hitTest:transform:viewScale:boundsOnly:creditObject:hits: =======
 //
 // Purpose:		Tests the directive for an intersection between the pickRay and 
 //				spherical drag handle. 
@@ -183,21 +191,28 @@ static GLuint   vboVertexCount  = 0;
 //==============================================================================
 - (void) hitTest:(Ray3)pickRay
 	   transform:(Matrix4)transform
-	 scaleFactor:(double)scaleFactor
+	   viewScale:(float)scaleFactor
 	  boundsOnly:(BOOL)boundsOnly
 	creditObject:(id)creditObject
 			hits:(NSMutableDictionary *)hits
 {
+	float   handleScale     = 0.0;
+	float   drawRadius      = 0.0;
 	float   intersectDepth  = 0;
 	bool    intersects      = false;
 	
-	intersects = V3RayIntersectsSphere(pickRay, self->position, 2.0, &intersectDepth);
+	handleScale = 1.0 / scaleFactor;
+	drawRadius  = HandleDiameter/2 * handleScale;
+	drawRadius  *= 1.5; // allow a little fudge
+
+	
+	intersects = V3RayIntersectsSphere(pickRay, self->position, drawRadius, &intersectDepth);
 
 	if(intersects)
 	{
 		[LDrawUtilities registerHitForObject:self depth:intersectDepth creditObject:creditObject hits:hits];
 	}
-}//end hitTest:transform:scaleFactor:boundsOnly:creditObject:hits:
+}//end hitTest:transform:viewScale:boundsOnly:creditObject:hits:
 
 
 #pragma mark -
@@ -227,6 +242,8 @@ static GLuint   vboVertexCount  = 0;
 //---------- makeSphereWithLongitudinalCount:latitudinalCount: -------[static]--
 //
 // Purpose:		Populates the shared tag used to draw drag handle spheres.
+//
+//				The sphere has a radius of 1.
 //
 //------------------------------------------------------------------------------
 + (void) makeSphereWithLongitudinalCount:(int)longitudeSections

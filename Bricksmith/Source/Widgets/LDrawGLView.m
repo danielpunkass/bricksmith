@@ -1297,8 +1297,7 @@
 - (IBAction) zoomToFit:(id)sender
 {
 	NSRect  visibleRect             = [self visibleRect];
-	NSRect  windowVisibleRect       = [self convertRect:visibleRect toView:nil];
-	NSSize  maxContentSize          = [[self enclosingScrollView] contentSize];
+	NSSize  maxContentSize          = NSZeroSize;
 	Box3    bounds                  = InvalidBox;
 	Point3  center                  = ZeroPoint3;
 	Matrix4 modelView               = IdentityMatrix4;
@@ -1311,6 +1310,12 @@
 	NSRect  projectionRect          = NSZeroRect;
 	NSSize  zoomScale2D             = NSZeroSize;
 	CGFloat zoomScaleFactor         = 0.0;
+	
+	// How many onscreen pixels do we have to work with?
+	maxContentSize.width    = NSWidth(visibleRect)  * [self zoomPercentage]/100.;
+	maxContentSize.height   = NSHeight(visibleRect) * [self zoomPercentage]/100.;
+//	NSLog(@"windowVisibleRect = %@", NSStringFromRect(windowVisibleRect));
+//	NSLog(@"maxContentSize = %@", NSStringFromSize(maxContentSize));
 	
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
@@ -1354,22 +1359,10 @@
 				// not. It seems perspective distortion can cause the visual 
 				// center of the model to be someplace else. 
 				
-				NSRect  windowProjectionRect    = NSZeroRect;
-				NSPoint graphicalCenter_window  = NSZeroPoint;
-				NSPoint graphicalCenter_view    = NSZeroPoint;
-				Point3  graphicalCenter_model   = ZeroPoint3;
+				Point2  graphicalCenter_viewport    = V2Make( NSMidX(projectionRect), NSMidY(projectionRect) );
+				NSPoint graphicalCenter_view        = [self convertPointFromViewport:graphicalCenter_viewport];
+				Point3  graphicalCenter_model       = ZeroPoint3;
 				
-				// Convert projection rect (currently in viewport coordinates) 
-				// to window coordinates--it's kinda hard to go directly to view 
-				// coordinates. 
-				windowProjectionRect            = projectionRect;
-				windowProjectionRect.origin.x   += NSMinX(windowVisibleRect);
-				windowProjectionRect.origin.y   += NSMinY(windowVisibleRect);
-				
-				// Find the center point, then convert it to view coordinates.
-				graphicalCenter_window.x    = NSMidX(windowProjectionRect);
-				graphicalCenter_window.y    = NSMidY(windowProjectionRect);
-				graphicalCenter_view        = [self convertPoint:graphicalCenter_window fromView:nil];
 				graphicalCenter_model       = [self modelPointForPoint:graphicalCenter_view
 												   depthReferencePoint:center];
 				
@@ -3306,24 +3299,6 @@
 // Returns:		Array of clicked parts; the closest one -- and the only one we 
 //				ultimately care about -- is always the 0th element.
 //
-// Notes:		There's a gotcha here. The click region is determined by 
-//				isolating a 1-pixel square around the place where the mouse was 
-//				clicked. This is done with gluPickMatrix.
-//
-//				The trouble is that gluPickMatrix works in viewport coordinates, 
-//				which NONE of our Cocoa views are using! (Exception: GLViews 
-//				outside a scroll view at 100% zoom level.) To avoid getting 
-//				mired in the terrifying array of possible coordinate systems, 
-//				we just convert both the click point and the LDraw visible rect 
-//				to Window Coordinates.
-//
-//				Actually, I bet that is fundamentally wrong too. But it won't 
-//				show up unless the window coordinate system is being modified. 
-//				The ultimate solution is probably to convert to screen 
-//				coordinates, because that's what OpenGL is using anyway.
-//
-//				Confused? So am I.
-//
 //==============================================================================
 - (NSArray *) getDirectivesUnderMouse:(NSEvent *)theEvent
 					  amongDirectives:(NSArray *)directives
@@ -3338,12 +3313,13 @@
 	}
 	else
 	{
-		NSPoint             windowPoint             = [theEvent locationInWindow]; //window coordinates
+		NSPoint             point_window            = [theEvent locationInWindow]; //window coordinates
+		NSPoint             point_view              = [self convertPoint:point_window fromView:nil];
+		Point2              point_viewport          = [self convertPointToViewport:point_view];
 		Point3              contextNear             = ZeroPoint3;
 		Point3              contextFar              = ZeroPoint3;
 		Ray3                pickRay                 = {{0}};
-		Point3              end                     = ZeroPoint3;
-		NSRect              windowVisibleRect       = [self convertRect:[self visibleRect] toView:nil]; //window coordinates.
+		Point3              pickRay_end             = ZeroPoint3;
 		GLint               viewport[4]             = {0};
 		GLfloat             projectionGLMatrix[16]  = {0.0};
 		GLfloat             modelViewGLMatrix[16]   = {0.0};
@@ -3360,23 +3336,20 @@
 		}
 		CGLUnlockContext([[self openGLContext] CGLContextObj]);
 		
-		// convert to viewport coordinates
-		contextNear.x   = windowPoint.x - NSMinX(windowVisibleRect);
-		contextNear.y   = windowPoint.y - NSMinY(windowVisibleRect);
-		contextNear.z   = 0.0;
-		
-		contextFar		= V3Make(contextNear.x, contextNear.y, 1.0);
+		// convert to 3D viewport coordinates
+		contextNear		= V3Make(point_viewport.x, point_viewport.y, 0.0);
+		contextFar		= V3Make(point_viewport.x, point_viewport.y, 1.0);
 		
 		// Pick Ray
 		pickRay.origin      = V3Unproject(contextNear,
 										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
 										  Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
-		end                 = V3Unproject(contextFar,
+		pickRay_end         = V3Unproject(contextFar,
 										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
 										  Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
-		pickRay.direction   = V3Sub(end, pickRay.origin);
+		pickRay.direction   = V3Sub(pickRay_end, pickRay.origin);
 		pickRay.direction	= V3Normalize(pickRay.direction);
 		
 		// Do hit test
@@ -3886,6 +3859,75 @@
 
 #pragma mark -
 #pragma mark Geometry
+
+//========== convertPointFromViewport: =========================================
+//
+// Purpose:		Converts the point from the viewport coordinate system to the 
+//				view bounds' coordinate system. 
+//
+//==============================================================================
+- (NSPoint) convertPointFromViewport:(Point2)point_viewport
+{
+	NSRect  visibleRect         = [self visibleRect];
+	NSPoint point_visibleRect	= NSZeroPoint;
+	NSPoint point_view          = NSZeroPoint;
+	
+	// Rescale to visible rect
+	point_visibleRect.x = point_viewport.x / ([self zoomPercentage]/100.);
+	point_visibleRect.y = point_viewport.y / ([self zoomPercentage]/100.);
+	
+	// The viewport origin is always at (0,0), so wo only need to translate if 
+	// the coordinate system is flipped. 
+	
+	// Flip the coordinates
+	if([self isFlipped])
+	{
+		// The origin of the viewport is in the lower-left corner.
+		// The origin of the view is in the upper right (it is flipped)
+		point_visibleRect.y = NSHeight(visibleRect) - point_visibleRect.y;
+	}
+	
+	// Translate to full bounds coordinates
+	point_view.x = point_visibleRect.x + visibleRect.origin.x;
+	point_view.y = point_visibleRect.y + visibleRect.origin.y;
+	
+	return point_view;
+	
+}//end convertPointFromViewport:
+
+
+//========== convertPointToViewport: ===========================================
+//
+// Purpose:		Converts the point from the view bounds' coordinate system into 
+//				the viewport's coordinate system. 
+//
+//==============================================================================
+- (Point2) convertPointToViewport:(NSPoint)point_view
+{
+	NSRect  visibleRect         = [self visibleRect];
+	NSPoint point_visibleRect   = NSZeroPoint;
+	Point2  point_viewport      = ZeroPoint2;
+	
+	// Translate from full bounds coordinates to the visible rect
+	point_visibleRect.x = point_view.x - visibleRect.origin.x;
+	point_visibleRect.y = point_view.y - visibleRect.origin.y;
+	
+	// Flip the coordinates
+	if([self isFlipped])
+	{
+		// The origin of the viewport is in the lower-left corner.
+		// The origin of the view is in the upper right (it is flipped)
+		point_visibleRect.y = NSHeight(visibleRect) - point_visibleRect.y;
+	}
+	
+	// Rescale to viewport pixels
+	point_viewport.x = point_visibleRect.x * ([self zoomPercentage]/100.);
+	point_viewport.y = point_visibleRect.y * ([self zoomPercentage]/100.);
+	
+	return point_viewport;
+	
+}//end convertPointToViewport:
+
 
 //========== fieldDepth ========================================================
 //

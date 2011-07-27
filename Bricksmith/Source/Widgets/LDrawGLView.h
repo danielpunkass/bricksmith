@@ -178,6 +178,8 @@ typedef enum
 - (void) takeBackgroundColorFromUserDefaults;
 
 // - Geometry
+- (NSPoint) convertPointFromViewport:(Point2)viewportPoint;
+- (Point2) convertPointToViewport:(NSPoint)point_view;
 - (float) fieldDepth;
 - (void) getModelAxesForViewX:(Vector3 *)outModelX Y:(Vector3 *)outModelY Z:(Vector3 *)outModelZ;
 - (void) makeProjection;

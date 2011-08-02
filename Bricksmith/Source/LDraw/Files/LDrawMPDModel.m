@@ -220,12 +220,18 @@
 		// See if we have to look for MPD syntax.
 		firstLine = [lines objectAtIndex:testRange.location];
 		if([firstLine hasPrefix:LDRAW_MPD_FILE_START_MARKER])
+		{
 			isMPDModel = YES;
+		}
 		
 		// Find the end of the MPD model. MPD models can end with 0 NOFILE, or 
 		// they can just stop where the next model starts. 
 		if(isMPDModel == YES)
 		{
+			// Assume the model extends for the rest of the file unless proven 
+			// otherwise. 
+			modelEndIndex = NSMaxRange(testRange) - 1;
+		
 			for(counter = testRange.location + 1; counter < NSMaxRange(testRange); counter++)
 			{
 				currentLine = [lines objectAtIndex:counter];

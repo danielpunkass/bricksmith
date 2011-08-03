@@ -27,7 +27,7 @@
 //==============================================================================
 #import "LDrawStep.h"
 
-#ifdef NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 #import <dispatch/dispatch.h>
 #endif
 
@@ -111,7 +111,7 @@
 		
 	self = [super initWithLines:lines inRange:range parentGroup:parentGroup];
 	
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	dispatch_queue_t    queue               = NULL;	
 	dispatch_group_t    stepDispatchGroup   = NULL;
 	
@@ -162,7 +162,7 @@
 			commandRange = [CommandClass rangeOfDirectiveBeginningAtIndex:lineIndex
 																  inLines:lines
 																 maxIndex:NSMaxRange(range) - 1];
-#ifdef NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 			// Parse (multithreaded)
 			dispatch_group_async(stepDispatchGroup, queue,
 			^{
@@ -177,7 +177,7 @@
 				// (NSMutableArray is NOT). Since it doesn't retain, we mustn't 
 				// autorelease newDirective. 
 				directives[insertIndex] = newDirective;
-#ifdef NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 			});
 #endif
 			lineIndex     = NSMaxRange(commandRange);
@@ -190,7 +190,7 @@
 
 	}
 	
-#ifdef NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	dispatch_group_notify(stepDispatchGroup, queue,
 	^{
 #endif
@@ -207,7 +207,7 @@
 		}
 		free(directives);
 		
-#ifdef NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 		// Now that the step is complete, we can release our lock on the 
 		// parent group and allow it to finish. 
 		if(parentGroup != NULL)

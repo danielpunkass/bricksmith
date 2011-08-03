@@ -20,7 +20,7 @@
 //==============================================================================
 #import "LDrawFile.h"
 
-#ifdef NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 #import <dispatch/dispatch.h>
 #endif
 

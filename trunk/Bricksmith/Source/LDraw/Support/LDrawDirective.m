@@ -48,13 +48,13 @@
 	LDrawDirective      *directive  = nil;
 	dispatch_group_t    group       = NULL;
 	
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	group = dispatch_group_create();
 #endif
 
 	directive = [self initWithLines:lines inRange:range parentGroup:group];
 	
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
 	dispatch_release(group);
 #endif

@@ -90,7 +90,7 @@ static PartLibrary *SharedPartLibrary = nil;
 	
 	favorites                   = [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
 	
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	catalogAccessQueue          = dispatch_queue_create("com.AllenSmith.Bricksmith.CatalogAccess", NULL);
 #endif
 	parsingGroups               = [[NSMutableDictionary alloc] init];
@@ -452,7 +452,7 @@ static PartLibrary *SharedPartLibrary = nil;
 {
 	// Determine if the model needs to be parsed.
 	// Dispatch to a serial queue to effectively mutex the query
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	dispatch_group_async(parentGroup, self->catalogAccessQueue,
 	^{
 		NSMutableArray  *requestingGroups   = nil;
@@ -464,7 +464,7 @@ static PartLibrary *SharedPartLibrary = nil;
 		model = [self->loadedFiles objectForKey:partName];
 		if(model == nil)
 		{
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 			// Is it being parsed? If so, all we need to do is wait for whoever 
 			// is parsing it to finish. 
 			requestingGroups    = [self->parsingGroups objectForKey:partName];
@@ -491,13 +491,13 @@ static PartLibrary *SharedPartLibrary = nil;
 			// Nobody has started parsing it yet, so we win! Parse from disk.
 			if(alreadyParsing == NO)
 			{
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 				dispatch_group_async(parentGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 				^{
 #endif
 					NSString    *partPath   = [[LDrawPaths sharedPaths] pathForPartName:partName];
 						
-#if NS_BLOCKS_AVAILABLE //------------------------------------------------------
+#if USE_BLOCKS //------------------------------------------------------
 					[self readModelAtPath:partPath asynchronously:YES completionHandler:^(LDrawModel *model)
 					{
 						// Register new model in the library (serial queue "mutex" protected)
@@ -525,12 +525,12 @@ static PartLibrary *SharedPartLibrary = nil;
 						[self->loadedFiles setObject:model forKey:partName];
 					}
 #endif //-----------------------------------------------------------------------
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 				});
 #endif
 			}
 		}
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	});
 #endif
 	
@@ -1048,12 +1048,12 @@ static PartLibrary *SharedPartLibrary = nil;
 	NSArray             *lines          = nil;
 	LDrawFile           *parsedFile     = nil;
 	dispatch_group_t    group           = NULL;
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	__block
 #endif
 			LDrawModel  *model          = nil;
 	
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	group           = dispatch_group_create();
 #endif
 
@@ -1069,7 +1069,7 @@ static PartLibrary *SharedPartLibrary = nil;
 											   parentGroup:group];
 	}
 	
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	if(asynchronous == NO)
 	{
 		dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
@@ -1082,7 +1082,7 @@ static PartLibrary *SharedPartLibrary = nil;
 		// itself, or perhaps removing the model from its file (since everything 
 		// is theoretically flattened). 
 //		[parsedFile release];
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	}
 	else
 	{
@@ -1120,7 +1120,7 @@ static PartLibrary *SharedPartLibrary = nil;
 	[partCatalog		release];
 	[favorites			release];
 	[loadedFiles		release];
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 	dispatch_release(catalogAccessQueue);
 #endif
 	[parsingGroups		release];

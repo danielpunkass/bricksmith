@@ -770,7 +770,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 	// predictability and allows better potential threading optimization. 
 	if(shouldParse == YES && newPartName != nil && [newPartName length] > 0)
 	{
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 		// Create a parsing group if needed.
 		if(parentGroup == NULL)
 			parseGroup = dispatch_group_create();
@@ -779,7 +779,7 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 #endif
 		[[PartLibrary sharedPartLibrary] loadModelForName:displayName inGroup:parseGroup];
 		
-#if NS_BLOCKS_AVAILABLE
+#if USE_BLOCKS
 		if(parentGroup == NULL)
 		{
 			dispatch_group_wait(parseGroup, DISPATCH_TIME_FOREVER);

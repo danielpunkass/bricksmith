@@ -17,8 +17,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-const Box2 ZeroBox2 = {	{0.0, 0.0},
-						{0.0, 0.0} };
+const Size2 ZeroSize2   = {0.0, 0.0};
+const Box2  ZeroBox2    = {	{0.0, 0.0},
+							{0.0, 0.0} };
 
 //Box which represents no bounds. It is defined in such a way that it can 
 // be used transparently in size comparisons -- its minimum is inifinity,
@@ -148,38 +149,119 @@ Point2 V2Make(float x, float y)
 
 #pragma mark -
 
-//========== Box2MakeFromDimensions ============================================
+//========== V2MakeBox =========================================================
 //
 // Purpose:		Makes a box from width and height.
 //
 //==============================================================================
-Box2 Box2MakeFromDimensions(float x, float y, float width, float height)
+Box2 V2MakeBox(float x, float y, float width, float height)
 {
 	Box2 box;
 	
-	box.min.x = x;
-	box.min.y = y;
+	box.origin.x    = x;
+	box.origin.y    = y;
 	
-	box.max.x = x + width;
-	box.max.y = y + height;
+	box.size.width  = width;
+	box.size.height = height;
 	
 	return box;
 }
 
 
-//========== Box2Height ========================================================
+//========== V2MakeSize ========================================================
 //==============================================================================
-float Box2Height(Box2 box)
+Size2 V2MakeSize(float width, float height)
 {
-	return (box.max.y - box.min.y);
+	Size2 size;
+	
+	size.width  = width;
+	size.height = height;
+	
+	return size;
 }
 
 
-//========== Box2Width =========================================================
+//========== V2BoxHeight =======================================================
 //==============================================================================
-float Box2Width(Box2 box)
+float V2BoxHeight(Box2 box)
 {
-	return (box.max.x - box.min.x);
+	return (box.size.height);
+}
+
+
+//========== V2BoxWidth ========================================================
+//==============================================================================
+float V2BoxWidth(Box2 box)
+{
+	return (box.size.width);
+}
+
+
+//========== V2BoxMaxX =========================================================
+//==============================================================================
+float V2BoxMaxX(Box2 box)
+{
+	return (box.origin.x + box.size.width);
+}
+
+
+//========== V2BoxMaxY =========================================================
+//==============================================================================
+float V2BoxMaxY(Box2 box)
+{
+	return (box.origin.y + box.size.height);
+}
+
+
+//========== V2BoxMidX =========================================================
+//==============================================================================
+float V2BoxMidX(Box2 box)
+{
+	return (box.origin.x + V2BoxWidth(box) * 0.5f);
+}
+
+
+//========== V2BoxMidY =========================================================
+//==============================================================================
+float V2BoxMidY(Box2 box)
+{
+	return (box.origin.y + V2BoxHeight(box) * 0.5f);
+}
+
+
+//========== V2BoxMinX =========================================================
+//==============================================================================
+float V2BoxMinX(Box2 box)
+{
+	return box.origin.x;
+}
+
+
+//========== V2BoxMinY =========================================================
+//==============================================================================
+float V2BoxMinY(Box2 box)
+{
+	return box.origin.y;
+}
+
+
+//========== V2BoxInset ========================================================
+//
+// Purpose:		Returns a new box, altered by moving the two sides that are 
+//				parallel to the y axis inward by dX, and the two sides parallel 
+//				to the x axis inwards by dY. 
+//
+//==============================================================================
+Box2 V2BoxInset(Box2 box, float dX, float dY)
+{
+	Box2 insetBox;
+	
+	box.origin.x    += dX;
+	box.origin.y    += dY;
+	box.size.width  -= dX * 2;
+	box.size.height -= dY * 2;
+	
+	return insetBox;
 }
 
 
@@ -1062,6 +1144,55 @@ Point3 V3MulPointByProjMatrix(Point3 pin, Matrix4 m)
 }//end V3MulPointByProjMatrix
 
 
+//========== V3LookAt ==========================================================
+//
+// Purpose:		Creates a viewing matrix derived from an eye point, a reference 
+//				point indicating the center of the scene, and an UP vector. 
+//
+// Notes:		Replacement for gluLookAt.
+//
+//==============================================================================
+Matrix4 V3LookAt(Point3  eye,
+				 Point3  center,
+				 Vector3 up,
+				 Matrix4 modelview)
+{
+	Vector3 F               = V3Sub(center, eye);
+	Vector3 f               = V3Normalize(F);
+	Vector3 upNormal        = V3Normalize(up);
+	Vector3 s               = V3Cross(f, upNormal);
+	Vector3 u               = V3Cross(s, f);
+	Matrix4 M               = IdentityMatrix4;
+	Matrix4 newModelview    = modelview;
+	
+	// Transpose of M used by gluLookAt, which uses column-major notation. 
+	M.element[0][0] = s.x;
+	M.element[1][0] = s.y;
+	M.element[2][0] = s.z;
+	M.element[3][0] = 0;
+
+	M.element[0][1] = u.x;
+	M.element[1][1] = u.y;
+	M.element[2][1] = u.z;
+	M.element[3][1] = 0;
+
+	M.element[0][2] = -f.x;
+	M.element[1][2] = -f.y;
+	M.element[2][2] = -f.z;
+	M.element[3][2] = 0;
+	
+	M.element[0][3] = 0;
+	M.element[1][3] = 0;
+	M.element[2][3] = 0;
+	M.element[3][3] = 1;
+	
+	newModelview = Matrix4Translate(newModelview, V3MulScalar(eye, -1));
+	newModelview = Matrix4Multiply(newModelview, M);
+	
+	return newModelview;
+}
+
+
 //========== V3Project =========================================================
 //
 // Purpose:		Projects the given object point into viewport coordinates. 
@@ -1076,8 +1207,8 @@ Point3 V3Project(Point3 objPoint, Matrix4 modelview, Matrix4 projection, Box2 vi
 	
 	transformedPoint = V3MulPointByProjMatrix(objPoint, Matrix4Multiply(modelview, projection));
 	
-	windowPoint.x = viewport.min.x + (Box2Width(viewport)  * (transformedPoint.x + 1)) / 2;
-	windowPoint.y = viewport.min.y + (Box2Height(viewport) * (transformedPoint.y + 1)) / 2;
+	windowPoint.x = viewport.origin.x + (V2BoxWidth(viewport)  * (transformedPoint.x + 1)) / 2;
+	windowPoint.y = viewport.origin.y + (V2BoxHeight(viewport) * (transformedPoint.y + 1)) / 2;
 	windowPoint.z = (transformedPoint.z + 1) / 2;
 	
 	return windowPoint;
@@ -1101,8 +1232,8 @@ Point3 V3Unproject(Point3 viewportPoint, Matrix4 modelview, Matrix4 projection, 
 	Point3  normalized  = ZeroPoint3;
 	Point3  modelPoint  = ZeroPoint3;
 	
-	normalized.x = 2 * (viewportPoint.x - viewport.min.x) / Box2Width(viewport) - 1;
-	normalized.y = 2 * (viewportPoint.y - viewport.min.y) / Box2Height(viewport) - 1;
+	normalized.x = 2 * (viewportPoint.x - viewport.origin.x) / V2BoxWidth(viewport) - 1;
+	normalized.y = 2 * (viewportPoint.y - viewport.origin.y) / V2BoxHeight(viewport) - 1;
 	normalized.z = 2 * (viewportPoint.z) - 1;
 	
 	inversePM   = Matrix4Invert( Matrix4Multiply(modelview, projection) );
@@ -1745,6 +1876,44 @@ Matrix4 Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate)
 	return result;
 
 }//end Matrix4Rotate
+
+
+//========== Matrix4RotateModelview() ==========================================
+//
+// Purpose:		Applies a rotation to a modelview matrix. Modelviews have 
+//				translations to incorporate the camera location; this method 
+//				maintains the camera location while rotating around the origin. 
+//
+//				Rotation order is first X, then Y, and lastly Z.
+//
+//==============================================================================
+Matrix4 Matrix4RotateModelview(Matrix4 original, Tuple3 degreesToRotate)
+{
+	TransformComponents rotateComponents    = IdentityComponents;
+	Matrix4             addedRotation       = IdentityMatrix4;
+	Matrix4             result              = IdentityMatrix4;
+	Vector3				camera				= ZeroPoint3;
+	
+	// Camera translation is in the bottom row of the matrix. Capture and clear 
+	// it so we can apply the rotation around the world origin. 
+	camera = V3Make(original.element[3][0], original.element[3][1], original.element[3][2]);
+	original.element[3][0] = 0;
+	original.element[3][1] = 0;
+	original.element[3][2] = 0;
+	
+	//Create a new matrix that causes the rotation we want.
+	//  (start with identity matrix)
+	rotateComponents.rotate.x = radians(degreesToRotate.x);
+	rotateComponents.rotate.y = radians(degreesToRotate.y);
+	rotateComponents.rotate.z = radians(degreesToRotate.z);
+	addedRotation = Matrix4CreateTransformation(&rotateComponents);
+	
+	result = Matrix4Multiply(original, addedRotation);
+	result = Matrix4Translate(result, camera);
+	
+	return result;
+	
+}//end Matrix4RotateModelview
 
 
 //========== Matrix4Scale() ====================================================

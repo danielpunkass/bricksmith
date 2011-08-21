@@ -20,6 +20,8 @@
 //==============================================================================
 #import "LDrawVertexes.h"
 
+#import OPEN_GL_EXT_HEADER
+
 #import "LDrawLine.h"
 #import "LDrawTriangle.h"
 #import "LDrawQuadrilateral.h"

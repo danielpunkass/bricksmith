@@ -3322,6 +3322,7 @@
 		GLfloat             projectionGLMatrix[16]  = {0.0};
 		GLfloat             modelViewGLMatrix[16]   = {0.0};
 		NSMutableDictionary *hits                   = [NSMutableDictionary dictionary];
+		NSUInteger          counter                 = 0;
 		
 		// Get view and projection
 		CGLLockContext([[self openGLContext] CGLContextObj]);
@@ -3351,12 +3352,15 @@
 		pickRay.direction	= V3Normalize(pickRay.direction);
 		
 		// Do hit test
-		[fileBeingDrawn hitTest:pickRay
-					  transform:IdentityMatrix4
-					  viewScale:[self zoomPercentage]/100.
-					 boundsOnly:fastDraw
-				   creditObject:nil
-						   hits:hits];
+		for(counter = 0; counter < [directives count]; counter++)
+		{
+			[[directives objectAtIndex:counter] hitTest:pickRay
+											  transform:IdentityMatrix4
+											  viewScale:[self zoomPercentage]/100.
+											 boundsOnly:fastDraw
+										   creditObject:nil
+												   hits:hits];
+		}
 						   
 		clickedDirectives = [self getPartsFromHits:hits];
 	}

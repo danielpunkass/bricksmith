@@ -1115,33 +1115,31 @@
 {
 	CGLLockContext([[self openGLContext] CGLContextObj]);
 	{
+		Matrix4 modelview       = IdentityMatrix4;
+		GLfloat glModelview[16];
+		
 		//This method can get called from -prepareOpenGL, which is itself called 
 		// from -makeCurrentContext. That's a recipe for infinite recursion. So, 
 		// we only makeCurrentContext if we *need* to.
 		if([NSOpenGLContext currentContext] != [self openGLContext])
 			[[self openGLContext] makeCurrentContext];
 		
-		
 		//Get the default angle.
 		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
 		
-		//The camera distance was set for us by -resetFrameSize, so as to be able 
-		// to see the entire model.
-		gluLookAt( 0, 0, self->cameraDistance, //camera location
-				  0,0,0, //look-at point
-				  0, -1, 0 ); //LDraw is upside down.
+		modelview = Matrix4RotateModelview(modelview, newAngle);
 		
-		// Apply the requested angles, first x, then y, and lastly z.
-		// But wait, you say! That is not the order in source code!
-		// Well, that is because OpenGL's matrix order causes transformations to 
-		// be applied backwards from the order in which they are specified.
-		glRotatef( newAngle.z, 0, 0, 1);
-		glRotatef( newAngle.y, 0, 1, 0);
-		glRotatef( newAngle.x, 1, 0, 0);
+		// The camera distance was set for us by -resetFrameSize, so as to be 
+		// able to see the entire model. 
+		modelview = V3LookAt(V3Make(0, 0, self->cameraDistance),
+							 V3Make(0, 0, 0), 
+							 V3Make(0, -1, 0), 
+							 modelview);
+							 
+		Matrix4GetGLMatrix4(modelview, glModelview);
+		glLoadMatrixf(glModelview);
 
 		[self setNeedsDisplay:YES];
-		
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	
@@ -1334,7 +1332,7 @@
 				
 				modelView   = Matrix4CreateFromGLMatrix4(modelViewGLMatrix);
 				projection  = Matrix4CreateFromGLMatrix4(projectionGLMatrix);
-				viewport    = Box2MakeFromDimensions(GLViewport[0], GLViewport[1], GLViewport[2], GLViewport[3]);
+				viewport    = V2MakeBox(GLViewport[0], GLViewport[1], GLViewport[2], GLViewport[3]);
 
 				projectedBounds = [(id)self->fileBeingDrawn
 										   projectedBoundingBoxWithModelView:modelView
@@ -3344,11 +3342,11 @@
 		pickRay.origin      = V3Unproject(contextNear,
 										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-										  Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
+										  V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
 		pickRay_end         = V3Unproject(contextFar,
 										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-										  Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
+										  V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
 		pickRay.direction   = V3Sub(pickRay_end, pickRay.origin);
 		pickRay.direction	= V3Normalize(pickRay.direction);
 		
@@ -4089,7 +4087,7 @@
 			modelPoint = V3Unproject(contextPoint,
 									 Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 									 Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-									 Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
+									 V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
 		}
 	}
 	CGLUnlockContext([[self openGLContext] CGLContextObj]);
@@ -4171,13 +4169,13 @@
 		nearModelPoint = V3Unproject(V3Make(contextPoint.x, contextPoint.y, 0.0),
 									 Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 									 Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-									 Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
+									 V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
 		
 		// - Far clipping plane unprojection
 		farModelPoint = V3Unproject(V3Make(contextPoint.x, contextPoint.y, 1.0),
 									Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 									Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-									Box2MakeFromDimensions(viewport[0], viewport[1], viewport[2], viewport[3]));
+									V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
 		
 		//---------- Derive the actual point from the depth point --------------
 		//

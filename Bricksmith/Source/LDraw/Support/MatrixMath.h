@@ -30,9 +30,17 @@ typedef struct Point2Struct
 } Point2;
 
 
+typedef struct Size2Struct
+{
+	float width;
+	float height;
+} Size2;
+
+
 typedef struct Box2Struct
 {
-	Point2 min, max;
+	Point2	origin;
+	Size2	size;
 	
 } Box2;
 
@@ -137,6 +145,7 @@ typedef struct
 #define PI				M_PI
 #define SMALL_NUMBER	1.e-6		//"close enough" zero for floating-point. 1e-8 is too small.
 
+extern const Size2					ZeroSize2;
 extern const Box2					ZeroBox2;
 extern const Box3					InvalidBox;
 extern const TransformComponents	IdentityComponents;
@@ -222,9 +231,17 @@ extern bool		FloatsApproximatelyEqual(float float1, float float2);
 // 2-D
 extern Point2	V2Make(float x, float y);
 
-extern Box2		Box2MakeFromDimensions(float x, float y, float width, float height);
-extern float	Box2Height(Box2 box);
-extern float	Box2Width(Box2 box);
+extern Box2		V2MakeBox(float x, float y, float width, float height);
+extern Size2	V2MakeSize(float width, float height);
+extern float	V2BoxHeight(Box2 box);
+extern float	V2BoxWidth(Box2 box);
+extern float	V2BoxMaxX(Box2 box);
+extern float	V2BoxMaxY(Box2 box);
+extern float	V2BoxMidX(Box2 box);
+extern float	V2BoxMidY(Box2 box);
+extern float	V2BoxMinX(Box2 box);
+extern float	V2BoxMinY(Box2 box);
+extern Box2		V2BoxInset(Box2 box, float dX, float dY);
 
 extern float	Matrix2x2Determinant( float, float, float, float);
 
@@ -263,6 +280,7 @@ extern Box3		V3UnionBoxAndPoint(Box3 box, Point3 point);
 
 extern Point3	V3MulPointByMatrix(Point3 pin, Matrix3 m);
 extern Vector3	V3MulPointByProjMatrix(Point3 pin, Matrix4 m);
+extern Matrix4	V3LookAt(Point3  eye, Point3  center, Vector3 up, Matrix4 modelview);
 extern Point3	V3Project(Point3 objPoint, Matrix4 modelview, Matrix4 projection, Box2 viewport);
 extern Point3	V3Unproject(Point3 viewportPoint, Matrix4 modelview, Matrix4 projection, Box2 viewport);
 
@@ -282,6 +300,7 @@ extern Matrix4	Matrix4Multiply(Matrix4 a, Matrix4 b);
 extern void		Matrix4MultiplyGLMatrices(GLfloat *a, GLfloat *b, GLfloat *result);
 extern void		Matrix4GetGLMatrix4(Matrix4 matrix, GLfloat *glTransformation);
 extern Matrix4	Matrix4Rotate(Matrix4 original, Tuple3 degreesToRotate);
+extern Matrix4	Matrix4RotateModelview(Matrix4 original, Tuple3 degreesToRotate);
 extern Matrix4	Matrix4Scale(Matrix4 original, Tuple3 scaleFactors);
 extern Matrix4	Matrix4Translate(Matrix4 original, Vector3 displacement);
 extern Matrix4	Matrix4Transpose(Matrix4 a);

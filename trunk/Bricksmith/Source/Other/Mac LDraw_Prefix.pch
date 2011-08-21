@@ -36,7 +36,8 @@
 #endif
 
 #ifndef OPEN_GL_HEADER
-#define OPEN_GL_HEADER <OpenGL/OpenGL.h>
+	#define OPEN_GL_HEADER		<OpenGL/OpenGL.h>
+	#define OPEN_GL_EXT_HEADER	<OpenGL/glext.h>
 #endif
 
 

@@ -10,6 +10,7 @@
 #import "LDrawDragHandle.h"
 
 #import OPEN_GL_HEADER
+#import OPEN_GL_EXT_HEADER
 #import <stdlib.h>
 
 #import "LDrawUtilities.h"

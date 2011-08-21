@@ -9,7 +9,6 @@
 //  Copyright 2005. All rights reserved.
 //==============================================================================
 #import <Foundation/Foundation.h>
-#import OPEN_GL_HEADER
 
 #import "MatrixMath.h"
 

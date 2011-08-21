@@ -30,9 +30,13 @@
 {
 	self = [super init];
 	
+	// Create the part library
+	PartLibrary *library = [PartLibrary sharedPartLibrary];
+	[library setDelegate:self];
+	
 	return self;
 
-}//end initWithPartLibrary:
+}//end init
 
 
 #pragma mark -
@@ -47,10 +51,13 @@
 //==============================================================================
 - (BOOL) loadPartCatalog
 {
-	BOOL            success			= NO;
+	PartLibrary *library    = [PartLibrary sharedPartLibrary];
+	NSArray     *favorites  = [[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY];
+	BOOL        success     = NO;
 	
 	// Try loading an existing library first.
-	success = [[PartLibrary sharedPartLibrary] load];
+	[library setFavorites:favorites];
+	success = [library load];
 	
 	if(success == NO)
 	{
@@ -78,7 +85,7 @@
 	[self->progressPanel setMessage:@"Loading Parts"];
 	[self->progressPanel showProgressPanel];
 	
-	success = [[PartLibrary sharedPartLibrary] reloadPartsWithDelegate:self];
+	success = [[PartLibrary sharedPartLibrary] reloadParts];
 	
 	[self->progressPanel close];
 	
@@ -120,6 +127,19 @@
 #pragma mark -
 #pragma mark PART LIBRARY DELEGATE
 #pragma mark -
+
+//========== partLibrary:didChangeFavorites: ===================================
+//
+// Purpose:		Save new favorites into preferences.
+//
+//==============================================================================
+- (void) partLibrary:(PartLibrary *)partLibrary didChangeFavorites:(NSArray *)newFavorites
+{
+	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+	
+	[userDefaults setObject:newFavorites forKey:FAVORITE_PARTS_KEY];
+}
+
 
 //========== partLibrary:maximumPartCountToLoad: ===============================
 //

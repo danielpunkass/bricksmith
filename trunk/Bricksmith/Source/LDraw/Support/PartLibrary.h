@@ -15,7 +15,7 @@
 @class LDrawDirective;
 @class LDrawModel;
 @class LDrawPart;
-@protocol PartLibraryReloadPartsDelegate;
+@protocol PartLibraryDelegate;
 
 //The part catalog was regenerated from disk.
 // Object is the new catalog. No userInfo.
@@ -29,12 +29,13 @@ extern NSString *LDrawPartLibraryDidChangeNotification;
 ////////////////////////////////////////////////////////////////////////////////
 @interface PartLibrary : NSObject
 {
-	NSDictionary        *partCatalog;
-	NSMutableArray      *favorites;					// parts names in the "Favorites" pseduocategory
-	NSMutableDictionary *loadedFiles;				// list of LDrawFiles which have been read off disk.
-	NSMutableDictionary *optimizedRepresentations;	// access stored vertex objects by part name, then color.
-	dispatch_queue_t	catalogAccessQueue;			// serial queue to mutex changes to the part catalog
-	NSMutableDictionary *parsingGroups;				// arrays of dispatch_group_t's which have requested each file currently being parsed
+	id<PartLibraryDelegate> delegate;
+	NSDictionary            *partCatalog;
+	NSMutableArray          *favorites;					// parts names in the "Favorites" pseduocategory
+	NSMutableDictionary     *loadedFiles;				// list of LDrawFiles which have been read off disk.
+	NSMutableDictionary     *optimizedRepresentations;	// access stored vertex objects by part name, then color.
+	dispatch_queue_t        catalogAccessQueue;			// serial queue to mutex changes to the part catalog
+	NSMutableDictionary     *parsingGroups;				// arrays of dispatch_group_t's which have requested each file currently being parsed
 }
 
 // Initialization
@@ -45,11 +46,14 @@ extern NSString *LDrawPartLibraryDidChangeNotification;
 - (NSArray *) categories;
 - (NSArray *) favoritePartNames;
 - (NSArray *) partNamesInCategory:(NSString *)category;
+
+- (void) setDelegate:(id<PartLibraryDelegate>)delegateIn;
+- (void) setFavorites:(NSArray *)favoritesIn;
 - (void) setPartCatalog:(NSDictionary *)newCatalog;
 
 // Actions
 - (BOOL) load;
-- (BOOL) reloadPartsWithDelegate:(id <PartLibraryReloadPartsDelegate>)delegate;
+- (BOOL) reloadParts;
 
 // Favorites
 - (void) addPartNameToFavorites:(NSString *)partName;
@@ -66,8 +70,7 @@ extern NSString *LDrawPartLibraryDidChangeNotification;
 - (void) addPartsInFolder:(NSString *)folderPath
 				toCatalog:(NSMutableDictionary *)catalog
 			underCategory:(NSString *)category
-			   namePrefix:(NSString *)namePrefix
-				 delegate:(id <PartLibraryReloadPartsDelegate>)delegate;
+			   namePrefix:(NSString *)namePrefix;
 - (NSString *)categoryForDescription:(NSString *)modelDescription;
 - (NSString *)categoryForPart:(LDrawPart *)part;
 - (NSString *)descriptionForPart:(LDrawPart *)part;
@@ -86,9 +89,11 @@ extern NSString *LDrawPartLibraryDidChangeNotification;
 // (all methods are required)
 //
 ////////////////////////////////////////////////////////////////////////////////
-@protocol PartLibraryReloadPartsDelegate
+@protocol PartLibraryDelegate
 
+- (void) partLibrary:(PartLibrary *)partLibrary didChangeFavorites:(NSArray *)newFavorites;
 - (void) partLibrary:(PartLibrary *)partLibrary maximumPartCountToLoad:(NSUInteger)maxPartCount;
 - (void) partLibraryIncrementLoadProgressCount:(PartLibrary *)partLibrary;
 
 @end
+

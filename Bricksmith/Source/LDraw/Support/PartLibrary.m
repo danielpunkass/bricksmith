@@ -24,7 +24,6 @@
 #import "LDrawStep.h"
 #import "LDrawUtilities.h"
 #import "LDrawVertexes.h"
-#import "MacLDraw.h"
 #import "StringCategory.h"
 
 
@@ -88,7 +87,7 @@ static PartLibrary *SharedPartLibrary = nil;
 	loadedFiles                 = [[NSMutableDictionary dictionaryWithCapacity:400] retain];
 	optimizedRepresentations    = [[NSMutableDictionary dictionaryWithCapacity:400] retain];
 	
-	favorites                   = [[[NSUserDefaults standardUserDefaults] objectForKey:FAVORITE_PARTS_KEY] mutableCopy];
+	favorites                   = [[NSMutableArray alloc] init];
 	
 #if USE_BLOCKS
 	catalogAccessQueue          = dispatch_queue_create("com.AllenSmith.Bricksmith.CatalogAccess", NULL);
@@ -164,6 +163,34 @@ static PartLibrary *SharedPartLibrary = nil;
 	return parts;
 
 }//end partNamesInCategory:
+
+
+#pragma mark -
+
+//========== setDelegate: ======================================================
+//
+// Purpose:		Set the object responsible for receiving important notifications 
+//				from us. 
+//
+//==============================================================================
+- (void) setDelegate:(id<PartLibraryDelegate>)delegateIn
+{
+	self->delegate = delegateIn;
+}
+
+
+//========== setFavorites: =====================================================
+//
+// Purpose:		Sets the parts which should appear in the Favorites category. 
+//				This list should have been saved in preferences and loaded by 
+//				the part library controller. 
+//
+//==============================================================================
+- (void) setFavorites:(NSArray *)favoritesIn
+{
+	[self->favorites removeAllObjects];
+	[self->favorites addObjectsFromArray:favoritesIn];
+}
 
 
 //========== setPartCatalog ====================================================
@@ -281,7 +308,7 @@ static PartLibrary *SharedPartLibrary = nil;
 //				format, i.e., "s\file.dat" or "48\file.dat".
 //
 //==============================================================================
-- (BOOL) reloadPartsWithDelegate:(id <PartLibraryReloadPartsDelegate>)delegate
+- (BOOL) reloadParts
 {
 	NSFileManager		*fileManager		= [[[NSFileManager alloc] init] autorelease];
 	NSString			*ldrawPath			= [[LDrawPaths sharedPaths] preferredLDrawPath];
@@ -326,52 +353,44 @@ static PartLibrary *SharedPartLibrary = nil;
 	[self addPartsInFolder:primitivesPath
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil) //override all internal categories
-				namePrefix:nil
-				  delegate:delegate ];
+				namePrefix:nil ];
 	
 	[self addPartsInFolder:primitives48Path
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil) //override all internal categories
-				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME]
-				  delegate:delegate ];
+				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME] ];
 	
 	[self addPartsInFolder:partsPath
 				 toCatalog:newPartCatalog
 			 underCategory:nil //pick up category names defined by parts
-				namePrefix:nil
-				  delegate:delegate ];
+				namePrefix:nil ];
 	
 	[self addPartsInFolder:subpartsPath
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Subparts", nil)
-				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME] //prefix subpart numbers with the DOS path "s\"; that's just how it is. Yuck!
-				  delegate:delegate ];
+				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME] ]; //prefix subpart numbers with the DOS path "s\"; that's just how it is. Yuck!
 	
 	
 	//Scan unofficial part folders.
 	[self addPartsInFolder:unofficialPrimitivesPath
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil) //groups unofficial primitives with official primitives
-			    namePrefix:nil //a directory deeper, but no DOS path separators to manage
-				  delegate:delegate ];
+			    namePrefix:nil ]; //a directory deeper, but no DOS path separators to manage
 	
 	[self addPartsInFolder:unofficialPrimitives48Path
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Primitives", nil)
-				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME]
-				  delegate:delegate ];
+				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME] ];
 	
 	[self addPartsInFolder:unofficialPartsPath
 				 toCatalog:newPartCatalog
 			 underCategory:nil
-				namePrefix:nil
-				  delegate:delegate ];
+				namePrefix:nil ];
 	
 	[self addPartsInFolder:unofficialSubpartsPath
 				 toCatalog:newPartCatalog
 			 underCategory:NSLocalizedString(@"Subparts", nil) //groups unofficial subparts with official subparts
-				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME]
-				  delegate:delegate ];
+				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME] ];
 	
 	//Save the part catalog out for future reference.
 	[newPartCatalog writeToFile:partCatalogPath atomically:YES];
@@ -430,9 +449,7 @@ static PartLibrary *SharedPartLibrary = nil;
 //==============================================================================
 - (void) saveFavoritesToUserDefaults
 {
-	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-	
-	[userDefaults setObject:(self->favorites) forKey:FAVORITE_PARTS_KEY];
+	[self->delegate partLibrary:self didChangeFavorites:(self->favorites)];
 	
 }//end saveFavoritesToUserDefaults
 
@@ -770,7 +787,6 @@ static PartLibrary *SharedPartLibrary = nil;
 				toCatalog:(NSMutableDictionary *)catalog
 			underCategory:(NSString *)categoryOverride
 			   namePrefix:(NSString *)namePrefix
-				 delegate:(id <PartLibraryReloadPartsDelegate>)delegate
 {
 	NSFileManager       *fileManager        = [[[NSFileManager alloc] init] autorelease];
 // Not working for some reason. Why?
@@ -848,7 +864,7 @@ static PartLibrary *SharedPartLibrary = nil;
 //				NSLog(@"processed %@", [partNames objectAtIndex:counter]);
 			}
 		}
-		[delegate partLibraryIncrementLoadProgressCount:self];
+		[self->delegate partLibraryIncrementLoadProgressCount:self];
 		
 	}//end loop through files
 	

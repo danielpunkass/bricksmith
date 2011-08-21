@@ -20,7 +20,7 @@
 // class PartLibraryController
 //
 ////////////////////////////////////////////////////////////////////////////////
-@interface PartLibraryController : NSObject <PartLibraryReloadPartsDelegate>
+@interface PartLibraryController : NSObject <PartLibraryDelegate>
 {
 	AMSProgressPanel    *progressPanel;
 

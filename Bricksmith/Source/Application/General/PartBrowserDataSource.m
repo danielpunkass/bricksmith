@@ -65,6 +65,9 @@ NSString    *PART_NAME_KEY      = @"Part Name";
 		
 		[self->partPreview setAcceptsFirstResponder:NO];
 		[self->partPreview setDelegate:self];
+//		[[self->partPreview enclosingScrollView] setPreservesScrollCenterDuringLiveResize:YES];
+//		[[self->partPreview enclosingScrollView] setStoresScrollCenterAsFraction:YES];
+
 		
 		[self->zoomInButton setTarget:self->partPreview];
 		[self->zoomInButton setAction:@selector(zoomIn:)];
@@ -120,6 +123,7 @@ NSString    *PART_NAME_KEY      = @"Part Name";
 		[partsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:startingRow]
 				byExtendingSelection:NO];
 		[self syncSelectionAndPartDisplayed];
+		[self->partPreview scrollCenterToModelPoint:ZeroPoint3];
 		
 		
 		//---------- Notifications ---------------------------------------------

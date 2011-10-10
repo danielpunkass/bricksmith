@@ -71,6 +71,7 @@
 		0B34B52E090B07AE00F3A001 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B34B52D090B07AE00F3A001 /* Carbon.framework */; };
 		0B356AF008D385B900695EEB /* PieceCountPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B356AEE08D385B900695EEB /* PieceCountPanel.m */; };
 		0B356AF108D385B900695EEB /* PieceCountPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B356AEF08D385B900695EEB /* PieceCountPanel.h */; };
+		0B3B76AC13DB86AE007CCC5D /* LDrawGLRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B3B76AA13DB86AE007CCC5D /* LDrawGLRenderer.h */; };
 		0B3E7BA010AF9E5A00AFBCF4 /* OverlayViewCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B3E7B9F10AF9E5A00AFBCF4 /* OverlayViewCategory.m */; };
 		0B491DA407F5555B00AC0C10 /* MatrixMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B491DA207F5555B00AC0C10 /* MatrixMath.h */; };
 		0B491DA507F5555B00AC0C10 /* MatrixMath.c in Sources */ = {isa = PBXBuildFile; fileRef = 0B491DA307F5555B00AC0C10 /* MatrixMath.c */; };
@@ -109,6 +110,7 @@
 		0B76F2FA0E74CC1700349D03 /* InspectionStep.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B76F2F80E74CC1700349D03 /* InspectionStep.m */; };
 		0B83E9B907E3BB0D009C2384 /* LDrawComment.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B83E9B707E3BB0D009C2384 /* LDrawComment.h */; };
 		0B83E9BA07E3BB0D009C2384 /* LDrawComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B83E9B807E3BB0D009C2384 /* LDrawComment.m */; };
+		0B85168F1400CC34009E3776 /* LDrawGLRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B3B76AB13DB86AE007CCC5D /* LDrawGLRenderer.m */; };
 		0B8C096810BA532F00BEB111 /* OverlayHelperView.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B8C096610BA532F00BEB111 /* OverlayHelperView.h */; };
 		0B8C096910BA532F00BEB111 /* OverlayHelperView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B8C096710BA532F00BEB111 /* OverlayHelperView.m */; };
 		0B8C097310BA550500BEB111 /* OverlayHelperWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B8C097110BA550500BEB111 /* OverlayHelperWindow.h */; };
@@ -371,6 +373,8 @@
 		0B34B52D090B07AE00F3A001 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		0B356AEE08D385B900695EEB /* PieceCountPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieceCountPanel.m; sourceTree = "<group>"; };
 		0B356AEF08D385B900695EEB /* PieceCountPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PieceCountPanel.h; sourceTree = "<group>"; };
+		0B3B76AA13DB86AE007CCC5D /* LDrawGLRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawGLRenderer.h; sourceTree = "<group>"; };
+		0B3B76AB13DB86AE007CCC5D /* LDrawGLRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawGLRenderer.m; sourceTree = "<group>"; };
 		0B3E7B9F10AF9E5A00AFBCF4 /* OverlayViewCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverlayViewCategory.m; sourceTree = "<group>"; };
 		0B491DA207F5555B00AC0C10 /* MatrixMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixMath.h; sourceTree = "<group>"; };
 		0B491DA307F5555B00AC0C10 /* MatrixMath.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = MatrixMath.c; sourceTree = "<group>"; };
@@ -815,6 +819,8 @@
 				0B8EBE78093C100100D87E0C /* LDrawDocumentWindow.m */,
 				0B8EBE79093C100100D87E0C /* LDrawFileOutlineView.h */,
 				0B8EBE7A093C100100D87E0C /* LDrawFileOutlineView.m */,
+				0B3B76AA13DB86AE007CCC5D /* LDrawGLRenderer.h */,
+				0B3B76AB13DB86AE007CCC5D /* LDrawGLRenderer.m */,
 				0B8EBE7B093C100100D87E0C /* LDrawGLView.h */,
 				0B8EBE7C093C100100D87E0C /* LDrawGLView.m */,
 				0B8C096610BA532F00BEB111 /* OverlayHelperView.h */,
@@ -1194,6 +1200,7 @@
 				0BDE0EEA1371063600FDB8DB /* LDrawPathNames.h in Headers */,
 				0BDE0EF11371070600FDB8DB /* LDrawPaths.h in Headers */,
 				0BE524011373C26200E21FBC /* PartReport.h in Headers */,
+				0B3B76AC13DB86AE007CCC5D /* LDrawGLRenderer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1448,6 +1455,7 @@
 				0BC7533A136FC878002568B8 /* PartLibrary.m in Sources */,
 				0BDE0EF21371070600FDB8DB /* LDrawPaths.m in Sources */,
 				0BE524021373C26200E21FBC /* PartReport.m in Sources */,
+				0B85168F1400CC34009E3776 /* LDrawGLRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

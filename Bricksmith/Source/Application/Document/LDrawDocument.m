@@ -182,7 +182,7 @@
 
 			// Scrolling to center doesn't seem to work at restoration time, so 
 			// do it again here. 
-			[currentViewport scrollCenterToPoint:NSMakePoint( NSMidX([currentViewport frame]), NSMidY([currentViewport frame]) )];
+			[currentViewport scrollCenterToModelPoint:ZeroPoint3];
  		}
 	}
 	

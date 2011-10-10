@@ -27,7 +27,7 @@ typedef struct Point2Struct
 {
 	float x, y;
 	
-} Point2;
+} Point2, Vector2;
 
 
 typedef struct Size2Struct

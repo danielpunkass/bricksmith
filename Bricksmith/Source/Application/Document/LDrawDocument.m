@@ -3028,12 +3028,11 @@
 //==============================================================================
 - (void) LDrawGLViewPartsWereDraggedIntoOblivion:(LDrawGLView *)glView
 {
-	id          currentDirective    = nil;
+	NSArray *directivesToDelete = [[self->selectedDirectives mutableCopy] autorelease];
+	id		currentDirective	= nil;
 	
-	while([self->selectedDirectives count] > 0)
+	for(currentDirective in directivesToDelete)
 	{
-		currentDirective	= [self->selectedDirectives lastObject];
-		
 		if([currentDirective isKindOfClass:[LDrawDrawableElement class]])
 		{
 			// Even though the directive has been drag-deleted, we still need to 

@@ -1981,13 +1981,36 @@
 //==============================================================================
 - (void) addSubmodelReferenceClicked:(id)sender
 {
-	NSString		*partName		= nil;
+	NSString		*partName			= nil;
+	LDrawMPDModel	*referencedModel = [[self documentContents] modelWithName:nil];
+	LDrawMPDModel	*destinationModel	= [self selectedModel];
+	BOOL			circularReference	= NO;
 	
-	partName = [[sender representedObject] modelName];
+	if(destinationModel == nil)
+		destinationModel = [[self documentContents] activeModel];
+		
+	partName			= [[sender representedObject] modelName];
+	referencedModel 	= [[self documentContents] modelWithName:partName];
+	circularReference	= [referencedModel containsReferenceTo:[destinationModel modelName]];
 	
 	//We got a part; let's add it!
-	if(partName != nil){
+	if(partName != nil && circularReference == NO){
 		[self addPartNamed:partName];
+	}
+	
+	if(circularReference)
+	{
+		NSAlert *alert = [[NSAlert alloc] init];
+		
+		[alert setMessageText:NSLocalizedString(@"CircularReferenceMessage", nil)];
+		[alert setInformativeText:NSLocalizedString(@"CircularReferenceInformative", nil)];
+		
+		NSBeep();
+		[alert beginSheetModalForWindow:[self windowForSheet]
+						  modalDelegate:nil
+						 didEndSelector:NULL
+							contextInfo:NULL ];
+		[alert release];
 	}
 }//end addSubmodelReferenceClicked:
 

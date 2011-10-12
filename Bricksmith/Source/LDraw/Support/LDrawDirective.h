@@ -78,6 +78,7 @@
 - (void) unlockEditor;
 
 // Utilities
+- (BOOL) containsReferenceTo:(NSString *)name;
 - (void) flattenIntoLines:(NSMutableArray *)lines
 				triangles:(NSMutableArray *)triangles
 		   quadrilaterals:(NSMutableArray *)quadrilaterals

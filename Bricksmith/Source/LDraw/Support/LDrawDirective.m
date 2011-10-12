@@ -486,6 +486,18 @@
 #pragma mark -
 //This is stuff that didn't really go anywhere else.
 
+//========== containsReferenceTo: ==============================================
+//
+// Purpose:		Overridden by subclasses to indicate if the object (or any of 
+//				its potential children) references a model with the given name. 
+//
+//==============================================================================
+- (BOOL) containsReferenceTo:(NSString *)name
+{
+	return NO;
+}
+
+
 //========== description =======================================================
 //
 // Purpose:		Overrides NSObject method to get a more meaningful description 

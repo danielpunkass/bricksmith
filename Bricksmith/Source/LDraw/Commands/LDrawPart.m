@@ -1127,6 +1127,19 @@ To work, this needs to multiply the modelViewGLMatrix by the part transform.
 #pragma mark UTILITIES
 #pragma mark -
 
+//========== containsReferenceTo: ==============================================
+//
+// Purpose:		Returns if the part references a model with the given name. This 
+//				is used by containers to detect circular references. 
+//
+//==============================================================================
+- (BOOL) containsReferenceTo:(NSString *)name
+{
+	BOOL isMatch = [referenceName isEqualToString:name];
+	return isMatch;
+}
+
+
 //========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
 //
 // Purpose:		Appends the directive into the appropriate container. 

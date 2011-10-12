@@ -337,6 +337,30 @@
 #pragma mark UTILITES
 #pragma mark -
 
+//========== containsReferenceTo: ==============================================
+//
+// Purpose:		Returns if this object (or any of its children) references a 
+//				model with the given name. 
+//
+//==============================================================================
+- (BOOL) containsReferenceTo:(NSString *)name
+{
+	NSArray 		*subdirectives		= [self subdirectives];
+	LDrawDirective	*currentDirective	= 0;
+	BOOL			containsReference	= NO;
+	
+	for(currentDirective in subdirectives)
+	{
+		containsReference = [currentDirective containsReferenceTo:name];
+		
+		if(containsReference)
+			break;
+	}
+	
+	return containsReference;
+}
+
+
 //========== flattenIntoLines:triangles:quadrilaterals:other:currentColor: =====
 //
 // Purpose:		Appends the directive into the appropriate container. 

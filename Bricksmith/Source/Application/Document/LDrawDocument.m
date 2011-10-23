@@ -282,6 +282,21 @@
 }//end readFromFile:ofType:
 
 
+//========== showWindows =======================================================
+//
+// Purpose:		Overrides NSDocument method to fix a bug whereby the window is 
+//				not main once opened. This bug is some sort of odd interplay 
+//				with the progress panel; if you don't show the progress panel, 
+//				the bug goes away. 
+//
+//==============================================================================
+- (void) showWindows
+{
+	[super showWindows];
+	[[self windowForSheet] makeKeyAndOrderFront:self]; // manually force what is normally automatic behavior.
+}
+
+
 //========== revertToContentsOfURL:ofType:error: ===============================
 //
 // Purpose:		Called by NSDocument when it reverts the document to its most 

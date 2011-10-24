@@ -161,6 +161,12 @@
 	[viewportArranger		setAutosaveName:@"HorizontalLDrawSplitview2.1"];
 	[self updateViewportAutosaveNamesAndRestore:YES];
 	
+	// update scope step display controls
+	[self setStepDisplay:NO];
+	
+	//Display our model.
+	[self loadDataIntoDocumentUI];
+	
 	// Set opening zoom percentages
 	LDrawGLView	*mainViewport = [self main3DViewport];
 	{
@@ -171,6 +177,8 @@
 		{
 			currentViewport = [allViewports objectAtIndex:counter];
 			
+			// For brand new viewports which are not yet displaying a model, set 
+			// the default zoom factor. 
 			if(currentViewport == mainViewport)
 			{
 				[currentViewport setZoomPercentage:100];
@@ -183,17 +191,23 @@
 			// Scrolling to center doesn't seem to work at restoration time, so 
 			// do it again here. 
 			[currentViewport scrollCenterToModelPoint:ZeroPoint3];
+
+			// For views which are displaying a model, we'll fit the model onscreen
+			// (This has no effect for empty models)
+			CGFloat unfitZoom	= [currentViewport zoomPercentage];
+			CGFloat fitZoom 	= 0.0;
+
+			[currentViewport zoomToFit:nil];
+			fitZoom = [currentViewport zoomPercentage];
+
+			// Back out a wee bit so the user has some room to work with his model
+			if(unfitZoom != fitZoom)
+			{
+				[currentViewport setZoomPercentage:(fitZoom * 0.9)];
+			}
  		}
 	}
-	
 	[[self foremostWindow] makeFirstResponder:mainViewport]; //so we can move it immediately.
-
-	// update scope step display controls
-	[self setStepDisplay:NO];
-	
-	//Display our model.
-	[self loadDataIntoDocumentUI];
-	
 	
 	//Notifications we want.
 	[notificationCenter addObserver:self

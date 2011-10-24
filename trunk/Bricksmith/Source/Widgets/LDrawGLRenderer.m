@@ -2078,6 +2078,8 @@
 	newVisibleRect.size.height	= maxVisiblePoint.y - V2BoxMinY(maxVisibleRect);
 	
 	self->visibleRect			= newVisibleRect;
+	
+	[self reshape];
 }
 
 
@@ -2243,14 +2245,19 @@
 //==============================================================================
 - (void) scrollRectToVisible:(Box2)aRect
 {
-	self->visibleRect = aRect;
-	
-	if([self->delegate respondsToSelector:@selector(LDrawGLRenderer:scrollToRect:)])
+	if(		aRect.origin.x != self->visibleRect.origin.x
+	   ||	aRect.origin.y != self->visibleRect.origin.y
+	   ||	aRect.size.width != self->visibleRect.size.width
+	   ||	aRect.size.height != self->visibleRect.size.height )
 	{
-		[self->delegate LDrawGLRenderer:self scrollToRect:self->visibleRect];
+		self->visibleRect = aRect;
+		
+		if([self->delegate respondsToSelector:@selector(LDrawGLRenderer:scrollToRect:)])
+		{
+			[self->delegate LDrawGLRenderer:self scrollToRect:self->visibleRect];
+		}
+		[self->delegate LDrawGLRendererNeedsRedisplay:self];
 	}
-	[self->delegate LDrawGLRendererNeedsRedisplay:self];
-	
 }
 
 

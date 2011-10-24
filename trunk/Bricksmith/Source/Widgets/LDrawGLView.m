@@ -32,8 +32,7 @@
 //==============================================================================
 #import "LDrawGLView.h"
 
-#import <GLUT/glut.h>
-#import <OpenGL/glu.h>
+#import <OpenGL/OpenGL.h>
 
 #import "FocusRingView.h"
 #import "LDrawApplication.h"
@@ -378,50 +377,50 @@ static Size2 NSSizeToSize2(NSSize size)
 //==============================================================================
 - (void) drawFocusRing
 {
-	NSRect	visibleRect = [self visibleRect];
-	CGFloat	lineWidth	= 1.0;
-	
-	lineWidth /= [self->renderer zoomPercentage] / 100;
-	
-	//we just want to DRAW plain colored pixels.
-	glDisable(GL_LIGHTING);
-	
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	{
-		glLoadIdentity();
-		gluOrtho2D( NSMinX(visibleRect), NSMaxX(visibleRect),
-				    NSMinY(visibleRect), NSMaxY(visibleRect) );
-				   
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		{
-			//we indicate focus by drawing a series of framing lines.
-			
-			glLoadIdentity();
-			
-			glColor4ub(125, 151, 174, 255);
-			[self strokeInsideRect:visibleRect
-						 thickness:lineWidth];
-			
-			glColor4ub(137, 173, 204, 213);
-			[self strokeInsideRect:NSInsetRect( visibleRect, 1 * lineWidth, 1 * lineWidth )
-						 thickness:lineWidth];
-			
-			glColor4ub(161, 184, 204, 172);
-			[self strokeInsideRect:NSInsetRect( visibleRect, 2 * lineWidth, 2 * lineWidth )
-						 thickness:lineWidth];
-			
-			glColor4ub(184, 195, 204, 128);
-			[self strokeInsideRect:NSInsetRect( visibleRect, 3 * lineWidth, 3 * lineWidth )
-						 thickness:lineWidth];
-		}
-		glPopMatrix();
-	}
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	
-	glEnable(GL_LIGHTING);
+//	NSRect	visibleRect = [self visibleRect];
+//	CGFloat	lineWidth	= 1.0;
+//	
+//	lineWidth /= [self->renderer zoomPercentage] / 100;
+//	
+//	//we just want to DRAW plain colored pixels.
+//	glDisable(GL_LIGHTING);
+//	
+//	glMatrixMode(GL_PROJECTION);
+//	glPushMatrix();
+//	{
+//		glLoadIdentity();
+//		gluOrtho2D( NSMinX(visibleRect), NSMaxX(visibleRect),
+//				    NSMinY(visibleRect), NSMaxY(visibleRect) );
+//				   
+//		glMatrixMode(GL_MODELVIEW);
+//		glPushMatrix();
+//		{
+//			//we indicate focus by drawing a series of framing lines.
+//			
+//			glLoadIdentity();
+//			
+//			glColor4ub(125, 151, 174, 255);
+//			[self strokeInsideRect:visibleRect
+//						 thickness:lineWidth];
+//			
+//			glColor4ub(137, 173, 204, 213);
+//			[self strokeInsideRect:NSInsetRect( visibleRect, 1 * lineWidth, 1 * lineWidth )
+//						 thickness:lineWidth];
+//			
+//			glColor4ub(161, 184, 204, 172);
+//			[self strokeInsideRect:NSInsetRect( visibleRect, 2 * lineWidth, 2 * lineWidth )
+//						 thickness:lineWidth];
+//			
+//			glColor4ub(184, 195, 204, 128);
+//			[self strokeInsideRect:NSInsetRect( visibleRect, 3 * lineWidth, 3 * lineWidth )
+//						 thickness:lineWidth];
+//		}
+//		glPopMatrix();
+//	}
+//	glMatrixMode(GL_PROJECTION);
+//	glPopMatrix();
+//	
+//	glEnable(GL_LIGHTING);
 
 }//end drawFocusRing
 

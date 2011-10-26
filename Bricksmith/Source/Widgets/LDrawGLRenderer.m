@@ -570,10 +570,13 @@
 //==============================================================================
 - (void) setBounds:(Size2)boundsIn
 {
-	self->bounds = boundsIn;
-	
-	[self resetVisibleRect];
-	[self->delegate LDrawGLRendererNeedsRedisplay:self];
+	if(V2EqualSizes(self->bounds, boundsIn) == false)
+	{
+		self->bounds = boundsIn;
+		
+		[self resetVisibleRect];
+		[self->delegate LDrawGLRendererNeedsRedisplay:self];
+	}
 }
 
 
@@ -2300,10 +2303,7 @@
 //==============================================================================
 - (void) scrollRectToVisible:(Box2)aRect
 {
-	if(		aRect.origin.x != self->visibleRect.origin.x
-	   ||	aRect.origin.y != self->visibleRect.origin.y
-	   ||	aRect.size.width != self->visibleRect.size.width
-	   ||	aRect.size.height != self->visibleRect.size.height )
+	if( V2EqualBoxes(aRect, self->visibleRect) == false )
 	{
 		self->visibleRect = aRect;
 		

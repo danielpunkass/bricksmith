@@ -1012,6 +1012,18 @@
 #pragma mark EVENTS
 #pragma mark -
 
+//========== mouseMoved: =======================================================
+//
+// Purpose:		Mouse has moved to the given view point. (This method is 
+//				optional.) 
+//
+//==============================================================================
+- (void) mouseMoved:(Point2)point_view
+{
+	[self publishMouseOverPoint:point_view];
+}
+
+
 //========== mouseDown =========================================================
 //
 // Purpose:		Signals that a mouse-down has been received; clear various state 
@@ -1230,6 +1242,8 @@
 	Point3	modelReferencePoint = [self->activeDragHandle position];
 	BOOL	moved				= NO;
 
+	[self publishMouseOverPoint:point_view];
+
 	// Give the document controller an opportunity for undo management!
 	if(self->isStartingDrag && [self->delegate respondsToSelector:@selector(LDrawGLRenderer:willBeginDraggingHandle:)])
 	{
@@ -1271,6 +1285,9 @@
 {
 	Box2    newVisibleRect  = self->visibleRect;
 	CGFloat scaleFactor     = [self zoomPercentage] / 100;
+	
+	if([self->delegate respondsToSelector:@selector(LDrawGLRendererMouseNotPositioning:)])
+		[self->delegate LDrawGLRendererMouseNotPositioning:self];
 	
 	//scroll the opposite direction of pull.
 	newVisibleRect.origin.x -= viewDirection.x / scaleFactor;
@@ -1369,6 +1386,9 @@
 	glRotatef( rotationAboutY, transformedVectorY.x, transformedVectorY.y, transformedVectorY.z);
 	glRotatef( rotationAboutX, transformedVectorX.x, transformedVectorX.y, transformedVectorX.z);
 	
+	if([self->delegate respondsToSelector:@selector(LDrawGLRendererMouseNotPositioning:)])
+		[self->delegate LDrawGLRendererMouseNotPositioning:self];
+	
 	[self->delegate LDrawGLRendererNeedsRedisplay:self];
 	
 }//end rotationDragged
@@ -1387,6 +1407,9 @@
 	CGFloat currentZoom     = [self zoomPercentage];
 	
 	[self setZoomPercentage:(currentZoom * zoomChange)];
+	
+	if([self->delegate respondsToSelector:@selector(LDrawGLRendererMouseNotPositioning:)])
+		[self->delegate LDrawGLRendererMouseNotPositioning:self];
 	
 }//end zoomDragged:
 
@@ -1553,6 +1576,8 @@
 	Point3					modelReferencePoint 	= ZeroPoint3;
 	LDrawDrawableElement	*firstDirective 		= nil;
 	BOOL					moved					= NO;
+	
+	[self publishMouseOverPoint:point_view];
 	
 	if([self->fileBeingDrawn respondsToSelector:@selector(draggingDirectives)])
 	{
@@ -1928,6 +1953,36 @@
 	return clickedDirectives;
 	
 }//end getPartFromHits:hitCount:
+
+
+//========== publishMouseOverPoint: ============================================
+//
+// Purpose:		Informs the delegate that the mouse is hovering over the model 
+//				point under the view point. 
+//
+//==============================================================================
+- (void) publishMouseOverPoint:(Point2)point_view
+{
+	Point3		modelPoint			= ZeroPoint3;
+	Vector3		modelAxisForX		= ZeroPoint3;
+	Vector3		modelAxisForY		= ZeroPoint3;
+	Vector3		modelAxisForZ		= ZeroPoint3;
+	Vector3		confidence			= ZeroPoint3;
+	
+	if([self->delegate respondsToSelector:@selector(LDrawGLRenderer:mouseIsOverPoint:confidence:)])
+	{
+		modelPoint = [self modelPointForPoint:point_view];
+		
+		if([self projectionMode] == ProjectionModeOrthographic)
+		{
+			[self getModelAxesForViewX:&modelAxisForX Y:&modelAxisForY Z:&modelAxisForZ];
+			
+			confidence = V3Add(modelAxisForX, modelAxisForY);
+		}
+		
+		[self->delegate LDrawGLRenderer:self mouseIsOverPoint:modelPoint confidence:confidence];
+	}
+}
 
 
 //========== resetFrameSize: ===================================================

@@ -70,6 +70,12 @@ typedef enum insertionMode {
 	
 	// LDraw graphic view
 	IBOutlet ViewportArranger			*viewportArranger;
+	IBOutlet NSTextField				*coordinateLabelX;
+	IBOutlet NSTextField				*coordinateLabelY;
+	IBOutlet NSTextField				*coordinateLabelZ;
+	IBOutlet NSTextField				*coordinateFieldX;
+	IBOutlet NSTextField				*coordinateFieldY;
+	IBOutlet NSTextField				*coordinateFieldZ;
 	
 	@private
 		LDrawFile		*documentContents;

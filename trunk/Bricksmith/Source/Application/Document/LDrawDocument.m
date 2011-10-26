@@ -109,13 +109,14 @@
 //==============================================================================
 - (void) windowControllerDidLoadNib:(NSWindowController *) aController
 {
-	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
-	NSUserDefaults          *userDefaults       = [NSUserDefaults standardUserDefaults];
-	NSWindow                *window             = [aController window];
-	NSToolbar               *toolbar            = nil;
-	NSString                *savedSizeString    = nil;
-	NSInteger               drawerState         = 0;
-	NSUInteger              counter             = 0;
+	NSNotificationCenter	*notificationCenter 	= [NSNotificationCenter defaultCenter];
+	NSUserDefaults			*userDefaults			= [NSUserDefaults standardUserDefaults];
+	NSWindow				*window 				= [aController window];
+	NSToolbar				*toolbar				= nil;
+	NSString				*savedSizeString		= nil;
+	NSInteger				drawerState 			= 0;
+	NSUInteger				counter 				= 0;
+	NSNumberFormatter		*coordinateFormatter	= [[NSNumberFormatter alloc] init];
 
     [super windowControllerDidLoadNib:aController];
 	
@@ -160,6 +161,17 @@
 	[fileContentsSplitView	setAutosaveName:@"fileContentsSplitView"];
 	[viewportArranger		setAutosaveName:@"HorizontalLDrawSplitview2.1"];
 	[self updateViewportAutosaveNamesAndRestore:YES];
+	
+	// Mouse hover coordinates
+	[coordinateFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+	[coordinateFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+	[coordinateFormatter setMaximumFractionDigits:0];
+	[coordinateFormatter setMinimumFractionDigits:0];
+	
+	[self->coordinateFieldX setFormatter:coordinateFormatter];
+	[self->coordinateFieldY setFormatter:coordinateFormatter];
+	[self->coordinateFieldZ setFormatter:coordinateFormatter];
+	
 	
 	// update scope step display controls
 	[self setStepDisplay:NO];
@@ -231,6 +243,9 @@
 	
 	// (none currently necessary!)
 
+	// Release memory
+	[coordinateFormatter release];
+	
 }//end windowControllerDidLoadNib:
 
 
@@ -2964,6 +2979,59 @@
 		[self setLastSelectedPart:lastSelectedItem];
 
 }//end outlineViewSelectionDidChange:
+
+
+#pragma mark -
+#pragma mark MOUSE COORDINATES
+#pragma mark -
+
+//========== LDrawGLView:mouseIsOverPoint:confidence: ==========================
+//
+// Purpose:		Display the 3D world coordinates of the mouse as it hovers over 
+//				the model. 
+//
+//==============================================================================
+- (void) LDrawGLView:(LDrawGLView *)glView mouseIsOverPoint:(Point3)modelPoint confidence:(Tuple3)confidence
+{
+	[self->coordinateFieldX setFloatValue:modelPoint.x];
+	[self->coordinateFieldY setFloatValue:modelPoint.y];
+	[self->coordinateFieldZ setFloatValue:modelPoint.z];
+	
+	NSColor *questionableColor	= [NSColor colorWithCalibratedWhite:0.3 alpha:1.0];
+	NSColor *confidentColor 	= [NSColor colorWithCalibratedWhite:0.1 alpha:1.0];
+	
+	[self->coordinateFieldX setTextColor:(confidence.x == 0.0) ? questionableColor : confidentColor];
+	[self->coordinateFieldY setTextColor:(confidence.y == 0.0) ? questionableColor : confidentColor];
+	[self->coordinateFieldZ setTextColor:(confidence.z == 0.0) ? questionableColor : confidentColor];
+	[self->coordinateLabelX setTextColor:(confidence.x == 0.0) ? questionableColor : confidentColor];
+	[self->coordinateLabelY setTextColor:(confidence.y == 0.0) ? questionableColor : confidentColor];
+	[self->coordinateLabelZ setTextColor:(confidence.z == 0.0) ? questionableColor : confidentColor];
+	
+	[self->coordinateFieldX setHidden:NO];
+	[self->coordinateFieldY setHidden:NO];
+	[self->coordinateFieldZ setHidden:NO];
+	[self->coordinateLabelX setHidden:NO];
+	[self->coordinateLabelY setHidden:NO];
+	[self->coordinateLabelZ setHidden:NO];
+}
+
+
+//========== LDrawGLViewMouseExited: ===========================================
+//
+// Purpose:		The mouse location is no longer relevant to coordinate display. 
+//				This could be because the mouse exited the view, or because it 
+//				is controlling a tool which is not coordinate sensitive. 
+//
+//==============================================================================
+- (void) LDrawGLViewMouseNotPositioning:(LDrawGLView *)glView
+{
+	[self->coordinateFieldX setHidden:YES];
+	[self->coordinateFieldY setHidden:YES];
+	[self->coordinateFieldZ setHidden:YES];
+	[self->coordinateLabelX setHidden:YES];
+	[self->coordinateLabelY setHidden:YES];
+	[self->coordinateLabelZ setHidden:YES];
+}
 
 
 #pragma mark -

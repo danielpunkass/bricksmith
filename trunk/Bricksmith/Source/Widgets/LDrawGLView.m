@@ -237,6 +237,18 @@ static Size2 NSSizeToSize2(NSSize size)
 							   name:LDrawViewBackgroundColorDidChangeNotification
 							 object:nil ];
 	
+	NSTrackingAreaOptions	options 		= (		NSTrackingMouseEnteredAndExited
+											   |	NSTrackingMouseMoved
+											   |	NSTrackingActiveInActiveApp
+											   |	NSTrackingInVisibleRect
+											  );
+	NSTrackingArea			*trackingArea	= [[NSTrackingArea alloc] initWithRect:NSZeroRect
+																  options:options
+																	owner:self
+																 userInfo:nil];
+	[self addTrackingArea:trackingArea];
+	[trackingArea release];
+	
 }//end internalInit
 
 
@@ -1392,6 +1404,37 @@ static Size2 NSSizeToSize2(NSSize size)
 #pragma mark -
 #pragma mark Mouse
 
+//========== mouseMoved: =======================================================
+//
+// Purpose:		Mouse is hovering in the view.
+//
+//==============================================================================
+- (void) mouseMoved:(NSEvent *)theEvent
+{
+	NSPoint     windowClickedPoint  = [theEvent locationInWindow];
+	NSPoint     viewClickedPoint    = [self convertPoint:windowClickedPoint fromView:nil ];
+	Point2      view_point          = V2Make(viewClickedPoint.x, viewClickedPoint.y);
+	
+	[[self openGLContext] makeCurrentContext];
+	
+	[self->renderer mouseMoved:view_point];
+}
+
+
+//========== mouseExited: ======================================================
+//
+// Purpose:		Mouse left the view.
+//
+//==============================================================================
+- (void) mouseExited:(NSEvent *)theEvent
+{
+	if([self->delegate respondsToSelector:@selector(LDrawGLViewMouseNotPositioning:)])
+	{
+		[self->delegate LDrawGLViewMouseNotPositioning:self];
+	}
+}
+
+
 //========== mouseDown: ========================================================
 //
 // Purpose:		We received a mouseDown before a mouseDragged. Handy thought.
@@ -2357,6 +2400,34 @@ static Size2 NSSizeToSize2(NSSize size)
 - (void) LDrawGLRendererNeedsRedisplay:(LDrawGLRenderer*)renderer
 {
 	[self setNeedsDisplay:YES];
+}
+
+
+//========== LDrawGLRenderer:mouseIsOverPoint:confidence: ======================
+//
+// Purpose:		Reflect the mouse coordinates in the UI.
+//
+//==============================================================================
+- (void) LDrawGLRenderer:(LDrawGLRenderer*)renderer mouseIsOverPoint:(Point3)modelPoint confidence:(Tuple3)confidence
+{
+	if([self->delegate respondsToSelector:@selector(LDrawGLView:mouseIsOverPoint:confidence:)])
+	{
+		[self->delegate LDrawGLView:self mouseIsOverPoint:modelPoint confidence:confidence];
+	}
+}
+
+
+//========== LDrawGLRendererMouseNotPositioning: ===============================
+//
+// Purpose:		The mouse is no longer reflecting coordinates.
+//
+//==============================================================================
+- (void) LDrawGLRendererMouseNotPositioning:(LDrawGLRenderer *)renderer
+{
+	if([self->delegate respondsToSelector:@selector(LDrawGLViewMouseNotPositioning:)])
+	{
+		[self->delegate LDrawGLViewMouseNotPositioning:self];
+	}
 }
 
 

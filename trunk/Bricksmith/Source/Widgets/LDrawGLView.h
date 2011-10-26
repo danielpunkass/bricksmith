@@ -146,6 +146,8 @@
    byExtendingSelection:(BOOL) shouldExtend;
 - (void) LDrawGLView:(LDrawGLView *)glView willBeginDraggingHandle:(LDrawDragHandle *)dragHandle;
 - (void) LDrawGLView:(LDrawGLView *)glView dragHandleDidMove:(LDrawDragHandle *)dragHandle;
+- (void) LDrawGLView:(LDrawGLView *)glView mouseIsOverPoint:(Point3)modelPoint confidence:(Tuple3)confidence;
+- (void) LDrawGLViewMouseNotPositioning:(LDrawGLView *)glView;
 
 @end
 

@@ -140,6 +140,7 @@ typedef enum
 - (IBAction) zoomToFit:(id)sender;
 
 // Events
+- (void) mouseMoved:(Point2)point_view;
 - (void) mouseDown;
 - (void) mouseDragged;
 - (void) mouseUp;
@@ -171,6 +172,7 @@ typedef enum
 // Utilities
 - (NSArray *) getDirectivesUnderPoint:(Point2)point_view amongDirectives:(NSArray *)directives fastDraw:(BOOL)fastDraw;
 - (NSArray *) getPartsFromHits:(NSDictionary *)hits;
+- (void) publishMouseOverPoint:(Point2)viewPoint;
 - (void) resetFrameSize;
 - (void) resetVisibleRect;
 - (void) setZoomPercentage:(CGFloat)newPercentage preservePoint:(Point2)viewPoint;
@@ -211,6 +213,9 @@ typedef enum
 - (void) LDrawGLRendererNeedsRedisplay:(LDrawGLRenderer*)renderer;
 
 @optional
+- (void) LDrawGLRenderer:(LDrawGLRenderer*)renderer mouseIsOverPoint:(Point3)modelPoint confidence:(Tuple3)confidence;
+- (void) LDrawGLRendererMouseNotPositioning:(LDrawGLRenderer*)renderer;
+
 - (TransformComponents) LDrawGLRendererPreferredPartTransform:(LDrawGLRenderer*)renderer;
 
 - (void) LDrawGLRenderer:(LDrawGLRenderer*)renderer wantsToSelectDirective:(LDrawDirective *)directiveToSelect byExtendingSelection:(BOOL) shouldExtend;

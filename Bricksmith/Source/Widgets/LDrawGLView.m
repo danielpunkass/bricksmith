@@ -51,7 +51,7 @@
 #import "ScrollViewCategory.h"
 #import "UserDefaultsCategory.h"
 
-#define DEBUG_DRAWING				1
+#define DEBUG_DRAWING				0
 #define SIMPLIFICATION_THRESHOLD	0.3 //seconds
 #define CAMERA_DISTANCE_FACTOR		6.5	//controls perspective; cameraLocation = modelSize * CAMERA_DISTANCE_FACTOR
 
@@ -170,6 +170,8 @@ static Size2 NSSizeToSize2(NSSize size)
 	NSOpenGLContext         *context            = nil;
 	NSOpenGLPixelFormat     *pixelFormat        = [LDrawApplication openGLPixelFormat];
 	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
+	
+	[[self openGLContext] makeCurrentContext];
 	
 	renderer = [[LDrawGLRenderer alloc] initWithBounds:NSSizeToSize2([self bounds].size)];
 	[renderer setDelegate:self];

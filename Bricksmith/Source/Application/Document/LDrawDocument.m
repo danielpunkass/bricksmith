@@ -2289,10 +2289,14 @@
 	NSUndoManager	*undoManager	= [self undoManager];
 	
 	[[self documentContents] lockForEditing];
+	self->lockViewingAngle = YES;
 	{
 		[[undoManager prepareWithInvocationTarget:self]
 			deleteDirective:newDirective ];
-		
+	
+		// Turn off change notifications while mutating steps. Fixes Step 
+		// Display bug in which the viewing angle changes whenever inserting a 
+		// part. 
 		[parent insertDirective:newDirective atIndex:index];
 	}
 	CGLLockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
@@ -2301,6 +2305,7 @@
 		[[self documentContents] optimizeVertexes];
 		
 	}
+	self->lockViewingAngle = NO;
 	CGLUnlockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	[[self documentContents] unlockEditor];
 	
@@ -2322,6 +2327,7 @@
 	NSInteger       index           = [[parent subdirectives] indexOfObject:doomedDirective];
 	
 	[[self documentContents] lockForEditing];
+	self->lockViewingAngle = YES;
 	{
 		[[undoManager prepareWithInvocationTarget:self]
 				addDirective:doomedDirective
@@ -2329,9 +2335,11 @@
 					 atIndex:index ];
 		
 		[parent removeDirective:doomedDirective];
+
 		[self updateInspector];
 		[[self documentContents] optimizeVertexes];
 	}
+	self->lockViewingAngle = NO;
 	[[self documentContents] unlockEditor];
 
 }//end deleteDirective:
@@ -3533,10 +3541,14 @@
 		{
 			[self addModelsToMenus];
 		}
-		// If a step changed and we're in step display, we need to reset the 
-		// step's viewing angle. 
+		// If step display attributes changed and we're in step display, we need 
+		// to reset the step's viewing angle. 
+		// Note: Unfortunately, this is called when the step's content array 
+		//		 changes, and we have no way of distinguishing that case except 
+		//		 for a cheesy hack ivar "lockViewingAngle".
 		else if(	[[notification object] isKindOfClass:[LDrawStep class]]
-				&&	[[[self documentContents] activeModel] stepDisplay] == YES)
+				&&	[[[self documentContents] activeModel] stepDisplay] == YES
+				&&	self->lockViewingAngle == NO)
 		{
 			[self updateViewingAngleToMatchStep];
 		}

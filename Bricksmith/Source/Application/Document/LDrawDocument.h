@@ -84,6 +84,7 @@ typedef enum insertionMode {
 		insertionModeT	 insertionMode;
 		gridSpacingModeT gridMode;
 		LDrawGLView		*mostRecentLDrawView; //file graphic view which most recently had focus. Weak link.
+		BOOL			lockViewingAngle;		// hack to fix unexpected view changes during inserts
 }
 
 // Accessors

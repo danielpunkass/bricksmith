@@ -11,7 +11,7 @@
 			<string key="NS.object.0">804</string>
 		</object>
 		<array class="NSMutableArray" key="IBDocument.EditedObjectIDs">
-			<integer value="136"/>
+			<integer value="109"/>
 		</array>
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -22,7 +22,7 @@
 		</object>
 		<array class="NSMutableArray" key="IBDocument.RootObjects" id="328495998">
 			<object class="NSCustomObject" id="705203587">
-				<string key="NSClassName">PartBrowserPanel</string>
+				<string key="NSClassName">PartBrowserPanelController</string>
 			</object>
 			<object class="NSCustomObject" id="609044426">
 				<string key="NSClassName">FirstResponder</string>
@@ -39,7 +39,7 @@
 				<string key="NSWindowRect">{{57, 222}, {456, 559}}</string>
 				<int key="NSWTFlags">1886912512</int>
 				<string key="NSWindowTitle">Parts Browser</string>
-				<string key="NSWindowClass">PartBrowserPanel</string>
+				<string key="NSWindowClass">NSPanel</string>
 				<object class="NSMutableString" key="NSViewClass">
 					<characters key="NS.bytes">View</characters>
 				</object>
@@ -601,22 +601,6 @@
 			<array class="NSMutableArray" key="connectionRecords">
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">partBrowserPanel</string>
-						<reference key="source" ref="705203587"/>
-						<reference key="destination" ref="998007496"/>
-					</object>
-					<int key="connectionID">111</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">partsBrowser</string>
-						<reference key="source" ref="998007496"/>
-						<reference key="destination" ref="591963912"/>
-					</object>
-					<int key="connectionID">112</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">partsTable</string>
 						<reference key="source" ref="591963912"/>
 						<reference key="destination" ref="94448470"/>
@@ -705,22 +689,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">splitView</string>
-						<reference key="source" ref="998007496"/>
-						<reference key="destination" ref="288316479"/>
-					</object>
-					<int key="connectionID">143</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">delegate</string>
-						<reference key="source" ref="288316479"/>
-						<reference key="destination" ref="998007496"/>
-					</object>
-					<int key="connectionID">144</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">addRemoveFavoriteButton</string>
 						<reference key="source" ref="591963912"/>
 						<reference key="destination" ref="433969024"/>
@@ -750,6 +718,46 @@
 						<reference key="destination" ref="636886513"/>
 					</object>
 					<int key="connectionID">188</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">partsBrowser</string>
+						<reference key="source" ref="705203587"/>
+						<reference key="destination" ref="591963912"/>
+					</object>
+					<int key="connectionID">205</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">splitView</string>
+						<reference key="source" ref="705203587"/>
+						<reference key="destination" ref="288316479"/>
+					</object>
+					<int key="connectionID">206</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="288316479"/>
+						<reference key="destination" ref="705203587"/>
+					</object>
+					<int key="connectionID">207</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">window</string>
+						<reference key="source" ref="705203587"/>
+						<reference key="destination" ref="998007496"/>
+					</object>
+					<int key="connectionID">208</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="998007496"/>
+						<reference key="destination" ref="705203587"/>
+					</object>
+					<int key="connectionID">209</int>
 				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -1086,7 +1094,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">204</int>
+			<int key="maxID">209</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1439,6 +1447,12 @@
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="addReferenceButton">NSPopUpButton</string>
 						<string key="bindingsController">NSObjectController</string>
+						<string key="coordinateFieldX">NSTextField</string>
+						<string key="coordinateFieldY">NSTextField</string>
+						<string key="coordinateFieldZ">NSTextField</string>
+						<string key="coordinateLabelX">NSTextField</string>
+						<string key="coordinateLabelY">NSTextField</string>
+						<string key="coordinateLabelZ">NSTextField</string>
 						<string key="fileContentsOutline">LDrawFileOutlineView</string>
 						<string key="fileContentsSplitView">ExtendedSplitView</string>
 						<string key="partBrowserDrawer">NSDrawer</string>
@@ -1460,6 +1474,30 @@
 						<object class="IBToOneOutletInfo" key="bindingsController">
 							<string key="name">bindingsController</string>
 							<string key="candidateClassName">NSObjectController</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="coordinateFieldX">
+							<string key="name">coordinateFieldX</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="coordinateFieldY">
+							<string key="name">coordinateFieldY</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="coordinateFieldZ">
+							<string key="name">coordinateFieldZ</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="coordinateLabelX">
+							<string key="name">coordinateLabelX</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="coordinateLabelY">
+							<string key="name">coordinateLabelY</string>
+							<string key="candidateClassName">NSTextField</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="coordinateLabelZ">
+							<string key="name">coordinateLabelZ</string>
+							<string key="candidateClassName">NSTextField</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="fileContentsOutline">
 							<string key="name">fileContentsOutline</string>
@@ -1797,18 +1835,13 @@
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">PartBrowserPanel</string>
-					<string key="superclassName">NSPanel</string>
+					<string key="className">PartBrowserPanelController</string>
+					<string key="superclassName">NSWindowController</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="partBrowserPanel">PartBrowserPanel</string>
 						<string key="partsBrowser">PartBrowserDataSource</string>
 						<string key="splitView">ExtendedSplitView</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="partBrowserPanel">
-							<string key="name">partBrowserPanel</string>
-							<string key="candidateClassName">PartBrowserPanel</string>
-						</object>
 						<object class="IBToOneOutletInfo" key="partsBrowser">
 							<string key="name">partsBrowser</string>
 							<string key="candidateClassName">PartBrowserDataSource</string>
@@ -1820,12 +1853,23 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Source/Application/General/PartBrowserPanel.h</string>
+						<string key="minorKey">Source/Application/General/PartBrowserPanelController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">PartBrowserPanel</string>
-					<string key="superclassName">NSPanel</string>
+					<string key="className">PartBrowserPanelController</string>
+					<string key="superclassName">NSWindowController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">partBrowserPanel</string>
+						<string key="NS.object.0">PartBrowserPanelController</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">partBrowserPanel</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
+							<string key="name">partBrowserPanel</string>
+							<string key="candidateClassName">PartBrowserPanelController</string>
+						</object>
+					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBUserSource</string>
 						<string key="minorKey"/>
@@ -2495,6 +2539,25 @@
 						<string key="minorKey">AppKit.framework/Headers/NSWindowScripting.h</string>
 					</object>
 				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">NSWindowController</string>
+					<string key="superclassName">NSResponder</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">showWindow:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">showWindow:</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">showWindow:</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBFrameworkSource</string>
+						<string key="minorKey">AppKit.framework/Headers/NSWindowController.h</string>
+					</object>
+				</object>
 			</array>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
@@ -2508,7 +2571,7 @@
 			<integer value="1050" key="NS.object.0"/>
 		</object>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
-		<string key="IBDocument.LastKnownRelativeProjectPath">../../Bricksmith.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">../../../Bricksmith.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
 			<string key="NS.key.0">FavoriteAdd</string>

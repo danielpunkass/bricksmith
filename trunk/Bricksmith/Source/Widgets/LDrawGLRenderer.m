@@ -1522,13 +1522,18 @@
 	// clicked point. We do this so that the point you clicked always remains 
 	// directly under the mouse.
 	//
-	// Only applicable if dragging into the source 
-	// view. Other views may have different orientations. We might be able to 
-	// remove that requirement by zeroing the inapplicable component. 
+	// Only applicable if dragging into the source view. Other views may have 
+	// different orientations. We might be able to remove that requirement by 
+	// zeroing the inapplicable component. 
 	if(originatedLocally == YES)
 	{
 		modelReferencePoint = V3Add(modelReferencePoint, self->draggingOffset);
 	}
+	else
+	{
+		[self setDraggingOffset:ZeroPoint3]; // no offset for future updates either
+	}
+
 	// For constrained dragging, we care only about the initial, unmodified 
 	// postion. 
 	self->initialDragLocation = modelReferencePoint;

@@ -1749,8 +1749,6 @@ static Size2 NSSizeToSize2(NSSize size)
 	Vector3					 displacement		= ZeroPoint3;
 	NSImage					*dragImage			= nil;
 
-	[[self openGLContext] makeCurrentContext];
-
 	if(		self->delegate != nil
 	   &&	[self->delegate respondsToSelector:@selector(LDrawGLView:writeDirectivesToPasteboard:asCopy:)] )
 	{
@@ -1759,6 +1757,8 @@ static Size2 NSSizeToSize2(NSSize size)
 	
 		okayToDrag		= [self->delegate LDrawGLView:self writeDirectivesToPasteboard:pasteboard asCopy:beginCopy];
 		
+		[[self openGLContext] makeCurrentContext];
+
 		if(okayToDrag == YES)
 		{
 			//---------- Find drag displacement --------------------------------

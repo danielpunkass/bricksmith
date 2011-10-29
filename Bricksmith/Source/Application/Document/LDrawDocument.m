@@ -2948,6 +2948,12 @@
 	NSInteger		selectedStepIndex	= 0;
 	NSInteger       counter             = 0;
 	
+	// This method can be called from LDrawOpenGLView (in which case we already 
+	// have a context we want to use) or it might be called on its own. Since 
+	// selecting parts can trigger OpenGL commands, we should make sure we have 
+	// a context active, but we should also restore the current context when 
+	// we're done. 
+	NSOpenGLContext *originalContext = [NSOpenGLContext currentContext];
 	[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
 	
 	//Deselect all the previously-selected directives
@@ -2985,7 +2991,9 @@
 	//See if we just selected a new part; if so, we must remember it.
 	if([lastSelectedItem isKindOfClass:[LDrawPart class]])
 		[self setLastSelectedPart:lastSelectedItem];
-
+	
+	[originalContext makeCurrentContext];
+	
 }//end outlineViewSelectionDidChange:
 
 

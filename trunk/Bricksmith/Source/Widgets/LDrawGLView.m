@@ -1366,7 +1366,10 @@ static Size2 NSSizeToSize2(NSSize size)
 					if(isZMovement == YES)
 					{
 						//this is iffy at best
-						actualNudge = V3Negate(zNudge);
+						// -- and it made things go the wrong way in default 3D 
+						// perspective view, so I switched signs.
+//						actualNudge = V3Negate(zNudge);
+						actualNudge = zNudge;
 					}
 					else
 					{
@@ -1378,7 +1381,10 @@ static Size2 NSSizeToSize2(NSSize size)
 				case NSRightArrowFunctionKey:
 				
 					if(isZMovement == YES)
-						actualNudge = zNudge;
+					{
+//						actualNudge = zNudge;
+						actualNudge = V3Negate(zNudge);
+					}
 					else
 						actualNudge = xNudge;
 					isNudge = YES;

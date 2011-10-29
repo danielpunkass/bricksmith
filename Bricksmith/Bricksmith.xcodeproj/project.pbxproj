@@ -227,8 +227,8 @@
 		0BC7533A136FC878002568B8 /* PartLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BC75338136FC878002568B8 /* PartLibrary.m */; };
 		0BCD0C6507FD0BA10066A536 /* LDrawContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */; };
 		0BCD0C6607FD0BA10066A536 /* LDrawContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */; };
-		0BDC146F0B9D0502001D1FF1 /* PartBrowserPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */; };
-		0BDC14700B9D0502001D1FF1 /* PartBrowserPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */; };
+		0BDC146F0B9D0502001D1FF1 /* PartBrowserPanelController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDC146D0B9D0502001D1FF1 /* PartBrowserPanelController.h */; };
+		0BDC14700B9D0502001D1FF1 /* PartBrowserPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BDC146E0B9D0502001D1FF1 /* PartBrowserPanelController.m */; };
 		0BDE0EEA1371063600FDB8DB /* LDrawPathNames.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDE0EE91371063600FDB8DB /* LDrawPathNames.h */; };
 		0BDE0EF11371070600FDB8DB /* LDrawPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BDE0EEF1371070600FDB8DB /* LDrawPaths.h */; };
 		0BDE0EF21371070600FDB8DB /* LDrawPaths.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BDE0EF01371070600FDB8DB /* LDrawPaths.m */; };
@@ -526,8 +526,8 @@
 		0BC75338136FC878002568B8 /* PartLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartLibrary.m; sourceTree = "<group>"; };
 		0BCD0C6307FD0BA10066A536 /* LDrawContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LDrawContainer.h; path = Source/LDraw/Files/LDrawContainer.h; sourceTree = SOURCE_ROOT; };
 		0BCD0C6407FD0BA10066A536 /* LDrawContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = LDrawContainer.m; path = Source/LDraw/Files/LDrawContainer.m; sourceTree = SOURCE_ROOT; };
-		0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserPanel.h; sourceTree = "<group>"; };
-		0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserPanel.m; sourceTree = "<group>"; };
+		0BDC146D0B9D0502001D1FF1 /* PartBrowserPanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartBrowserPanelController.h; sourceTree = "<group>"; };
+		0BDC146E0B9D0502001D1FF1 /* PartBrowserPanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartBrowserPanelController.m; sourceTree = "<group>"; };
 		0BDE0EE91371063600FDB8DB /* LDrawPathNames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawPathNames.h; sourceTree = "<group>"; };
 		0BDE0EEF1371070600FDB8DB /* LDrawPaths.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawPaths.h; sourceTree = "<group>"; };
 		0BDE0EF01371070600FDB8DB /* LDrawPaths.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawPaths.m; sourceTree = "<group>"; };
@@ -983,8 +983,8 @@
 				2BF2E30E0AB0FC840026D5DB /* MinifigureDialogController.m */,
 				0BF729B008AD849300E3DA53 /* PartBrowserDataSource.h */,
 				0BF729B108AD849300E3DA53 /* PartBrowserDataSource.m */,
-				0BDC146D0B9D0502001D1FF1 /* PartBrowserPanel.h */,
-				0BDC146E0B9D0502001D1FF1 /* PartBrowserPanel.m */,
+				0BDC146D0B9D0502001D1FF1 /* PartBrowserPanelController.h */,
+				0BDC146E0B9D0502001D1FF1 /* PartBrowserPanelController.m */,
 				0BF729B208AD849300E3DA53 /* PartChooserPanel.h */,
 				0BF729B308AD849300E3DA53 /* PartChooserPanel.m */,
 				0B4F5E0F0F31632C00355631 /* PartLibraryController.h */,
@@ -1170,7 +1170,7 @@
 				2BF2E30F0AB0FC840026D5DB /* MinifigureDialogController.h in Headers */,
 				2BF2E3150AB0FCAB0026D5DB /* MLCadIni.h in Headers */,
 				2BF2E3170AB0FCAB0026D5DB /* TransformerIntMinus1.h in Headers */,
-				0BDC146F0B9D0502001D1FF1 /* PartBrowserPanel.h in Headers */,
+				0BDC146F0B9D0502001D1FF1 /* PartBrowserPanelController.h in Headers */,
 				0B2DD14A0CD810DC0093E8E5 /* PartBrowserTableView.h in Headers */,
 				0B2DD14E0CD810F20093E8E5 /* BezierPathCategory.h in Headers */,
 				0B74F28D0D0BB5AD00ED8419 /* ScrollViewCategory.h in Headers */,
@@ -1427,7 +1427,7 @@
 				2BF2E3100AB0FC840026D5DB /* MinifigureDialogController.m in Sources */,
 				2BF2E3160AB0FCAB0026D5DB /* MLCadIni.m in Sources */,
 				2BF2E3180AB0FCAB0026D5DB /* TransformerIntMinus1.m in Sources */,
-				0BDC14700B9D0502001D1FF1 /* PartBrowserPanel.m in Sources */,
+				0BDC14700B9D0502001D1FF1 /* PartBrowserPanelController.m in Sources */,
 				0B2DD14B0CD810DC0093E8E5 /* PartBrowserTableView.m in Sources */,
 				0B2DD14F0CD810F20093E8E5 /* BezierPathCategory.m in Sources */,
 				0B74F28E0D0BB5AD00ED8419 /* ScrollViewCategory.m in Sources */,

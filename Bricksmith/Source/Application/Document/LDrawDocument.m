@@ -51,7 +51,7 @@
 #import "MinifigureDialogController.h"
 #import "MovePanel.h"
 #import "PartBrowserDataSource.h"
-#import "PartBrowserPanel.h"
+#import "PartBrowserPanelController.h"
 #import "PartReport.h"
 #import "PieceCountPanel.h"
 #import "RotationPanel.h"
@@ -1983,9 +1983,9 @@
 //==============================================================================
 - (IBAction) addPartClicked:(id)sender
 {	
-	NSUserDefaults		*userDefaults		= [NSUserDefaults standardUserDefaults];
-	PartBrowserStyleT	 partBrowserStyle	= [userDefaults integerForKey:PART_BROWSER_STYLE_KEY];
-	PartBrowserPanel	*partBrowserPanel	= nil;
+	NSUserDefaults				*userDefaults			= [NSUserDefaults standardUserDefaults];
+	PartBrowserStyleT			partBrowserStyle		= [userDefaults integerForKey:PART_BROWSER_STYLE_KEY];
+	PartBrowserPanelController	*partBrowserController	= nil;
 	
 	switch(partBrowserStyle)
 	{
@@ -2001,13 +2001,13 @@
 			
 		case PartBrowserShowAsPanel:
 			
-			partBrowserPanel = [PartBrowserPanel sharedPartBrowserPanel];
+			partBrowserController = [PartBrowserPanelController sharedPartBrowserPanel];
 			
 			//is it open and foremost?
-			if([partBrowserPanel isKeyWindow] == YES)
-				[[partBrowserPanel partBrowser] addPartClicked:sender];
+			if([[partBrowserController window] isKeyWindow] == YES)
+				[[partBrowserController partBrowser] addPartClicked:sender];
 			else
-				[partBrowserPanel makeKeyAndOrderFront:sender];
+				[[partBrowserController window] makeKeyAndOrderFront:sender];
 			
 			break;
 	} 

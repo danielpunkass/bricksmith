@@ -85,6 +85,7 @@ static PartBrowserPanelController *sharedPartBrowserPanel = nil;
 #pragma mark DELEGATES
 #pragma mark -
 
+//**** NSWindow ****
 //========== windowWillClose: ==================================================
 //
 // Purpose:		There is a known bug in NSOpenGLView whereby a GLView will 

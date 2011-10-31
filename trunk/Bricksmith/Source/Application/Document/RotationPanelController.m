@@ -140,7 +140,13 @@ RotationPanelController *sharedRotationPanel = nil;
 //==============================================================================
 - (IBAction) rotateButtonClicked:(id)sender
 {
-	[NSApp sendAction:@selector(panelRotateParts:) to:nil from:self];
+	// Validate, and guarantee that Undo points to the document and not some 
+	// typed-in text field. 
+	NSResponder *currentResponder = [[self window] firstResponder];
+	if([[self window] makeFirstResponder:nil])
+	{
+		[NSApp sendAction:@selector(panelRotateParts:) to:nil from:self];
+	}
 
 }//end rotateButtonClicked:
 
@@ -162,6 +168,22 @@ RotationPanelController *sharedRotationPanel = nil;
 	
 	[self autorelease];
 	sharedRotationPanel = nil;
+}
+
+
+//========== windowWillReturnUndoManager: ======================================
+//
+// Purpose:		Defer undo to the document. This seems reasonable, as the 
+//				rotation panel affects the document so intimately it's much more 
+//				likely the user wants to undo the document than changes to 
+//				rotation text fields. 
+//
+//==============================================================================
+- (NSUndoManager *) windowWillReturnUndoManager:(NSWindow *)window
+{
+	NSDocument *currentDocument = [[NSDocumentController sharedDocumentController] currentDocument];
+	
+	return [currentDocument undoManager];
 }
 
 

@@ -54,7 +54,7 @@
 #import "PartBrowserPanelController.h"
 #import "PartReport.h"
 #import "PieceCountPanel.h"
-#import "RotationPanel.h"
+#import "RotationPanelController.h"
 #import "ScrollViewCategory.h"
 #import "StringUtilities.h"
 #import "UserDefaultsCategory.h"
@@ -1582,9 +1582,9 @@
 //==============================================================================
 - (IBAction) orderFrontRotationPanel:(id)sender
 {
-	RotationPanel *panel = [RotationPanel rotationPanel];
+	RotationPanelController *rotateController = [RotationPanelController rotationPanel];
 	
-	[panel makeKeyAndOrderFront:self];
+	[[rotateController window] makeKeyAndOrderFront:self];
 
 }//end openRotationPanel:
 

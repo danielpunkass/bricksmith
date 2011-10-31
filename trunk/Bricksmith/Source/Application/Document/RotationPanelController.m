@@ -1,6 +1,6 @@
 //==============================================================================
 //
-// File:		RotationPanel.m
+// File:		RotationPanelController.m
 //
 // Purpose:		Advanced rotation controls for doing relative rotations on 
 //				groups of parts. This is not meant to provide absolute rotations 
@@ -10,12 +10,12 @@
 //  Created by Allen Smith on 8/27/06.
 //  Copyright 2006. All rights reserved.
 //==============================================================================
-#import "RotationPanel.h"
+#import "RotationPanelController.h"
 
 
-@implementation RotationPanel
+@implementation RotationPanelController
 
-RotationPanel *sharedRotationPanel = nil;
+RotationPanelController *sharedRotationPanel = nil;
 
 #pragma mark -
 #pragma mark INITIALIZATION
@@ -29,28 +29,29 @@ RotationPanel *sharedRotationPanel = nil;
 + (id) rotationPanel
 {
 	if(sharedRotationPanel == nil)
-		sharedRotationPanel = [[RotationPanel alloc] init];
+		sharedRotationPanel = [[RotationPanelController alloc] init];
 		
 	return sharedRotationPanel;
 	
 }//end rotationPanel
 
 
+//========== init ==============================================================
+//
+// Purpose:		Initialize the object.
+//
+//==============================================================================
+- (id) init
+{
+	self = [super initWithWindowNibName:@"RotationPanel"];
+	
+	return self;
+}
+
+
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
-
-//========== panelNibName ======================================================
-//
-// Purpose:		Identifies to our superclass the nib to load.
-//
-//==============================================================================
-- (NSString *) panelNibName
-{
-	return @"RotationPanel";
-
-}//end panelNibName
-
 
 //========== enableFixedPointCoordinates =======================================
 //
@@ -145,6 +146,26 @@ RotationPanel *sharedRotationPanel = nil;
 
 
 #pragma mark -
+#pragma mark DELEGATES
+#pragma mark -
+
+//========== windowWillClose: ==================================================
+//
+// Purpose:		Window is closing; clean up.
+//
+//==============================================================================
+- (void) windowWillClose:(NSNotification *)notification
+{
+	//The object controller apparently retains its content. We must break that 
+	// cycle in order to fully deallocate.
+	[objectController setContent:nil];
+	
+	[self autorelease];
+	sharedRotationPanel = nil;
+}
+
+
+#pragma mark -
 #pragma mark DESTRUCTOR
 #pragma mark -
 
@@ -157,9 +178,6 @@ RotationPanel *sharedRotationPanel = nil;
 //==============================================================================
 - (void) dealloc
 {
-	[formatterAngles	release];
-	[formatterPoints	release];
-	
 	[super dealloc];
 
 }//end dealloc

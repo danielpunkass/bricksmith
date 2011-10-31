@@ -264,8 +264,8 @@
 		2BF2E2CD0AB0FBB50026D5DB /* MLCad.ini in Resources */ = {isa = PBXBuildFile; fileRef = 2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */; };
 		2BF2E3030AB0FC5E0026D5DB /* MovePanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2E2FF0AB0FC5E0026D5DB /* MovePanel.h */; };
 		2BF2E3040AB0FC5E0026D5DB /* MovePanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E3000AB0FC5E0026D5DB /* MovePanel.m */; };
-		2BF2E3050AB0FC5E0026D5DB /* RotationPanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2E3010AB0FC5E0026D5DB /* RotationPanel.h */; };
-		2BF2E3060AB0FC5E0026D5DB /* RotationPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E3020AB0FC5E0026D5DB /* RotationPanel.m */; };
+		2BF2E3050AB0FC5E0026D5DB /* RotationPanelController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2E3010AB0FC5E0026D5DB /* RotationPanelController.h */; };
+		2BF2E3060AB0FC5E0026D5DB /* RotationPanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E3020AB0FC5E0026D5DB /* RotationPanelController.m */; };
 		2BF2E30F0AB0FC840026D5DB /* MinifigureDialogController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2E30D0AB0FC840026D5DB /* MinifigureDialogController.h */; };
 		2BF2E3100AB0FC840026D5DB /* MinifigureDialogController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E30E0AB0FC840026D5DB /* MinifigureDialogController.m */; };
 		2BF2E3150AB0FCAB0026D5DB /* MLCadIni.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2E3110AB0FCAB0026D5DB /* MLCadIni.h */; };
@@ -568,8 +568,8 @@
 		2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MLCad.ini; sourceTree = "<group>"; };
 		2BF2E2FF0AB0FC5E0026D5DB /* MovePanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MovePanel.h; sourceTree = "<group>"; };
 		2BF2E3000AB0FC5E0026D5DB /* MovePanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MovePanel.m; sourceTree = "<group>"; };
-		2BF2E3010AB0FC5E0026D5DB /* RotationPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotationPanel.h; sourceTree = "<group>"; };
-		2BF2E3020AB0FC5E0026D5DB /* RotationPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotationPanel.m; sourceTree = "<group>"; };
+		2BF2E3010AB0FC5E0026D5DB /* RotationPanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotationPanelController.h; sourceTree = "<group>"; };
+		2BF2E3020AB0FC5E0026D5DB /* RotationPanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RotationPanelController.m; sourceTree = "<group>"; };
 		2BF2E30D0AB0FC840026D5DB /* MinifigureDialogController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MinifigureDialogController.h; sourceTree = "<group>"; };
 		2BF2E30E0AB0FC840026D5DB /* MinifigureDialogController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MinifigureDialogController.m; sourceTree = "<group>"; };
 		2BF2E3110AB0FCAB0026D5DB /* MLCadIni.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLCadIni.h; sourceTree = "<group>"; };
@@ -962,8 +962,8 @@
 				2BF2E3000AB0FC5E0026D5DB /* MovePanel.m */,
 				0B356AEF08D385B900695EEB /* PieceCountPanel.h */,
 				0B356AEE08D385B900695EEB /* PieceCountPanel.m */,
-				2BF2E3010AB0FC5E0026D5DB /* RotationPanel.h */,
-				2BF2E3020AB0FC5E0026D5DB /* RotationPanel.m */,
+				2BF2E3010AB0FC5E0026D5DB /* RotationPanelController.h */,
+				2BF2E3020AB0FC5E0026D5DB /* RotationPanelController.m */,
 			);
 			path = Document;
 			sourceTree = "<group>";
@@ -1166,7 +1166,7 @@
 				0B25F040093D5F960099D85E /* BricksmithApplication.h in Headers */,
 				0B2700870981FCEA0058A7BE /* ToolPalette.h in Headers */,
 				2BF2E3030AB0FC5E0026D5DB /* MovePanel.h in Headers */,
-				2BF2E3050AB0FC5E0026D5DB /* RotationPanel.h in Headers */,
+				2BF2E3050AB0FC5E0026D5DB /* RotationPanelController.h in Headers */,
 				2BF2E30F0AB0FC840026D5DB /* MinifigureDialogController.h in Headers */,
 				2BF2E3150AB0FCAB0026D5DB /* MLCadIni.h in Headers */,
 				2BF2E3170AB0FCAB0026D5DB /* TransformerIntMinus1.h in Headers */,
@@ -1423,7 +1423,7 @@
 				0B25F041093D5F960099D85E /* BricksmithApplication.m in Sources */,
 				0B2700880981FCEA0058A7BE /* ToolPalette.m in Sources */,
 				2BF2E3040AB0FC5E0026D5DB /* MovePanel.m in Sources */,
-				2BF2E3060AB0FC5E0026D5DB /* RotationPanel.m in Sources */,
+				2BF2E3060AB0FC5E0026D5DB /* RotationPanelController.m in Sources */,
 				2BF2E3100AB0FC840026D5DB /* MinifigureDialogController.m in Sources */,
 				2BF2E3160AB0FCAB0026D5DB /* MLCadIni.m in Sources */,
 				2BF2E3180AB0FCAB0026D5DB /* TransformerIntMinus1.m in Sources */,

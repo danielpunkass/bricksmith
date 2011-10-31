@@ -1886,6 +1886,32 @@
 }//end hideParts:
 
 
+//========== showAllParts: =====================================================
+//
+// Purpose:		Unhides all hidden parts.
+//
+//==============================================================================
+- (IBAction) showAllParts:(id)sender
+{
+	LDrawModel  *activeModel    = [[self documentContents] activeModel];
+	NSArray     *elements       = [activeModel allEnclosedElements];
+	id          currentElement  = nil;
+	NSInteger   counter         = 0;
+	
+	// Show everything
+	for(counter = 0; counter < [elements count]; counter++)
+	{
+		currentElement = [elements objectAtIndex:counter];
+		
+		if(		[currentElement respondsToSelector:@selector(setHidden:)]
+		   &&	[currentElement isHidden] == YES)
+		{
+			[self setElement:currentElement toHidden:NO]; //undoable hook.
+		}
+	}
+}//end showAllParts:
+
+
 //========== snapSelectionToGrid: ==============================================
 //
 // Purpose:		Aligns all selected parts to the current grid setting.

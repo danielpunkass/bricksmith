@@ -157,6 +157,7 @@ typedef enum insertionMode {
 // - Piece menu
 - (IBAction) showParts:(id)sender;
 - (IBAction) hideParts:(id)sender;
+- (IBAction) showAllParts:(id)sender;
 - (void) snapSelectionToGrid:(id)sender;
 
 // - Models menu

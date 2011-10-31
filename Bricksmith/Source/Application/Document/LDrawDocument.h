@@ -15,7 +15,7 @@
 #import "ColorLibrary.h"
 #import "LDrawUtilities.h"
 #import "MatrixMath.h"
-#import "RotationPanel.h"
+#import "RotationPanelController.h"
 #import "ViewportArranger.h"
 
 @class DocumentToolbarController;

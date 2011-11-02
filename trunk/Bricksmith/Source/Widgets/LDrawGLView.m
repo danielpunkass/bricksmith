@@ -363,9 +363,6 @@ static Size2 NSSizeToSize2(NSSize size)
 		if(numberDrawRequests == 1)
 		{
 			[self->renderer draw];
-			
-			//glFlush(); //implicit in -flushBuffer
-			[[self openGLContext] flushBuffer];
 		}
 		//else we just drop the draw.
 	}
@@ -2397,6 +2394,22 @@ static Size2 NSSizeToSize2(NSSize size)
 - (void) LDrawGLRendererNeedsCurrentContext:(LDrawGLRenderer *)renderer
 {
 	[[self openGLContext] makeCurrentContext];
+}
+
+
+//========== LDrawGLRendererNeedsFlush: ========================================
+//
+// Purpose:		Drawing is complete; do a flush.
+//
+// Notes:		This is implemented as a callback because flushing might be a 
+//				time-sensitive operation, and we want to do the framerate 
+//				calculation (in the renderer) after drawing is done. Otherwise, 
+//				we'd just do it in -[LDrawOpenGLView draw]. 
+//
+//==============================================================================
+- (void) LDrawGLRendererNeedsFlush:(LDrawGLRenderer*)renderer
+{
+	[[self openGLContext] flushBuffer];
 }
 
 

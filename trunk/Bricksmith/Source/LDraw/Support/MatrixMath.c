@@ -274,12 +274,12 @@ float V2BoxMinY(Box2 box)
 //==============================================================================
 Box2 V2BoxInset(Box2 box, float dX, float dY)
 {
-	Box2 insetBox;
+	Box2 insetBox = box;
 	
-	box.origin.x    += dX;
-	box.origin.y    += dY;
-	box.size.width  -= dX * 2;
-	box.size.height -= dY * 2;
+	insetBox.origin.x    += dX;
+	insetBox.origin.y    += dY;
+	insetBox.size.width  -= dX * 2;
+	insetBox.size.height -= dY * 2;
 	
 	return insetBox;
 }

@@ -210,6 +210,7 @@ typedef enum
 - (void) LDrawGLRenderer:(LDrawGLRenderer*)renderer didSetBoundsToSize:(Size2)newBoundsSize;
 - (void) LDrawGLRenderer:(LDrawGLRenderer*)renderer didSetZoomPercentage:(CGFloat)newZoomPercent;
 - (void) LDrawGLRendererNeedsCurrentContext:(LDrawGLRenderer *)renderer;
+- (void) LDrawGLRendererNeedsFlush:(LDrawGLRenderer*)renderer;
 - (void) LDrawGLRendererNeedsRedisplay:(LDrawGLRenderer*)renderer;
 
 @optional

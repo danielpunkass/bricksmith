@@ -214,10 +214,7 @@
 					 viewScale:[self zoomPercentage]/100.
 				   parentColor:color];
 	
-	//glFlush(); //implicit in -flushBuffer
-//	[[self openGLContext] flushBuffer];
-	#warning need to flush
-
+	[self->delegate LDrawGLRendererNeedsFlush:self];
 	
 	// If we just did a full draw, let's see if rotating needs to be 
 	// done simply. 

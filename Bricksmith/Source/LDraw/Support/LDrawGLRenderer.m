@@ -476,6 +476,35 @@
 }//end viewOrientation
 
 
+//========== viewport ==========================================================
+//
+// Purpose:		Returns the viewport. Origin is the lower-left.
+//
+//==============================================================================
+- (Box2) viewport
+{
+	GLint	glViewport[4]	= {};
+	Box2	viewport		= ZeroBox2;
+	
+	glGetIntegerv(GL_VIEWPORT, glViewport);
+	viewport = V2MakeBox(glViewport[0], glViewport[1], glViewport[2], glViewport[3]);
+	
+	return viewport;
+}
+
+
+//========== visibleRect =======================================================
+//
+// Purpose:		Returns the rect in the view coordinate system which is 
+//				considered "visible." This is the rect the viewport is projected 
+//				in. 
+//
+//==============================================================================
+- (Box2) visibleRect
+{
+	return self->visibleRect;
+}
+
 //========== zoomPercentage ====================================================
 //
 // Purpose:		Returns the percentage magnification being applied to the 
@@ -939,7 +968,6 @@
 	Box2    viewport                = ZeroBox2;
 	GLfloat modelViewGLMatrix	[16];
 	GLfloat projectionGLMatrix	[16];
-	GLint   GLViewport			[4];
 	Box3    projectedBounds         = InvalidBox;
 	Box2    projectionRect          = ZeroBox2;
 	Size2   zoomScale2D             = ZeroSize2;
@@ -960,11 +988,10 @@
 			// Project the bounds onto the 2D "canvas"
 			glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
 			glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
-			glGetIntegerv(GL_VIEWPORT, GLViewport);
 			
 			modelView   = Matrix4CreateFromGLMatrix4(modelViewGLMatrix);
 			projection  = Matrix4CreateFromGLMatrix4(projectionGLMatrix);
-			viewport    = V2MakeBox(GLViewport[0], GLViewport[1], GLViewport[2], GLViewport[3]);
+			viewport    = [self viewport];
 
 			projectedBounds = [(id)self->fileBeingDrawn
 									   projectedBoundingBoxWithModelView:modelView
@@ -1274,26 +1301,29 @@
 }//end dragHandleDragged:
 
 
-//========== panDrag: ==========================================================
+//========== panDragged:location: ==============================================
 //
-// Purpose:		Scroll the view as the mouse is dragged across it. This is 
-//				triggered by holding down the shift key and dragging
-//				(see -mouseDragged:).
+// Purpose:		Scroll the view as the mouse is dragged across it. 
 //
 //==============================================================================
-- (void) panDragged:(Vector2)viewDirection
+- (void) panDragged:(Vector2)viewDirection location:(Point2)point_view
 {
-	Box2    newVisibleRect  = self->visibleRect;
-	CGFloat scaleFactor     = [self zoomPercentage] / 100;
+	if(isStartingDrag)
+	{
+		self->initialDragLocation = [self modelPointForPoint:point_view];
+	}
+	
+	Box2	viewport		= [self viewport];
+	Point2	point_viewport	= [self convertPointToViewport:point_view];
+	Point2	proportion		= V2Make(point_viewport.x, point_viewport.y);
+	
+	proportion.x /= V2BoxWidth(viewport);
+	proportion.y /= V2BoxHeight(viewport);
 	
 	if([self->delegate respondsToSelector:@selector(LDrawGLRendererMouseNotPositioning:)])
 		[self->delegate LDrawGLRendererMouseNotPositioning:self];
 	
-	//scroll the opposite direction of pull.
-	newVisibleRect.origin.x -= viewDirection.x / scaleFactor;
-	newVisibleRect.origin.y -= viewDirection.y / scaleFactor;
-	
-	[self scrollRectToVisible:newVisibleRect];
+	[self scrollModelPoint:self->initialDragLocation toViewportProportionalPoint:proportion];
 	
 }//end panDragged:
 
@@ -1754,21 +1784,20 @@
 	// Since we can't read the depth buffer in OpenGL ES, we will use the 
 	// ray-tracing code. 
 
-	Point3              contextNear             = ZeroPoint3;
-	Point3              contextFar              = ZeroPoint3;
-	Ray3                pickRay                 = {{0}};
-	Point3              pickRay_end             = ZeroPoint3;
-	GLint               viewport[4]             = {0};
-	GLfloat             projectionGLMatrix[16]  = {0.0};
-	GLfloat             modelViewGLMatrix[16]   = {0.0};
-	NSMutableDictionary *hits                   = [NSMutableDictionary dictionary];
-	NSArray             *clickedDirectives      = nil;
-	NSUInteger          counter                 = 0;
-	LDrawDirective      *currentDirective       = nil;
-	float               currentDepth            = 0.0;
+	Point3				contextNear 			= ZeroPoint3;
+	Point3				contextFar				= ZeroPoint3;
+	Ray3				pickRay 				= {{0}};
+	Point3				pickRay_end 			= ZeroPoint3;
+	Box2				viewport				= [self viewport];
+	GLfloat 			projectionGLMatrix[16]	= {0.0};
+	GLfloat 			modelViewGLMatrix[16]	= {0.0};
+	NSMutableDictionary *hits					= [NSMutableDictionary dictionary];
+	NSArray 			*clickedDirectives		= nil;
+	NSUInteger			counter 				= 0;
+	LDrawDirective		*currentDirective		= nil;
+	float				currentDepth			= 0.0;
 	
 	// Get view and projection
-	glGetIntegerv(GL_VIEWPORT, viewport);
 	glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
 	glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
 	
@@ -1780,11 +1809,11 @@
 	pickRay.origin      = V3Unproject(contextNear,
 									  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 									  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-									  V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
+									  viewport);
 	pickRay_end         = V3Unproject(contextFar,
 									  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 									  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-									  V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
+									  viewport);
 	pickRay.direction   = V3Sub(pickRay_end, pickRay.origin);
 	pickRay.direction	= V3Normalize(pickRay.direction);
 	
@@ -1863,14 +1892,13 @@
 		Point3              contextFar              = ZeroPoint3;
 		Ray3                pickRay                 = {{0}};
 		Point3              pickRay_end             = ZeroPoint3;
-		GLint               viewport[4]             = {0};
+		Box2				viewport	            = [self viewport];
 		GLfloat             projectionGLMatrix[16]  = {0.0};
 		GLfloat             modelViewGLMatrix[16]   = {0.0};
 		NSMutableDictionary *hits                   = [NSMutableDictionary dictionary];
 		NSUInteger          counter                 = 0;
 		
 		// Get view and projection
-		glGetIntegerv(GL_VIEWPORT, viewport);
 		glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
 		glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
 		
@@ -1882,11 +1910,11 @@
 		pickRay.origin      = V3Unproject(contextNear,
 										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-										  V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
+										  viewport);
 		pickRay_end         = V3Unproject(contextFar,
 										  Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 										  Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-										  V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
+										  viewport);
 		pickRay.direction   = V3Sub(pickRay_end, pickRay.origin);
 		pickRay.direction	= V3Normalize(pickRay.direction);
 		
@@ -2329,8 +2357,8 @@
 //==============================================================================
 - (Point2) convertPointFromViewport:(Point2)viewportPoint
 {
-	Point2 point_visibleRect	= ZeroPoint2;
-	Point2 point_view          = ZeroPoint2;
+	Point2	point_visibleRect	= ZeroPoint2;
+	Point2	point_view			= ZeroPoint2;
 	
 	// Rescale to visible rect
 	point_visibleRect.x = viewportPoint.x / ([self zoomPercentage]/100.);
@@ -2364,8 +2392,8 @@
 //==============================================================================
 - (Point2) convertPointToViewport:(Point2)point_view
 {
-	Point2 point_visibleRect   = ZeroPoint2;
-	Point2  point_viewport      = ZeroPoint2;
+	Point2	point_visibleRect	= ZeroPoint2;
+	Point2	point_viewport		= ZeroPoint2;
 	
 	// Translate from full bounds coordinates to the visible rect
 	point_visibleRect.x = point_view.x - visibleRect.origin.x;
@@ -2500,7 +2528,6 @@
 	Point3              contextPoint            = ZeroPoint3;
 	GLfloat             modelViewGLMatrix	[16];
 	GLfloat             projectionGLMatrix	[16];
-	GLint               viewport			[4];
 	Point3              modelPoint              = ZeroPoint3;
 	
 	depth = [self getDepthUnderPoint:viewPoint];
@@ -2529,12 +2556,11 @@
 		// Convert back to a point in the model.
 		glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
 		glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
-		glGetIntegerv(GL_VIEWPORT, viewport);
 		
 		modelPoint = V3Unproject(contextPoint,
 								 Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 								 Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-								 V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
+								 [self viewport]);
 	}
 	
 	return modelPoint;
@@ -2574,18 +2600,17 @@
 {
 	GLfloat modelViewGLMatrix	[16];
 	GLfloat projectionGLMatrix	[16];
-	GLint   viewport			[4];
+	Box2	viewport				= [self viewport];
 	
-	Point2  contextPoint            = [self convertPointToViewport:viewPoint];
-	Point3  nearModelPoint          = ZeroPoint3;
-	Point3  farModelPoint           = ZeroPoint3;
-	Point3  modelPoint              = ZeroPoint3;
-	Vector3 modelZ                  = ZeroPoint3;
-	float   t                       = 0; //parametric variable
+	Point2	contextPoint			= [self convertPointToViewport:viewPoint];
+	Point3	nearModelPoint			= ZeroPoint3;
+	Point3	farModelPoint			= ZeroPoint3;
+	Point3	modelPoint				= ZeroPoint3;
+	Vector3 modelZ					= ZeroPoint3;
+	float	t						= 0; //parametric variable
 	
 	glGetFloatv(GL_PROJECTION_MATRIX, projectionGLMatrix);
 	glGetFloatv(GL_MODELVIEW_MATRIX, modelViewGLMatrix);
-	glGetIntegerv(GL_VIEWPORT, viewport);
 	
 	// gluUnProject takes a window "z" coordinate. These values range from 
 	// 0.0 (on the near clipping plane) to 1.0 (the far clipping plane). 
@@ -2594,13 +2619,13 @@
 	nearModelPoint = V3Unproject(V3Make(contextPoint.x, contextPoint.y, 0.0),
 								 Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 								 Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-								 V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
+								 viewport);
 	
 	// - Far clipping plane unprojection
 	farModelPoint = V3Unproject(V3Make(contextPoint.x, contextPoint.y, 1.0),
 								Matrix4CreateFromGLMatrix4(modelViewGLMatrix),
 								Matrix4CreateFromGLMatrix4(projectionGLMatrix),
-								V2MakeBox(viewport[0], viewport[1], viewport[2], viewport[3]));
+								viewport);
 	
 	//---------- Derive the actual point from the depth point --------------
 	//

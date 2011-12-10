@@ -114,6 +114,8 @@ typedef enum
 - (ProjectionModeT) projectionMode;
 - (Tuple3) viewingAngle;
 - (ViewOrientationT) viewOrientation;
+- (Box2) viewport;
+- (Box2) visibleRect;
 - (CGFloat) zoomPercentage;
 
 - (void) setAllowsEditing:(BOOL)flag;
@@ -151,7 +153,7 @@ typedef enum
 - (void) mouseZoomOutClick:(Point2)viewClickedPoint;
 
 - (void) dragHandleDraggedToPoint:(Point2)point_view constrainDragAxis:(BOOL)constrainDragAxis;
-- (void) panDragged:(Vector2)viewDirection;
+- (void) panDragged:(Vector2)viewDirection location:(Point2)point_view;
 - (void) rotationDragged:(Vector2)viewDirection;
 - (void) zoomDragged:(Vector2)viewDirection;
 

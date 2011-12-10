@@ -1533,7 +1533,10 @@ static Size2 NSSizeToSize2(NSSize size)
 	
 	if(toolMode == PanScrollTool)
 	{
-		[self->renderer panDragged:dragDelta];
+		NSPoint point_window	= [theEvent locationInWindow];
+		NSPoint point_view		= [self convertPoint:point_window fromView:nil ];
+		
+		[self->renderer panDragged:dragDelta location:V2Make(point_view.x, point_view.y)];
 	}
 	else if(toolMode == SpinTool)
 	{

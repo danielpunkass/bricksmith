@@ -58,6 +58,7 @@
 	NSTimer                 *mouseDownTimer;		// countdown to beginning drag-and-drop
 	BOOL                    canBeginDragAndDrop;	// the next mouse-dragged will initiate a drag-and-drop.
 	BOOL                    dragEndedInOurDocument;	// YES if the drag we initiated ended in the document we display
+	NSEventType				startingGestureType;
 	Vector3					nudgeVector;			// direction of nudge action (valid only in nudgeAction callback)
 }
 

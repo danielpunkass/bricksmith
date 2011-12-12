@@ -1970,6 +1970,7 @@ static Size2 NSSizeToSize2(NSSize size)
 - (void) beginGestureWithEvent:(NSEvent *)theEvent
 {
 	[[self openGLContext] makeCurrentContext];
+	self->startingGestureType = [theEvent type];
 	[self->renderer beginGesture];
 	
 }//end beginGestureWithEvent:
@@ -2006,7 +2007,7 @@ static Size2 NSSizeToSize2(NSSize size)
 	//Negative means down
 	[self->renderer setZoomPercentage:(currentZoom * zoomChange)
 						preservePoint:V2Make(viewPoint.x, viewPoint.y)];
-	
+
 }//end magnifyWithEvent:
 
 
@@ -2022,14 +2023,21 @@ static Size2 NSSizeToSize2(NSSize size)
 {
 	CGFloat	angle = [theEvent rotation]; // degrees counterclockwise
 	
-	CGLLockContext([[self openGLContext] CGLContextObj]);
+	// Do not allow rotating in orthographic views if we started out doing a 
+	// zoom gesture. Rotating will automatically change an orthographic view to 
+	// perspective, and we don't want to do that when unexpected. 
+	if(		[self->renderer projectionMode] == ProjectionModePerspective
+	   ||	self->startingGestureType == NSEventTypeRotate )
 	{
-		[[self openGLContext] makeCurrentContext];
-		
-		[self->renderer rotateByDegrees:angle];
-		[self setNeedsDisplay: YES];
+		CGLLockContext([[self openGLContext] CGLContextObj]);
+		{
+			[[self openGLContext] makeCurrentContext];
+			
+			[self->renderer rotateByDegrees:angle];
+			[self setNeedsDisplay: YES];
+		}
+		CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	}
-	CGLUnlockContext([[self openGLContext] CGLContextObj]);
 	
 }//end rotateWithEvent:
 

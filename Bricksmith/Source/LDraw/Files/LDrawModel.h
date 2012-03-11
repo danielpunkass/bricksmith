@@ -88,6 +88,6 @@ typedef enum {
 - (void) optimizeStructure;
 - (void) optimizeVertexes;
 - (NSUInteger) parseHeaderFromLines:(NSArray *)lines beginningAtIndex:(NSUInteger)index;
-- (BOOL) line:(NSString *)line isValidForHeader:(NSString *)headerKey;
+- (BOOL) line:(NSString *)line isValidForHeader:(NSString *)headerKey info:(NSString**)infoPtr;
 
 @end

@@ -1232,18 +1232,19 @@
 - (NSUInteger) parseHeaderFromLines:(NSArray *)lines
 				   beginningAtIndex:(NSUInteger)index
 {
-	NSString        *currentLine        = nil;
-	NSUInteger      counter             = 0;
-	BOOL			lineValidForHeader	= NO;
-	NSUInteger		firstNonHeaderIndex	= index;
+	NSString	*currentLine		= nil;
+	NSUInteger	counter 			= 0;
+	BOOL		lineValidForHeader	= NO;
+	NSUInteger	firstNonHeaderIndex = index;
+	NSString	*payload			= nil;
 	
 	@try
 	{
 		//First line. Should be a description of the model.
 		currentLine = [lines objectAtIndex:index];
-		if([self line:currentLine isValidForHeader:@""])
+		if([self line:currentLine isValidForHeader:@"" info:&payload])
 		{
-			[self setModelDescription:[currentLine substringFromIndex:2]];
+			[self setModelDescription:payload];
 			firstNonHeaderIndex++;
 		}
 		
@@ -1255,23 +1256,24 @@
 		{
 			currentLine         = [lines objectAtIndex:counter];
 			lineValidForHeader  = NO; // assume not, then disprove
+			payload				= nil;
 			
 			//Second line. Should be file name.
-			if([self line:currentLine isValidForHeader:@"Name: "])
+			if([self line:currentLine isValidForHeader:LDRAW_HEADER_NAME info:&payload])
 			{
-				[self setFileName:[currentLine substringFromIndex:[@"0 Name: " length]]];
+				[self setFileName:payload];
 				lineValidForHeader = YES;
 			}
 			//Third line. Should be author name.
-			else if([self line:currentLine isValidForHeader:@"Author: "])
+			else if([self line:currentLine isValidForHeader:LDRAW_HEADER_AUTHOR info:&payload])
 			{
-				[self setAuthor:[currentLine substringFromIndex:[@"0 Author: " length]]];
+				[self setAuthor:payload];
 				lineValidForHeader = YES;
 			}
 			//Fourth line. Should be officiality status.
-			else if([self line:currentLine isValidForHeader:@""])
+			else if([self line:currentLine isValidForHeader:@"" info:&payload])
 			{
-				if([currentLine containsString:@"LDraw.org Official" options:NSCaseInsensitiveSearch])
+				if([payload containsString:LDRAW_HEADER_OFFICIAL_MODEL options:NSCaseInsensitiveSearch])
 					[self setLDrawRepositoryStatus:LDrawOfficialModel];
 				else
 					[self setLDrawRepositoryStatus:LDrawUnofficialModel];
@@ -1279,7 +1281,7 @@
 				//If the model was flagged as either official or un-official, then this was 
 				// part of the header and we delete it. Otherwise, who knows what it is?
 				// Just leave it be then.
-				if([currentLine containsString:@"official" options:NSCaseInsensitiveSearch])
+				if([payload containsString:@"official" options:NSCaseInsensitiveSearch])
 				{
 					lineValidForHeader = YES;
 				}
@@ -1309,16 +1311,34 @@
 //==============================================================================
 - (BOOL)		line:(NSString *)line
 	isValidForHeader:(NSString *)headerKey
+				info:(NSString**)infoPtr
 {
-	BOOL isValid = NO;
+	NSString	*parsedField	= nil;
+	NSString	*workingLine	= line;
+	BOOL		isValid	= NO;
 	
-	if( [line hasPrefix:[NSString stringWithFormat:@"0 %@", headerKey]] )
+	parsedField = [LDrawUtilities readNextField:  line
+									  remainder: &workingLine ];
+	if([parsedField isEqualToString:@"0"])
 	{
-		isValid = YES;
-	}
-	else
-		isValid = NO;
+		if([headerKey length] > 0)
+		{
+			parsedField = [LDrawUtilities readNextField:workingLine remainder:&workingLine];
+			isValid = [parsedField isEqualToString:headerKey];
+		}
+		else
+		{
+			isValid = YES;
+		}
+
 		
+		if(isValid)
+		{
+			if(infoPtr)
+				*infoPtr = [workingLine stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+		}
+	}
+	
 	return isValid;
 	
 }//end line:isValidForHeader:

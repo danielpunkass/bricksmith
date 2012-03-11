@@ -10,10 +10,9 @@
 #ifndef LDrawKeywords_h
 #define LDrawKeywords_h
 
-// Structure
-#define LDRAW_MPD_FILE_START_MARKER				@"0 FILE"
-#define LDRAW_MPD_FILE_END_MARKER				@"0 NOFILE"
-#define LDRAW_STEP								@"0 STEP"
+// MPD
+#define LDRAW_MPD_SUBMODEL_START				@"FILE"
+#define LDRAW_MPD_SUBMODEL_END					@"NOFILE"
 
 //Comment markers
 #define LDRAW_COMMENT_WRITE						@"WRITE"
@@ -40,8 +39,9 @@
 #define LDRAW_HEADER_OFFICIAL_MODEL				@"LDraw.org Official Model Repository"
 #define LDRAW_HEADER_UNOFFICIAL_MODEL			@"Unofficial Model"
 
-// Rotation Steps
-#define LDRAW_ROTATION_STEP						@"0 ROTSTEP"
+// Steps and Rotation Steps
+#define LDRAW_STEP_TERMINATOR					@"STEP"
+#define LDRAW_ROTATION_STEP_TERMINATOR			@"ROTSTEP"
 #define LDRAW_ROTATION_END						@"END"
 #define LDRAW_ROTATION_RELATIVE					@"REL"
 #define LDRAW_ROTATION_ABSOLUTE					@"ABS"

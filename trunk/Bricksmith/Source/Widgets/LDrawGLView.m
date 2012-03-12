@@ -1708,6 +1708,37 @@ static Size2 NSSizeToSize2(NSSize size)
 }//end otherMouseUp:
 
 
+//========== scrollWheel: ======================================================
+//
+// Purpose:		Scrolling. We intercept option-scroll to zoom.
+//
+//==============================================================================
+- (void)scrollWheel:(NSEvent *)theEvent
+{
+	NSUInteger modifiers = [theEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+
+	if(modifiers == NSAlternateKeyMask)
+	{
+		// Zoom in
+		[[self openGLContext] makeCurrentContext];
+		
+		NSPoint windowPoint     = [theEvent locationInWindow];
+		NSPoint viewPoint       = [self convertPoint:windowPoint fromView:nil];
+		CGFloat magnification   = [theEvent deltaY] / 20; // 1 = increase 100%; -1 = decrease 100%
+		CGFloat zoomChange      = 1.0 + magnification;
+		CGFloat currentZoom     = [self->renderer zoomPercentage];
+		
+		// Negative means down
+		[self->renderer setZoomPercentage:(currentZoom * zoomChange)
+							preservePoint:V2Make(viewPoint.x, viewPoint.y)];
+	}
+	else
+	{
+		// Regular scrolling
+		[super scrollWheel:theEvent];
+	}
+}
+
 #pragma mark - Dragging
 
 //========== directInteractionDragged: =========================================

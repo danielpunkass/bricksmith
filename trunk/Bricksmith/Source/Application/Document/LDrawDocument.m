@@ -4322,11 +4322,17 @@
 //==============================================================================
 - (void) addStepComponent:(LDrawDirective *)newDirective
 {
-	LDrawDirective  *selectedComponent  = [self selectedStepComponent];
-	LDrawStep       *selectedStep       = [self selectedStep];
+	LDrawDirective  *selectedComponent  = nil;
+	LDrawStep       *targetStep			= nil;
 	LDrawMPDModel   *selectedModel      = [self selectedModel];
 	NSInteger       indexOfElement      = 0;
 	NSInteger       rowForItem          = 0;
+
+	// Disabled this behavior at a user's request. Now new components are always 
+	// inserted in the last visible step. That's how duplicating drag-and-drops 
+	// work anyway.
+//	targetStep			= [self selectedStep];
+//	selectedComponent	= [self selectedStepComponent];
 	
 	//We need to synchronize our addition with the model currently active.
 	if(selectedModel == nil)
@@ -4336,28 +4342,28 @@
 	
 	//We may have the model itself selected, in which case we will add this new 
 	// element to the very bottom of the model.
-	if(selectedStep == nil)
-		selectedStep = [selectedModel visibleStep];
+	if(targetStep == nil)
+		targetStep = [selectedModel visibleStep];
 		
 	//It is also possible we have the step itself selected, in which case the 
 	// new coponent will be added to the bottom of the step.
 	if(selectedComponent == nil)
 	{
 		[self addDirective:newDirective
-				  toParent:selectedStep ];
+				  toParent:targetStep ];
 	}
 	//Otherwise, we add the new element right after the selected element.
 	else
 	{
-		indexOfElement = [selectedStep indexOfDirective:selectedComponent];
+		indexOfElement = [targetStep indexOfDirective:selectedComponent];
 		[self addDirective:newDirective
-				  toParent:selectedStep
+				  toParent:targetStep
 				   atIndex:indexOfElement+1 ];
 	}
 
 	// Show the new element.
 	[fileContentsOutline expandItem:selectedModel];
-	[fileContentsOutline expandItem:selectedStep];
+	[fileContentsOutline expandItem:targetStep];
 	
 	// Select it too.
 	rowForItem = [fileContentsOutline rowForItem:newDirective];
@@ -4857,7 +4863,7 @@
 	NSInteger       counter         = 0;
 	
 	//We must make sure we have the proper pasteboard type available.
-	if([[pasteboard types] containsObject:LDrawDirectivePboardType])
+ 	if([[pasteboard types] containsObject:LDrawDirectivePboardType])
 	{
 		//Unarchived everything and dump it into our file.
 		objects = [pasteboard propertyListForType:LDrawDirectivePboardType];

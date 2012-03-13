@@ -76,7 +76,6 @@
 	[self setModelDescription:@""];
 	[self setFileName:@""];
 	[self setAuthor:@""];
-	[self setLDrawRepositoryStatus:LDrawUnofficialModel];
 	
 	[self setStepDisplay:NO];
 	
@@ -160,7 +159,6 @@
 	modelDescription	= [[decoder decodeObjectForKey:@"modelDescription"] retain];
 	fileName			= [[decoder decodeObjectForKey:@"fileName"] retain];
 	author				= [[decoder decodeObjectForKey:@"author"] retain];
-	ldrawDotOrgStatus	= [decoder decodeIntForKey:@"ldrawDotOrgStatus"];
 	
 	return self;
 	
@@ -181,7 +179,6 @@
 	[encoder encodeObject:modelDescription	forKey:@"modelDescription"];
 	[encoder encodeObject:fileName			forKey:@"fileName"];
 	[encoder encodeObject:author			forKey:@"author"];
-	[encoder encodeInt:ldrawDotOrgStatus	forKey:@"ldrawDotOrgStatus"];
 	
 }//end encodeWithCoder:
 
@@ -198,7 +195,6 @@
 	[copied setModelDescription:[self modelDescription]];
 	[copied setFileName:[self fileName]];
 	[copied setAuthor:[self author]];
-	[copied setLDrawRepositoryStatus:[self ldrawRepositoryStatus]];
 	
 	[copied setStepDisplay:[self stepDisplay]];
 	[copied setMaximumStepIndexForStepDisplay:[self maximumStepIndexForStepDisplay]];
@@ -290,12 +286,7 @@
 	//Write out the file header in all of its irritating glory.
 	[written appendFormat:@"0 %@%@", [self modelDescription], CRLF];
 	[written appendFormat:@"0 %@ %@%@", LDRAW_HEADER_NAME, [self fileName], CRLF];
-	[written appendFormat:@"0 %@ %@%@", LDRAW_HEADER_AUTHOR, [self author], CRLF];
-	if([self ldrawRepositoryStatus] == LDrawOfficialModel)
-		[written appendFormat:@"0 %@%@", LDRAW_HEADER_OFFICIAL_MODEL, CRLF];
-	else
-		[written appendFormat:@"0 %@%@", LDRAW_HEADER_UNOFFICIAL_MODEL, CRLF];
-		
+	[written appendFormat:@"0 %@ %@%@", LDRAW_HEADER_AUTHOR, [self author], CRLF];		
 	
 	//Write out all the steps in the file.
 	for(counter = 0; counter < numberSteps; counter++)
@@ -503,18 +494,6 @@
 	return author;
 	
 }//end author
-
-
-//========== ldrawRepositoryStatus =============================================
-//
-// Purpose:		Returns whether or not this is an official LDraw.org model.
-//
-//==============================================================================
-- (LDrawDotOrgModelStatusT) ldrawRepositoryStatus
-{
-	return ldrawDotOrgStatus;
-	
-}//end ldrawRepositoryStatus
 
 
 //========== maximumStepIndexDisplayed =========================================
@@ -841,18 +820,6 @@
 	author = newAuthor;
 	
 }//end setAuthor:
-
-
-//========== setLDrawRepositoryStatus: =========================================
-//
-// Purpose:		Changes whether or not this is an official ldraw.org model.
-//
-//==============================================================================
-- (void) setLDrawRepositoryStatus:(LDrawDotOrgModelStatusT) newStatus
-{
-	ldrawDotOrgStatus = newStatus;
-	
-}//end setLDrawRepositoryStatus:
 
 
 //========== setMaximumStepIndexForStepDisplay: ================================
@@ -1270,19 +1237,16 @@
 				[self setAuthor:payload];
 				lineValidForHeader = YES;
 			}
-			//Fourth line. Should be officiality status.
+			//Fourth line. MLCad used it as a nonstandard way of indicating 
+			//official status. Since it was nonstandard, nobody used it. 
 			else if([self line:currentLine isValidForHeader:@"" info:&payload])
 			{
-				if([payload containsString:LDRAW_HEADER_OFFICIAL_MODEL options:NSCaseInsensitiveSearch])
-					[self setLDrawRepositoryStatus:LDrawOfficialModel];
-				else
-					[self setLDrawRepositoryStatus:LDrawUnofficialModel];
-				
-				//If the model was flagged as either official or un-official, then this was 
-				// part of the header and we delete it. Otherwise, who knows what it is?
-				// Just leave it be then.
-				if([payload containsString:@"official" options:NSCaseInsensitiveSearch])
+				if(		[payload isEqualToString:@"LDraw.org Official Model Repository"]
+				   ||	[payload isEqualToString:@"Unofficial Model"] )
 				{
+					// Bricksmith followed MLCad spewing out this garbage for 
+					// years. It is unnecessary. Now I am just stripping it out 
+					// of any file I encounter. 
 					lineValidForHeader = YES;
 				}
 			}
@@ -1354,7 +1318,6 @@
 {
 	[super registerUndoActions:undoManager];
 	
-	[[undoManager prepareWithInvocationTarget:self] setLDrawRepositoryStatus:[self ldrawRepositoryStatus]];
 	[[undoManager prepareWithInvocationTarget:self] setAuthor:[self author]];
 	[[undoManager prepareWithInvocationTarget:self] setFileName:[self fileName]];
 	[[undoManager prepareWithInvocationTarget:self] setModelDescription:[self modelDescription]];

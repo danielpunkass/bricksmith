@@ -46,6 +46,7 @@ extern NSString *LDrawPartLibraryDidChangeNotification;
 - (NSArray *) categories;
 - (NSArray *) favoritePartNames;
 - (NSArray *) partNamesInCategory:(NSString *)category;
+- (NSString *) categoryForPartName:(NSString *)partName;
 
 - (void) setDelegate:(id<PartLibraryDelegate>)delegateIn;
 - (void) setFavorites:(NSArray *)favoritesIn;
@@ -72,10 +73,9 @@ extern NSString *LDrawPartLibraryDidChangeNotification;
 			underCategory:(NSString *)category
 			   namePrefix:(NSString *)namePrefix;
 - (NSString *)categoryForDescription:(NSString *)modelDescription;
-- (NSString *)categoryForPart:(LDrawPart *)part;
 - (NSString *)descriptionForPart:(LDrawPart *)part;
 - (NSString *)descriptionForPartName:(NSString *)name;
-- (NSString *) descriptionForFilePath:(NSString *)filepath;
+- (NSMutableDictionary *) catalogInfoForFileAtPath:(NSString *)filepath;
 - (LDrawModel *) readModelAtPath:(NSString *)partPath
 				  asynchronously:(BOOL)asynchronous
 			   completionHandler:(void (^)(LDrawModel *))completionBlock;

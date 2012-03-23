@@ -36,8 +36,8 @@
 // Model header
 #define LDRAW_HEADER_NAME						@"Name:"
 #define LDRAW_HEADER_AUTHOR						@"Author:"
-#define LDRAW_HEADER_OFFICIAL_MODEL				@"LDraw.org Official Model Repository"
-#define LDRAW_HEADER_UNOFFICIAL_MODEL			@"Unofficial Model"
+#define LDRAW_CATEGORY							@"!CATEGORY"
+#define LDRAW_KEYWORDS							@"!KEYWORDS"
 
 // Steps and Rotation Steps
 #define LDRAW_STEP_TERMINATOR					@"STEP"

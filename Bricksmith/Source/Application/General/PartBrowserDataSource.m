@@ -32,9 +32,6 @@
 #import "PartLibrary.h"
 #import "StringCategory.h"
 
-NSString    *PART_NUMBER_KEY    = @"Part Number";
-NSString    *PART_NAME_KEY      = @"Part Name";
-
 
 @implementation PartBrowserDataSource
 
@@ -227,10 +224,6 @@ NSString    *PART_NAME_KEY      = @"Part Name";
 	NSString        *favoritesString            = NSLocalizedString(@"Favorites", nil);
 	NSArray         *partsInCategory            = nil;
 	NSMutableArray  *allPartRecords             = [NSMutableArray array];
-	NSDictionary    *partRecord                 = nil;
-	NSString        *partNumber                 = nil;
-	NSString        *partDescription            = nil;
-	NSUInteger      counter                     = 0;
 	BOOL            success                     = NO;
 	
 	// Get the appropriate category list.
@@ -239,37 +232,26 @@ NSString    *PART_NAME_KEY      = @"Part Name";
 		// Retrieve all parts. We can do this by getting the entire (unsorted) 
 		// contents of PARTS_LIST_KEY in the partCatalog, which is actually 
 		// a dictionary of all parts.
-		partsInCategory = [self->partLibrary allPartNames];
+		partsInCategory = [self->partLibrary allPartCatalogRecords];
 		success = YES;
 		
 	}
 	else if([newCategory isEqualToString:favoritesString])
 	{
-		partsInCategory = [self->partLibrary favoritePartNames];
+		partsInCategory = [self->partLibrary favoritePartCatalogRecords];
 		success = YES;
 	}
 	else
 	{
 		// Get the part list for the category:
-		partsInCategory = [self->partLibrary partNamesInCategory:newCategory];
+		partsInCategory = [self->partLibrary partCatalogRecordsInCategory:newCategory];
 		success = (partsInCategory != nil);
 	}
 	
 	if(success == YES)
 	{
 		// Build the (sortable) list of part records.
-		for(counter = 0; counter < [partsInCategory count]; counter++)
-		{
-			partNumber      = [partsInCategory objectAtIndex:counter];
-			partDescription = [self->partLibrary descriptionForPartName:partNumber];
-			
-			partRecord      = [NSDictionary dictionaryWithObjectsAndKeys:
-							   partNumber,		PART_NUMBER_KEY,
-							   partDescription,	PART_NAME_KEY,
-							   nil ];
-			
-			[allPartRecords addObject:partRecord];					
-		}
+		allPartRecords = [[partsInCategory mutableCopy] autorelease];
 		
 		// Update data
 		[self setTableDataSource:allPartRecords];
@@ -804,6 +786,20 @@ NSString    *PART_NAME_KEY      = @"Part Name";
 			{
 				[matchingParts addObject:record];
 			}
+			else
+			{
+				NSArray *keywords = [record objectForKey:PART_KEYWORDS_KEY];
+				
+				for(NSString* keyword in keywords)
+				{
+					if([[keyword stringByRemovingWhitespace] containsString:searchSansWhitespace options:NSCaseInsensitiveSearch])
+					{
+						[matchingParts addObject:record];
+						break;
+					}
+				}
+			}
+
 		}
 	}//end else we have to search
 	

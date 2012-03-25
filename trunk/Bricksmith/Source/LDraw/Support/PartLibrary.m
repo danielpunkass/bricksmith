@@ -41,10 +41,10 @@ NSString *LDrawPartLibraryDidChangeNotification = @"LDrawPartLibraryDidChangeNot
 //The part catalog is a dictionary of parts filed by Category name.
 #define PARTS_CATALOG_KEY						@"Part Catalog"
 	//subdictionary keys.
-	#define PART_NUMBER_KEY						@"Part Number"
-	#define PART_NAME_KEY						@"Part Name"
-	#define PART_CATEGORY_KEY					@"Category"
-	#define PART_KEYWORDS_KEY					@"Keywords"
+NSString	*PART_NUMBER_KEY	= @"Part Number";
+NSString	*PART_NAME_KEY		= @"Part Name";
+NSString	*PART_CATEGORY_KEY	= @"Category";
+NSString	*PART_KEYWORDS_KEY	= @"Keywords";
 
 //Raw dictionary containing each part filed by number.
 #define PARTS_LIST_KEY							@"Part List"
@@ -107,17 +107,19 @@ static PartLibrary *SharedPartLibrary = nil;
 #pragma mark ACCESSORS
 #pragma mark -
 
-//========== allPartNames ======================================================
+//========== allPartCatalogRecords =============================================
 //
 // Purpose:		Returns all the part numbers in the library.
 //
 //==============================================================================
-- (NSArray *) allPartNames
+- (NSArray *) allPartCatalogRecords
 {
-	// all the reference numbers for parts.
-	return [[self->partCatalog objectForKey:PARTS_LIST_KEY] allKeys];
+	NSDictionary	*partList	= [self->partCatalog objectForKey:PARTS_LIST_KEY];
 	
-}//end allPartNames
+	// all the reference numbers for parts.
+	return [partList allValues];
+	
+}//end allPartCatalogRecords
 
 
 //========== categories ========================================================
@@ -161,25 +163,57 @@ static PartLibrary *SharedPartLibrary = nil;
 }//end favoritePartNames
 
 
-//========== partNamesInCategory: ==============================================
+//========== favoritePartCatalogRecords ========================================
+//
+// Purpose:		Returns all the part info records the user has bookmarked as his 
+//				favorites. 
+//
+//==============================================================================
+- (NSArray *) favoritePartCatalogRecords
+{
+	NSDictionary	*partList		= [self->partCatalog objectForKey:PARTS_LIST_KEY];
+	NSMutableArray	*parts			= [NSMutableArray array];
+	NSDictionary	*partInfo		= nil;
+	
+	for(NSString *partName in self->favorites)
+	{
+		partInfo = [partList objectForKey:partName];
+		
+		if(partInfo)
+			[parts addObject:partInfo];
+	}
+	
+	return parts;
+	
+}//end favoritePartNames
+
+
+//========== partCatalogRecordsInCategory: =====================================
 //
 // Purpose:		Returns all the parts in the given category. Returns nil if the 
 //				category doesn't exist. 
 //
 //==============================================================================
-- (NSArray *) partNamesInCategory:(NSString *)categoryName
+- (NSArray *) partCatalogRecordsInCategory:(NSString *)categoryName
 {
-	NSArray *category   = [[partCatalog objectForKey:PARTS_CATALOG_KEY] objectForKey:categoryName];
-	NSArray *parts      = nil;
+	NSArray 		*category	= [[partCatalog objectForKey:PARTS_CATALOG_KEY] objectForKey:categoryName];
+	NSDictionary	*partList	= [self->partCatalog objectForKey:PARTS_LIST_KEY];
+	NSMutableArray	*parts		= [NSMutableArray array];
+	NSString		*partName	= nil;
+	NSDictionary	*partInfo	= nil;
 	
-	if(category != nil)
+	for(NSDictionary* categoryRecord in category)
 	{
-		parts = [category valueForKey:PART_NUMBER_KEY];
+		partName = [categoryRecord objectForKey:PART_NUMBER_KEY];
+		partInfo = [partList objectForKey:partName];
+		
+		if(partInfo)
+			[parts addObject:partInfo];
 	}
 	
 	return parts;
 
-}//end partNamesInCategory:
+}//end partCatalogRecordsInCategory:
 
 
 #pragma mark -

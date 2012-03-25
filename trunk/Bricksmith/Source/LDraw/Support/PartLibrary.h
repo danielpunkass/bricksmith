@@ -21,6 +21,13 @@
 // Object is the new catalog. No userInfo.
 extern NSString *LDrawPartLibraryDidChangeNotification;
 
+// Catalog info keys
+extern NSString *PART_NUMBER_KEY;
+extern NSString *PART_NAME_KEY;
+extern NSString *PART_CATEGORY_KEY;
+extern NSString *PART_KEYWORDS_KEY;
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -42,10 +49,11 @@ extern NSString *LDrawPartLibraryDidChangeNotification;
 + (PartLibrary *) sharedPartLibrary;
 
 // Accessors
-- (NSArray *) allPartNames;
+- (NSArray *) allPartCatalogRecords;
 - (NSArray *) categories;
 - (NSArray *) favoritePartNames;
-- (NSArray *) partNamesInCategory:(NSString *)category;
+- (NSArray *) favoritePartCatalogRecords;
+- (NSArray *) partCatalogRecordsInCategory:(NSString *)category;
 - (NSString *) categoryForPartName:(NSString *)partName;
 
 - (void) setDelegate:(id<PartLibraryDelegate>)delegateIn;

@@ -146,6 +146,7 @@
 	   &&	[userDefaults boolForKey:PART_BROWSER_STYLE_KEY] == PartBrowserShowAsDrawer)
 	{
 		[partBrowserDrawer open];
+		[self->partsBrowser scrollSelectedCategoryToCenter];
 	}
 	
 	

@@ -31,6 +31,14 @@ static PartBrowserPanelController *sharedPartBrowserPanel = nil;
 }//end awakeFromNib
 
 
+//========== windowDidLoad =====================================================
+//==============================================================================
+- (void)windowDidLoad
+{
+	[self->partsBrowser scrollSelectedCategoryToCenter];
+
+}
+
 #pragma mark -
 #pragma mark INITIALIZATION
 #pragma mark -

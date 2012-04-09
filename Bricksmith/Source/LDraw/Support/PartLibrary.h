@@ -27,6 +27,16 @@ extern NSString *PART_NAME_KEY;
 extern NSString *PART_CATEGORY_KEY;
 extern NSString *PART_KEYWORDS_KEY;
 
+extern NSString	*CategoryNameKey;
+extern NSString	*CategoryDisplayNameKey;
+extern NSString	*CategoryChildrenKey;
+
+extern NSString	*Category_All;
+extern NSString	*Category_Favorites;
+extern NSString	*Category_Alias;
+extern NSString *Category_Moved;
+extern NSString	*Category_Primitives;
+extern NSString	*Category_Subparts;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +61,8 @@ extern NSString *PART_KEYWORDS_KEY;
 // Accessors
 - (NSArray *) allPartCatalogRecords;
 - (NSArray *) categories;
+- (NSArray *) categoryHierarchy;
+- (NSString *) displayNameForCategory:(NSString *)categoryName;
 - (NSArray *) favoritePartNames;
 - (NSArray *) favoritePartCatalogRecords;
 - (NSArray *) partCatalogRecordsInCategory:(NSString *)category;

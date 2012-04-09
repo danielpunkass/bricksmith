@@ -206,6 +206,8 @@
 		0BB010E11352BC9F006F3122 /* GridFineTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BB010DE1352BC9F006F3122 /* GridFineTemplate.pdf */; };
 		0BB010E21352BC9F006F3122 /* GridMediumTemplate.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0BB010DF1352BC9F006F3122 /* GridMediumTemplate.pdf */; };
 		0BB129EA0D7BD208004E8CEC /* Spin.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0BB129E90D7BD208004E8CEC /* Spin.tiff */; };
+		0BBCFE801529492D00728A54 /* TableViewCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0BBCFE7E1529492D00728A54 /* TableViewCategory.h */; };
+		0BBCFE811529492D00728A54 /* TableViewCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BBCFE7F1529492D00728A54 /* TableViewCategory.m */; };
 		0BC6992B08B5719000DAF996 /* LDrawMPDModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F384107C82025007B1075 /* LDrawMPDModel.h */; };
 		0BC6992C08B5719100DAF996 /* LDrawConditionalLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F3FA907CB0253007B1075 /* LDrawConditionalLine.h */; };
 		0BC6992D08B5719100DAF996 /* LDrawLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6F3FAD07CB0253007B1075 /* LDrawLine.h */; };
@@ -517,6 +519,8 @@
 		0BB010DE1352BC9F006F3122 /* GridFineTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = GridFineTemplate.pdf; sourceTree = "<group>"; };
 		0BB010DF1352BC9F006F3122 /* GridMediumTemplate.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = GridMediumTemplate.pdf; sourceTree = "<group>"; };
 		0BB129E90D7BD208004E8CEC /* Spin.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = Spin.tiff; sourceTree = "<group>"; };
+		0BBCFE7E1529492D00728A54 /* TableViewCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableViewCategory.h; sourceTree = "<group>"; };
+		0BBCFE7F1529492D00728A54 /* TableViewCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableViewCategory.m; sourceTree = "<group>"; };
 		0BC699CB08B93A0500DAF996 /* DimensionsPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DimensionsPanel.h; sourceTree = "<group>"; };
 		0BC699CC08B93A0500DAF996 /* DimensionsPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DimensionsPanel.m; sourceTree = "<group>"; };
 		0BC6AACD0987296700505A88 /* English */ = {isa = PBXFileReference; lastKnownFileType = folder; name = English; path = English.lproj/Help; sourceTree = "<group>"; };
@@ -737,6 +741,8 @@
 				0B74F28C0D0BB5AD00ED8419 /* ScrollViewCategory.m */,
 				0B8EBE98093C102E00D87E0C /* StringCategory.h */,
 				0B8EBE99093C102E00D87E0C /* StringCategory.m */,
+				0BBCFE7E1529492D00728A54 /* TableViewCategory.h */,
+				0BBCFE7F1529492D00728A54 /* TableViewCategory.m */,
 				0B8EBE9A093C102E00D87E0C /* UserDefaultsCategory.h */,
 				0B8EBE9B093C102E00D87E0C /* UserDefaultsCategory.m */,
 				0B8EBE9C093C102E00D87E0C /* WindowCategory.h */,
@@ -1201,6 +1207,7 @@
 				0BDE0EF11371070600FDB8DB /* LDrawPaths.h in Headers */,
 				0BE524011373C26200E21FBC /* PartReport.h in Headers */,
 				0B3B76AC13DB86AE007CCC5D /* LDrawGLRenderer.h in Headers */,
+				0BBCFE801529492D00728A54 /* TableViewCategory.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1456,6 +1463,7 @@
 				0BDE0EF21371070600FDB8DB /* LDrawPaths.m in Sources */,
 				0BE524021373C26200E21FBC /* PartReport.m in Sources */,
 				0B85168F1400CC34009E3776 /* LDrawGLRenderer.m in Sources */,
+				0BBCFE811529492D00728A54 /* TableViewCategory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -52,6 +52,17 @@ NSString	*PART_KEYWORDS_KEY	= @"Keywords";
 	//PART_NUMBER_KEY							(defined above)
 	//PART_NAME_KEY								(defined above)
 
+NSString	*CategoryNameKey		= @"Name";
+NSString	*CategoryDisplayNameKey = @"DisplayName";
+NSString	*CategoryChildrenKey	= @"Children";
+
+NSString	*Category_All			= @"AllCategories";
+NSString	*Category_Favorites		= @"Favorites";
+NSString	*Category_Alias			= @"Alias";
+NSString	*Category_Moved			= @"Moved";
+NSString	*Category_Primitives	= @"Primitives";
+NSString	*Category_Subparts		= @"Subparts";
+
 @implementation PartLibrary
 
 static PartLibrary *SharedPartLibrary = nil;
@@ -135,6 +146,89 @@ static PartLibrary *SharedPartLibrary = nil;
 }//end categories
 
 
+//========== categoryHierarchy =================================================
+//
+// Purpose:		Returns an outline-conducive list of all available categories.
+//
+//==============================================================================
+- (NSArray *) categoryHierarchy
+{
+	NSMutableArray  *fullCategoryList   = [NSMutableArray array];
+	NSMutableArray	*libraryItems		= [NSMutableArray array];
+	NSMutableArray	*categoryItems		= [NSMutableArray array];
+	NSMutableArray	*otherItems			= [NSMutableArray array];
+	
+	// Library group
+	[libraryItems addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							 Category_All,										CategoryNameKey,
+							 [self displayNameForCategory:Category_All],		CategoryDisplayNameKey,
+							 nil]];
+	
+	[libraryItems addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							 Category_Favorites,								CategoryNameKey,
+							 [self displayNameForCategory:Category_Favorites],	CategoryDisplayNameKey,
+							 nil]];
+							 
+	[fullCategoryList addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+								 @"Library",										CategoryNameKey,
+								 NSLocalizedString(@"CategoryGroup_Library",nil),	CategoryDisplayNameKey,
+								 libraryItems,										CategoryChildrenKey,
+								 nil]];
+	
+	// Main categories
+	NSArray *categories = [[self categories] sortedArrayUsingSelector:@selector(compare:)];
+	for(NSString *name in categories)
+	{
+		if(		[name isEqualToString:Category_Alias] == NO
+		   &&	[name isEqualToString:Category_Moved] == NO
+		   &&	[name isEqualToString:Category_Primitives] == NO
+		   &&	[name isEqualToString:Category_Subparts] == NO )
+		{
+			[categoryItems addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+									  name,									CategoryNameKey,
+									  [self displayNameForCategory:name],	CategoryDisplayNameKey,
+									  nil]];
+		}
+	}
+	[fullCategoryList addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+								 @"Part Categories",										CategoryNameKey,
+								 NSLocalizedString(@"CategoryGroup_PartCategories",nil),	CategoryDisplayNameKey,
+								 categoryItems,												CategoryChildrenKey,
+								 nil]];
+	
+	// Other categories
+	
+	[otherItems addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							 Category_Alias,									CategoryNameKey,
+							 [self displayNameForCategory:Category_Alias],		CategoryDisplayNameKey,
+							 nil]];
+	
+	[otherItems addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							 Category_Moved,									CategoryNameKey,
+							 [self displayNameForCategory:Category_Moved],		CategoryDisplayNameKey,
+							 nil]];
+	
+	[otherItems addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							 Category_Primitives,								CategoryNameKey,
+							 [self displayNameForCategory:Category_Primitives],	CategoryDisplayNameKey,
+							 nil]];
+	
+	[otherItems addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+							 Category_Subparts,									CategoryNameKey,
+							 [self displayNameForCategory:Category_Subparts],	CategoryDisplayNameKey,
+							 nil]];
+	
+	[fullCategoryList addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+								 @"Other",										CategoryNameKey,
+								 NSLocalizedString(@"CategoryGroup_Other",nil),	CategoryDisplayNameKey,
+								 otherItems,									CategoryChildrenKey,
+								 nil]];
+								 
+	return fullCategoryList;
+	
+}//end categoryHierarchy
+
+
 //========== categoryForPartName: ==============================================
 //
 // Purpose:		Returns the part's category.
@@ -161,6 +255,31 @@ static PartLibrary *SharedPartLibrary = nil;
 	return self->favorites;
 	
 }//end favoritePartNames
+
+
+//========== displayNameForCategory: ===========================================
+//
+// Purpose:		Returns the human-friendly category name
+//
+//==============================================================================
+- (NSString *) displayNameForCategory:(NSString *)categoryName
+{
+	NSString *displayName = nil;
+	
+	if([categoryName isEqualToString:Category_All])
+	{
+		displayName = NSLocalizedString(@"AllCategories", nil);
+	}
+	else if([categoryName isEqualToString:Category_Favorites])
+	{
+		displayName = NSLocalizedString(@"FavoritesCategory", nil);
+	}
+	else
+	{
+		displayName = NSLocalizedString(categoryName, nil);
+	}
+	return displayName;
+}
 
 
 //========== favoritePartCatalogRecords ========================================
@@ -196,19 +315,38 @@ static PartLibrary *SharedPartLibrary = nil;
 //==============================================================================
 - (NSArray *) partCatalogRecordsInCategory:(NSString *)categoryName
 {
-	NSArray 		*category	= [[partCatalog objectForKey:PARTS_CATALOG_KEY] objectForKey:categoryName];
-	NSDictionary	*partList	= [self->partCatalog objectForKey:PARTS_LIST_KEY];
-	NSMutableArray	*parts		= [NSMutableArray array];
-	NSString		*partName	= nil;
-	NSDictionary	*partInfo	= nil;
+	NSArray	*parts		= nil;
 	
-	for(NSDictionary* categoryRecord in category)
+	if([categoryName isEqualToString:Category_All])
 	{
-		partName = [categoryRecord objectForKey:PART_NUMBER_KEY];
-		partInfo = [partList objectForKey:partName];
+		// Retrieve all parts. We can do this by getting the entire (unsorted) 
+		// contents of PARTS_LIST_KEY in the partCatalog, which is actually 
+		// a dictionary of all parts.
+		parts = [self allPartCatalogRecords];
 		
-		if(partInfo)
-			[parts addObject:partInfo];
+	}
+	else if([categoryName isEqualToString:Category_Favorites])
+	{
+		parts = [self favoritePartCatalogRecords];
+	}
+	else
+	{
+		NSArray 		*category			= [[partCatalog objectForKey:PARTS_CATALOG_KEY] objectForKey:categoryName];
+		NSDictionary	*partList			= [self->partCatalog objectForKey:PARTS_LIST_KEY];
+		NSMutableArray	*partsInCategory	= [NSMutableArray array];
+		NSString		*partName			= nil;
+		NSDictionary	*partInfo			= nil;
+
+		for(NSDictionary* categoryRecord in category)
+		{
+			partName = [categoryRecord objectForKey:PART_NUMBER_KEY];
+			partInfo = [partList objectForKey:partName];
+			
+			if(partInfo)
+				[partsInCategory addObject:partInfo];
+		}
+		
+		parts = partsInCategory;
 	}
 	
 	return parts;
@@ -402,12 +540,12 @@ static PartLibrary *SharedPartLibrary = nil;
 	// Scan for each part folder.
 	[self addPartsInFolder:primitivesPath
 				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Primitives", nil) //override all internal categories
+			 underCategory:NSLocalizedString(Category_Primitives, nil) //override all internal categories
 				namePrefix:nil ];
 	
 	[self addPartsInFolder:primitives48Path
 				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Primitives", nil) //override all internal categories
+			 underCategory:NSLocalizedString(Category_Primitives, nil) //override all internal categories
 				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME] ];
 	
 	[self addPartsInFolder:partsPath
@@ -417,19 +555,19 @@ static PartLibrary *SharedPartLibrary = nil;
 	
 	[self addPartsInFolder:subpartsPath
 				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Subparts", nil)
+			 underCategory:NSLocalizedString(Category_Subparts, nil)
 				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME] ]; //prefix subpart numbers with the DOS path "s\"; that's just how it is. Yuck!
 	
 	
 	//Scan unofficial part folders.
 	[self addPartsInFolder:unofficialPrimitivesPath
 				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Primitives", nil) //groups unofficial primitives with official primitives
+			 underCategory:NSLocalizedString(Category_Primitives, nil) //groups unofficial primitives with official primitives
 			    namePrefix:nil ]; //a directory deeper, but no DOS path separators to manage
 	
 	[self addPartsInFolder:unofficialPrimitives48Path
 				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Primitives", nil)
+			 underCategory:NSLocalizedString(Category_Primitives, nil)
 				namePrefix:[NSString stringWithFormat:@"%@\\", PRIMITIVES_48_DIRECTORY_NAME] ];
 	
 	[self addPartsInFolder:unofficialPartsPath
@@ -439,7 +577,7 @@ static PartLibrary *SharedPartLibrary = nil;
 	
 	[self addPartsInFolder:unofficialSubpartsPath
 				 toCatalog:newPartCatalog
-			 underCategory:NSLocalizedString(@"Subparts", nil) //groups unofficial subparts with official subparts
+			 underCategory:NSLocalizedString(Category_Subparts, nil) //groups unofficial subparts with official subparts
 				namePrefix:[NSString stringWithFormat:@"%@\\", SUBPARTS_DIRECTORY_NAME] ];
 	
 	//Save the part catalog out for future reference.
@@ -952,7 +1090,7 @@ static PartLibrary *SharedPartLibrary = nil;
 	// least it's a prettifying one. 
 	if([category hasPrefix:@"_"])
 	{
-		category = NSLocalizedString(@"AliasCategory", nil);
+		category = Category_Alias;
 	}
 	// Moved parts always begin with ~Moved, which is ugly. We'll strip the '~'.
 	else if([category hasPrefix:@"~"])

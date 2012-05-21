@@ -75,7 +75,6 @@
     if (self)
 	{
 		[self setDocumentContents:[LDrawFile file]];
-        insertionMode = insertAtEnd;
 		[self setGridSpacingMode:gridModeMedium];
     }
     return self;
@@ -1465,7 +1464,7 @@
 	NSPasteboard	*pasteboard			= [NSPasteboard generalPasteboard];
 	NSUndoManager	*undoManager		= [self undoManager];
 	
-	[self pasteFromPasteboard:pasteboard preventNameCollisions:YES];
+	[self pasteFromPasteboard:pasteboard preventNameCollisions:YES parent:nil index:NSNotFound];
 	
 	[undoManager setActionName:NSLocalizedString(@"", nil)];
 	
@@ -1553,7 +1552,7 @@
 	NSUndoManager	*undoManager		= [self undoManager];
 	
 	[self writeDirectives:selectedObjects toPasteboard:pasteboard];
-	[self pasteFromPasteboard:pasteboard preventNameCollisions:YES];
+	[self pasteFromPasteboard:pasteboard preventNameCollisions:YES parent:nil index:NSNotFound];
 
 	[undoManager setActionName:NSLocalizedString(@"UndoDuplicate", nil)];
 	
@@ -1979,7 +1978,7 @@
 {
 	LDrawMPDModel	*newModel		= [LDrawMPDModel model];
 
-	[self addModel:newModel preventNameCollisions:YES];
+	[self addModel:newModel atIndex:NSNotFound preventNameCollisions:YES];
 	[self setActiveModel:newModel];
 	[[self documentContents] noteNeedsDisplay];
 	
@@ -1993,10 +1992,9 @@
 //==============================================================================
 - (IBAction) addStepClicked:(id)sender
 {
-
 	LDrawStep		*newStep		= [LDrawStep emptyStep];
 
-	[self addStep:newStep];
+	[self addStep:newStep atIndex:NSNotFound];
 	
 }//end addStepClicked:
 
@@ -2107,7 +2105,7 @@
 	
 	[newLine setLDrawColor:selectedColor];
 	
-	[self addStepComponent:newLine];
+	[self addStepComponent:newLine parent:nil index:NSNotFound];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddLine", nil)];
 	[[self documentContents] noteNeedsDisplay];
@@ -2137,7 +2135,7 @@
 	
 	[newTriangle setLDrawColor:selectedColor];
 	
-	[self addStepComponent:newTriangle];
+	[self addStepComponent:newTriangle parent:nil index:NSNotFound];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddTriangle", nil)];
 	[[self documentContents] noteNeedsDisplay];
@@ -2169,7 +2167,7 @@
 	
 	[newQuadrilateral setLDrawColor:selectedColor];
 	
-	[self addStepComponent:newQuadrilateral];
+	[self addStepComponent:newQuadrilateral parent:nil index:NSNotFound];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddQuadrilateral", nil)];
 	[[self documentContents] noteNeedsDisplay];
@@ -2191,7 +2189,7 @@
 	
 	[newConditional setLDrawColor:selectedColor];
 	
-	[self addStepComponent:newConditional];
+	[self addStepComponent:newConditional parent:nil index:NSNotFound];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddConditionalLine", nil)];
 	[[self documentContents] noteNeedsDisplay];
@@ -2209,7 +2207,7 @@
 	LDrawComment	*newComment		= [[[LDrawComment alloc] init] autorelease];
 	NSUndoManager	*undoManager	= [self undoManager];
 	
-	[self addStepComponent:newComment];
+	[self addStepComponent:newComment parent:nil index:NSNotFound];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddComment", nil)];
 }//end addCommentClicked:
@@ -2225,7 +2223,7 @@
 	LDrawMetaCommand	*newCommand		= [[[LDrawMetaCommand alloc] init] autorelease];
 	NSUndoManager		*undoManager	= [self undoManager];
 	
-	[self addStepComponent:newCommand];
+	[self addStepComponent:newCommand parent:nil index:NSNotFound];
 	
 	[undoManager setActionName:NSLocalizedString(@"UndoAddMetaCommand", nil)];
 }//end addCommentClicked:
@@ -2248,7 +2246,7 @@
 	{
 		minifigure = [minifigDialog minifigure];
 		[minifigure optimizeOpenGL];
-		[self addModel:minifigure preventNameCollisions:YES];
+		[self addModel:minifigure atIndex:NSNotFound preventNameCollisions:YES];
 	}
 	
 	[minifigDialog release];
@@ -2290,13 +2288,8 @@
 - (void) addDirective:(LDrawDirective *)newDirective
 			 toParent:(LDrawContainer * )parent
 {
-	NSInteger index = 0;
+	NSInteger index = [[parent subdirectives] count];
 	
-	if(self->insertionMode == insertAtEnd)
-		index = [[parent subdirectives] count];
-	else
-		index = 0;
-		
 	[self addDirective:newDirective
 			  toParent:parent
 			   atIndex:index];
@@ -2819,48 +2812,13 @@
 	if(newParent == nil)
 		newParent = [self documentContents];
 	
-	LDrawDirective  *selectionTarget        = nil;
-	NSArray         *newSiblings            = [newParent subdirectives];
 	NSPasteboard    *pasteboard             = [info draggingPasteboard];
 	NSUndoManager   *undoManager            = [self undoManager];
 	NSOutlineView   *sourceView             = [info draggingSource];
-	NSInteger       selectionIndex          = 0;
 	NSMutableArray  *doomedObjects          = [NSMutableArray array];
 	NSArray         *pastedObjects          = nil;
 	BOOL            renameDuplicateModels   = YES;
 	NSInteger       counter                 = 0;
-	
-	//Due to an unfortunate lack of foresight in the design, the main pasting 
-	// code determines the paste location by looking at the current selection.
-	// So if we want to use the pasting code (and we do!), we must create a 
-	// selection before pasting.
-	//We select the item below which we are dropping this drag.
-	if(dropIndex > 0){
-		//get the sibling *above* the drop location.
-		selectionTarget = [newSiblings objectAtIndex:dropIndex-1]; 
-	}
-	else{
-		//a drop at the top of the container; get the container itself.
-		selectionTarget = newParent;
-	}
-	
-	// Select the item. Watch out--drops at the very top of the file will be 
-	// asking to select the LDrawFile itself, which is impossible. So we 
-	// deselect all; that conveys the concept implicitly. 
-	selectionIndex = [outlineView rowForItem:selectionTarget];
-	if(selectionIndex < 0)
-	{	//selectionTarget not displayed in outline. That means the root object--the File.
-		[outlineView deselectAll:self];
-	}
-	else
-	{
-		[outlineView selectRowIndexes:[NSIndexSet indexSetWithIndex:selectionIndex]
-				 byExtendingSelection:NO ];
-	}
-	
-	//The standard pasting code will now automatically insert the dragged 
-	// objects *directly below* the selection--effectively doing the drag.
-	
 	
 	if(sourceView == outlineView)
 	{
@@ -2889,22 +2847,11 @@
 		renameDuplicateModels = NO;
 	}
 	
-	
-	//     Do The Move.
-	//
-	// Due to more lack of foresight, we need to include a special flag if the 
-	// move is happening at position 0 in newParent. The trouble is: in a normal 
-	// copy/paste or new-part operation, we want to insert the new element at 
-	// the *bottom* of the list in the absence of a different selection. But in 
-	// a drag, we want to add the  items in the explicit position indicated by 
-	// the user. If that position happens to be at the top of the list, then we 
-	// are in a pickle. So we set up the insertionMode flag to change the 
-	// behavior of the -addDirective:toParent: method just for this drag. 
-	self->insertionMode = insertAtBeginning;
+	// Do The Move.
 	pastedObjects = [self pasteFromPasteboard:pasteboard
-						preventNameCollisions:renameDuplicateModels];
-	self->insertionMode = insertAtEnd; //revert back to normal behavior.
-	
+						preventNameCollisions:renameDuplicateModels
+									   parent:newParent
+										index:dropIndex];
 	
 	if(sourceView == outlineView)
 	{
@@ -3138,7 +3085,7 @@
 	else
 	{
 		[self writeDirectives:directives toPasteboard:pasteboard];
-		[self pasteFromPasteboard:pasteboard preventNameCollisions:YES];
+		[self pasteFromPasteboard:pasteboard preventNameCollisions:YES parent:nil index:NSNotFound];
 		[undoManager setActionName:NSLocalizedString(@"UndoDrop", nil)];
 	}
 	
@@ -4190,12 +4137,10 @@
 //				magic. To this I respond, "don't do that."
 //
 //==============================================================================
-- (void) addModel:(LDrawMPDModel *)newModel preventNameCollisions:(BOOL)renameModels
+- (void) addModel:(LDrawMPDModel *)newModel atIndex:(NSInteger)insertAtIndex preventNameCollisions:(BOOL)renameModels
 {
 	NSString        *proposedModelName  = [newModel modelName];
-	LDrawModel      *selectedModel      = [self selectedModel];
 	NSUndoManager   *undoManager        = [self undoManager];
-	NSInteger       indexOfModel        = 0;
 	NSInteger       rowForItem          = 0;
 	
 	// Derive a non-duplicating name for this new model
@@ -4208,21 +4153,17 @@
 		[newModel setModelName:proposedModelName];
 	}
 	
-	
-	// Add directly after the currently-selected model?
-	if(selectedModel != nil)
+	// Insert
+	if(insertAtIndex == NSNotFound)
 	{
-		indexOfModel = [[self documentContents] indexOfDirective:selectedModel];
-		[self addDirective:newModel
-				  toParent:[self documentContents]
-				   atIndex:indexOfModel+1 ];
+		[self addDirective:newModel toParent:[self documentContents]];
 	}
-	// Add to the end of the model list.
 	else
-		[self addDirective:newModel
-				  toParent:[self documentContents] ];
+	{
+		[self addDirective:newModel toParent:[self documentContents] atIndex:insertAtIndex];
+	}
 	
-	//Select the new model.
+	// Select the new model.
 	[fileContentsOutline expandItem:newModel];
 	rowForItem = [fileContentsOutline rowForItem:newModel];
 	[fileContentsOutline selectRowIndexes:[NSIndexSet indexSetWithIndex:rowForItem]
@@ -4235,34 +4176,33 @@
 
 //========== addStep: ==========================================================
 //
-// Purpose:		Adds newStep to the currently-displayed model. If a part of 
-//				the model is already selected, the step will be added after 
-//				selection. Otherwise, the step appears at the end of the list.
+// Purpose:		Adds newStep to the currently-displayed model. If you specify an 
+//				index, it will be inserted there. Otherwise, the step appears at 
+//				the end of the list. 
 //
 //==============================================================================
-- (void) addStep:(LDrawStep *)newStep
+- (void) addStep:(LDrawStep *)newStep atIndex:(NSInteger)insertAtIndex
 {
-	LDrawStep		*selectedStep	= [self selectedStep];
 	LDrawMPDModel	*selectedModel	= [self selectedModel];
 	NSUndoManager	*undoManager	= [self undoManager];
 	
-	//We need to synchronize our addition with the model currently active.
+	// Synchronize our addition with the model currently active.
 	if(selectedModel == nil)
 		selectedModel = [[self documentContents] activeModel];
 	else
 		[[self documentContents] setActiveModel:selectedModel];
 	
-	if(selectedStep != nil){
-		NSInteger indexOfStep = [selectedModel indexOfDirective:selectedStep];
-		[self addDirective:newStep
-				  toParent:selectedModel
-				   atIndex:indexOfStep+1 ];
+	// Insert
+	if(insertAtIndex == NSNotFound)
+	{
+		[self addDirective:newStep toParent:selectedModel];
 	}
 	else
-		[self addDirective:newStep
-				  toParent:selectedModel ];
+	{
+		[self addDirective:newStep toParent:selectedModel atIndex:insertAtIndex];
+	}
 	
-	//Select the new step.
+	// Select the new step.
 	[fileContentsOutline expandItem:selectedModel];
 	[fileContentsOutline expandItem:newStep];
 	NSInteger rowForItem = [fileContentsOutline rowForItem:newStep];
@@ -4304,7 +4244,7 @@
 		
 		[newPart optimizeOpenGL];
 		
-		[self addStepComponent:newPart];
+		[self addStepComponent:newPart parent:nil index:NSNotFound];
 		
 		[undoManager setActionName:NSLocalizedString(@"UndoAddPart", nil)];
 		[[self documentContents] noteNeedsDisplay];
@@ -4319,47 +4259,38 @@
 //
 // Parameters:	newDirective: a directive which can be added to a step. These 
 //						include parts, geometric primitives, and comments.
+//				parent - requested target step; if nil, uses the last visible step
+//				insertAtIndex - index in parent.
 //
 //==============================================================================
-- (void) addStepComponent:(LDrawDirective *)newDirective
+- (void) addStepComponent:(LDrawDirective *)newDirective parent:(LDrawContainer*)parent index:(NSInteger)insertAtIndex
 {
-	LDrawDirective  *selectedComponent  = nil;
 	LDrawStep       *targetStep			= nil;
 	LDrawMPDModel   *selectedModel      = [self selectedModel];
-	NSInteger       indexOfElement      = 0;
 	NSInteger       rowForItem          = 0;
 
-	// Disabled this behavior at a user's request. Now new components are always 
-	// inserted in the last visible step. That's how duplicating drag-and-drops 
-	// work anyway.
-//	targetStep			= [self selectedStep];
-//	selectedComponent	= [self selectedStepComponent];
+	targetStep = (LDrawStep*)parent;
 	
-	//We need to synchronize our addition with the model currently active.
+	// Synchronize our addition with the model currently active.
 	if(selectedModel == nil)
 		selectedModel = [[self documentContents] activeModel];
 	else
 		[[self documentContents] setActiveModel:selectedModel];
 	
-	//We may have the model itself selected, in which case we will add this new 
+	// We may have the model itself selected, in which case we will add this new 
 	// element to the very bottom of the model.
 	if(targetStep == nil)
 		targetStep = [selectedModel visibleStep];
 		
-	//It is also possible we have the step itself selected, in which case the 
-	// new coponent will be added to the bottom of the step.
-	if(selectedComponent == nil)
+	if(insertAtIndex == NSNotFound)
 	{
-		[self addDirective:newDirective
-				  toParent:targetStep ];
+		// At a user's request, all new components are inserted in the last 
+		// visible step. That's how duplicating drag-and-drops work anyway. 
+		[self addDirective:newDirective toParent:targetStep ];
 	}
-	//Otherwise, we add the new element right after the selected element.
 	else
 	{
-		indexOfElement = [targetStep indexOfDirective:selectedComponent];
-		[self addDirective:newDirective
-				  toParent:targetStep
-				   atIndex:indexOfElement+1 ];
+		[self addDirective:newDirective toParent:targetStep atIndex:insertAtIndex ];
 	}
 
 	// Show the new element.
@@ -4852,10 +4783,14 @@
 //
 // Parameters:	pasteboard		- where the archived directives live
 //				renameModels	- add "copy X" suffixes to pasted models as needed. 
+//				parent			- add objects to this component (pass nil for default behavior)
+//				insertAtIndex	- child index within parent (pass NSNotFound for default behavior)
 //
 //==============================================================================
 - (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard
 			preventNameCollisions:(BOOL)renameModels
+						   parent:(LDrawContainer*)parent
+							index:(NSInteger)insertAtIndex
 {
 	NSArray         *objects        = nil;
 	id              currentObject   = nil; //some kind of unarchived LDrawDirective
@@ -4875,11 +4810,11 @@
 			
 			//Now pop the data into our file.
 			if([currentObject isKindOfClass:[LDrawModel class]])
-				[self addModel:currentObject preventNameCollisions:renameModels];
+				[self addModel:currentObject atIndex:insertAtIndex preventNameCollisions:renameModels];
 			else if([currentObject isKindOfClass:[LDrawStep class]])
-				[self addStep:currentObject];
+				[self addStep:currentObject atIndex:insertAtIndex];
 			else
-				[self addStepComponent:currentObject];
+				[self addStepComponent:currentObject parent:parent index:insertAtIndex];
 			
 			[currentObject optimizeOpenGL];
 			[addedObjects addObject:currentObject];

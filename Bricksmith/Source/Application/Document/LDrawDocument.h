@@ -34,13 +34,6 @@
 @class PartBrowserDataSource;
 
 
-//Where new parts are inserted in the abscence of a peer selection.
-typedef enum insertionMode {
-	insertAtEnd,
-	insertAtBeginning
-} insertionModeT;
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // class LDrawDocument
@@ -81,7 +74,6 @@ typedef enum insertionMode {
 		LDrawFile		*documentContents;
 		LDrawPart		*lastSelectedPart; //the part in the file which was most recently selected in the contents. (retained)
 		NSArray			*selectedDirectives; //mirrors the selection of the file contents outline.
-		insertionModeT	 insertionMode;
 		gridSpacingModeT gridMode;
 		LDrawGLView		*mostRecentLDrawView; //file graphic view which most recently had focus. Weak link.
 		BOOL			lockViewingAngle;		// hack to fix unexpected view changes during inserts
@@ -199,10 +191,10 @@ typedef enum insertionMode {
 - (void) updateViewportAutosaveNamesAndRestore:(BOOL)shouldRestore;
 
 // Utilites
-- (void) addModel:(LDrawMPDModel *)newModel preventNameCollisions:(BOOL)flag;
-- (void) addStep:(LDrawStep *)newStep;
+- (void) addModel:(LDrawMPDModel *)newModel atIndex:(NSInteger)insertAtIndex preventNameCollisions:(BOOL)renameModels;
+- (void) addStep:(LDrawStep *)newStep atIndex:(NSInteger)insertAtIndex;
 - (void) addPartNamed:(NSString *)partName;
-- (void) addStepComponent:(LDrawDirective *)newDirective;
+- (void) addStepComponent:(LDrawDirective *)newDirective parent:(LDrawContainer*)parent index:(NSInteger)insertAtIndex;
 
 - (BOOL) canDeleteDirective:(LDrawDirective *)directive displayErrors:(BOOL)errorFlag;
 - (BOOL) elementsAreSelectedOfVisibility:(BOOL)visibleFlag;
@@ -216,6 +208,7 @@ typedef enum insertionMode {
 - (void) updateInspector;
 - (void) updateViewingAngleToMatchStep;
 - (void) writeDirectives:(NSArray *)directives toPasteboard:(NSPasteboard *)pasteboard;
-- (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard preventNameCollisions:(BOOL)renameModels;
+- (NSArray *) pasteFromPasteboard:(NSPasteboard *) pasteboard preventNameCollisions:(BOOL)renameModels parent:(LDrawContainer*)parent index:(NSInteger)insertAtIndex;
+
 
 @end

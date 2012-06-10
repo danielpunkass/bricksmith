@@ -117,6 +117,7 @@
 		else
 		{
 			foundInspector = YES;
+			[currentInspector revert:self]; //calling revert should set the values of the palette.
 		}
 
 	}

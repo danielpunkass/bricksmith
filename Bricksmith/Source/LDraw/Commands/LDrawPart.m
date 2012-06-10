@@ -553,30 +553,6 @@
 }//end displayName
 
 
-//========== enclosingFile =====================================================
-//
-// Purpose:		Returns the file of which this part is a member.
-//
-//==============================================================================
-- (LDrawFile *) enclosingFile
-{
-	return [[[self enclosingStep] enclosingModel] enclosingFile];
-	
-}//end setModel:
-
-
-//========== enclosingStep =====================================================
-//
-// Purpose:		Returns the step of which this step is a part.
-//
-//==============================================================================
-- (LDrawStep *) enclosingStep
-{
-	return (LDrawStep *)[self enclosingDirective];
-	
-}//end setModel:
-
-
 //========== position ==========================================================
 //
 // Purpose:		Returns the coordinates at which the part is drawn.

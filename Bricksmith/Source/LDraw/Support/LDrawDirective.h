@@ -68,6 +68,7 @@
 - (LDrawContainer *) enclosingDirective;
 - (LDrawFile *) enclosingFile;
 - (LDrawModel *) enclosingModel;
+- (LDrawStep *) enclosingStep;
 - (BOOL) isSelected;
 
 - (void) setEnclosingDirective:(LDrawContainer *)newParent;
@@ -90,6 +91,7 @@
 - (BOOL) isAncestorInList:(NSArray *)containers;
 - (void) noteNeedsDisplay;
 - (void) optimizeOpenGL;
+- (void) optimizeVertexes;
 - (void) registerUndoActions:(NSUndoManager *)undoManager;
 
 @end

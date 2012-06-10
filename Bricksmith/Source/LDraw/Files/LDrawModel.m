@@ -857,6 +857,18 @@
 }//end setStepDisplay:
 
 
+//========== setVertexesNeedRebuilding =========================================
+//
+// Purpose:		Marks all the optimizations of this vertex collection as needing 
+//				rebuilding. 
+//
+//==============================================================================
+- (void) setVertexesNeedRebuilding
+{
+	[self->vertexes setVertexesNeedRebuilding];
+}
+
+
 #pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
@@ -1161,12 +1173,14 @@
 //==============================================================================
 - (void) optimizeVertexes
 {
+	[super optimizeVertexes];
+
 	// Allow primitives to be visible when displaying the model itself.
 	LDrawColor *parentColor = [[ColorLibrary sharedColorLibrary] colorForCode:LDrawCurrentColor];
 	
 	if([vertexes isOptimizedForColor:parentColor])
 	{
-		// The vertexs have already been optimized for any referencing colors. 
+		// The vertexes have already been optimized for any referencing colors. 
 		// Just rebuild the existing color optimizations. 
 		[self->vertexes rebuildAllOptimizations];
 	}

@@ -80,6 +80,8 @@
 		0B4EE02F0DBD8AB800399F88 /* ColorDroplet.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */; };
 		0B4F5E110F31632C00355631 /* PartLibraryController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B4F5E0F0F31632C00355631 /* PartLibraryController.h */; };
 		0B4F5E120F31632C00355631 /* PartLibraryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B4F5E100F31632C00355631 /* PartLibraryController.m */; };
+		0B6122ED153516600085F944 /* LDrawTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B6122EB153516600085F944 /* LDrawTexture.h */; };
+		0B6122EE153516600085F944 /* LDrawTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B6122EC153516600085F944 /* LDrawTexture.m */; };
 		0B639758106F3CF800C93F6E /* PlacardButtonClose12.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B639756106F3CF700C93F6E /* PlacardButtonClose12.pdf */; };
 		0B639759106F3CF800C93F6E /* PlacardButtonSplit12.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B639757106F3CF800C93F6E /* PlacardButtonSplit12.pdf */; };
 		0B639768106F408500C93F6E /* ExtendedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B639766106F408500C93F6E /* ExtendedScrollView.m */; };
@@ -385,6 +387,8 @@
 		0B4EE02E0DBD8AB800399F88 /* ColorDroplet.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = ColorDroplet.tiff; sourceTree = "<group>"; };
 		0B4F5E0F0F31632C00355631 /* PartLibraryController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartLibraryController.h; sourceTree = "<group>"; };
 		0B4F5E100F31632C00355631 /* PartLibraryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartLibraryController.m; sourceTree = "<group>"; };
+		0B6122EB153516600085F944 /* LDrawTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawTexture.h; sourceTree = "<group>"; };
+		0B6122EC153516600085F944 /* LDrawTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawTexture.m; sourceTree = "<group>"; };
 		0B639756106F3CF700C93F6E /* PlacardButtonClose12.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PlacardButtonClose12.pdf; sourceTree = "<group>"; };
 		0B639757106F3CF800C93F6E /* PlacardButtonSplit12.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = PlacardButtonSplit12.pdf; sourceTree = "<group>"; };
 		0B639766106F408500C93F6E /* ExtendedScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtendedScrollView.m; sourceTree = "<group>"; };
@@ -689,14 +693,14 @@
 		0B6F383B07C81F6D007B1075 /* Commands */ = {
 			isa = PBXGroup;
 			children = (
-				0B6771A8081764E60044A0E0 /* LDrawDrawableElement.h */,
-				0B6771A9081764E60044A0E0 /* LDrawDrawableElement.m */,
 				0B7588DA0D8DC4EF00357703 /* LDrawColor.h */,
 				0B7588DB0D8DC4EF00357703 /* LDrawColor.m */,
 				0B83E9B707E3BB0D009C2384 /* LDrawComment.h */,
 				0B83E9B807E3BB0D009C2384 /* LDrawComment.m */,
 				0B6F3FA907CB0253007B1075 /* LDrawConditionalLine.h */,
 				0B6F3FAA07CB0253007B1075 /* LDrawConditionalLine.m */,
+				0B6771A8081764E60044A0E0 /* LDrawDrawableElement.h */,
+				0B6771A9081764E60044A0E0 /* LDrawDrawableElement.m */,
 				0B6F3FAD07CB0253007B1075 /* LDrawLine.h */,
 				0B6F3FAE07CB0253007B1075 /* LDrawLine.m */,
 				0B6F3FAF07CB0253007B1075 /* LDrawMetaCommand.h */,
@@ -705,6 +709,8 @@
 				0B6F3FB207CB0253007B1075 /* LDrawPart.m */,
 				0B6F3FB307CB0253007B1075 /* LDrawQuadrilateral.h */,
 				0B6F3FB407CB0253007B1075 /* LDrawQuadrilateral.m */,
+				0B6122EB153516600085F944 /* LDrawTexture.h */,
+				0B6122EC153516600085F944 /* LDrawTexture.m */,
 				0B6F3FB507CB0253007B1075 /* LDrawTriangle.h */,
 				0B6F3FB607CB0253007B1075 /* LDrawTriangle.m */,
 			);
@@ -1208,6 +1214,7 @@
 				0BE524011373C26200E21FBC /* PartReport.h in Headers */,
 				0B3B76AC13DB86AE007CCC5D /* LDrawGLRenderer.h in Headers */,
 				0BBCFE801529492D00728A54 /* TableViewCategory.h in Headers */,
+				0B6122ED153516600085F944 /* LDrawTexture.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1464,6 +1471,7 @@
 				0BE524021373C26200E21FBC /* PartReport.m in Sources */,
 				0B85168F1400CC34009E3776 /* LDrawGLRenderer.m in Sources */,
 				0BBCFE811529492D00728A54 /* TableViewCategory.m in Sources */,
+				0B6122EE153516600085F944 /* LDrawTexture.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

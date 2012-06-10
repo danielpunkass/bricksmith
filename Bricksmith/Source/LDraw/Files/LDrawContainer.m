@@ -227,6 +227,20 @@
 }//end setPostsNotifications:
 
 
+//========== setVertexesNeedRebuilding =========================================
+//
+// Purpose:		Marks all the vertex optimizations of this container as needing 
+//				rebuilding. 
+//
+//==============================================================================
+- (void) setVertexesNeedRebuilding
+{
+	// pass to the superclass; subclasses can override to redirect this message 
+	// to vertexes they manage. 
+	[[self enclosingDirective] setVertexesNeedRebuilding];
+}
+
+
 #pragma mark -
 #pragma mark ACTIONS
 #pragma mark -
@@ -407,6 +421,21 @@
 	}
 
 }//end optimizeOpenGL
+
+
+//========== optimizeVertexes ==================================================
+//
+// Purpose:		Subclasses would use this to optimize vertexes they manage. We 
+//				just pass it along until it finds a subclass which does. 
+//
+//==============================================================================
+- (void) optimizeVertexes
+{
+	for(LDrawDirective *currentDirective in self->containedObjects)
+	{
+		[currentDirective optimizeVertexes];
+	}
+}
 
 
 #pragma mark -

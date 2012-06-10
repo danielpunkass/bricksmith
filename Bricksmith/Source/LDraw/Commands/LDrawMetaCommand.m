@@ -22,7 +22,9 @@
 #import "LDrawColor.h"
 #import "LDrawComment.h"
 #import "LDrawKeywords.h"
+#import "LDrawTexture.h"
 #import "LDrawUtilities.h"
+
 
 @implementation LDrawMetaCommand
 

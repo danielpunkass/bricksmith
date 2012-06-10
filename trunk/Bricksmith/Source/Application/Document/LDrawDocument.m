@@ -2322,7 +2322,7 @@
 	CGLLockContext([[LDrawApplication sharedOpenGLContext] CGLContextObj]);
 	{
 		[[LDrawApplication sharedOpenGLContext] makeCurrentContext];
-		[[self documentContents] optimizeVertexes];
+		[self->documentContents optimizeVertexes];
 		
 	}
 	self->lockViewingAngle = NO;
@@ -2357,7 +2357,7 @@
 		[parent removeDirective:doomedDirective];
 
 		[self updateInspector];
-		[[self documentContents] optimizeVertexes];
+		[self->documentContents optimizeVertexes];
 	}
 	self->lockViewingAngle = NO;
 	[[self documentContents] unlockEditor];
@@ -2395,7 +2395,7 @@
 		//Do the move.
 		[object moveBy:moveVector];
 		
-		[[object enclosingModel] optimizeVertexes];
+		[self->documentContents optimizeVertexes];
 //		[object optimizeOpenGL];
 
 	}
@@ -2510,7 +2510,7 @@
 		[undoManager setActionName:actionName];
 		
 		[element setHidden:hideFlag];
-		[[element enclosingModel] optimizeVertexes];
+		[self->documentContents optimizeVertexes];
 	}
 	[element noteNeedsDisplay];
 
@@ -2535,7 +2535,7 @@
 	{
 		[object setLDrawColor:newColor];
 		[object optimizeOpenGL];
-		[[object enclosingModel] optimizeVertexes];
+		[self->documentContents optimizeVertexes];
 	}
 	[[self documentContents] unlockEditor];
 	[self updateInspector];
@@ -2781,7 +2781,7 @@
 		}
 		
 		else if(	[currentObject	isKindOfClass:[LDrawContainer class]] == NO
-				&&	[newParent		isKindOfClass:[LDrawStep class]] == NO)
+				&&	[newParent		isKindOfClass:[LDrawContainer class]] == NO)
 		{
 //			NSLog(@"killing thingy-not-in-step");
 			dragOperation	= NSDragOperationNone;
@@ -3089,7 +3089,7 @@
 		[undoManager setActionName:NSLocalizedString(@"UndoDrop", nil)];
 	}
 	
-	[[documentContents activeModel] optimizeVertexes];
+	[self->documentContents optimizeVertexes];
 
 }//end LDrawGLView:acceptDrop:
 
@@ -3265,7 +3265,7 @@
 		success = YES;
 	}
 
-	[[documentContents activeModel] optimizeVertexes];
+	[self->documentContents optimizeVertexes];
 	
 	return success;
 	
@@ -4263,14 +4263,14 @@
 //				insertAtIndex - index in parent.
 //
 //==============================================================================
-- (void) addStepComponent:(LDrawDirective *)newDirective parent:(LDrawContainer*)parent index:(NSInteger)insertAtIndex
+- (void) addStepComponent:(LDrawDirective *)newDirective
+				   parent:(LDrawContainer*)parent
+					index:(NSInteger)insertAtIndex
 {
-	LDrawStep       *targetStep			= nil;
-	LDrawMPDModel   *selectedModel      = [self selectedModel];
-	NSInteger       rowForItem          = 0;
+	LDrawContainer	*targetContainer	= parent;
+	LDrawMPDModel	*selectedModel		= [self selectedModel];
+	NSInteger		rowForItem			= 0;
 
-	targetStep = (LDrawStep*)parent;
-	
 	// Synchronize our addition with the model currently active.
 	if(selectedModel == nil)
 		selectedModel = [[self documentContents] activeModel];
@@ -4279,23 +4279,23 @@
 	
 	// We may have the model itself selected, in which case we will add this new 
 	// element to the very bottom of the model.
-	if(targetStep == nil)
-		targetStep = [selectedModel visibleStep];
+	if(targetContainer == nil)
+		targetContainer = [selectedModel visibleStep];
 		
 	if(insertAtIndex == NSNotFound)
 	{
 		// At a user's request, all new components are inserted in the last 
 		// visible step. That's how duplicating drag-and-drops work anyway. 
-		[self addDirective:newDirective toParent:targetStep ];
+		[self addDirective:newDirective toParent:targetContainer ];
 	}
 	else
 	{
-		[self addDirective:newDirective toParent:targetStep atIndex:insertAtIndex ];
+		[self addDirective:newDirective toParent:targetContainer atIndex:insertAtIndex ];
 	}
 
 	// Show the new element.
 	[fileContentsOutline expandItem:selectedModel];
-	[fileContentsOutline expandItem:targetStep];
+	[fileContentsOutline expandItem:targetContainer];
 	
 	// Select it too.
 	rowForItem = [fileContentsOutline rowForItem:newDirective];
@@ -4538,20 +4538,8 @@
 	NSInteger   selectedRow     = [fileContentsOutline selectedRow];
 	id          selectedItem    = [fileContentsOutline itemAtRow:selectedRow];
 	
-	if(selectedItem == nil || [selectedItem isKindOfClass:[LDrawFile class]])
-		return nil;
-		
-	else if([selectedItem isKindOfClass:[LDrawModel class]])
-		return selectedItem;
-		
-	else if([selectedItem isKindOfClass:[LDrawStep class]])
-		return (LDrawMPDModel *)[selectedItem enclosingModel];
-		
-	else { //some kind of basic element.
-		LDrawStep *enclosingStep = (LDrawStep*)[selectedItem enclosingDirective];
-		return (LDrawMPDModel *)[enclosingStep enclosingModel];
-		
-	}
+	return (LDrawMPDModel*)[selectedItem enclosingModel];
+
 }//end selectedModel
 
 
@@ -4566,19 +4554,8 @@
 	NSInteger   selectedRow     = [fileContentsOutline selectedRow];
 	id          selectedItem    = [fileContentsOutline itemAtRow:selectedRow];
 	
-	//If a model is selected, a step can't be!
-	if(		selectedItem == nil
-	   ||	[selectedItem isKindOfClass:[LDrawFile class]]
-	   ||	[selectedItem isKindOfClass:[LDrawModel class]])
-		return nil;
-	
-	//The step itself is selected.
-	else if([selectedItem isKindOfClass:[LDrawStep class]])
-		return selectedItem;
-	
-	else { //some kind of basic element.
-		return (LDrawStep*)[selectedItem enclosingDirective];
-	}
+	return [selectedItem enclosingStep];
+
 }//end selectedStep
 
 

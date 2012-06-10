@@ -47,6 +47,15 @@
 #define LDRAW_ROTATION_ABSOLUTE					@"ABS"
 #define LDRAW_ROTATION_ADDITIVE					@"ADD"
 
+// Textures
+#define LDRAW_TEXTURE							@"!TEXMAP"
+#define LDRAW_TEXTURE_GEOMETRY					@"!:"
+#define LDRAW_TEXTURE_METHOD_PLANAR				@"PLANAR"
+#define LDRAW_TEXTURE_START						@"START"
+#define LDRAW_TEXTURE_NEXT						@"NEXT"
+#define LDRAW_TEXTURE_FALLBACK					@"FALLBACK"
+#define LDRAW_TEXTURE_END						@"END"
+
 // Important Categories
 #define LDRAW_MOVED_CATEGORY					@"Moved"
 #define LDRAW_MOVED_DESCRIPTION_PREFIX			@"~Moved to"

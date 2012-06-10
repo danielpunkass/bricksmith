@@ -773,7 +773,6 @@
 //==============================================================================
 - (void) insertDirective:(LDrawDirective *)directive atIndex:(NSInteger)index
 {
-	//might want to do some type checking here.
 	[super insertDirective:directive atIndex:index];
 	
 	[[self enclosingModel] didAddDirective:directive];

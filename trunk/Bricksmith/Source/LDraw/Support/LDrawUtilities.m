@@ -18,6 +18,7 @@
 #import "LDrawMetaCommand.h"
 #import "LDrawPart.h"
 #import "LDrawQuadrilateral.h"
+#import "LDrawTexture.h"
 #import "LDrawTriangle.h"
 #import "LDrawVertexes.h"
 #import "PartLibrary.h"
@@ -109,8 +110,13 @@ static NSString				*defaultAuthor		= @"anonymous";
 	switch(lineType)
 	{
 		case 0:
-			classForType = [LDrawMetaCommand class];
-			break;
+		{
+			if([LDrawTexture lineIsTextureBeginning:line])
+				classForType = [LDrawTexture class];
+			else
+				classForType = [LDrawMetaCommand class];
+		}	break;
+			
 		case 1:
 			classForType = [LDrawPart class];
 			break;

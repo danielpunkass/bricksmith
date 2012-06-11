@@ -275,7 +275,7 @@
 	NSUInteger      counter         = 0;
 	
 	// Start
-	[written appendFormat:@"0 %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@%@",
+	[written appendFormat:@"0 %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@",
 							LDRAW_TEXTURE, LDRAW_TEXTURE_START, LDRAW_TEXTURE_METHOD_PLANAR,
 							
 							[LDrawUtilities outputStringForFloat:planePoint1.x],
@@ -290,8 +290,12 @@
 							[LDrawUtilities outputStringForFloat:planePoint3.y],
 							[LDrawUtilities outputStringForFloat:planePoint3.z],
 							
-							imageName,
-							CRLF];
+							imageName];
+							
+	if(glossmapName)
+		[written appendFormat:@" %@ %@", LDRAW_TEXTURE_GLOSSMAP, glossmapName];
+		
+	[written appendString:CRLF];
 
 	// Write all the primary geometry
 	numberCommands  = [commands count];
@@ -341,6 +345,20 @@
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -
+
+//========== setGlossmapName: ==================================================
+//
+// Purpose:		Sets the filename of the image to use for a specular reflection 
+//				map. Unused. 
+//
+//==============================================================================
+- (void) setGlossmapName:(NSString *)newName
+{
+	[newName retain];
+	[self->glossmapName release];
+	self->glossmapName = newName;
+}
+
 
 //========== setImageName: =====================================================
 //
@@ -697,10 +715,24 @@
 		
 		
 		//---------- Name ------------------------------------------------------
+		// TEXMAP has different syntax from linetype 1 because Joshua Delahunty 
+		// wouldn't consider synchronizing the two. 
+		NSString *parsedName = nil;
+		if([scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&parsedName] == NO)
+			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad Planar TEXMAP syntax" userInfo:nil];
+		[self setImageName:parsedName];
 		
-		NSString *remainder = [[scanner string] substringFromIndex:[scanner scanLocation]];
-		
-		[self setImageName:[remainder stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
+		// Glossmap. It's optional and unused. It should have been on a separate 
+		// TEXMAP line so we didn't have to even bother with it. See above for 
+		// reason it's not. 
+		if([scanner scanString:LDRAW_TEXTURE_GLOSSMAP intoString:NULL])
+		{
+			NSString *parsedGlossmapName = nil;
+			if([scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&parsedGlossmapName] == NO)
+				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad Planar TEXMAP syntax" userInfo:nil];
+			
+			[self setGlossmapName:parsedGlossmapName];
+		}
 	}
 	@catch(NSException *exception)
 	{
@@ -745,6 +777,10 @@
 //==============================================================================
 - (void) dealloc
 {
+	[fallback release];
+	[imageName release];
+	[glossmapName release];
+	
 	[vertexes release];
 	
 	[super dealloc];

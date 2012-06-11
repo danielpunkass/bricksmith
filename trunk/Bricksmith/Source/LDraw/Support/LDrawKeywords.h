@@ -55,6 +55,7 @@
 #define LDRAW_TEXTURE_NEXT						@"NEXT"
 #define LDRAW_TEXTURE_FALLBACK					@"FALLBACK"
 #define LDRAW_TEXTURE_END						@"END"
+#define LDRAW_TEXTURE_GLOSSMAP					@"GLOSSMAP"
 
 // Important Categories
 #define LDRAW_MOVED_CATEGORY					@"Moved"

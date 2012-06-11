@@ -17,6 +17,7 @@
 {
 	NSArray 		*fallback;
 	NSString		*imageName;
+	NSString		*glossmapName;
 	
 	Point3			planePoint1;
 	Point3			planePoint2;

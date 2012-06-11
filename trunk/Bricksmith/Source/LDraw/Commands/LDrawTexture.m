@@ -729,22 +729,22 @@
 		if([scanner scanFloat:&(planePoint3.z)] == NO)
 			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad Planar TEXMAP syntax" userInfo:nil];
 		
-		
 		//---------- Name ------------------------------------------------------
 		// TEXMAP has different syntax from linetype 1 because Joshua Delahunty 
 		// wouldn't consider synchronizing the two. 
-		NSString *parsedName = nil;
-		if([scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&parsedName] == NO)
+		NSString *parsedName = [LDrawUtilities scanQuotableToken:scanner];
+		if([parsedName length] == 0)
 			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad Planar TEXMAP syntax" userInfo:nil];
 		[self setImageName:parsedName];
 		
-		// Glossmap. It's optional and unused. It should have been on a separate 
-		// TEXMAP line so we didn't have to even bother with it. See above for 
-		// reason it's not. 
+		//---------- Glossmap --------------------------------------------------
+		// It's optional and unused. It should have been on a separate TEXMAP 
+		// line so we didn't have to even bother with it. See above for reason 
+		// it's not. 
 		if([scanner scanString:LDRAW_TEXTURE_GLOSSMAP intoString:NULL])
 		{
-			NSString *parsedGlossmapName = nil;
-			if([scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&parsedGlossmapName] == NO)
+			NSString *parsedGlossmapName = [LDrawUtilities scanQuotableToken:scanner];
+			if([parsedGlossmapName length] == 0)
 				@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad Planar TEXMAP syntax" userInfo:nil];
 			
 			[self setGlossmapName:parsedGlossmapName];

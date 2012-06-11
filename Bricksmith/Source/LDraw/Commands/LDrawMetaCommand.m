@@ -70,8 +70,9 @@
 	NSString			*parsedField	= nil;
 	NSString			*firstLine		= [lines objectAtIndex:range.location];
 	NSScanner			*scanner		= [NSScanner scannerWithString:firstLine];
-	int					 lineCode		= 0;
-	int					 metaLineStart	= 0;
+	int 				lineCode		= 0;
+	BOOL				gotLineCode 	= 0;
+	int 				metaLineStart	= 0;
 	
 	[scanner setCharactersToBeSkipped:nil];
 	
@@ -83,11 +84,9 @@
 		[scanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:nil];
 		
 		//Read in the line code and advance past it.
-		if([scanner scanInt:&lineCode] == NO)
-			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad metacommand syntax" userInfo:nil];
-
-		// Make sure the line code matches.
-		if(lineCode == 0)
+		gotLineCode = [scanner scanInt:&lineCode];
+		
+		if(gotLineCode == YES && lineCode == 0)
 		{
 			// The first word of a meta-command should indicate the command 
 			// itself, and thus the syntax of the rest of the line. However, the 
@@ -121,25 +120,31 @@
 			{
 				// Didn't specifically recognize this metacommand. Create a 
 				// non-functional generic command to record its existence. 
-				directive = [[LDrawMetaCommand alloc] init];
+				directive = [self retain];
 				NSString *command = [[scanner string] substringFromIndex:metaLineStart];
 		
 				[directive setStringValue:command];
 			}
 		}
+		else if(gotLineCode == NO)
+		{
+			// This is presumably an empty line, and the following will 
+			// incorrectly add a 0 linetype to it. 
+			directive = [self retain];
+			NSString *command = [scanner string];
+	
+			[directive setStringValue:command];
+		}
 		else
+		{
+			// nonzero linetype!
 			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad metacommand syntax" userInfo:nil];
+		}
 	}		
 	@catch(NSException *exception)
 	{
 		NSLog(@"the meta-command %@ was fatally invalid", [lines objectAtIndex:range.location]);
 		NSLog(@" raised exception %@", [exception name]);
-		
-		// No idea what it is; record its existence and move on.
-		directive = [[LDrawMetaCommand alloc] init];
-		NSString *command = [scanner string];
-		
-		[directive setStringValue:command];
 	}
 	
 	// The new directive should replace the receiver!

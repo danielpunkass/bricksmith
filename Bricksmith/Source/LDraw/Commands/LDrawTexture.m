@@ -358,6 +358,19 @@
 }//end browsingDescription
 
 
+//========== iconName ==========================================================
+//
+// Purpose:		Returns the name of image file used to display this kind of 
+//				object, or nil if there is no icon.
+//
+//==============================================================================
+- (NSString *) iconName
+{
+	return @"Texture";
+	
+}//end iconName
+
+
 #pragma mark -
 #pragma mark ACCESSORS
 #pragma mark -

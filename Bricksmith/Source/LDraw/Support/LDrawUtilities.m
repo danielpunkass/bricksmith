@@ -292,6 +292,54 @@ static NSString				*defaultAuthor		= @"anonymous";
 }//end readNextField
 
 
+//---------- scanQuotableToken: --------------------------------------[static]--
+//
+// Purpose:		Scans a field which allows embedded whitespace if the field is 
+//				wrappend in double-quotes. Otherwise, leading whitespace is 
+//				trimmed and the field ends at the first whitespace character. 
+//
+//------------------------------------------------------------------------------
++ (NSString *) scanQuotableToken:(NSScanner *)scanner
+{
+	NSCharacterSet	*doubleQuote	= [NSCharacterSet characterSetWithCharactersInString:@"\""];
+	NSMutableString *token			= [NSMutableString string];
+	NSString		*temp			= nil;
+	
+	if([scanner scanCharactersFromSet:doubleQuote intoString:NULL] == YES)
+	{
+		// String is wrapped in double quotes.
+		// Watch out for embedded " characters, escaped as \"
+		//                    and \ characters, escaped as \\        .
+		
+		[scanner scanUpToCharactersFromSet:doubleQuote intoString:&temp];
+		[scanner scanCharactersFromSet:doubleQuote intoString:NULL];
+		[token appendString:temp];
+		while([token hasSuffix:@"\\"] == YES)
+		{
+			// Un-escape the \"
+			[token deleteCharactersInRange:NSMakeRange([token length] - 1, 1)];
+			[token appendString:@"\""];
+			
+			[scanner scanUpToCharactersFromSet:doubleQuote intoString:&temp];
+			[scanner scanCharactersFromSet:doubleQuote intoString:NULL];
+			[token appendString:temp];
+		}
+		
+		// Un-escape backslashes
+		[token replaceOccurrencesOfString:@"\\\\" withString:@"\\" options:NSLiteralSearch range:NSMakeRange(0, [token length])];
+	}
+	else
+	{
+		// No leading quote mark
+		[scanner scanUpToCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:&temp];
+		[token appendString:temp];
+	}
+	
+	return token;
+	
+}//end scanQuotableToken:
+
+
 //---------- stringFromFile: -----------------------------------------[static]--
 //
 // Purpose:		Reads the contents of the file at the given path into a string. 

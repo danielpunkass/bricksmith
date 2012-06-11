@@ -79,8 +79,12 @@
 	// raise an exception. We don't want this to happen here.
 	@try
 	{
+		// skip leading whitespace
+		[scanner scanCharactersFromSet:[NSCharacterSet whitespaceCharacterSet] intoString:nil];
+		
 		//Read in the line code and advance past it.
-		[scanner scanInt:&lineCode];
+		if([scanner scanInt:&lineCode] == NO)
+			@throw [NSException exceptionWithName:@"BricksmithParseException" reason:@"Bad metacommand syntax" userInfo:nil];
 
 		// Make sure the line code matches.
 		if(lineCode == 0)
@@ -130,6 +134,12 @@
 	{
 		NSLog(@"the meta-command %@ was fatally invalid", [lines objectAtIndex:range.location]);
 		NSLog(@" raised exception %@", [exception name]);
+		
+		// No idea what it is; record its existence and move on.
+		directive = [[LDrawMetaCommand alloc] init];
+		NSString *command = [scanner string];
+		
+		[directive setStringValue:command];
 	}
 	
 	// The new directive should replace the receiver!

@@ -271,6 +271,7 @@
 	NSString        *CRLF           = [NSString CRLF];
 	NSArray         *commands		= [self subdirectives];
 	LDrawDirective  *currentCommand = nil;
+	NSString		*commandString	= nil;
 	NSUInteger      numberCommands  = 0;
 	NSUInteger      counter         = 0;
 	
@@ -302,7 +303,22 @@
 	for(counter = 0; counter < numberCommands; counter++)
 	{
 		currentCommand = [commands objectAtIndex:counter];
-		[written appendFormat:@"%@%@", [currentCommand write], CRLF];
+		commandString = [currentCommand write];
+		
+		// Pre-pend the !: meta if it hasn't already been put there. Nesting !: 
+		// is illegal. 
+		if([commandString hasPrefix:LDRAW_TEXTURE_GEOMETRY] == NO)
+		{
+			// Note: I make no attempt to remember if the original geometry had 
+			//		 the !: meta when parsed. Doing so is far more trouble than 
+			//		 it seems worth. 
+			[written appendFormat:@"0 %@ %@", LDRAW_TEXTURE_GEOMETRY, commandString];
+		}
+		else
+		{
+			[written appendString:commandString];
+		}
+		[written appendString:CRLF];
 	}
 	
 	// Fallback geometry

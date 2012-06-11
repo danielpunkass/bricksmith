@@ -167,6 +167,7 @@
 		0B8EBEA3093C102E00D87E0C /* UserDefaultsCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B8EBE9B093C102E00D87E0C /* UserDefaultsCategory.m */; };
 		0B8EBEA4093C102E00D87E0C /* WindowCategory.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B8EBE9C093C102E00D87E0C /* WindowCategory.h */; };
 		0B8EBEA5093C102E00D87E0C /* WindowCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B8EBE9D093C102E00D87E0C /* WindowCategory.m */; };
+		0B9524781585873800F3EE79 /* Texture.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B9524771585873800F3EE79 /* Texture.pdf */; };
 		0B9907630DD7EDBB003F6B13 /* LDConfig.ldr in Resources */ = {isa = PBXBuildFile; fileRef = 0B9907620DD7EDBB003F6B13 /* LDConfig.ldr */; };
 		0B9907D70DDD540C003F6B13 /* LDrawColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 0B7588DB0D8DC4EF00357703 /* LDrawColor.m */; };
 		0B9907D80DDD540D003F6B13 /* LDrawColor.h in Headers */ = {isa = PBXBuildFile; fileRef = 0B7588DA0D8DC4EF00357703 /* LDrawColor.h */; };
@@ -484,6 +485,7 @@
 		0B8EBE9B093C102E00D87E0C /* UserDefaultsCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserDefaultsCategory.m; sourceTree = "<group>"; };
 		0B8EBE9C093C102E00D87E0C /* WindowCategory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowCategory.h; sourceTree = "<group>"; };
 		0B8EBE9D093C102E00D87E0C /* WindowCategory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WindowCategory.m; sourceTree = "<group>"; };
+		0B9524771585873800F3EE79 /* Texture.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Texture.pdf; sourceTree = "<group>"; };
 		0B9907620DD7EDBB003F6B13 /* LDConfig.ldr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LDConfig.ldr; sourceTree = "<group>"; };
 		0B9FE54F08AD971E0046511D /* InfoPlist.strings */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0B9FE56508AD97280046511D /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Credits.rtf; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
@@ -934,6 +936,7 @@
 				0B30E0D30EDA746900470615 /* Quadrilateral.pdf */,
 				0B17D2480ECE89C000F8B5FA /* RotationStep.pdf */,
 				0B17D2FE0ED0D4C400F8B5FA /* RotationStepEnd.pdf */,
+				0B9524771585873800F3EE79 /* Texture.pdf */,
 				0B30E08A0ED90D3000470615 /* Triangle.pdf */,
 				0B9FE5B208AD97770046511D /* Unknown.tiff */,
 			);
@@ -1377,6 +1380,7 @@
 				0BF246B31355670B0043AAAF /* ZoomIn.pdf in Resources */,
 				0BF246B41355670B0043AAAF /* ZoomOut.pdf in Resources */,
 				0B70D0A7135A616800BC8B0A /* InsertModelTemplate.pdf in Resources */,
+				0B9524781585873800F3EE79 /* Texture.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

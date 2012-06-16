@@ -4,6 +4,18 @@
 //
 // Purpose:		Draws an LDrawFile with OpenGL.
 //
+//				This class is responsible for all platform-independent logic, 
+//				including math and OpenGL operations. It also contains a number 
+//				of methods which would be called in response to events; it is 
+//				the responsibility of the platform layer to receive and 
+//				interpret those events and pass them to us. 
+//
+//				The "event" type methods here take high-level parameters. For 
+//				example, we don't check -- or want to know! -- if the option key 
+//				is down. The platform layer figures out stuff like that, and 
+//				more importantly, figures out what it *means*. The *meaning* is 
+//				what the renderer's methods care about. 
+//
 //  Created by Allen Smith on 4/17/05.
 //  Copyright 2005. All rights reserved.
 //==============================================================================

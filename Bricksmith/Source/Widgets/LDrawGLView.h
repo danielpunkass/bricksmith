@@ -61,9 +61,6 @@
 	BOOL					selectionIsMarquee;		// Remembers when a select-click misses and can thus start a marquee.  Only if we HIT an object can we start dragging.
 	NSEventType				startingGestureType;
 	Vector3					nudgeVector;			// direction of nudge action (valid only in nudgeAction callback)
-	
-	Point2					sel_start;				// This is the bounds of the marquee selection in view space
-	Point2					sel_end;
 }
 
 - (void) internalInit;

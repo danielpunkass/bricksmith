@@ -167,8 +167,6 @@ static Size2 NSSizeToSize2(NSSize size)
 //==============================================================================
 - (void) internalInit
 {
-	sel_start.x = sel_start.y = sel_end.x = sel_end.y = 0;
-	
 	NSOpenGLContext         *context            = nil;
 	NSOpenGLPixelFormat     *pixelFormat        = [LDrawApplication openGLPixelFormat];
 	NSNotificationCenter    *notificationCenter = [NSNotificationCenter defaultCenter];
@@ -364,7 +362,7 @@ static Size2 NSSizeToSize2(NSSize size)
 		// ourselves, and defer to the last guy.
 		if(numberDrawRequests == 1)
 		{
-			[self->renderer draw:sel_start to:sel_end];
+			[self->renderer draw];
 			
 		}
 		//else we just drop the draw.
@@ -1458,7 +1456,7 @@ static Size2 NSSizeToSize2(NSSize size)
 
 	// Reset event tracking flags.
 
-	selectionIsMarquee = FALSE;
+	selectionIsMarquee = NO;
 
 	[self->renderer mouseDown];
 	
@@ -1573,7 +1571,7 @@ static Size2 NSSizeToSize2(NSSize size)
 				if (selectionIsMarquee)
 					[self mousePartSelection:theEvent];				
 				else
-					[self directInteractionDragged:theEvent				];
+					[self directInteractionDragged:theEvent];
 				break;
 				
 			case MouseDraggingImmediatelyInOrthoNeverInPerspective:
@@ -1604,16 +1602,10 @@ static Size2 NSSizeToSize2(NSSize size)
 //==============================================================================
 - (void) mouseUp:(NSEvent *)theEvent
 {
-	if(sel_start.x || sel_start.y || sel_end.x || sel_end.y)
-	{
-		sel_start.x = sel_start.y = sel_end.x = sel_end.y = 0;
-		[self setNeedsDisplay:TRUE];
-	}
-
 	ToolModeT			 toolMode			= [ToolPalette toolMode];
 
 	[[self openGLContext] makeCurrentContext];
-
+	
 	[self cancelClickAndHoldTimer];
 
 	if( toolMode == RotateSelectTool )
@@ -1635,8 +1627,7 @@ static Size2 NSSizeToSize2(NSSize size)
 	[self->renderer mouseUp];
 	[self resetCursor];
 
-	selectionIsMarquee = FALSE;
-	
+	selectionIsMarquee = NO;
 	
 }//end mouseUp:
 
@@ -1924,21 +1915,16 @@ static Size2 NSSizeToSize2(NSSize size)
 //				instead to move the part around.
 //
 //==============================================================================
-
 - (void) mousePartSelection:(NSEvent *)theEvent
 {
 	NSPoint windowPoint     = [theEvent locationInWindow];
 	NSPoint viewPoint       = [self convertPoint:windowPoint fromView:nil];
 	BOOL    extendSelection = NO;
 	
-	if([theEvent type] == NSLeftMouseDown)
-		sel_start = sel_end = V2Make(viewPoint.x, viewPoint.y);
-
+	[[self openGLContext] makeCurrentContext];
+	
 	if([theEvent type] == NSLeftMouseDragged)
 	{
-		sel_end = V2Make(viewPoint.x, viewPoint.y);
-		[[self openGLContext] makeCurrentContext];
-
 		// Per the AHIG, both command and shift are used for multiple selection. In 
 		// Bricksmith, there is no difference between contiguous and non-contiguous 
 		// selection, so both keys do the same thing. 
@@ -1947,16 +1933,13 @@ static Size2 NSSizeToSize2(NSSize size)
 		extendSelection =	([theEvent modifierFlags] & NSShiftKeyMask) != 0;
 	//					 ||	([theEvent modifierFlags] & NSCommandKeyMask) != 0;
 		
-		[self->renderer mouseSelectionDrag:sel_start to:sel_end
-							extendSelection:extendSelection];
+		[self->renderer mouseSelectionDragToPoint:V2Make(viewPoint.x, viewPoint.y)
+								  extendSelection:extendSelection];
 							
-		[self setNeedsDisplay:TRUE];
+		[self setNeedsDisplay:YES];
 	}
 	else
 	{
-	
-		[[self openGLContext] makeCurrentContext];
-
 		// Per the AHIG, both command and shift are used for multiple selection. In 
 		// Bricksmith, there is no difference between contiguous and non-contiguous 
 		// selection, so both keys do the same thing. 
@@ -1969,7 +1952,7 @@ static Size2 NSSizeToSize2(NSSize size)
 		// This click is a click down to see what we hit - record whether we hit something so
 		// we can then marquee or drag and drop.
 		selectionIsMarquee = ![self->renderer mouseSelectionClick:V2Make(viewPoint.x, viewPoint.y)
-															extendSelection:extendSelection];
+												  extendSelection:extendSelection];
 	}
 }//end mousePartSelection:
 

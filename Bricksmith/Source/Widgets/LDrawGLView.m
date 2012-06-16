@@ -2,12 +2,12 @@
 //
 // File:		LDrawGLView.m
 //
-// Purpose:		Draws an LDrawFile with OpenGL.
+// Purpose:		This is the intermediary between the operating system (events 
+//				and view hierarchy) and the LDrawGLRenderer (responsible for all 
+//				platform-independent drawing logic). 
 //
-//				We also handle processing of user events related to the 
-//				document. Certain interactions must be handed off to an 
-//				LDrawDocument in order for them to effect the object being 
-//				drawn. 
+//				Certain interactions must be handed off to an LDrawDocument in 
+//				order for them to effect the object being drawn. 
 //
 //				This class also provides for a number of mouse-based viewing 
 //				tools triggered by hotkeys. However, we don't track them here! 
@@ -15,9 +15,10 @@
 //				there is a symbiotic relationship with ToolPalette to track 
 //				which tool mode we're in; we get notifications when it changes.
 //
-// Threading:	LDrawGLView spawns a separate thread to draw. There are two 
-//				critical pieces of shared data which must be protected by 
-//				mutual-exclusion locks:
+// Threading:	At one point, I was trying to get LDrawGLView to spawn a 
+//				separate thread to draw. It never worked right. But there are 
+//				two critical pieces of shared data protected by mutual-exclusion 
+//				locks as a result: 
 //				
 //					* the NSOpenGLContext
 //

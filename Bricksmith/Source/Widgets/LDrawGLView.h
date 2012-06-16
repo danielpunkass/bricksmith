@@ -2,7 +2,9 @@
 //
 // File:		LDrawGLView.h
 //
-// Purpose:		Draws an LDrawFile with OpenGL.
+// Purpose:		This is the intermediary between the operating system (events 
+//				and view hierarchy) and the LDrawGLRenderer (responsible for all 
+//				platform-independent drawing logic).
 //
 // Modified:	4/17/05 Allen Smith. Creation Date.
 //

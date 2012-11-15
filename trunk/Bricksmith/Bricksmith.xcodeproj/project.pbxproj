@@ -281,6 +281,7 @@
 		2BF2E3180AB0FCAB0026D5DB /* TransformerIntMinus1.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E3140AB0FCAB0026D5DB /* TransformerIntMinus1.m */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
+		95D8939316550B6400AA055B /* Legonian Ruler.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 95D8939216550B6400AA055B /* Legonian Ruler.pdf */; };
 		D65CE86D158EBBCC001A1D7D /* CrosshairMinus.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D65CE86A158EBBCC001A1D7D /* CrosshairMinus.tiff */; };
 		D65CE86E158EBBCC001A1D7D /* CrosshairTimes.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D65CE86B158EBBCC001A1D7D /* CrosshairTimes.tiff */; };
 		D65CE86F158EBBCC001A1D7D /* CrosshairPlus.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D65CE86C158EBBCC001A1D7D /* CrosshairPlus.tiff */; };
@@ -601,6 +602,7 @@
 		32DBCF750370BD2300C91783 /* Mac LDraw_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Mac LDraw_Prefix.pch"; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 		8D15AC370486D014006FF6A4 /* Bricksmith.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bricksmith.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		95D8939216550B6400AA055B /* Legonian Ruler.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Legonian Ruler.pdf"; sourceTree = "<group>"; };
 		D65CE86A158EBBCC001A1D7D /* CrosshairMinus.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = CrosshairMinus.tiff; sourceTree = "<group>"; };
 		D65CE86B158EBBCC001A1D7D /* CrosshairTimes.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = CrosshairTimes.tiff; sourceTree = "<group>"; };
 		D65CE86C158EBBCC001A1D7D /* CrosshairPlus.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = CrosshairPlus.tiff; sourceTree = "<group>"; };
@@ -1116,6 +1118,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				95D8939216550B6400AA055B /* Legonian Ruler.pdf */,
 				0B2FAE5F101972DF007BA948 /* Bum.ldr */,
 				0B9907620DD7EDBB003F6B13 /* LDConfig.ldr */,
 				2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */,
@@ -1417,6 +1420,7 @@
 				D65CE86E158EBBCC001A1D7D /* CrosshairTimes.tiff in Resources */,
 				D65CE86F158EBBCC001A1D7D /* CrosshairPlus.tiff in Resources */,
 				0B040CD7164F5511000CA89A /* Bricksmith_Sparkle_signature_public.pem in Resources */,
+				95D8939316550B6400AA055B /* Legonian Ruler.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

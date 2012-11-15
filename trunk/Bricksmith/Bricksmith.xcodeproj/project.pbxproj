@@ -10,7 +10,6 @@
 		0B040CBE164F526D000CA89A /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0B040CBD164F526D000CA89A /* Sparkle.framework */; };
 		0B040CCE164F529F000CA89A /* Sparkle.framework in Copy Frameworks (1) */ = {isa = PBXBuildFile; fileRef = 0B040CBD164F526D000CA89A /* Sparkle.framework */; };
 		0B040CD7164F5511000CA89A /* Bricksmith_Sparkle_signature_public.pem in Resources */ = {isa = PBXBuildFile; fileRef = 0B040CD6164F5511000CA89A /* Bricksmith_Sparkle_signature_public.pem */; };
-		0B040D0D1650926E000CA89A /* Legonian Ruler.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 0B040D0C1650926E000CA89A /* Legonian Ruler.pdf */; };
 		0B04E97B1093BB4200E201EE /* ColorPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9471093BB4200E201EE /* ColorPanel.xib */; };
 		0B04E97C1093BB4200E201EE /* Dimensions.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E9491093BB4200E201EE /* Dimensions.xib */; };
 		0B04E97D1093BB4200E201EE /* Donation.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0B04E94B1093BB4200E201EE /* Donation.xib */; };
@@ -282,8 +281,6 @@
 		2BF2E3180AB0FCAB0026D5DB /* TransformerIntMinus1.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E3140AB0FCAB0026D5DB /* TransformerIntMinus1.m */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
-		95D893421654E2D700AA055B /* lsynthcp in CopyFiles */ = {isa = PBXBuildFile; fileRef = 95D8933D1654E11300AA055B /* lsynthcp */; };
-		95D8934A1654F41F00AA055B /* lsynth.mpd in Resources */ = {isa = PBXBuildFile; fileRef = 95D893491654F41F00AA055B /* lsynth.mpd */; };
 		D65CE86D158EBBCC001A1D7D /* CrosshairMinus.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D65CE86A158EBBCC001A1D7D /* CrosshairMinus.tiff */; };
 		D65CE86E158EBBCC001A1D7D /* CrosshairTimes.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D65CE86B158EBBCC001A1D7D /* CrosshairTimes.tiff */; };
 		D65CE86F158EBBCC001A1D7D /* CrosshairPlus.tiff in Resources */ = {isa = PBXBuildFile; fileRef = D65CE86C158EBBCC001A1D7D /* CrosshairPlus.tiff */; };
@@ -309,20 +306,6 @@
 			remoteGlobalIDString = 8DC2EF4F0486A6940098B216;
 			remoteInfo = AMSProgressBar;
 		};
-		95D8933C1654E11300AA055B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 95D893341654E11200AA055B /* LSynth.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 95BE9C111609F609004437E1;
-			remoteInfo = LSynth;
-		};
-		95D8933F1654E22400AA055B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 95D893341654E11200AA055B /* LSynth.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 95BE9C101609F609004437E1;
-			remoteInfo = LSynth;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -338,22 +321,11 @@
 			name = "Copy Frameworks (1)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		95D893411654E28400AA055B /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 7;
-			files = (
-				95D893421654E2D700AA055B /* lsynthcp in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0B040CBD164F526D000CA89A /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = ../ThirdParty/Sparkle/Sparkle.framework; sourceTree = SOURCE_ROOT; };
 		0B040CD6164F5511000CA89A /* Bricksmith_Sparkle_signature_public.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Bricksmith_Sparkle_signature_public.pem; sourceTree = "<group>"; };
-		0B040D0C1650926E000CA89A /* Legonian Ruler.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Legonian Ruler.pdf"; sourceTree = "<group>"; };
 		0B04E9481093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/ColorPanel.xib; sourceTree = "<group>"; };
 		0B04E94A1093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/Dimensions.xib; sourceTree = "<group>"; };
 		0B04E94C1093BB4200E201EE /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/Donation.xib; sourceTree = "<group>"; };
@@ -629,8 +601,6 @@
 		32DBCF750370BD2300C91783 /* Mac LDraw_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Mac LDraw_Prefix.pch"; sourceTree = "<group>"; };
 		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 		8D15AC370486D014006FF6A4 /* Bricksmith.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Bricksmith.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		95D893341654E11200AA055B /* LSynth.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = LSynth.xcodeproj; path = ../ThirdParty/LSynth/LSynth.xcodeproj; sourceTree = "<group>"; };
-		95D893491654F41F00AA055B /* lsynth.mpd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lsynth.mpd; path = ../../ThirdParty/LSynth/LSynth/lsynth.mpd; sourceTree = "<group>"; };
 		D65CE86A158EBBCC001A1D7D /* CrosshairMinus.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = CrosshairMinus.tiff; sourceTree = "<group>"; };
 		D65CE86B158EBBCC001A1D7D /* CrosshairTimes.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = CrosshairTimes.tiff; sourceTree = "<group>"; };
 		D65CE86C158EBBCC001A1D7D /* CrosshairPlus.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = CrosshairPlus.tiff; sourceTree = "<group>"; };
@@ -1101,7 +1071,6 @@
 		2A37F4AAFDCFA73011CA2CEA /* Mac LDraw */ = {
 			isa = PBXGroup;
 			children = (
-				95D893341654E11200AA055B /* LSynth.xcodeproj */,
 				2A37F4AFFDCFA73011CA2CEA /* Other */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				0B6F38FD07C84E79007B1075 /* Categories */,
@@ -1147,7 +1116,6 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				95D893491654F41F00AA055B /* lsynth.mpd */,
 				0B2FAE5F101972DF007BA948 /* Bum.ldr */,
 				0B9907620DD7EDBB003F6B13 /* LDConfig.ldr */,
 				2BF2E2CC0AB0FBB50026D5DB /* MLCad.ini */,
@@ -1160,7 +1128,6 @@
 				0B9FE56408AD97280046511D /* Credits.rtf */,
 				0B9FE54E08AD971E0046511D /* InfoPlist.strings */,
 				0B040CD6164F5511000CA89A /* Bricksmith_Sparkle_signature_public.pem */,
-				0B040D0C1650926E000CA89A /* Legonian Ruler.pdf */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -1181,14 +1148,6 @@
 			isa = PBXGroup;
 			children = (
 				2BB5975E09FEFD250077A885 /* AMSProgressBar.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		95D893351654E11200AA055B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				95D8933D1654E11300AA055B /* lsynthcp */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1306,12 +1265,10 @@
 				8D15AC300486D014006FF6A4 /* Sources */,
 				8D15AC330486D014006FF6A4 /* Frameworks */,
 				0BB5926D08AD93610049B708 /* Copy Frameworks (1) */,
-				95D893411654E28400AA055B /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				95D893401654E22400AA055B /* PBXTargetDependency */,
 				2BB5976009FEFD2E0077A885 /* PBXTargetDependency */,
 			);
 			name = Bricksmith;
@@ -1325,9 +1282,6 @@
 /* Begin PBXProject section */
 		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
 			isa = PBXProject;
-			attributes = {
-				LastUpgradeCheck = 0440;
-			};
 			buildConfigurationList = 2BB5975109FEFD180077A885 /* Build configuration list for PBXProject "Bricksmith" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -1345,10 +1299,6 @@
 					ProductGroup = 2BB5975909FEFD250077A885 /* Products */;
 					ProjectRef = 2BB5975809FEFD250077A885 /* AMSProgressBar.xcodeproj */;
 				},
-				{
-					ProductGroup = 95D893351654E11200AA055B /* Products */;
-					ProjectRef = 95D893341654E11200AA055B /* LSynth.xcodeproj */;
-				},
 			);
 			projectRoot = ..;
 			targets = (
@@ -1363,13 +1313,6 @@
 			fileType = wrapper.framework;
 			path = AMSProgressBar.framework;
 			remoteRef = 2BB5975D09FEFD250077A885 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		95D8933D1654E11300AA055B /* lsynthcp */ = {
-			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.executable";
-			path = lsynthcp;
-			remoteRef = 95D8933C1654E11300AA055B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -1474,8 +1417,6 @@
 				D65CE86E158EBBCC001A1D7D /* CrosshairTimes.tiff in Resources */,
 				D65CE86F158EBBCC001A1D7D /* CrosshairPlus.tiff in Resources */,
 				0B040CD7164F5511000CA89A /* Bricksmith_Sparkle_signature_public.pem in Resources */,
-				0B040D0D1650926E000CA89A /* Legonian Ruler.pdf in Resources */,
-				95D8934A1654F41F00AA055B /* lsynth.mpd in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1583,11 +1524,6 @@
 			isa = PBXTargetDependency;
 			name = AMSProgressBar;
 			targetProxy = 2BB5975F09FEFD2E0077A885 /* PBXContainerItemProxy */;
-		};
-		95D893401654E22400AA055B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = LSynth;
-			targetProxy = 95D8933F1654E22400AA055B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1901,7 +1837,7 @@
 					"-weak_framework",
 					3DconnexionClient.framework,
 				);
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -1914,7 +1850,7 @@
 					"-weak_framework",
 					3DconnexionClient.framework,
 				);
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};

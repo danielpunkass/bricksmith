@@ -1207,15 +1207,15 @@ PreferencesDialogController *preferencesDialog = nil;
     // The user manually changed the LSynth executable path
     // TODO: run validating synthesis
     if (textField == lsynthExecutablePath) {
-        NSURL *executablePathAsURL = [NSURL fileURLWithPath:[lsynthExecutablePath stringValue]];
+		NSString* basePath = [[lsynthExecutablePath stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        NSURL *executablePathAsURL = [NSURL fileURLWithPath:basePath];
         if([executablePathAsURL isFileURL] && ![currentExecutable isEqualToString:[executablePathAsURL path]]) {
             [userDefaults setObject:[executablePathAsURL path] forKey:LSYNTH_EXECUTABLE_PATH_KEY];
             [self lsynthRequiresResynthesis];
         }
 
         // No path - it's been deleted
-        else if (([[executablePathAsURL path] length] == 0 || [[executablePathAsURL path] brick_isMatchedByRegex:@"^\\s+$"])
-                && executablePathAsURL
+        else if (((executablePathAsURL == nil) || [[executablePathAsURL path] length] == 0 || [[executablePathAsURL path] brick_isMatchedByRegex:@"^\\s+$"])
                 && ![currentExecutable isEqualToString:[executablePathAsURL path]]) {
             [userDefaults setObject:@"" forKey:LSYNTH_EXECUTABLE_PATH_KEY];
             [self lsynthRequiresResynthesis];
@@ -1229,7 +1229,8 @@ PreferencesDialogController *preferencesDialog = nil;
     // The user manually changed the LSynth config path
     // TODO: run validating synthesis
     else if (textField == lsynthConfigurationPath) {
-        NSURL *configPathAsURL = [NSURL fileURLWithPath:[lsynthConfigurationPath stringValue]];
+		NSString* basePath = [[lsynthConfigurationPath stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        NSURL *configPathAsURL = [NSURL fileURLWithPath:basePath];
         if([configPathAsURL isFileURL]) {
             [userDefaults setObject:[configPathAsURL path] forKey:LSYNTH_CONFIGURATION_PATH_KEY];
             

@@ -282,6 +282,8 @@
 		2BF2E3160AB0FCAB0026D5DB /* MLCadIni.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E3120AB0FCAB0026D5DB /* MLCadIni.m */; };
 		2BF2E3170AB0FCAB0026D5DB /* TransformerIntMinus1.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF2E3130AB0FCAB0026D5DB /* TransformerIntMinus1.h */; };
 		2BF2E3180AB0FCAB0026D5DB /* TransformerIntMinus1.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BF2E3140AB0FCAB0026D5DB /* TransformerIntMinus1.m */; };
+		65F0E9BE1AEEB72A00C088B8 /* NSString+RegexUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 65F0E9BC1AEEB72A00C088B8 /* NSString+RegexUtilities.h */; };
+		65F0E9BF1AEEB72A00C088B8 /* NSString+RegexUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 65F0E9BD1AEEB72A00C088B8 /* NSString+RegexUtilities.m */; };
 		737721608B15F736FDE3D573 /* LSynthHoseConstraint.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 73772074B205C7AB55711CFE /* LSynthHoseConstraint.tiff */; };
 		737721916EB272405BEC2767 /* LSynthPart.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 73772C25D6D43398DCA3E163 /* LSynthPart.tiff */; };
 		737726E8FC931A7828531671 /* ComputationalGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = 73772C8BCC3A6435E0AE9103 /* ComputationalGeometry.m */; };
@@ -289,7 +291,6 @@
 		737729AF104D09B8C9BE461E /* LSynthBandConstraint.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 7377270E2122E758D4D9AE9D /* LSynthBandConstraint.tiff */; };
 		73772B77F842475786994924 /* InspectionLSynth.m in Sources */ = {isa = PBXBuildFile; fileRef = 737728C3A3DF6166BE9183ED /* InspectionLSynth.m */; };
 		73772C35C91BE7B7B6A56DB0 /* LSynthDirection.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 73772CEA26F165C87F8AE5B9 /* LSynthDirection.tiff */; };
-		73772E2FDEFC3AB2B54D58D3 /* RegexKitLite.m in Sources */ = {isa = PBXBuildFile; fileRef = 737725695C55F263D18C33B9 /* RegexKitLite.m */; };
 		73772F8E91836860E4330407 /* LDrawLSynthDirective.m in Sources */ = {isa = PBXBuildFile; fileRef = 737720E867742FB944EB62C7 /* LDrawLSynthDirective.m */; };
 		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D15AC340486D014006FF6A4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
@@ -670,11 +671,11 @@
 		2BF2E3130AB0FCAB0026D5DB /* TransformerIntMinus1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformerIntMinus1.h; sourceTree = "<group>"; };
 		2BF2E3140AB0FCAB0026D5DB /* TransformerIntMinus1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TransformerIntMinus1.m; sourceTree = "<group>"; };
 		32DBCF750370BD2300C91783 /* Mac LDraw_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Mac LDraw_Prefix.pch"; sourceTree = "<group>"; };
+		65F0E9BC1AEEB72A00C088B8 /* NSString+RegexUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RegexUtilities.h"; sourceTree = "<group>"; };
+		65F0E9BD1AEEB72A00C088B8 /* NSString+RegexUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RegexUtilities.m"; sourceTree = "<group>"; };
 		73772074B205C7AB55711CFE /* LSynthHoseConstraint.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = LSynthHoseConstraint.tiff; sourceTree = "<group>"; };
 		737720E867742FB944EB62C7 /* LDrawLSynthDirective.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LDrawLSynthDirective.m; sourceTree = "<group>"; };
 		73772480B291C29D1B0D13B4 /* LDrawMovableDirective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LDrawMovableDirective.h; sourceTree = "<group>"; };
-		7377248D1A5C278143C65104 /* RegexKitLite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RegexKitLite.h; sourceTree = "<group>"; };
-		737725695C55F263D18C33B9 /* RegexKitLite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RegexKitLite.m; sourceTree = "<group>"; };
 		7377270E2122E758D4D9AE9D /* LSynthBandConstraint.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = LSynthBandConstraint.tiff; sourceTree = "<group>"; };
 		737728C3A3DF6166BE9183ED /* InspectionLSynth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InspectionLSynth.m; sourceTree = "<group>"; };
 		73772C25D6D43398DCA3E163 /* LSynthPart.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = LSynthPart.tiff; sourceTree = "<group>"; };
@@ -1245,8 +1246,8 @@
 				0BA24BE90EFF2A6500BF9915 /* StringUtilities.m */,
 				2BF2E3130AB0FCAB0026D5DB /* TransformerIntMinus1.h */,
 				2BF2E3140AB0FCAB0026D5DB /* TransformerIntMinus1.m */,
-				7377248D1A5C278143C65104 /* RegexKitLite.h */,
-				737725695C55F263D18C33B9 /* RegexKitLite.m */,
+				65F0E9BC1AEEB72A00C088B8 /* NSString+RegexUtilities.h */,
+				65F0E9BD1AEEB72A00C088B8 /* NSString+RegexUtilities.m */,
 			);
 			name = Other;
 			path = Source/Other;
@@ -1456,6 +1457,7 @@
 				D6EDB9C8164DF28100B4062B /* LDrawShaderLoader.h in Headers */,
 				D6EDBB4716508D7200B4062B /* LDrawBDPAllocator.h in Headers */,
 				D6EDBC251650B9E200B4062B /* LDrawDisplayList.h in Headers */,
+				65F0E9BE1AEEB72A00C088B8 /* NSString+RegexUtilities.h in Headers */,
 				D62E73C51659C5D50044E2E9 /* LDrawDataStream.h in Headers */,
 				D608724816ED61F500828B4E /* MeshSmooth.h in Headers */,
 				D6C0C5CF16DABE70007E4266 /* RelatedParts.h in Headers */,
@@ -1710,6 +1712,7 @@
 				0B8EBE8A093C100100D87E0C /* LDrawDocumentWindow.m in Sources */,
 				0B8EBE8C093C100100D87E0C /* LDrawFileOutlineView.m in Sources */,
 				0B8EBE8E093C100100D87E0C /* LDrawGLView.m in Sources */,
+				65F0E9BF1AEEB72A00C088B8 /* NSString+RegexUtilities.m in Sources */,
 				0B8EBE9F093C102E00D87E0C /* FormCategory.m in Sources */,
 				0B8EBEA1093C102E00D87E0C /* StringCategory.m in Sources */,
 				0B8EBEA3093C102E00D87E0C /* UserDefaultsCategory.m in Sources */,
@@ -1765,7 +1768,6 @@
 				737726E8FC931A7828531671 /* ComputationalGeometry.m in Sources */,
 				73772B77F842475786994924 /* InspectionLSynth.m in Sources */,
 				D608724916ED61F500828B4E /* MeshSmooth.c in Sources */,
-				73772E2FDEFC3AB2B54D58D3 /* RegexKitLite.m in Sources */,
 				D619130217F004A300B5DF44 /* LDrawGLCamera.m in Sources */,
 				D6191B9E17F277B600B5DF44 /* GLMatrixMath.c in Sources */,
 			);

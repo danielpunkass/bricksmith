@@ -57,7 +57,7 @@
 #import "LSynthConfiguration.h"
 #import "UserDefaultsCategory.h"
 #import "WindowCategory.h"
-#import "RegexKitLite.h"
+#import "NSString+RegexUtilities.h"
 
 @implementation PreferencesDialogController
 
@@ -1214,7 +1214,7 @@ PreferencesDialogController *preferencesDialog = nil;
         }
 
         // No path - it's been deleted
-        else if (([[executablePathAsURL path] length] == 0 || [[executablePathAsURL path] isMatchedByRegex:@"^\\s+$"])
+        else if (([[executablePathAsURL path] length] == 0 || [[executablePathAsURL path] brick_isMatchedByRegex:@"^\\s+$"])
                 && executablePathAsURL
                 && ![currentExecutable isEqualToString:[executablePathAsURL path]]) {
             [userDefaults setObject:@"" forKey:LSYNTH_EXECUTABLE_PATH_KEY];

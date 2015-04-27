@@ -19,9 +19,9 @@
 #import "ComputationalGeometry.h"
 #import "MatrixMath.h"
 #import "MacLDraw.h"
-#import "RegexKitLite.h"
 #import "PreferencesDialogController.h"
 #import "UserDefaultsCategory.h"
+#import "NSString+RegexUtilities.h"
 
 @implementation LDrawLSynth
 
@@ -109,10 +109,10 @@
             //
 
             // 0 SYNTH BEGIN <SYNTH_TYPE> <COLOR>
-            if ([currentLine isMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+(\\S+?)\\s+(\\S+)"] &&
+            if ([currentLine brick_isMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+(\\S+?)\\s+(\\S+)"] &&
                 parserState == PARSER_READY_TO_PARSE)  {
 
-                NSArray *paramMatches = [currentLine arrayOfCaptureComponentsMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+(\\S+?)\\s+(\\S+)"];
+                NSArray *paramMatches = [currentLine brick_arrayOfCaptureComponentsMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+(\\S+?)\\s+(\\S+)"];
 
                 NSString *type = [[paramMatches objectAtIndex:0] objectAtIndex:1];
                 NSString *synthColor = [[paramMatches objectAtIndex:0] objectAtIndex:2];
@@ -125,7 +125,7 @@
             }
 
             // 0 SYNTH END - Synthesized parts may or may not be present
-            else if ([currentLine isMatchedByRegex:@"0\\s+SYNTH\\s+END"] &&
+            else if ([currentLine brick_isMatchedByRegex:@"0\\s+SYNTH\\s+END"] &&
                     (parserState == PARSER_PARSING_CONSTRAINTS ||
                      parserState == PARSER_SYNTHESIZED_FINISHED)) {
                 parserState = PARSER_FINISHED;
@@ -133,19 +133,19 @@
 
             // 0 SYNTH SHOW or
             // 0 SYNTH HIDE
-            else if([currentLine isMatchedByRegex:@"0\\s+SYNTH\\s+(?:SHOW|HIDE)"] &&
+            else if([currentLine brick_isMatchedByRegex:@"0\\s+SYNTH\\s+(?:SHOW|HIDE)"] &&
                parserState == PARSER_PARSING_BEGUN) {
                 parserState = PARSER_PARSING_CONSTRAINTS;
             }
 
             // 0 SYNTH SYNTHESIZED BEGIN - start of synthesized constraints
-            else if ([currentLine isMatchedByRegex:@"0\\s+SYNTH\\s+SYNTHESIZED\\s+BEGIN"] &&
+            else if ([currentLine brick_isMatchedByRegex:@"0\\s+SYNTH\\s+SYNTHESIZED\\s+BEGIN"] &&
                     parserState == PARSER_PARSING_CONSTRAINTS) {
                 parserState = PARSER_PARSING_SYNTHESIZED;
             }
 
             // 0 SYNTH SYNTHESIZED BEGIN - end of synthesized constraints
-            else if ([currentLine isMatchedByRegex:@"0\\s+SYNTH\\s+SYNTHESIZED\\s+END"] &&
+            else if ([currentLine brick_isMatchedByRegex:@"0\\s+SYNTH\\s+SYNTHESIZED\\s+END"] &&
                     parserState == PARSER_PARSING_SYNTHESIZED) {
                 parserState = PARSER_SYNTHESIZED_FINISHED;
             }
@@ -154,9 +154,9 @@
             // 0 SYNTH OUTSIDE or
             // 0 SYNTH CROSS
             else if (parserState == PARSER_PARSING_CONSTRAINTS &&
-                [currentLine isMatchedByRegex:@"0\\s+SYNTH\\s+(INSIDE|OUTSIDE|CROSS)"]) {
+                [currentLine brick_isMatchedByRegex:@"0\\s+SYNTH\\s+(INSIDE|OUTSIDE|CROSS)"]) {
 
-                NSString *direction = [[[currentLine arrayOfCaptureComponentsMatchedByRegex:@"(INSIDE|OUTSIDE|CROSS)"] objectAtIndex:0] objectAtIndex:0];
+                NSString *direction = [[[currentLine brick_arrayOfCaptureComponentsMatchedByRegex:@"(INSIDE|OUTSIDE|CROSS)"] objectAtIndex:0] objectAtIndex:0];
                 LDrawLSynthDirective *directive = [[LDrawLSynthDirective alloc] init];
                 [directive setStringValue:direction];
                 [[self subdirectives] addObject:directive];
@@ -169,7 +169,7 @@
             // '1 XXX' Part directives - constraints or synthesized parts
             //
 
-            else if ([currentLine isMatchedByRegex:@"^1\\s+"] &&
+            else if ([currentLine brick_isMatchedByRegex:@"^1\\s+"] &&
                      (parserState == PARSER_PARSING_BEGUN ||
                       parserState == PARSER_PARSING_CONSTRAINTS ||
                       parserState == PARSER_PARSING_SYNTHESIZED)) {
@@ -231,7 +231,7 @@
 //==============================================================================
 + (BOOL) lineIsLSynthBeginning:(NSString*)line
 {
-    if ([line isMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+\\S+?\\s+\\S+"]) {
+    if ([line brick_isMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+\\S+?\\s+\\S+"]) {
         return YES;
     }
     return NO;
@@ -245,7 +245,7 @@
 //==============================================================================
 + (BOOL) lineIsLSynthTerminator:(NSString*)line
 {
-    if ([line isMatchedByRegex:@"0\\s+SYNTH\\s+END"]) {
+    if ([line brick_isMatchedByRegex:@"0\\s+SYNTH\\s+END"]) {
         return YES;
     }
     return NO;
@@ -268,7 +268,7 @@
     NSRange 	synthRange;
 
     currentLine = [lines objectAtIndex:index];
-    if ([currentLine isMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+\\S+?\\s+\\S+"]) {
+    if ([currentLine brick_isMatchedByRegex:@"0\\s+SYNTH\\s+BEGIN\\s+\\S+?\\s+\\S+"]) {
 
         // Find the last line in the synth definition: 0 SYNTH END
         for(counter = testRange.location + 1; counter < NSMaxRange(testRange); counter++)
@@ -909,7 +909,7 @@
     NSString       *executablePath = [userDefaults stringForKey:LSYNTH_EXECUTABLE_PATH_KEY];
     NSString       *configPath     = [userDefaults stringForKey:LSYNTH_CONFIGURATION_PATH_KEY];
     NSString       *lsynthPath;
-    if ([executablePath length] == 0 || [executablePath isMatchedByRegex:@"^\\s+$"]) {
+    if ([executablePath length] == 0 || [executablePath brick_isMatchedByRegex:@"^\\s+$"]) {
         lsynthPath = [[NSBundle mainBundle] pathForAuxiliaryExecutable:@"lsynthcp"];
     }
     else {

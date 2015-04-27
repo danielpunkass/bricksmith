@@ -2063,10 +2063,13 @@ static NSSize Size2ToNSSize(Size2 size)
 			//---------- Reset event tracking flags ----------------------------
 
             //NSLog(@"DO UPDATE IN dragAndDropDragged");
-            for (LDrawDirective *directive in [delegate selectedObjects]) {
-                //NSLog(@"directive: %@", directive);
-                [directive sendMessageToObservers:MessageObservedChanged];
-            }
+			if ([delegate respondsToSelector:@selector(selectedObjects)])
+			{
+				for (LDrawDirective *directive in [delegate selectedObjects]) {
+					//NSLog(@"directive: %@", directive);
+					[directive sendMessageToObservers:MessageObservedChanged];
+				}
+			}
 
 			[self->renderer setDraggingOffset:displacement];
 			
